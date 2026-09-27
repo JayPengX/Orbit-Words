@@ -5,8 +5,8 @@
 //   - Study rewards: every right answer and every word mastered for the
 //     first time earns play money for the Quadra Pass's shared pool, where
 //     Quadra Securities and Quadra Sportsbook can spend it
-//     (ECONOMY.vocab: NT$2 a right answer, NT$20 a newly mastered word, at
-//     most NT$800 a Taiwan day). Earned money waits on this device until it
+//     (ECONOMY.vocab: NT$3 a right answer, NT$25 a newly mastered word, at
+//     most NT$600 a Taiwan day: the best pay for effort in Quadra). Earned money waits on this device until it
 //     reaches the pass (or until there is one), then goes as one entry per
 //     batch with a fixed id, so it's never paid twice.
 //   - Back pay, once: what the rewards would have paid for everything
@@ -85,7 +85,7 @@ function closeBatch() {
 // ---- Back pay -----------------------------------------------------------------
 //
 // Study done before the rewards existed, paid once: what the rules would have
-// paid if they always had (NT$2 for every right answer ever, NT$20 for every
+// paid if they always had (ECONOMY.vocab for every right answer ever and every
 // word mastered now), within the daily cap over the days studied (the days
 // seen in the progress's timestamps, so if anything too few), less
 // everything the rewards have already paid (every device's, in the pass's
