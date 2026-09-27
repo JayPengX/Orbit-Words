@@ -2893,7 +2893,8 @@ async function checkForUpdate() {
       if ("caches" in window) {
         caches
           .keys()
-          .then((keys) => Promise.all(keys.map((key) => caches.delete(key))))
+          // Only Words' own: the other Quadra apps share this site's caches.
+          .then((keys) => Promise.all(keys.filter((key) => key.startsWith("vocab-tool-cache-")).map((key) => caches.delete(key))))
           .catch(() => {});
       }
       if ("serviceWorker" in navigator) {
