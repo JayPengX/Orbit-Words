@@ -20,19 +20,19 @@
 <meta property="og:site_name" content="四方單字 Quadra Words">
 <meta property="og:title" content="四方單字 Quadra Words｜高中英文單字聽寫測驗">
 <meta property="og:description" content="聽發音、拼單字，系統依你的反應時間與答錯紀錄自動排出該複習的字。Level 4–6 共 3,060 字，免安裝、免登入，可加到主畫面離線使用。">
-<meta property="og:url" content="https://jaypengx.github.io/Orbit-Vocab/">
-<meta property="og:image" content="https://jaypengx.github.io/Orbit-Vocab/assets/og-card.jpg">
+<meta property="og:url" content="https://jaypengx.github.io/Quadra-Words/">
+<meta property="og:image" content="https://jaypengx.github.io/Quadra-Words/assets/og-card.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="四方單字 Quadra Words">
-<meta property="og:image" content="https://jaypengx.github.io/Orbit-Vocab/assets/og-card-square.jpg">
+<meta property="og:image" content="https://jaypengx.github.io/Quadra-Words/assets/og-card-square.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="1200">
 <meta property="og:image:alt" content="四方單字 Quadra Words">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="四方單字 Quadra Words｜高中英文單字聽寫測驗">
 <meta name="twitter:description" content="聽發音、拼單字，系統依你的反應時間與答錯紀錄自動排出該複習的字。Level 4–6 共 3,060 字，免安裝、免登入，可加到主畫面離線使用。">
-<meta name="twitter:image" content="https://jaypengx.github.io/Orbit-Vocab/assets/og-card.jpg">
+<meta name="twitter:image" content="https://jaypengx.github.io/Quadra-Words/assets/og-card.jpg">
 <meta name="twitter:image:alt" content="四方單字 Quadra Words">
 <link rel="stylesheet" href="style.css?v=__BUILD_VERSION__" />
 <link rel="stylesheet" href="quadra.css?v=__BUILD_VERSION__" />
@@ -334,47 +334,11 @@
       <h2 data-i18n="progress.levelsTitle">各等級熟悉度</h2>
       <div id="progress-levels"></div>
 
-      <h2 data-i18n="progress.syncTitle">🔄 跨裝置同步</h2>
-      <p class="hint" data-i18n="progress.syncIntro">把學習紀錄同步到你的其他裝置。先按「建立新同步」，再到其他裝置輸入密碼「加入同步」。</p>
-
-      <div id="quadra-words" class="quadra-words"></div>
-
-      <div id="sync-setup-box">
-        <div class="row actions">
-          <button class="btn primary" id="sync-create-btn" data-i18n="progress.syncCreateBtn">🔗 建立新同步</button>
-        </div>
-        <details id="sync-join-fold">
-          <summary data-i18n="progress.syncJoinFoldSummary">已有同步密碼？加入同步</summary>
-          <div class="row">
-            <label for="sync-join-passcode" data-i18n="progress.passcodeLabel">密碼</label>
-            <input type="text" id="sync-join-passcode" data-i18n-placeholder="progress.syncJoinPlaceholder" placeholder="貼上同步密碼" autocomplete="off" />
-          </div>
-          <div class="row actions">
-            <button class="btn primary" id="sync-join-btn" data-i18n="progress.syncJoinBtn">加入同步</button>
-          </div>
-        </details>
-      </div>
-
-      <div id="sync-created-codes" class="hidden sync-created-box">
-        <p class="hint danger-text" data-i18n="progress.syncCreatedWarning">請先複製保存這組密碼——之後不會再完整顯示第二次！</p>
-        <div class="row"><label data-i18n="progress.passcodeLabel">密碼</label><strong id="sync-created-passcode"></strong>
-          <button type="button" class="btn secondary small" id="sync-created-passcode-copy" data-i18n="progress.copyBtn">複製</button></div>
-        <div class="row actions"><button class="btn primary" id="sync-ack-btn" data-i18n="progress.syncAckBtn">已保存，關閉</button></div>
-      </div>
-
-      <div id="sync-active-box" class="hidden">
-        <div class="row">
-          <label data-i18n="progress.passcodeLabel">密碼</label>
-          <button type="button" class="btn secondary small" id="sync-passcode-toggle" data-i18n="progress.showPasscodeBtn">顯示密碼</button>
-          <strong class="hidden" id="sync-passcode-value"></strong>
-        </div>
-        <div class="row actions">
-          <button class="btn secondary" id="sync-now-btn" data-i18n="progress.syncNowBtn">🔄 立即同步</button>
-          <button class="btn secondary" id="sync-unlink-btn" data-i18n="progress.syncUnlinkBtn">解除同步</button>
-          <button class="btn danger" id="sync-delete-btn" data-i18n="progress.syncDeleteBtn">整個刪除同步</button>
-        </div>
-      </div>
+      <h2 data-i18n="progress.syncTitle">四方通行碼</h2>
+      <p class="hint" data-i18n="progress.syncIntro">用同一組四方通行碼，學習紀錄會同步到你所有的裝置，學習獎勵也會存進四個 App 共用的資金池。</p>
+      <div id="quadra-pass"></div>
       <p class="hint" id="sync-status"></p>
+      <div id="quadra-words" class="quadra-words"></div>
 
       <h2 data-i18n="progress.backupTitle">備份與還原（手動）</h2>
       <p class="hint" data-i18n="progress.backupIntro">也可以手動匯出備份檔，或匯入到其他裝置。</p>

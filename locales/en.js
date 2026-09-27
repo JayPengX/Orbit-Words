@@ -198,22 +198,9 @@
   "progress.trendStable": "Your recent response times have been stable.",
   "progress.levelsTitle": "Familiarity by Level",
   "progress.levelMemorized": "Mastered {memorized} / {total}",
-  "progress.syncTitle": "🔄 Quadra Pass & Sync",
+  "progress.syncTitle": "Quadra Pass",
   "progress.syncIntro":
-    "A Quadra Pass is one 10-character code for Quadra Securities, Sportsbook, Fixtures and Words: your progress syncs to every device, and study rewards go into its shared money pool. Create one, then enter it on your other devices or in the other apps.",
-  "progress.syncCreateBtn": "🔗 Create a Quadra Pass",
-  "progress.syncJoinFoldSummary": "Have a Quadra Pass (or an old passcode)? Join",
-  "progress.passcodeLabel": "Passcode",
-  "progress.syncJoinPlaceholder": "XXXXX-XXXXX",
-  "progress.syncJoinBtn": "Join Sync",
-  "progress.syncCreatedWarning": "Please copy and save this passcode now — it won't be shown in full again!",
-  "progress.copyBtn": "Copy",
-  "progress.syncAckBtn": "Saved, Close",
-  "progress.showPasscodeBtn": "Show Passcode",
-  "progress.hidePasscodeBtn": "Hide Passcode",
-  "progress.syncNowBtn": "🔄 Sync Now",
-  "progress.syncUnlinkBtn": "Unlink Sync",
-  "progress.syncDeleteBtn": "Delete Sync Entirely",
+    "With one Quadra Pass your progress syncs to all your devices, and study rewards go into the money pool the four apps share.",
   "progress.backupTitle": "Backup & Restore (Manual)",
   "progress.backupIntro": "You can also manually export a backup file, or import one on another device.",
   "progress.exportBtn": "📤 Export Learning Records",
@@ -309,14 +296,11 @@
   "sync.offlineStatus":
     "Currently offline — sync is temporarily disabled (your learning records are still safely stored on this device). Sync will resume automatically once you're back online.",
   "sync.copiedFeedback": "Copied!",
-  "sync.copyFailed": "Copy failed — please select and copy manually.",
   "sync.notSetUp": "Cross-device sync hasn't been set up — please contact the developer.",
   "sync.offlineCreate": "No network connection — can't create sync.",
   "sync.offlineJoin": "No network connection — can't join sync.",
   "sync.offlineSyncNow": "No network connection — can't sync.",
   "sync.offlineDelete": "No network connection — can't delete sync.",
-  "sync.createConfirm":
-    "Creating a new sync generates a new passcode, used to sync your learning records across your own devices.\n\nIf you already have a passcode, use \"Join Sync\" instead. Continue?",
   "sync.creating": "Creating sync…",
   "sync.enterPasscode": "Please enter a sync passcode.",
   "sync.checkingPasscode": "Checking sync passcode…",
@@ -333,16 +317,9 @@
   "sync.restoredBackup": "Restored the learning records from before joining sync.",
   "sync.deletedRemotelyAutoUnlinked":
     "The sync was deleted — this device has been automatically unlinked (local learning records are unaffected).",
-  "sync.unlinkConfirm":
-    "After unlinking, this device will go back to storing progress locally only; you can rejoin later with the same passcode. Other devices are unaffected. Continue?",
   "sync.unlinked": "Sync unlinked (local learning records are unaffected).",
   "sync.clearedAndUnlinked":
     "Learning records cleared and sync unlinked (records on other devices and the server are unaffected).",
-  "sync.deleteConfirm":
-    "Delete this sync entirely?\n\nAll devices using this passcode will be disconnected. This cannot be undone.",
-  "sync.deleting": "Deleting sync…",
-  "sync.deleteFailed": "Delete failed: {message}",
-  "sync.deletedAllDisconnected": "Sync deleted entirely — all devices have been disconnected.",
   };
   if (typeof module === "object" && module.exports) {
     module.exports = strings;

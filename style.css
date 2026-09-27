@@ -1,12 +1,15 @@
 :root {
-  --bg: #f3f4fa;
+  /* Quadra 四方: the shared neutrals, type and shapes (quadra.css) with this app's own colour. */
+  --q-accent: var(--primary);
+  --q-accent-ink: var(--primary-text);
+  --bg: var(--q-page);
   --bg-glow-1: rgba(99, 102, 241, 0.10);
   --bg-glow-2: rgba(168, 85, 247, 0.08);
-  --surface: #ffffff;
-  --surface-2: #f4f5fb;
-  --text: #161827;
-  --muted: #636981;
-  --border: #e3e5ef;
+  --surface: var(--q-surface);
+  --surface-2: var(--q-surface-2);
+  --text: var(--q-text);
+  --muted: var(--q-muted);
+  --border: var(--q-border);
   --primary: #5655e8;
   --primary-2: #9454f4;
   --primary-soft: rgba(86, 85, 232, 0.10);
@@ -24,8 +27,8 @@
   --state-memorized: #22a45d;
   --shadow: 0 1px 2px rgba(22, 24, 39, 0.04), 0 6px 20px -8px rgba(22, 24, 39, 0.10);
   --shadow-lift: 0 2px 4px rgba(22, 24, 39, 0.05), 0 14px 32px -12px rgba(86, 85, 232, 0.35);
-  --radius: 20px;
-  --radius-sm: 12px;
+  --radius: var(--q-radius);
+  --radius-sm: var(--q-radius-sm);
   --nav-h: 64px;
   /* Almost every font-size and quite a few paddings in this file are `rem`,
      so this one number scales the whole app's text and much of its spacing
@@ -39,14 +42,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0e1016;
     --bg-glow-1: rgba(99, 102, 241, 0.16);
     --bg-glow-2: rgba(168, 85, 247, 0.10);
-    --surface: #171a24;
-    --surface-2: #212533;
-    --text: #eceef6;
-    --muted: #9ca2b8;
-    --border: #2a2f3f;
     --primary: #8483ff;
     --primary-2: #b084ff;
     --primary-soft: rgba(132, 131, 255, 0.16);
@@ -70,7 +67,7 @@ body {
     var(--bg);
   background-attachment: fixed;
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Noto Sans TC", Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--q-font);
   -webkit-font-smoothing: antialiased;
   padding-bottom: 40px;
 }
@@ -1576,11 +1573,15 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
 }
 
 /* ---- Quadra Words: study rewards and the Quadra Pass ---- */
-.quadra-words { margin: 12px 0 16px; padding: 14px; border-radius: 16px; background: rgba(86, 85, 232, 0.07); border: 1px solid rgba(86, 85, 232, 0.2); }
+/* Quadra Words: the pass panel (quadra.css) and the study rewards box, on
+   the shared Quadra tokens so they follow light and dark mode. */
+#quadra-pass { margin: 12px 0 8px; }
+.quadra-words { margin: 12px 0 16px; padding: 16px; border-radius: var(--q-radius); background: var(--q-surface); border: 1px solid var(--q-border); box-shadow: var(--q-shadow-sm); color: var(--q-text); }
 .quadra-words-title { margin: 0 0 6px; font-size: 1rem; }
-.quadra-words-lede { margin: 0 0 10px; line-height: 1.55; }
-.quadra-words-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-bottom: 8px; }
-.quadra-words-stats > div { display: grid; gap: 2px; padding: 8px 10px; border-radius: 12px; background: var(--card-bg, #fff); min-width: 0; }
-.quadra-words-stats small { opacity: 0.7; }
-.quadra-words-stats strong { overflow-wrap: anywhere; }
-.quadra-words .quadra-apps { margin-top: 10px; }
+.quadra-words-lede { margin: 0 0 12px; line-height: 1.55; color: var(--q-text-2); font-size: 0.9rem; }
+.quadra-words-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 130px), 1fr)); gap: 8px; margin-bottom: 8px; }
+.quadra-words-stats > div { display: grid; gap: 2px; padding: 10px 12px; border-radius: var(--q-radius-sm); background: var(--q-surface-2); border: 1px solid var(--q-border); min-width: 0; }
+.quadra-words-stats small { color: var(--q-muted); font-size: 0.78rem; }
+.quadra-words-stats strong { overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.quadra-words-bar { height: 6px; border-radius: 999px; background: var(--q-sunken); overflow: hidden; margin-top: 4px; }
+.quadra-words-bar i { display: block; height: 100%; background: var(--q-accent); border-radius: inherit; }

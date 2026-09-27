@@ -182,21 +182,8 @@
   "progress.trendStable": "最近反應時間大致穩定。",
   "progress.levelsTitle": "各等級熟悉度",
   "progress.levelMemorized": "已熟記 {memorized} / {total}",
-  "progress.syncTitle": "🔄 四方通行碼與同步",
-  "progress.syncIntro": "四方通行碼是一組 10 碼的代碼，四方證券、四方運彩、四方賽程、四方單字都能用：學習紀錄同步到你的每台裝置，答題的獎勵也會存進它的共用資金池。先按「建立四方通行碼」，再到其他裝置或其他 App 輸入它。",
-  "progress.syncCreateBtn": "🔗 建立四方通行碼",
-  "progress.syncJoinFoldSummary": "已有四方通行碼（或舊的同步密碼）？加入同步",
-  "progress.passcodeLabel": "密碼",
-  "progress.syncJoinPlaceholder": "XXXXX-XXXXX",
-  "progress.syncJoinBtn": "加入同步",
-  "progress.syncCreatedWarning": "請先複製保存這組密碼——之後不會再完整顯示第二次！",
-  "progress.copyBtn": "複製",
-  "progress.syncAckBtn": "已保存，關閉",
-  "progress.showPasscodeBtn": "顯示密碼",
-  "progress.hidePasscodeBtn": "隱藏密碼",
-  "progress.syncNowBtn": "🔄 立即同步",
-  "progress.syncUnlinkBtn": "解除同步",
-  "progress.syncDeleteBtn": "整個刪除同步",
+  "progress.syncTitle": "四方通行碼",
+  "progress.syncIntro": "用同一組四方通行碼，學習紀錄會同步到你所有的裝置，學習獎勵也會存進四個 App 共用的資金池。",
   "progress.backupTitle": "備份與還原（手動）",
   "progress.backupIntro": "也可以手動匯出備份檔，或匯入到其他裝置。",
   "progress.exportBtn": "📤 匯出學習紀錄",
@@ -289,14 +276,11 @@
   "sync.offlineStatus":
     "目前離線，同步已暫時停用（學習紀錄仍正常存在這台裝置）。恢復網路連線後會自動繼續同步。",
   "sync.copiedFeedback": "已複製！",
-  "sync.copyFailed": "複製失敗，請手動選取複製。",
   "sync.notSetUp": "跨裝置同步功能尚未設定，請聯絡開發者。",
   "sync.offlineCreate": "目前沒有網路連線，無法建立同步。",
   "sync.offlineJoin": "目前沒有網路連線，無法加入同步。",
   "sync.offlineSyncNow": "目前沒有網路連線，無法同步。",
   "sync.offlineDelete": "目前沒有網路連線，無法刪除同步。",
-  "sync.createConfirm":
-    "建立新同步會產生一組新的同步密碼，用來在你自己的其他裝置之間同步學習紀錄。\n\n已經有密碼的話請改用「加入同步」。要繼續嗎？",
   "sync.creating": "正在建立同步…",
   "sync.enterPasscode": "請輸入同步密碼。",
   "sync.checkingPasscode": "正在檢查同步密碼…",
@@ -312,15 +296,8 @@
   "sync.restoredBackup": "已還原加入同步前的學習紀錄。",
   "sync.deletedRemotelyAutoUnlinked":
     "同步已被刪除，這台裝置已自動解除同步（本機學習紀錄不受影響）。",
-  "sync.unlinkConfirm":
-    "解除同步後這台裝置會變回只在本機儲存進度，之後可用同一組代碼重新加入。其他裝置不受影響。要繼續嗎？",
   "sync.unlinked": "已解除同步（本機學習紀錄不受影響）。",
   "sync.clearedAndUnlinked": "已清除學習紀錄並解除同步（其他裝置與伺服器上的紀錄不受影響）。",
-  "sync.deleteConfirm":
-    "確定要整個刪除這組同步嗎？\n\n所有使用這組密碼的裝置都會斷開連結，此動作無法復原。",
-  "sync.deleting": "正在刪除同步…",
-  "sync.deleteFailed": "刪除失敗：{message}",
-  "sync.deletedAllDisconnected": "已整個刪除同步，所有裝置都已斷開連結。",
   };
   if (typeof module === "object" && module.exports) {
     module.exports = strings;

@@ -95,6 +95,34 @@ const ACTIVITY_SYNC_THROTTLE_MS = 20000;
 
 /* ---------- Local storage helpers ---------- */
 
+// A Quadra Pass handed over by another Quadra app's link (#qp=CODE, see
+// quadra.mjs's acceptHandoff, which runs only later, as a module): taken
+// here first, before anything reads the passcode, so this page opens
+// signed in. An old one-app passcode gives way to it.
+(function takeQuadraHandoff() {
+  const hash = location.hash.slice(1);
+  if (!hash) return;
+  const parts = hash.split("&");
+  const at = parts.findIndex((part) => part.indexOf("qp=") === 0);
+  if (at < 0) return;
+  const code = cleanTypedCode(decodeURIComponent(parts[at].slice(3)));
+  parts.splice(at, 1);
+  try {
+    history.replaceState(history.state, "", location.pathname + location.search + (parts.length ? "#" + parts.join("&") : ""));
+  } catch (e) {
+    /* ignore */
+  }
+  if (!isQuadraPass(code)) return;
+  try {
+    sessionStorage.setItem("quadra.visit", "1");
+    const own = localStorage.getItem(PASSCODE_KEY);
+    if (own && !isQuadraPass(own)) localStorage.removeItem(PASSCODE_KEY);
+    localStorage.setItem("quadra.pass", code);
+  } catch (e) {
+    /* storage unavailable */
+  }
+})();
+
 function readLocal(key) {
   try {
     return localStorage.getItem(key) || "";
@@ -483,13 +511,6 @@ async function writeSyncDoc(passcode, payload) {
   return { ok: true, updateTime: doc.updateTime || "" };
 }
 
-async function deleteSyncDoc(passcode) {
-  const response = await fetch(proxyUrl(passcode), { method: "DELETE" });
-  if (!response.ok) return { ok: false, error: await proxyErrorMessage(response) };
-  clearRateLimitBackoff();
-  return { ok: true };
-}
-
 /* ---------- Push / pull / tick ---------- */
 
 // Set the instant a local change happens (see notifyLocalChange) and
@@ -519,12 +540,19 @@ let vocabReady = false;
 // backstop so the same MISTAKE can never cause the same data loss again).
 let hasSyncedSinceLoad = false;
 
+// The last status, for the Quadra Pass panel (quadra-words.mjs): an error
+// shows on the panel itself, anything else in the line under it.
+let lastSyncStatus = { text: "", isError: false };
 function setSyncStatus(text, isError) {
+  lastSyncStatus = { text: text || "", isError: !!isError };
+  if (!isError && text) lastSyncedAt = Date.now();
   const el = document.getElementById("sync-status");
-  if (!el) return;
-  el.textContent = text || "";
-  el.classList.toggle("danger-text", !!isError);
+  if (el) {
+    el.textContent = isError ? "" : text || "";
+  }
+  renderSyncPanel();
 }
+let lastSyncedAt = 0;
 
 // Never pushes blindly - always checks the server's own totalAttempts
 // first (one extra round trip, a GET before the PATCH) and refuses to
@@ -548,7 +576,7 @@ async function pushSnapshot() {
       // This device's own stored passcode already proved it worked once
       // (create/join both require the doc to exist first) - `exists:false`
       // turning up here means the sync was deleted from elsewhere (see
-      // vocabSyncDeleteForEveryone), not a malformed/never-valid passcode.
+      // another device deleted it), not a malformed/never-valid passcode.
       // Handled by the caller (see handleRemoteSyncDeletion) rather than
       // here, so this function's own job stays "push, or explain why not".
       return { ok: true, pushed: false, remoteDeleted: true };
@@ -827,7 +855,11 @@ function onVocabReady() {
   vocabReady = true;
   const loading = document.getElementById("loading");
   if (loading) loading.hidden = true;
-  absorbInbox().finally(startSyncLoopIfConfigured);
+  // An old one-app passcode becomes a Quadra Pass by itself (one kind of
+  // code, everywhere); otherwise the pass's inbox first, then the loop.
+  const passcode = getSyncPasscode();
+  if (passcode && !isQuadraPass(passcode) && navigator.onLine) upgradeToPass().finally(startSyncLoopIfConfigured);
+  else absorbInbox().finally(startSyncLoopIfConfigured);
 }
 
 /* ---------- Quadra Pass: merged accounts and upgrading ---------- */
@@ -865,11 +897,10 @@ async function absorbInbox() {
 
 // An old 16-character passcode moved to a new Quadra Pass (the old one is
 // deleted by the Worker once its progress is safely there).
-async function upgradeToPass(extraSources) {
+async function upgradeToPass() {
   const passcode = getSyncPasscode();
   const sources = [];
   if (passcode && !isQuadraPass(passcode)) sources.push({ app: "vocab", passcode: passcode });
-  for (const src of extraSources || []) sources.push(src);
   if (!sources.length || !ECO_PROXY_URL) return { ok: false };
   if (dirty) await pushSnapshot();
   try {
@@ -931,72 +962,18 @@ window.addEventListener("offline", () => {
 
 /* ---------- UI entry points ---------- */
 
-async function withButtonDisabled(buttonId, fn) {
-  const button = document.getElementById(buttonId);
-  if (button) button.disabled = true;
-  try {
-    await fn();
-  } finally {
-    if (button) button.disabled = false;
-  }
+// One sync action at a time from the panel (its buttons wait on the promise).
+async function runSyncAction(fn) {
+  await fn();
 }
 
-async function copyTextWithFeedback(text, button) {
-  try {
-    await navigator.clipboard.writeText(text);
-    if (button) {
-      const prev = button.textContent;
-      button.textContent = I18n.t("sync.copiedFeedback");
-      setTimeout(() => {
-        button.textContent = prev;
-      }, 1500);
-    }
-  } catch (e) {
-    setSyncStatus(I18n.t("sync.copyFailed"), true);
-  }
-}
-
-// Held only in memory, never localStorage, same reasoning as Orbit's own
-// pendingCreatedCodes: this is the one screen that shows the passcode in
-// full right after creation, and losing it before copying it down just
-// means falling back to the "顯示密碼" reveal in the active-sync box
-// instead of losing anything for good.
-let pendingCreatedPasscode = null;
-
+// The Quadra Pass panel lives in quadra-words.mjs; it redraws from here.
 function renderSyncPanel() {
-  const setupBox = document.getElementById("sync-setup-box");
-  const createdBox = document.getElementById("sync-created-codes");
-  const activeBox = document.getElementById("sync-active-box");
-  if (!setupBox || !activeBox || !createdBox) return;
-
-  if (!isSyncProxyConfigured()) {
-    setupBox.innerHTML = `<p class="hint">${escapeHtml(I18n.t("sync.notSetUp"))}</p>`;
-    createdBox.classList.add("hidden");
-    activeBox.classList.add("hidden");
-    return;
-  }
-
-  createdBox.classList.toggle("hidden", !pendingCreatedPasscode);
-  if (pendingCreatedPasscode) {
-    setupBox.classList.add("hidden");
-    activeBox.classList.add("hidden");
-    document.getElementById("sync-created-passcode").textContent = pendingCreatedPasscode;
-    return;
-  }
-
-  const configured = isSyncConfigured();
-  setupBox.classList.toggle("hidden", configured);
-  activeBox.classList.toggle("hidden", !configured);
-  if (configured) {
-    const valueEl = document.getElementById("sync-passcode-value");
-    const toggleBtn = document.getElementById("sync-passcode-toggle");
-    if (valueEl) {
-      valueEl.classList.add("hidden");
-      valueEl.textContent = "";
-    }
-    if (toggleBtn) toggleBtn.textContent = I18n.t("progress.showPasscodeBtn");
-  }
+  window.QuadraWords?.renderPass?.();
 }
+
+// Set right after a new pass is made, so the panel says to write it down.
+let freshPass = false;
 
 async function vocabSyncCreate() {
   if (!isSyncProxyConfigured()) {
@@ -1007,9 +984,7 @@ async function vocabSyncCreate() {
     setSyncStatus(I18n.t("sync.offlineCreate"), true);
     return;
   }
-  const confirmed = await window.VocabUI.confirm(I18n.t("sync.createConfirm"));
-  if (!confirmed) return;
-  withButtonDisabled("sync-create-btn", async () => {
+  await runSyncAction(async () => {
     setSyncStatus(I18n.t("sync.creating"));
     const payload = await encodeSyncPayload(buildSyncSnapshotData());
     const result = await createSyncDoc(payload);
@@ -1024,14 +999,14 @@ async function vocabSyncCreate() {
     // was nothing to reconcile with - the document didn't exist a moment
     // ago), same reasoning as vocabSyncJoin's own applied pull below.
     hasSyncedSinceLoad = true;
-    pendingCreatedPasscode = result.passcode;
+    freshPass = true;
     setSyncStatus("");
     renderSyncPanel();
     startSyncLoopIfConfigured();
   });
 }
 
-function vocabSyncJoin() {
+async function vocabSyncJoin(typed) {
   if (!isSyncProxyConfigured()) {
     setSyncStatus(I18n.t("sync.notSetUp"), true);
     return;
@@ -1040,14 +1015,13 @@ function vocabSyncJoin() {
     setSyncStatus(I18n.t("sync.offlineJoin"), true);
     return;
   }
-  const passcodeInput = document.getElementById("sync-join-passcode");
-  const passcode = cleanTypedCode(passcodeInput?.value || "");
+  const passcode = cleanTypedCode(typed || "");
   if (!passcode) {
     setSyncStatus(I18n.t("sync.enterPasscode"), true);
     return;
   }
 
-  withButtonDisabled("sync-join-btn", async () => {
+  await runSyncAction(async () => {
     setSyncStatus(I18n.t("sync.checkingPasscode"));
     const doc = await fetchSyncDoc(passcode);
     if (!doc.ok) {
@@ -1083,20 +1057,19 @@ function vocabSyncJoin() {
     // IS reconciling with it - the first automatic tick afterward doesn't
     // need to force another pull first (see hasSyncedSinceLoad).
     hasSyncedSinceLoad = true;
-    if (passcodeInput) passcodeInput.value = "";
     setSyncStatus(I18n.t("sync.joined"));
     renderSyncPanel();
     startSyncLoopIfConfigured();
   });
 }
 
-function vocabSyncNow() {
+async function vocabSyncNow() {
   if (!isSyncConfigured()) return;
   if (!navigator.onLine) {
     setSyncStatus(I18n.t("sync.offlineSyncNow"), true);
     return;
   }
-  withButtonDisabled("sync-now-btn", async () => {
+  await runSyncAction(async () => {
     // Same cooldown as the automatic path (see runSyncTick) - manually
     // mashing "立即同步" during an active rate-limit backoff would just
     // extend it further for no benefit, so this respects the same window
@@ -1196,7 +1169,7 @@ function performUnlink(statusMessage) {
 // worked at least once (create/join both require the doc to exist first) -
 // exists:false (see pushSnapshot's remoteDeleted and pullSnapshot's own
 // exists field) turning up on a routine, already-configured tick means the
-// sync was deleted from elsewhere (see vocabSyncDeleteForEveryone), not a
+// sync was deleted from elsewhere (another device deleted it), not a
 // malformed/never-valid passcode reaching this far. Falls back to
 // local-only exactly like a manual "解除同步" would (see performUnlink),
 // plus the same backup-restore offer every other unlink path gives.
@@ -1205,9 +1178,9 @@ function handleRemoteSyncDeletion() {
   promptRestoreBackupIfAny();
 }
 
+// The panel has already asked.
 async function vocabSyncUnlink() {
-  const confirmed = await window.VocabUI.confirm(I18n.t("sync.unlinkConfirm"));
-  if (!confirmed) return;
+  freshPass = false;
   performUnlink(I18n.t("sync.unlinked"));
   promptRestoreBackupIfAny();
 }
@@ -1230,66 +1203,7 @@ function unlinkAfterReset() {
   performUnlink(I18n.t("sync.clearedAndUnlinked"));
 }
 
-async function vocabSyncDeleteForEveryone() {
-  const passcode = getSyncPasscode();
-  if (!passcode) return;
-  if (!navigator.onLine) {
-    setSyncStatus(I18n.t("sync.offlineDelete"), true);
-    return;
-  }
-  const confirmed = await window.VocabUI.confirm(I18n.t("sync.deleteConfirm"), {
-    confirmText: I18n.t("common.delete"),
-    danger: true,
-  });
-  if (!confirmed) return;
-  withButtonDisabled("sync-delete-btn", async () => {
-    setSyncStatus(I18n.t("sync.deleting"));
-    const result = await deleteSyncDoc(passcode);
-    if (!result.ok) {
-      setSyncStatus(I18n.t("sync.deleteFailed", { message: result.error }), true);
-      return;
-    }
-    clearSyncPairing();
-    syncLoopStarted = false;
-    dirty = false;
-    renderSyncPanel();
-    setSyncStatus(I18n.t("sync.deletedAllDisconnected"));
-    promptRestoreBackupIfAny();
-  });
-}
-
-function togglePasscodeReveal() {
-  const valueEl = document.getElementById("sync-passcode-value");
-  const toggleBtn = document.getElementById("sync-passcode-toggle");
-  if (!valueEl || !toggleBtn) return;
-  const showing = valueEl.classList.contains("hidden");
-  valueEl.classList.toggle("hidden", !showing);
-  if (showing) valueEl.textContent = getSyncPasscode();
-  toggleBtn.textContent = showing ? I18n.t("progress.hidePasscodeBtn") : I18n.t("progress.showPasscodeBtn");
-}
-
-function acknowledgeSyncCreatedCodes() {
-  pendingCreatedPasscode = null;
-  renderSyncPanel();
-}
-
-function initSyncUI() {
-  document.getElementById("sync-create-btn")?.addEventListener("click", vocabSyncCreate);
-  document.getElementById("sync-join-btn")?.addEventListener("click", vocabSyncJoin);
-  document.getElementById("sync-now-btn")?.addEventListener("click", vocabSyncNow);
-  document.getElementById("sync-unlink-btn")?.addEventListener("click", vocabSyncUnlink);
-  document.getElementById("sync-delete-btn")?.addEventListener("click", vocabSyncDeleteForEveryone);
-  document.getElementById("sync-passcode-toggle")?.addEventListener("click", togglePasscodeReveal);
-  document.getElementById("sync-ack-btn")?.addEventListener("click", acknowledgeSyncCreatedCodes);
-  document.getElementById("sync-created-passcode-copy")?.addEventListener("click", () => {
-    if (pendingCreatedPasscode) {
-      copyTextWithFeedback(pendingCreatedPasscode, document.getElementById("sync-created-passcode-copy"));
-    }
-  });
-  renderSyncPanel();
-}
-
-initSyncUI();
+renderSyncPanel();
 
 // Whether importing `candidateProgress` (see app.js's manual import flow)
 // would look like a REGRESSION - less total recorded practice (see
@@ -1330,5 +1244,13 @@ window.VocabSync = {
   getPasscode: getSyncPasscode,
   isQuadraPass: isQuadraPass,
   upgradeToPass: upgradeToPass,
+  // The Quadra Pass panel's actions (quadra-words.mjs) and what it shows.
+  createPass: vocabSyncCreate,
+  joinPass: vocabSyncJoin,
+  syncByHand: vocabSyncNow,
+  signOut: vocabSyncUnlink,
+  panelState: function () {
+    return { status: lastSyncStatus, fresh: freshPass, syncedAt: lastSyncedAt };
+  },
   proxyBase: () => (PROXY_URL && !PROXY_URL.startsWith("__") ? PROXY_URL.replace(/\/+$/, "") : ""),
 };

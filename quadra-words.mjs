@@ -9,9 +9,9 @@
 //     most NT$800 a Taiwan day). Earned money waits on this device until it
 //     reaches the pass (or until there is one), then goes as one entry per
 //     batch with a fixed id, so it's never paid twice.
-//   - The pass box on the progress tab: the pool, today's rewards, the
-//     other apps, upgrading an old passcode, the merge tool.
-import { APPS, ECONOMY, formatPass, installGate, watchUpdates, poolBalance, randomId } from './quadra.mjs';
+//   - On the progress tab: the Quadra Pass panel (the same as in the other
+//     apps; its actions are sync.js's) and the study rewards box.
+import { ECONOMY, installGate, watchUpdates, poolBalance, randomId, passPanel } from './quadra.mjs';
 
 const zh = () => (window.I18n?.getLocale?.() || document.documentElement.lang || 'zh').startsWith('zh');
 const lang = () => (zh() ? 'zh' : 'en');
@@ -106,6 +106,7 @@ async function flush() {
   } finally {
     sending = false;
     renderBox();
+    renderPass();
   }
 }
 
@@ -124,39 +125,56 @@ function renderBox() {
   const onPass = window.VocabSync?.isQuadraPass?.(pass);
   const waiting = rewards.pending.reduce((s, e) => s + e.amount, 0) + (rewards.open?.amount || 0);
   const earnedToday = rewards.day === today() ? rewards.earned : 0;
+  const cap = ECONOMY.vocab.dailyCap;
+  const bar = el('div', { className: 'quadra-words-bar' }, [el('i')]);
+  bar.firstChild.style.width = `${Math.min(100, (earnedToday / cap) * 100)}%`;
   const rows = [
-    el('p', { className: 'quadra-words-lede', textContent: z ? `答對一題 ${money(ECONOMY.vocab.perCorrect)}、第一次熟記一個字 ${money(ECONOMY.vocab.perMastered)}，每天最多 ${money(ECONOMY.vocab.dailyCap)}，存進四方通行碼的共用資金池：在四方證券買股票、在四方運彩下注都能用。` : `${money(ECONOMY.vocab.perCorrect)} a right answer and ${money(ECONOMY.vocab.perMastered)} for each word mastered the first time, up to ${money(ECONOMY.vocab.dailyCap)} a day, into your Quadra Pass's shared money pool: spend it on stocks in Quadra Securities or bets in Quadra Sportsbook.` }),
+    el('p', { className: 'quadra-words-lede', textContent: z ? `答對一題 ${money(ECONOMY.vocab.perCorrect)}，第一次熟記一個字再加 ${money(ECONOMY.vocab.perMastered)}，每天最多 ${money(cap)}。在四方證券買股票、在四方運彩下注都能用。` : `${money(ECONOMY.vocab.perCorrect)} a right answer, ${money(ECONOMY.vocab.perMastered)} more for each word mastered the first time, up to ${money(cap)} a day. Spend it on stocks in Quadra Securities or bets in Quadra Sportsbook.` }),
     el('div', { className: 'quadra-words-stats' }, [
-      el('div', {}, [el('small', { textContent: z ? '今天的獎勵' : 'Today' }), el('strong', { textContent: `${money(earnedToday)} / ${money(ECONOMY.vocab.dailyCap)}` })]),
-      el('div', {}, [el('small', { textContent: z ? '累計獎勵' : 'All time' }), el('strong', { textContent: money(rewards.total) })]),
-      onPass && wallet ? el('div', {}, [el('small', { textContent: z ? '資金池' : 'Money pool' }), el('strong', { textContent: money(poolBalance(wallet)) })]) : null
+      el('div', {}, [el('small', { textContent: z ? '今天' : 'Today' }), el('strong', { textContent: `${money(earnedToday)} / ${money(cap)}` }), bar]),
+      el('div', {}, [el('small', { textContent: z ? '累計' : 'All time' }), el('strong', { textContent: money(rewards.total) })])
     ]),
-    waiting > 0 ? el('p', { className: 'hint', textContent: onPass ? (z ? `${money(waiting)} 等待送出…` : `${money(waiting)} on its way…`) : z ? `${money(waiting)} 的獎勵存在這台裝置，建立或輸入四方通行碼後就會存進資金池。` : `${money(waiting)} of rewards is kept on this device until you create or enter a Quadra Pass.` }) : null,
-    onPass ? el('p', { className: 'hint', textContent: `${z ? '四方通行碼' : 'Quadra Pass'}：${formatPass(pass)}` }) : null
+    waiting > 0 ? el('p', { className: 'hint', textContent: onPass ? (z ? `${money(waiting)} 正在存進資金池…` : `${money(waiting)} on its way to the pool…`) : z ? `${money(waiting)} 先存在這台裝置，登入四方通行碼後就會存進資金池。` : `${money(waiting)} is kept on this device until you sign in with a Quadra Pass.` }) : null
   ];
-  if (pass && !onPass) {
-    const up = el('button', { className: 'btn primary', type: 'button', textContent: z ? '升級成四方通行碼' : 'Upgrade to a Quadra Pass' });
-    up.onclick = async () => {
-      up.disabled = true;
-      const r = await window.VocabSync.upgradeToPass();
-      up.disabled = false;
-      alert(r.ok ? (z ? `新的四方通行碼：${formatPass(r.passcode)}。舊密碼已作廢，請在其他裝置改用新碼。` : `Your new Quadra Pass: ${formatPass(r.passcode)}. The old passcode no longer works; use the new one on your other devices.`) : `${z ? '升級失敗' : 'Upgrade failed'}: ${r.error || ''}`);
-      flush();
-    };
-    rows.push(el('p', { className: 'hint', textContent: z ? '你用的是舊的 16 碼同步密碼，只有這個 App 能用，也收不到學習獎勵。升級後四個 App 都能用。' : 'This is an old 16-character passcode: it only works here and can\'t receive rewards. Upgrade to use it in all four apps.' }), el('div', { className: 'row actions' }, [up]));
-  }
-  rows.push(
-    el('div', { className: 'quadra-apps' }, Object.entries(APPS).filter(([id]) => id !== 'vocab').map(([, app]) => el('a', { className: 'quadra-app', href: app.path }, [el('img', { src: `${app.path}favicon.svg`, alt: '' }), el('span', { textContent: z ? app.zh : app.en })]))),
-    el('p', { className: 'hint' }, [el('a', { href: `${APPS.stock.path}merge.html`, textContent: z ? '合併工具（把所有舊代碼合成一組四方通行碼）' : 'Merge tool (all your old codes into one Quadra Pass)' })])
-  );
   box.replaceChildren(el('h3', { className: 'quadra-words-title', textContent: z ? '💰 學習獎勵' : '💰 Study rewards' }), ...rows.filter(Boolean));
 }
 
-window.QuadraWords = { onAnswer, flush, render: renderBox };
+// The Quadra Pass panel; its actions are sync.js's.
+let panel = null;
+let panelLang = '';
+function renderPass() {
+  const slot = document.getElementById('quadra-pass');
+  const sync = window.VocabSync;
+  if (!slot || !sync?.panelState) return;
+  if (!panel || panelLang !== lang()) {
+    panelLang = lang();
+    panel = passPanel({
+      app: 'vocab',
+      lang: panelLang,
+      create: () => sync.createPass(),
+      enter: code => sync.joinPass(code),
+      sync: () => sync.syncByHand(),
+      signOut: () => sync.signOut()
+    });
+    slot.replaceChildren(panel.el);
+  }
+  const pass = sync.getPasscode?.() || '';
+  const view = sync.panelState();
+  panel.update({
+    pass: sync.isQuadraPass(pass) ? pass : '',
+    error: view.status.isError ? view.status.text : '',
+    note: view.fresh ? (zh() ? '請記下通行碼：它是這個帳戶唯一的鑰匙。' : 'Write your pass down: it is the only key to this account.') : '',
+    syncedAt: view.syncedAt,
+    pool: wallet ? poolBalance(wallet) : null
+  });
+}
+
+window.QuadraWords = { onAnswer, flush, render: renderBox, renderPass };
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') flush();
   else flush();
 });
 window.addEventListener('online', flush);
 renderBox();
+renderPass();
 setTimeout(flush, 3000);
