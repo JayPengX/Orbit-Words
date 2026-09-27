@@ -340,19 +340,6 @@
       <p class="hint" id="sync-status"></p>
       <div id="quadra-words" class="quadra-words"></div>
 
-      <h2 data-i18n="progress.backupTitle">備份與還原（手動）</h2>
-      <p class="hint" data-i18n="progress.backupIntro">也可以手動匯出備份檔，或匯入到其他裝置。</p>
-      <div class="row actions">
-        <button class="btn secondary" id="export-progress-btn" data-i18n="progress.exportBtn">📤 匯出學習紀錄</button>
-        <button class="btn secondary" id="import-progress-btn" data-i18n="progress.importBtn">📥 匯入學習紀錄</button>
-        <input type="file" id="import-progress-file" accept="application/json,.json" class="hidden" />
-      </div>
-      <p class="hint hidden" id="import-status"></p>
-
-      <div class="row actions">
-        <button class="btn danger" id="reset-progress-btn" data-i18n="progress.resetBtn">清除全部學習紀錄</button>
-      </div>
-
       <h2 data-i18n="progress.detailTitle">單字明細</h2>
       <div class="row" id="progress-filter-chips">
         <button type="button" class="filter-chip active" data-state="attempted" data-i18n="progress.filterAttempted">已練習過</button>
@@ -375,10 +362,6 @@
 
 <footer class="footer">
   <p id="footer-source"></p>
-  <p class="update-row">
-    <button id="update-check-btn" class="btn secondary small" data-i18n="footer.updateCheckBtn">🔄 檢查更新</button>
-    <span id="update-status" class="update-status"></span>
-  </p>
 </footer>
 
 <div id="update-toast" class="update-toast hidden"></div>
