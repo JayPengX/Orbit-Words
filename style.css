@@ -123,9 +123,7 @@ body {
   font-size: 0.7rem;
   font-weight: 500;
   color: var(--muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
 }
 
 .muted { color: var(--muted); font-weight: 400; }
@@ -1253,9 +1251,7 @@ input[type="range"] {
 #reviewlist-category-tabs .segmented-btn > span:not([id]) {
   max-width: 100%;
   font-size: 0.8rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
 }
 
 #reviewlist-category-tabs .segmented-btn > span[id$="-count"] {
