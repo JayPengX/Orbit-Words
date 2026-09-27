@@ -9,6 +9,8 @@
 //     most NT$800 a Taiwan day). Earned money waits on this device until it
 //     reaches the pass (or until there is one), then goes as one entry per
 //     batch with a fixed id, so it's never paid twice.
+//   - Back pay, once: what the rewards would have paid for everything
+//     studied before they existed (backPay below).
 //   - On the progress tab: the Quadra Pass panel (the same as in the other
 //     apps; its actions are sync.js's) and the study rewards box.
 import { ECONOMY, installGate, watchUpdates, poolBalance, randomId, passPanel } from './quadra.mjs';
@@ -26,7 +28,7 @@ const today = () => new Date(Date.now() + TPE).toISOString().slice(0, 10);
 function load() {
   try {
     const r = JSON.parse(localStorage.getItem(KEY) || 'null');
-    if (r && typeof r === 'object') return { day: r.day || today(), earned: r.earned || 0, pending: Array.isArray(r.pending) ? r.pending : [], open: r.open || null, mastered: r.mastered || {}, total: r.total || 0 };
+    if (r && typeof r === 'object') return { day: r.day || today(), earned: r.earned || 0, pending: Array.isArray(r.pending) ? r.pending : [], open: r.open || null, mastered: r.mastered || {}, total: r.total || 0, seeded: r.seeded, backpay: r.backpay || null };
   } catch {}
   return { day: today(), earned: 0, pending: [], open: null, mastered: {}, total: 0 };
 }
@@ -80,6 +82,56 @@ function closeBatch() {
   save();
 }
 
+// ---- Back pay -----------------------------------------------------------------
+//
+// Study done before the rewards existed, paid once: what the rules would have
+// paid if they always had (NT$2 for every right answer ever, NT$20 for every
+// word mastered now), within the daily cap over the days studied (the days
+// seen in the progress's timestamps, so if anything too few), less
+// everything the rewards have already paid (every device's, in the pass's
+// wallet, and what still waits on this one). One entry with a fixed id, so
+// a second device can never pay it again.
+const BACKPAY_ID = 'vocab:backpay:v1';
+export function backPayAmount(progress, alreadyPaid, classify = h => window.VocabLogic?.classifyState?.(h)) {
+  let correct = 0;
+  let mastered = 0;
+  const days = new Set();
+  const day = t => new Date(t + TPE).toISOString().slice(0, 10);
+  for (const h of Object.values(progress || {})) {
+    correct += Number(h?.correct) || 0;
+    if (classify(h) === 'memorized') mastered++;
+    for (const a of h?.recentAttempts || []) if (a?.timestamp) days.add(day(a.timestamp));
+    if (h?.lastSeen) days.add(day(h.lastSeen));
+  }
+  const owed = correct * ECONOMY.vocab.perCorrect + mastered * ECONOMY.vocab.perMastered;
+  const capped = Math.min(owed, days.size * ECONOMY.vocab.dailyCap);
+  return { amount: Math.max(0, Math.round(capped - alreadyPaid)), correct, mastered, days: days.size, owed };
+}
+
+function paidSoFar(w) {
+  const inWallet = (w?.entries || []).filter(e => e.app === 'vocab' && e.kind === 'reward' && e.id !== BACKPAY_ID).reduce((sum, e) => sum + e.amount, 0);
+  const waiting = rewards.pending.filter(e => e.id !== BACKPAY_ID).reduce((sum, e) => sum + e.amount, 0) + (rewards.open?.amount || 0);
+  return inWallet + waiting;
+}
+
+// Once the pass's wallet is read (so every device's rewards are counted)
+// and this device's progress has been synced.
+function maybeBackPay(w) {
+  if (rewards.backpay || !w) return;
+  if ((w.entries || []).some(e => e.id === BACKPAY_ID) || rewards.pending.some(e => e.id === BACKPAY_ID)) {
+    rewards.backpay = { amount: 0, t: Date.now(), elsewhere: true };
+    return save();
+  }
+  const synced = !window.VocabSync?.isSyncConfigured?.() || window.VocabSync?.panelState?.().syncedAt > 0;
+  const progress = window.VocabState?.getProgress?.();
+  if (!synced || !progress || !window.VocabLogic?.classifyState) return;
+  const r = backPayAmount(progress, paidSoFar(w));
+  rewards.backpay = { amount: r.amount, t: Date.now() };
+  if (r.amount > 0) rewards.pending.push({ id: BACKPAY_ID, t: Date.now(), app: 'vocab', kind: 'reward', amount: r.amount, note: zh() ? `補發：之前的 ${r.correct} 題答對、${r.mastered} 個熟記` : `Back pay: ${r.correct} right answers and ${r.mastered} words mastered before rewards` });
+  save();
+  return r.amount > 0;
+}
+
 let wallet = null;
 let sending = false;
 async function flush() {
@@ -101,6 +153,8 @@ async function flush() {
       const sent = new Set(entries.map(e => e.id));
       rewards.pending = rewards.pending.filter(e => !sent.has(e.id));
       save();
+      // Back pay, once the wallet says what has been paid already.
+      if (maybeBackPay(wallet)) setTimeout(flush, 500);
     }
   } catch {
   } finally {
@@ -134,6 +188,7 @@ function renderBox() {
       el('div', {}, [el('small', { textContent: z ? '今天' : 'Today' }), el('strong', { textContent: `${money(earnedToday)} / ${money(cap)}` }), bar]),
       el('div', {}, [el('small', { textContent: z ? '累計' : 'All time' }), el('strong', { textContent: money(rewards.total) })])
     ]),
+    rewards.backpay?.amount > 0 ? el('p', { className: 'hint', textContent: z ? `🎁 已補發之前的學習獎勵 ${money(rewards.backpay.amount)}。` : `🎁 Back pay for your earlier study: ${money(rewards.backpay.amount)}.` }) : null,
     waiting > 0 ? el('p', { className: 'hint', textContent: onPass ? (z ? `${money(waiting)} 正在存進資金池…` : `${money(waiting)} on its way to the pool…`) : z ? `${money(waiting)} 先存在這台裝置，登入四方通行碼後就會存進資金池。` : `${money(waiting)} is kept on this device until you sign in with a Quadra Pass.` }) : null
   ];
   box.replaceChildren(el('h3', { className: 'quadra-words-title', textContent: z ? '💰 學習獎勵' : '💰 Study rewards' }), ...rows.filter(Boolean));
