@@ -13,7 +13,7 @@
 //     studied before they existed (backPay below).
 //   - On the progress tab: the Quadra Pass panel (the same as in the other
 //     apps; its actions are sync.js's) and the study rewards box.
-import { ECONOMY, installGate, watchUpdates, poolBalance, randomId, passPanel } from './quadra.mjs';
+import { ECONOMY, installGate, watchUpdates, poolBalance, randomId, passPanel } from './quadra.mjs?v=__BUILD_VERSION__';
 
 const zh = () => (window.I18n?.getLocale?.() || document.documentElement.lang || 'zh').startsWith('zh');
 const lang = () => (zh() ? 'zh' : 'en');

@@ -621,7 +621,9 @@ function speakWithWebSpeech(text) {
 }
 
 function localAudioUrl(word) {
-  return `data/audio/${encodeURIComponent(word.toLowerCase())}.mp3?v=__BUILD_VERSION__`;
+  // No deploy version: a word's clip never changes, so its address (and the
+  // copy kept on the device) stays the same across updates.
+  return `data/audio/${encodeURIComponent(word.toLowerCase())}.mp3`;
 }
 
 // Playback uses the Web Audio API (AudioContext + AudioBufferSourceNode)
@@ -745,13 +747,14 @@ function loadAudioBuffer(word) {
    to opt into, and no status UI taking up space for something there's
    nothing to do about anyway - see startMandatoryAudioCaching. Reads and
    writes the exact same Cache Storage bucket sw.js's own fetch handler
-   uses (both stamped with the identical APP_VERSION token by the deploy
-   workflow - see that file's own CACHE_NAME comment), so a word cached
-   this way is indistinguishable from one the Service Worker cached lazily
-   during normal play; either one is served instantly from Cache Storage on
-   every future request for that URL, network permitting or not. */
+   uses for clips (AUDIO_CACHE there), so a word cached this way is
+   indistinguishable from one the Service Worker cached lazily during
+   normal play; either one is served instantly from Cache Storage on every
+   future request for that URL, network permitting or not. The bucket is
+   NOT per deploy: updates replace the app's files but keep every clip
+   already downloaded (they never change). */
 
-const AUDIO_CACHE_NAME = `vocab-tool-cache-${APP_VERSION}`;
+const AUDIO_CACHE_NAME = "vocab-audio-v1";
 
 async function getAudioCache() {
   if (!("caches" in window)) return null;

@@ -23,6 +23,11 @@
 // to bump by hand.
 const APP_VERSION = "__BUILD_VERSION__";
 const CACHE_NAME = "vocab-tool-cache-" + APP_VERSION;
+// Word clips (data/audio/): kept across deploys, since a clip never
+// changes (app.js's AUDIO_CACHE_NAME, the same bucket). Only the app's own
+// files above are replaced by an update.
+const AUDIO_CACHE = "vocab-audio-v1";
+const isAudio = (url) => url.pathname.includes("/data/audio/");
 
 // The minimum needed to boot the app and start a test round while
 // offline: the shell scripts/styles, the vocab word list itself, and this
@@ -33,17 +38,25 @@ const CACHE_NAME = "vocab-tool-cache-" + APP_VERSION;
 const APP_SHELL = [
   "./",
   "index.html",
-  "style.css",
-  "logic.js",
-  "app.js",
-  "sync.js",
-  "quadra.mjs",
-  "quadra-words.mjs",
-  "quadra.css",
   "manifest.json",
-  "data/vocab.json",
   "icons/icon-192.png",
   "icons/icon-512.png",
+  // Under the exact addresses the page asks for (each carries this
+  // deploy's ?v=), so a cached copy is always this deploy's.
+  ...[
+    "style.css",
+    "quadra.css",
+    "locales/zh-TW.js",
+    "locales/en.js",
+    "i18n.js",
+    "logic.js",
+    "app.js",
+    "sync.js",
+    "quadra-words.mjs",
+    "quadra.mjs",
+    "vocab-ai.js",
+    "data/vocab.json",
+  ].map((file) => `${file}?v=${APP_VERSION}`),
 ];
 
 // Same reasoning as Orbit's sw.js: caps how long a request waits on the
@@ -57,7 +70,9 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     caches
       .open(CACHE_NAME)
-      .then((cache) => cache.addAll(APP_SHELL))
+      // `cache: "reload"`: straight from the server, never a copy the
+      // browser kept from the last deploy (GitHub Pages' 10 minutes).
+      .then((cache) => cache.addAll(APP_SHELL.map((url) => new Request(url, { cache: "reload" }))))
       // A single missing/renamed shell file (e.g. mid-refactor) must never
       // block installation entirely - the app still works online either
       // way, this only affects the offline fallback's completeness.
@@ -68,10 +83,27 @@ self.addEventListener("install", (event) => {
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches
-      .keys()
-      .then((keys) => Promise.all(keys.filter((key) => key.startsWith("vocab-tool-cache-") && key !== CACHE_NAME).map((key) => caches.delete(key))))
-      .then(() => self.clients.claim())
+    (async () => {
+      const old = (await caches.keys()).filter((key) => key.startsWith("vocab-tool-cache-") && key !== CACHE_NAME);
+      // Clips an older deploy kept in its own bucket move to the lasting one
+      // first (under their address without the old ?v=), so nobody downloads
+      // them again.
+      const audio = await caches.open(AUDIO_CACHE);
+      for (const key of old) {
+        const cache = await caches.open(key);
+        for (const request of await cache.keys()) {
+          const url = new URL(request.url);
+          if (!isAudio(url)) continue;
+          url.search = "";
+          if (!(await audio.match(url.href))) {
+            const response = await cache.match(request);
+            if (response && response.ok) await audio.put(url.href, response).catch(() => {});
+          }
+        }
+        await caches.delete(key);
+      }
+      await self.clients.claim();
+    })()
   );
 });
 
@@ -139,7 +171,7 @@ async function cacheFirst(request) {
   try {
     const response = await fetch(request);
     if (response && response.ok) {
-      const cache = await caches.open(CACHE_NAME);
+      const cache = await caches.open(isAudio(new URL(request.url)) ? AUDIO_CACHE : CACHE_NAME);
       cache.put(request, response.clone());
     }
     return response;
