@@ -17,7 +17,7 @@ const zh = () => (window.I18n?.getLocale?.() || document.documentElement.lang ||
 const lang = () => (zh() ? 'zh' : 'en');
 
 installGate('vocab', lang());
-watchUpdates({ current: document.querySelector('meta[name="build-version"]')?.content, key: 'vocab', busy: () => Boolean(document.querySelector('#view-test.active') && !document.getElementById('test-form')?.classList.contains('hidden')) });
+watchUpdates({ current: document.querySelector('meta[name="build-version"]')?.content, key: 'vocab', cachePrefix: 'vocab-tool-cache-', busy: () => Boolean(document.querySelector('#view-test.active') && !document.getElementById('test-form')?.classList.contains('hidden')) });
 
 const KEY = 'quadra.words.rewards';
 const TPE = 8 * 3_600_000;
