@@ -3,12 +3,13 @@
 // finished round is paid through the app (ctx.pay), as much as today's room
 // allows.
 import {
-  GAMES, ICON, STREAK, ADAPT, adapt, scorer, bestRound, wageMinutes, MIN_WAGE, PAY_SCALE,
+  STREAK, ADAPT, adapt, scorer, bestRound, wageMinutes, MIN_WAGE, PAY_SCALE,
   DERBY, pitchPlan, ballAt, swingResult, FREE_THROW, shotPlan, markerAt, shotResult,
-  PAIRS, pairsBoard, pairResult, MERGE, mergeBoard, move, spawn, canMove, mergePoints, WORD_GAMES,
+  PAIRS, pairsBoard, pairResult, MERGE, mergeBoard, move, spawn, canMove, mergePoints,
   SPEED, speedQuestion, HANGMAN, hangmanWords, hangmanPay, guessLetter, hangmanSolved, hangmanOver, hangmanMask,
-  SIMON, simonPay, simonSequence, SUDOKU, sudokuPuzzle
+  SIMON, simonPay, simonSequence, SUDOKU, sudokuPuzzle, ALL_GAMES, gameInfo
 } from './lib/games.mjs';
+import { ARCADE_BY_ID, CATEGORIES, arcadePay } from './lib/arcade.mjs';
 import { money, ECONOMY } from './lib/quadra.mjs';
 
 const state = { t: null, arcadeFrame: 0 };
@@ -30,111 +31,206 @@ const fmtMoney = (v, { sign = true } = {}) => money(v, { sign });
 // Pay points as NT$ (points × PAY_SCALE), with cents when under NT$10.
 const fmtPay = pts => money(pts * PAY_SCALE, { cents: pts * PAY_SCALE < 10 });
 
+const FAV_KEY = 'quadra.rewards.favs';
+const RECENT_KEY = 'quadra.rewards.recent';
+const readList = key => {
+  try {
+    const v = JSON.parse(localStorage.getItem(key) || '[]');
+    return Array.isArray(v) ? v.filter(g => ALL_GAMES.includes(g)) : [];
+  } catch {
+    return [];
+  }
+};
+const writeList = (key, list) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(list));
+  } catch {}
+};
+const CAT_ICON = { words: '🔤', puzzle: '🧩', arcade: '🕹️', board: '♟️', brain: '🧠' };
+
+// The games tab: today's earnings, today's challenge, a search and the
+// categories (favourites too), what you played lately, then every game as a
+// card. A game opens in its own stage with a bar to get back.
 export function mountGames(container, context) {
   ctx = context;
   state.t = context.t;
   let game = null;
   let view = null;
   let shell = null;
+  const ui = { cat: 'all', q: '' };
+  const lang = () => (ctx.locale === 'en' ? 'en' : 'zh');
+  const info = g => gameInfo(g, state.t, lang());
   const build = () => {
     const t = state.t;
     const capFill = el('i');
-    const capText = el('small', { class: 'muted num' });
-    const tiles = Object.fromEntries(
-      GAMES.map(g => [
-        g,
-        el('button', { class: 'game-tile', type: 'button', onclick: () => open(g) }, [
-          el('span', { class: 'game-icon', 'aria-hidden': 'true', text: ICON[g] }),
-          el('strong', { text: t(`game_${g}`) }),
-          el('small', { class: 'muted', text: t(`gameKind_${g}`) }),
-          el('small', { class: 'game-max', text: t('gameUpTo', { v: fmtMoney(bestRound(g), { sign: false }) }) }),
-          el('small', { class: 'game-best num' }),
-          el('span', { class: 'game-daily', hidden: '', text: t('dailyTag') })
-        ])
-      ])
-    );
-    const slot = el('div', { class: 'game-slot' });
-    const headName = el('strong');
-    const head = el('div', { class: 'game-head', hidden: '' }, [headName, el('button', { class: 'q-btn small', type: 'button', text: t('gameClose'), onclick: close })]);
-    const intro = el('p', { class: 'section-sub', text: t('gamesIntro', { cap: fmtMoney(ECONOMY.gamesDailyCap, { sign: false }) }) });
-    const wordTiles = el('div', { class: 'game-tiles' }, GAMES.filter(g => WORD_GAMES.has(g)).map(g => tiles[g]));
-    const breakTiles = el('div', { class: 'game-tiles' }, GAMES.filter(g => !WORD_GAMES.has(g)).map(g => tiles[g]));
-    const daily = el('button', { class: 'q-card pad daily-card', type: 'button' });
+    const capText = el('strong', { class: 'num' });
+    const search = el('input', { class: 'gh-search', type: 'search', placeholder: t('gamesSearch'), 'aria-label': t('gamesSearch'), enterkeyhint: 'search' });
+    search.addEventListener('input', () => ((ui.q = search.value.trim().toLowerCase()), paintList()));
+    const chips = el('div', { class: 'gh-chips', role: 'group' });
+    const recent = el('div', { class: 'gh-recent' });
+    const grid = el('div', { class: 'gh-grid' });
+    const count = el('p', { class: 'gh-count muted' });
+    const daily = el('button', { class: 'gh-daily', type: 'button' });
     const bests = el('div', { class: 'q-card list bests' });
-    const tileRow = el('div', {}, [
+    const hub = el('div', { class: 'gh-hub' }, [
+      el('div', { class: 'gh-cap' }, [el('div', { class: 'gh-cap-top' }, [el('span', { text: t('gamesTitle') }), capText]), el('div', { class: 'meter accent' }, [capFill])]),
       daily,
-      el('h3', { class: 'games-h', text: t('gamesWords') }),
-      wordTiles,
-      el('h3', { class: 'games-h', text: t('gamesBreak') }),
-      breakTiles,
-      el('h3', { class: 'games-h', text: t('bestsTitle') }),
-      bests
+      el('div', { class: 'gh-find' }, [el('span', { class: 'gh-search-icon', 'aria-hidden': 'true', text: '🔍' }), search]),
+      chips,
+      recent,
+      count,
+      grid,
+      el('details', { class: 'gh-bests' }, [el('summary', { text: t('bestsTitle') }), bests])
     ]);
-    const card = el('div', { class: 'games' }, [
-      el('div', { class: 'q-card pad cap-card' }, [el('div', { class: 'cap-top' }, [el('strong', { text: t('gamesTitle') }), capText]), el('div', { class: 'meter accent' }, [capFill])]),
-      intro,
-      head,
-      tileRow,
+    const slot = el('div', { class: 'game-slot' });
+    const stageName = el('strong');
+    const stageKind = el('small', { class: 'muted' });
+    const stageEarned = el('small', { class: 'gh-stage-earned num' });
+    const stage = el('div', { class: 'gh-stage', hidden: '' }, [
+      el('div', { class: 'gh-stage-bar' }, [
+        el('button', { class: 'gh-back', type: 'button', 'aria-label': t('gameBack'), onclick: close }, [el('span', { 'aria-hidden': 'true', text: '‹' }), el('span', { text: t('gameBack') })]),
+        el('div', { class: 'gh-stage-title' }, [stageName, stageKind]),
+        stageEarned
+      ]),
       slot
     ]);
-    shell = { card, capFill, capText, tiles, slot, head, headName, intro, tileRow, daily, bests };
+    const card = el('div', { class: 'games' }, [hub, stage]);
+    shell = { card, capFill, capText, hub, stage, stageName, stageKind, stageEarned, slot, chips, recent, grid, count, daily, bests, search };
     container.replaceChildren(card);
   };
+
+  const cardFor = (g, { small = false } = {}) => {
+    const t = state.t;
+    const i = info(g);
+    const b = ctx.bests()[g];
+    const d = ctx.daily();
+    const favs = readList(FAV_KEY);
+    const fav = favs.includes(g);
+    const star = el('button', {
+      class: `gh-star${fav ? ' on' : ''}`,
+      type: 'button',
+      'aria-pressed': String(fav),
+      'aria-label': t(fav ? 'favRemove' : 'favAdd'),
+      text: fav ? '★' : '☆',
+      onclick: e => {
+        e.stopPropagation();
+        const now = readList(FAV_KEY);
+        writeList(FAV_KEY, now.includes(g) ? now.filter(x => x !== g) : [g, ...now]);
+        paintList();
+      }
+    });
+    if (small)
+      return el('button', { class: `gh-mini cat-${i.cat}`, type: 'button', onclick: () => open(g) }, [el('span', { class: 'gh-icon', 'aria-hidden': 'true', text: i.icon }), el('span', { class: 'gh-mini-name', text: i.name })]);
+    return el('div', { class: `gh-card cat-${i.cat}${g === d.game && !d.done ? ' daily' : ''}`, role: 'button', tabindex: '0', onclick: () => open(g), onkeydown: e => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), open(g)) }, [
+      el('span', { class: 'gh-icon', 'aria-hidden': 'true', text: i.icon }),
+      star,
+      el('strong', { class: 'gh-name', text: i.name }),
+      el('small', { class: 'gh-kind', text: i.kind }),
+      el('div', { class: 'gh-foot' }, [
+        el('small', { class: 'gh-max num', text: t('gameUpTo', { v: fmtMoney(bestRound(g), { sign: false }) }) }),
+        b ? el('small', { class: 'gh-best num', text: `🏆 ${fmtMoney(b.v, { sign: false })}` }) : null
+      ]),
+      g === d.game && !d.done ? el('span', { class: 'gh-daily-tag', text: t('dailyTag') }) : null
+    ]);
+  };
+
+  function paintList() {
+    if (!shell) return;
+    const t = state.t;
+    const favs = readList(FAV_KEY);
+    shell.chips.replaceChildren(
+      ...['all', 'fav', ...CATEGORIES].map(c =>
+        el('button', { type: 'button', class: 'gh-chip', 'aria-pressed': String(ui.cat === c), onclick: () => ((ui.cat = c), paintList()) }, [c !== 'all' && c !== 'fav' ? el('span', { 'aria-hidden': 'true', text: CAT_ICON[c] }) : null, document.createTextNode(t(`cat_${c}`))])
+      )
+    );
+    const q = ui.q;
+    const list = ALL_GAMES.filter(g => {
+      const i = info(g);
+      if (ui.cat === 'fav' && !favs.includes(g)) return false;
+      if (ui.cat !== 'all' && ui.cat !== 'fav' && i.cat !== ui.cat) return false;
+      return !q || `${i.name} ${i.kind} ${g}`.toLowerCase().includes(q);
+    });
+    const recent = readList(RECENT_KEY).slice(0, 8);
+    shell.recent.hidden = !recent.length || ui.cat !== 'all' || Boolean(q);
+    shell.recent.replaceChildren(el('p', { class: 'gh-h', text: t('gamesRecent') }), el('div', { class: 'gh-strip' }, recent.map(g => cardFor(g, { small: true }))));
+    shell.count.textContent = t('gamesCount', { n: list.length });
+    shell.grid.replaceChildren(...(list.length ? list.map(g => cardFor(g)) : [el('p', { class: 'gh-empty', text: ui.cat === 'fav' && !q ? t('gamesNoFav') : t('gamesNoMatch') })]));
+  }
+
   const render = () => {
-    if (!shell || !shell.card.isConnected) build();
+    if (!shell || !shell.card.isConnected) (build(), paintList());
     const t = state.t;
     const left = ctx.room();
     const cap = ECONOMY.gamesDailyCap;
     shell.capFill.style.width = `${Math.min(100, ((cap - left) / cap) * 100)}%`;
-    shell.capText.textContent = left > 0 ? t('gamesEarned', { v: fmtMoney(cap - left, { sign: false }), cap: fmtMoney(cap, { sign: false }) }) : t('gamesCapped');
+    shell.capText.textContent = left > 0 ? t('gamesToday', { v: fmtMoney(cap - left, { sign: false }), cap: fmtMoney(cap, { sign: false }) }) : t('gamesCapped');
+    shell.stageEarned.textContent = fmtMoney(cap - left, { sign: false });
     const isOpen = Boolean(game);
-    shell.intro.hidden = isOpen;
-    shell.tileRow.hidden = isOpen;
-    shell.head.hidden = !isOpen;
-    if (isOpen) shell.headName.textContent = `${ICON[game]} ${t(`game_${game}`)}`;
-    // Today's challenge, and each game's best round.
-    const d = ctx.daily();
-    const b = ctx.bests();
-    for (const g of GAMES) {
-      const tile = shell.tiles[g];
-      tile.querySelector('.game-daily').hidden = g !== d.game || d.done;
-      tile.classList.toggle('daily', g === d.game && !d.done);
-      tile.querySelector('.game-best').textContent = b[g] ? t('bestShort', { v: fmtMoney(b[g].v, { sign: false }) }) : '';
+    shell.hub.hidden = isOpen;
+    shell.stage.hidden = !isOpen;
+    if (isOpen) {
+      const i = info(game);
+      shell.stageName.textContent = `${i.icon} ${i.name}`;
+      shell.stageKind.textContent = i.kind;
     }
+    // Today's challenge.
+    const d = ctx.daily();
+    const di = info(d.game);
     shell.daily.onclick = () => open(d.game);
-    shell.daily.classList.toggle('done', d.done);
+    shell.daily.className = `gh-daily cat-${di.cat}${d.done ? ' done' : ''}`;
     shell.daily.replaceChildren(
-      el('span', { class: 'daily-icon', 'aria-hidden': 'true', text: ICON[d.game] }),
-      el('span', { class: 'daily-text' }, [
+      el('span', { class: 'gh-daily-icon', 'aria-hidden': 'true', text: di.icon }),
+      el('span', { class: 'gh-daily-text' }, [
         el('small', { text: t('dailyTitle') }),
-        el('strong', { text: t(`game_${d.game}`) }),
-        el('small', { class: 'muted', text: d.done ? t('dailyDone', { n: d.streak }) : t(d.streak ? 'dailyLine' : 'dailyLineNew', { v: fmtMoney(d.bonus, { sign: false }), n: d.streak }) })
+        el('strong', { text: di.name }),
+        el('small', { text: d.done ? t('dailyDone', { n: d.streak }) : t(d.streak ? 'dailyLine' : 'dailyLineNew', { v: fmtMoney(d.bonus, { sign: false }), n: d.streak }) })
       ]),
-      el('span', { class: 'daily-go', text: d.done ? '✓' : '▶' })
+      el('span', { class: 'gh-daily-go', text: d.done ? '✓' : '▶' })
     );
-    const played = GAMES.filter(g => b[g]).sort((x, y) => b[y].v - b[x].v);
+    const b = ctx.bests();
+    const played = ALL_GAMES.filter(g => b[g]).sort((x, y) => b[y].v - b[x].v);
     shell.bests.replaceChildren(
       ...(played.length
-        ? played.map(g => el('div', { class: 'best-row' }, [el('span', { class: 'best-icon', text: ICON[g] }), el('strong', { text: t(`game_${g}`) }), el('small', { class: 'muted num', text: new Date(b[g].t).toLocaleDateString(state.t('dateLocale')) }), el('strong', { class: 'num', text: fmtMoney(b[g].v, { sign: false }) })]))
+        ? played.map(g => el('div', { class: 'best-row' }, [el('span', { class: 'best-icon', text: info(g).icon }), el('strong', { text: info(g).name }), el('small', { class: 'muted num', text: new Date(b[g].t).toLocaleDateString(state.t('dateLocale')) }), el('strong', { class: 'num', text: fmtMoney(b[g].v, { sign: false }) })]))
         : [el('p', { class: 'muted pad-row', text: t('bestsNone') })])
     );
+    if (!isOpen) paintList();
     if (shell.slot.firstChild !== view) shell.slot.replaceChildren(...(view ? [view] : []));
   };
-  function open(g) {
+
+  let opening = 0;
+  async function open(g) {
     stopGame();
     game = g;
     live = true;
-    view = { derby: derbyView, freethrow: freeThrowView, pairs: pairsView, merge: mergeView, speed: speedView, hangman: hangmanView, simon: simonView, sudoku: sudokuView }[g]();
+    writeList(RECENT_KEY, [g, ...readList(RECENT_KEY).filter(x => x !== g)].slice(0, 12));
+    const mine = ++opening;
+    if (ARCADE_BY_ID[g]) {
+      view = el('p', { class: 'muted gh-loading', text: state.t('gameLoading') });
+      render();
+      try {
+        const mod = await import(`./arcade/${g}.js`);
+        if (mine !== opening || game !== g) return;
+        view = arcadeView(g, mod.default);
+      } catch (error) {
+        console.error(error);
+        if (mine !== opening) return;
+        view = el('p', { class: 'muted gh-loading', text: state.t('gameLoadFail') });
+      }
+    } else view = { derby: derbyView, freethrow: freeThrowView, pairs: pairsView, merge: mergeView, speed: speedView, hangman: hangmanView, simon: simonView, sudoku: sudokuView }[g]();
     render();
-    view.focus({ preventScroll: true });
-    view.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    view.setAttribute?.('tabindex', '-1');
+    view.focus?.({ preventScroll: true });
+    shell.stage.scrollIntoView({ block: 'start', behavior: 'smooth' });
   }
   function close() {
     stopGame();
+    opening++;
     game = null;
     view = null;
     live = false;
     render();
+    shell.hub.scrollIntoView({ block: 'start' });
   }
   reopen = open;
   roundDone = () => {
@@ -156,9 +252,12 @@ let gameTimers = [];
 function later(fn, ms) {
   gameTimers.push(setTimeout(fn, ms));
 }
+let cleanups = [];
 function stopGame() {
   gameTimers.forEach(clearTimeout);
   gameTimers = [];
+  cleanups.forEach(fn => fn());
+  cleanups = [];
   cancelAnimationFrame(state.arcadeFrame ?? 0);
 }
 function animate(draw) {
@@ -1154,4 +1253,89 @@ function sudokuView() {
       }
     }
   }, [el('p', { class: 'note', text: `${t('sudokuRules', { n: SUDOKU.puzzles, s: SUDOKU.seconds, v: fmtPay(SUDOKU.pay) })} ${streakRule('sudoku')}` }), hud.node, grid, pad, box]);
+}
+
+// ---- The arcade ------------------------------------------------------------------------
+//
+// An arcade game (./arcade/<id>.js) is a function of `api` that returns its
+// screen. It shows its score with api.set({ score, info }) and ends the round
+// with api.end(score, summary); the pay is the score at the game's rate
+// (arcadePay), paid like any round. Timers, frames, keys and swipes made
+// through the api stop when the game closes.
+const KEY_DIR = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right', w: 'up', s: 'down', a: 'left', d: 'right', ' ': 'action', Enter: 'action' };
+function arcadeView(id, make) {
+  const t = state.t;
+  const lang = ctx.locale === 'en' ? 'en' : 'zh';
+  const box = el('div', { class: 'game-actions arcade-result' });
+  const scoreEl = el('span', { class: 'arc-score num' });
+  const infoEl = el('span', { class: 'arc-info num' });
+  const payEl = el('strong', { class: 'arc-pay num' });
+  const strip = el('div', { class: 'arc-strip' }, [scoreEl, infoEl, payEl]);
+  const started = Date.now();
+  let ended = false;
+  let root = null;
+  const api = {
+    id,
+    lang,
+    el,
+    t,
+    L: (zh, en) => (lang === 'en' ? en : zh),
+    rand: Math.random,
+    later,
+    animate,
+    canvas: gameCanvas,
+    burst,
+    drawParticles,
+    set({ score = 0, info = '' } = {}) {
+      scoreEl.textContent = t('arcadeScore', { n: Math.round(score * 10) / 10 });
+      infoEl.textContent = info;
+      payEl.textContent = fmtMoney(arcadePay(id, score), { sign: false });
+    },
+    end(score, summary = null) {
+      if (ended) return;
+      ended = true;
+      api.set({ score, info: t('arcadeOver') });
+      root?.classList.add('over');
+      finishRound(id, arcadePay(id, score), box, summary ?? t('arcadeSummary', { n: Math.round(score * 10) / 10 }), Date.now() - started);
+      box.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    },
+    get ended() {
+      return ended;
+    },
+    onKey(fn) {
+      const h = e => {
+        const dir = KEY_DIR[e.key];
+        if (!dir || !root?.isConnected || e.target?.tagName === 'INPUT') return;
+        e.preventDefault();
+        fn(dir, e);
+      };
+      document.addEventListener('keydown', h);
+      cleanups.push(() => document.removeEventListener('keydown', h));
+    },
+    // Swipes on `node`: up, down, left, right (and a tap as 'tap').
+    swipe(node, fn) {
+      let from = null;
+      node.style.touchAction = 'none';
+      node.addEventListener('pointerdown', e => (from = { x: e.clientX, y: e.clientY }));
+      node.addEventListener('pointerup', e => {
+        if (!from) return;
+        const dx = e.clientX - from.x;
+        const dy = e.clientY - from.y;
+        from = null;
+        if (Math.max(Math.abs(dx), Math.abs(dy)) < 24) return fn('tap', e);
+        fn(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'down' : 'up', e);
+      });
+    },
+    every(fn, ms) {
+      const h = setInterval(fn, ms);
+      cleanups.push(() => clearInterval(h));
+    },
+    cleanup(fn) {
+      cleanups.push(fn);
+    }
+  };
+  api.set({ score: 0 });
+  const stage = make(api);
+  root = el('div', { class: `game arcade arcade-${id}` }, [strip, stage, box]);
+  return root;
 }

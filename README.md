@@ -18,7 +18,17 @@ Where Quadra pays for effort and explains itself (formerly Quadra Words).
   days), wrong sends it back; box 4 is mastered.
 - **Games**: word games (word pairs, speed match, hangman) and a break from
   words (2048, mini sudoku, colour memory, home run derby, free throws; the
-  last two came from Quadra Play's arcade). A daily challenge (one game a day,
+  last two came from Quadra Play's arcade), plus 35 arcade games that aren't
+  about words (`lib/arcade.mjs`, one screen each in `public/arcade/`, loaded
+  when opened): puzzles (minesweeper, lights out, sliding puzzle, code
+  breaker, nonograms, flood it, Hanoi, sokoban, mazes, six queens), action
+  (snake, falling blocks, breakout, flappy bird, dino run, stack, dodge,
+  fruit catch, whack-a-mole, pong, aim), board games against Quadra
+  (tic-tac-toe, connect four, reversi, gomoku, nim) and brain games (quick
+  maths, reaction time, Schulte table, odd colour, number and grid memory,
+  Stroop, quick count, bigger or smaller). Each pays its score at its own
+  rate up to its own most a round (`arcadePay`). The games list has a
+  search, categories, favourites (★) and what you played lately. A daily challenge (one game a day,
   `dailyGame`) adds a bonus to its first paid round that grows with the days
   in a row (NT$10 to NT$40, paid as a game, so inside the games' cap), and
   each game's best round is kept in the wallet setting `bests:vocab`.
@@ -66,6 +76,8 @@ public/
   lib/words.mjs      boxes, rounds, questions, saved progress
   lib/earn.mjs       earnings, missions, wealth ranks
   lib/games.mjs      game rules and pay
+  lib/arcade.mjs     the arcade games' list, rules and pay
+  arcade/*.js        each arcade game's screen (arcade/kit.js: shared parts)
   lib/help.mjs       the help centre's text
   lib/i18n.mjs       Traditional Chinese and English
 ```

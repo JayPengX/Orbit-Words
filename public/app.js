@@ -9,7 +9,7 @@ import { LEVELS, MODES, loadWords, pickRound, smartType, makeQuestion, grade, pa
 import {
   CAPS, earnedToday, missions, claimEntry, rankOf, RANKS, streakDays, earnedAllTime, streakAtRisk, dailyId, dailyStreak, weeklyGoals, claimWeekly, badges
 } from './lib/earn.mjs';
-import { GAMES, ICON as GAME_ICON, dailyGame, dailyBonus, mergeBests } from './lib/games.mjs';
+import { GAMES, gameInfo, dailyGame, dailyBonus, mergeBests } from './lib/games.mjs';
 import { HELP_ORDER, helpFor, parseHelpHash } from './lib/help.mjs';
 import { detectLocale, makeT } from './lib/i18n.mjs';
 import { mountGames } from './games-ui.js';
@@ -595,8 +595,8 @@ function renderHome() {
   );
   const d = daily();
   const dailyCard = el('button', { class: `q-card pad daily-card${d.done ? ' done' : ''}`, type: 'button', onclick: () => showTab('games') }, [
-    el('span', { class: 'daily-icon', 'aria-hidden': 'true', text: GAME_ICON[d.game] }),
-    el('span', { class: 'daily-text' }, [el('small', { text: t('dailyTitle') }), el('strong', { text: t(`game_${d.game}`) }), el('small', { class: 'muted', text: d.done ? t('dailyDone', { n: d.streak }) : t(d.streak ? 'dailyLine' : 'dailyLineNew', { v: nt(d.bonus), n: d.streak }) })]),
+    el('span', { class: 'daily-icon', 'aria-hidden': 'true', text: gameInfo(d.game, t, locale).icon }),
+    el('span', { class: 'daily-text' }, [el('small', { text: t('dailyTitle') }), el('strong', { text: gameInfo(d.game, t, locale).name }), el('small', { class: 'muted', text: d.done ? t('dailyDone', { n: d.streak }) : t(d.streak ? 'dailyLine' : 'dailyLineNew', { v: nt(d.bonus), n: d.streak }) })]),
     el('span', { class: 'daily-go', text: d.done ? '✓' : '▶' })
   ]);
   put(
@@ -827,9 +827,9 @@ function checkNotices() {
   // What was ready when the app opened is on the home screen already.
   const fresh = readySeen ? ready.filter(([id]) => !readySeen.has(id)) : [];
   readySeen = new Set([...(readySeen || []), ...ready.map(([id]) => id)]);
-  for (const [id, title, pay] of fresh) notify(q, { title: t('noticeReady', { v: nt(pay) }), body: title, tag: id, hash: 'home' });
+  for (const [id, title, pay] of fresh) notify(q, { title: t('noticeReady', { v: nt(pay) }), body: title, tag: id, hash: 'home', kind: 'ready' });
   const risk = streakAtRisk(w);
-  if (risk) notify(q, { title: t('noticeStreak', { n: risk }), body: t('noticeStreakBody'), tag: `streak:${taipeiDay()}`, hash: 'games' });
+  if (risk) notify(q, { title: t('noticeStreak', { n: risk }), body: t('noticeStreakBody'), tag: `streak:${taipeiDay()}`, hash: 'games', kind: 'streak' });
 }
 setInterval(checkNotices, 10 * 60_000);
 q.on('active', live => live && sync());

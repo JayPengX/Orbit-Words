@@ -201,9 +201,9 @@ test('mini sudoku: a valid grid and a puzzle with exactly one answer', async () 
 });
 
 test('daily challenge, weekly goals, badges and bests', async () => {
-  const { dailyGame, dailyBonus, DAILY, mergeBests, GAMES } = await import('../public/lib/games.mjs');
+  const { dailyGame, dailyBonus, DAILY, mergeBests, GAMES, ALL_GAMES } = await import('../public/lib/games.mjs');
   const { dailyStreak, dailyId, weeklyGoals, claimWeekly, weekStart, badges, longestStreak, streakAtRisk } = await import('../public/lib/earn.mjs');
-  assert.ok(GAMES.includes(dailyGame('2026-09-28')));
+  assert.ok(ALL_GAMES.includes(dailyGame('2026-09-28')));
   assert.equal(dailyGame('2026-09-28'), dailyGame('2026-09-28'));
   assert.equal(dailyBonus(0), DAILY.base);
   assert.equal(dailyBonus(99), DAILY.base + DAILY.perDay * DAILY.maxDays);

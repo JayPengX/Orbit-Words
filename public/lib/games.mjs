@@ -16,11 +16,22 @@
 // follows the player (adapt), so a streak is always earned at the edge of
 // your skill.
 import { ECONOMY } from './quadra.mjs';
+import { ARCADE, ARCADE_BY_ID } from './arcade.mjs';
 
 export const GAMES = ['pairs', 'speed', 'hangman', 'merge', 'sudoku', 'simon', 'derby', 'freethrow'];
 export const ICON = { derby: '⚾', freethrow: '🏀', pairs: '🃏', merge: '🔢', speed: '⚡', hangman: '🔤', simon: '🎨', sudoku: '🧮' };
 // Which games use the word list (the rest are for a break from words).
 export const WORD_GAMES = new Set(['pairs', 'speed', 'hangman']);
+// Every game: these eight, then the arcade (arcade.mjs), and each one's
+// category for the games list.
+export const ALL_GAMES = [...GAMES, ...ARCADE.map(g => g.id)];
+const CLASSIC_CAT = { pairs: 'words', speed: 'words', hangman: 'words', merge: 'puzzle', sudoku: 'puzzle', simon: 'brain', derby: 'arcade', freethrow: 'arcade' };
+// A game's icon, name, line and category, in `t`'s language (t: i18n's).
+export function gameInfo(id, t, lang = 'zh') {
+  const a = ARCADE_BY_ID[id];
+  if (a) return { id, icon: a.icon, name: lang === 'en' ? a.en : a.zh, kind: lang === 'en' ? a.kindEn : a.kindZh, cat: a.cat, arcade: true };
+  return { id, icon: ICON[id] || '🎮', name: t(`game_${id}`), kind: t(`gameKind_${id}`), cat: CLASSIC_CAT[id] || 'puzzle', arcade: false };
+}
 // Taiwan's minimum hourly wage in 2026 (NT$).
 export const MIN_WAGE = 196;
 // Pay points are scaled to NT$ so a typical minute pays ECONOMY.gamesPerMinute.
@@ -215,6 +226,7 @@ export const PACE = {
   freethrow: { seconds: 60, events: ['swish', 'make', 'miss', 'make', 'make', 'swish', 'miss', 'make', 'miss', 'swish', 'make', 'miss', 'make', 'make', 'swish', 'miss', 'make', 'miss'] }
 };
 export function bestRound(game) {
+  if (ARCADE_BY_ID[game]) return ARCADE_BY_ID[game].max;
   if (game === 'derby') return scoreRound('derby', Array(DERBY.pitches).fill('hr')).total;
   if (game === 'freethrow') return scoreRound('freethrow', Array(FREE_THROW.shots).fill('swish')).total;
   if (game === 'pairs') return scoreRound('pairs', Array(PAIRS.boards * PAIRS.size).fill('ok')).total;
@@ -369,7 +381,7 @@ export const DAILY = { base: 10, perDay: 5, maxDays: 6 };
 export function dailyGame(day) {
   let h = 0;
   for (const ch of day) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
-  return GAMES[h % GAMES.length];
+  return ALL_GAMES[h % ALL_GAMES.length];
 }
 export const dailyBonus = streak => DAILY.base + DAILY.perDay * Math.min(Math.max(0, streak), DAILY.maxDays);
 

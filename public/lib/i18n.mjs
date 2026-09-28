@@ -2,6 +2,8 @@
 // the browser's language, or the language picked in any Quadra app).
 export const STRINGS = {
   zh: {
+    gamesSearch: '搜尋遊戲', cat_all: '全部', cat_fav: '★ 最愛', cat_words: '單字', cat_puzzle: '謎題', cat_arcade: '動作', cat_board: '棋盤', cat_brain: '腦力', gamesRecent: '最近玩過', gamesNoMatch: '找不到符合的遊戲。', gamesNoFav: '點遊戲卡右上角的 ☆ 加入最愛。', gamesCount: '{n} 款遊戲', gameBack: '遊戲列表', favAdd: '加入最愛', favRemove: '移出最愛', gameLoading: '載入中…', gameLoadFail: '載入失敗，請檢查網路後再試。', gamesToday: '今天 {v} / {cap}',
+    arcadeScore: '分數 {n}', arcadeTime: '{n} 秒', arcadeRound: '第 {n}/{of} 局', arcadeTapStart: '點一下開始', arcadeOver: '結束！', arcadeSummary: '得分 {n}。', arcadeLevel: '第 {n} 關',
     tab_home: '首頁', tab_words: '單字', tab_games: '遊戲', tab_help: '說明',
     statusLine: '今天賺了 {v}',
     // Home
@@ -60,13 +62,15 @@ export const STRINGS = {
     badge_streak7: '一週不斷', badgeHow_streak7: '連續 7 天練習或玩遊戲',
     badge_streak30: '整月不斷', badgeHow_streak30: '連續 30 天練習或玩遊戲',
     badge_daily7: '挑戰常客', badgeHow_daily7: '連續 7 天完成今日挑戰',
-    badge_allGames: '全能玩家', badgeHow_allGames: '每種遊戲都玩過',
+    badge_allGames: '全能玩家', badgeHow_allGames: '八款經典遊戲都玩過', badge_games20: '遊戲大師', badgeHow_games20: '玩過 20 種不同的遊戲',
     badge_missions50: '任務達人', badgeHow_missions50: '領過 50 次任務獎金',
     badge_earned10k: '萬元戶', badgeHow_earned10k: '在 Rewards 累計賺 NT$10,000',
     badge_wealthy: '富裕', badgeHow_wealthy: 'Quadra 餘額達到 NT$1,000,000',
     noticeReady: '可以領取 {v}', noticeStreak: '🔥 連續 {n} 天快斷了', noticeStreakBody: '今天還沒練習：背幾個字或玩一局就能保住。'
   },
   en: {
+    gamesSearch: 'Search games', cat_all: 'All', cat_fav: '★ Favourites', cat_words: 'Words', cat_puzzle: 'Puzzles', cat_arcade: 'Action', cat_board: 'Board', cat_brain: 'Brain', gamesRecent: 'Played lately', gamesNoMatch: 'No game matches.', gamesNoFav: 'Tap ☆ on a game’s card to add it here.', gamesCount: '{n} games', gameBack: 'All games', favAdd: 'Add to favourites', favRemove: 'Remove from favourites', gameLoading: 'Loading…', gameLoadFail: 'Couldn’t load it: check the connection and try again.', gamesToday: 'Today {v} / {cap}',
+    arcadeScore: 'Score {n}', arcadeTime: '{n}s', arcadeRound: 'Round {n}/{of}', arcadeTapStart: 'Tap to start', arcadeOver: 'Over!', arcadeSummary: 'Scored {n}.', arcadeLevel: 'Level {n}',
     tab_home: 'Home', tab_words: 'Words', tab_games: 'Games', tab_help: 'Help',
     statusLine: 'Earned today {v}',
     yourRank: 'Your wealth rank', streak: '🔥 {n} days in a row', toNext: '{v} to go to {rank}', topRank: 'The top rank',
@@ -122,7 +126,7 @@ export const STRINGS = {
     badge_streak7: 'A full week', badgeHow_streak7: 'Practise or play 7 days in a row',
     badge_streak30: 'A full month', badgeHow_streak30: 'Practise or play 30 days in a row',
     badge_daily7: 'Challenge regular', badgeHow_daily7: 'Play today’s challenge 7 days in a row',
-    badge_allGames: 'All-rounder', badgeHow_allGames: 'Play every game',
+    badge_allGames: 'All-rounder', badgeHow_allGames: 'Play all eight classic games', badge_games20: 'Game master', badgeHow_games20: 'Play 20 different games',
     badge_missions50: 'On a mission', badgeHow_missions50: 'Claim 50 mission rewards',
     badge_earned10k: 'Ten grand', badgeHow_earned10k: 'Earn NT$10,000 in Rewards',
     badge_wealthy: 'Wealthy', badgeHow_wealthy: 'Reach a Quadra balance of NT$1,000,000',

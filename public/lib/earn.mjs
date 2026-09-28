@@ -188,6 +188,7 @@ export const BADGES = [
   { id: 'streak30', icon: '☄️', test: c => longestStreak(c.wallet) >= 30 },
   { id: 'daily7', icon: '📅', test: c => longestStreak(c.wallet, e => e.id?.startsWith('vocab:d:')) >= 7 },
   { id: 'allGames', icon: '🕹️', test: c => (c.games || []).every(g => c.bests?.[g]) },
+  { id: 'games20', icon: '👾', test: c => Object.keys(c.bests || {}).length >= 20 },
   { id: 'missions50', icon: '🎁', test: c => (c.wallet?.entries || []).filter(e => e.app === 'vocab' && e.kind === 'mission').length >= 50 },
   { id: 'earned10k', icon: '💰', test: c => earnedAllTime(c.wallet) >= 10_000 },
   { id: 'wealthy', icon: '💎', test: c => walletRank(c.wallet).index >= RANKS.findIndex(r => r.id === 'wealthy') }
