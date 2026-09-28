@@ -288,7 +288,7 @@ h1 { font-size: 17px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.
 .hud-money { margin-left: auto; font-size: 16px; color: var(--accent); white-space: nowrap; }
 .hud-bar { height: 6px; border-radius: 99px; background: var(--q-sunken); overflow: hidden; }
 .hud-bar > div { height: 100%; background: var(--accent); transition: width 0.3s; }
-.game-canvas { width: 100%; max-width: 480px; aspect-ratio: 360 / 250; justify-self: center; border-radius: 16px; touch-action: manipulation; display: block; }
+.game-canvas { width: 100%; max-width: 480px; aspect-ratio: 360 / 250; justify-self: center; border-radius: 16px; touch-action: pan-x pan-y; display: block; }
 .game-actions { display: grid; gap: 8px; justify-items: center; text-align: center; }
 .game-big-button { min-width: 200px; min-height: 50px; font-size: 16px; }
 .game-result { font-size: 15px; }
@@ -489,20 +489,20 @@ h1 { font-size: 17px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.
 .arc-start { margin-top: 4px; }
 .arcade.over .arc-stage, .arcade.over .arc-col > :not(.arc-canvas) { pointer-events: none; }
 .arc-pad { display: grid; grid-template-columns: repeat(3, 58px); grid-template-rows: repeat(3, 50px); gap: 6px; grid-template-areas: '. up .' 'left action right' '. down .'; }
-.arc-pad-btn { border: 0; border-radius: 14px; background: var(--q-sunken); color: var(--q-text); font-size: 18px; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+.arc-pad-btn { border: 0; border-radius: 14px; background: var(--q-sunken); color: var(--q-text); font-size: 18px; touch-action: pan-x pan-y; user-select: none; -webkit-user-select: none; }
 .arc-pad-btn:active { background: var(--accent-wash); }
 .arc-pad-btn.up { grid-area: up; } .arc-pad-btn.down { grid-area: down; } .arc-pad-btn.left { grid-area: left; } .arc-pad-btn.right { grid-area: right; } .arc-pad-btn.action { grid-area: action; }
 .arc-holes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: min(360px, 100%); }
-.arc-hole { aspect-ratio: 1; border: 0; border-radius: 50%; background: radial-gradient(circle at 50% 70%, #3f2a14, #6b4423 70%); font-size: 44px; box-shadow: inset 0 -8px 0 rgba(0, 0, 0, 0.25); touch-action: manipulation; transition: transform 0.1s; }
+.arc-hole { aspect-ratio: 1; border: 0; border-radius: 50%; background: radial-gradient(circle at 50% 70%, #3f2a14, #6b4423 70%); font-size: 44px; box-shadow: inset 0 -8px 0 rgba(0, 0, 0, 0.25); touch-action: pan-x pan-y; transition: transform 0.1s; }
 .arc-hole.up { animation: arc-pop 0.14s ease-out; }
 .arc-hole.hit { background: radial-gradient(circle, #16a34a, #14532d); }
 .arc-hole.bad { background: radial-gradient(circle, #dc2626, #7f1d1d); }
 @keyframes arc-pop { from { transform: scale(0.8); } }
-.arc-field { position: relative; width: 100%; max-width: 420px; aspect-ratio: 1; border-radius: 18px; background: radial-gradient(circle, #1e293b, #0f172a); overflow: hidden; touch-action: manipulation; }
+.arc-field { position: relative; width: 100%; max-width: 420px; aspect-ratio: 1; border-radius: 18px; background: radial-gradient(circle, #1e293b, #0f172a); overflow: hidden; touch-action: pan-x pan-y; }
 .arc-target { position: absolute; transform: translate(-50%, -50%); border: 0; border-radius: 50%; background: radial-gradient(circle, #fff 0 18%, #ef4444 19% 42%, #fff 43% 62%, #ef4444 63%); animation: arc-shrink linear forwards; animation-duration: 1.6s; }
 @keyframes arc-shrink { from { scale: 1; } to { scale: 0.45; } }
 .mn-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 3px; width: min(360px, 100%); }
-.mn-cell { aspect-ratio: 1; border: 0; border-radius: 6px; background: linear-gradient(145deg, #94a3b8, #64748b); font-weight: 900; font-size: 16px; color: #fff; touch-action: manipulation; }
+.mn-cell { aspect-ratio: 1; border: 0; border-radius: 6px; background: linear-gradient(145deg, #94a3b8, #64748b); font-weight: 900; font-size: 16px; color: #fff; touch-action: pan-x pan-y; }
 .mn-cell.open { background: var(--q-sunken); }
 .mn-cell.mine { background: #fecaca; }
 .lo-grid, .sl-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; width: min(340px, 100%); }
@@ -571,7 +571,7 @@ h1 { font-size: 17px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.
 .mt-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: min(340px, 100%); }
 .mt-opt { padding: 18px 8px; border: 0; border-radius: 16px; background: var(--q-surface); box-shadow: var(--q-shadow-sm); border: 1px solid var(--q-border); font-size: 24px; font-weight: 800; color: var(--q-text); }
 .mt-opt.ok { background: #bbf7d0; } .mt-opt.bad { background: #fecaca; }
-.rx-pad { width: 100%; max-width: 420px; height: 280px; border: 0; border-radius: 22px; font-size: 22px; font-weight: 800; color: #fff; background: #334155; touch-action: manipulation; }
+.rx-pad { width: 100%; max-width: 420px; height: 280px; border: 0; border-radius: 22px; font-size: 22px; font-weight: 800; color: #fff; background: #334155; touch-action: pan-x pan-y; }
 .rx-pad.wait { background: #dc2626; } .rx-pad.go { background: #16a34a; } .rx-pad.early { background: #f59e0b; } .rx-pad.shown, .rx-pad.done { background: #2563eb; }
 .sc-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; width: min(340px, 100%); }
 .sc-cell { aspect-ratio: 1; border: 0; border-radius: 10px; background: var(--q-surface); border: 1px solid var(--q-border); font-size: 22px; font-weight: 800; color: var(--q-text); }
@@ -622,7 +622,7 @@ html.rw-playing .game-slot > * { flex: none; }
 /* Canvases as big as fit: the full width, but never taller than what's left
    under the bars (their shape is --ar, width / height). */
 html.rw-playing .arc-canvas, html.rw-playing .game-canvas { width: 100%; max-width: min(520px, calc((100dvh - 210px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) * var(--ar, 1))); height: auto; margin: 0 auto; }
-html.rw-playing .game { touch-action: manipulation; }
+html.rw-playing .game { touch-action: pan-x pan-y; }
 /* The result of a round: a card over the bottom of the game. */
 html.rw-playing .game-actions:has(.game-result) {
   position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 95;
