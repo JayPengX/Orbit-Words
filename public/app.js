@@ -170,7 +170,7 @@ async function push() {
   const out = outbox.read().filter(e => !walletHas(e.id));
   const settings = { ...actPatch(), ...affinityPatch('vocab').settings };
   if (!dirty && !out.length && !Object.keys(settings).length) return;
-  const payload = dirty ? await encodePayload() : undefined;
+  const payload = dirty && !state.unreadable ? await encodePayload() : undefined;
   dirty = false;
   try {
     const res = await q.write({ payload, wallet: { entries: out, settings } });
@@ -701,17 +701,21 @@ q.on('active', live => live && sync());
 async function boot() {
   const words = loadWordList().catch(() => null);
   const first = await q.start();
-  state.wallet = q.wallet;
+  state.wallet = first.wallet || q.wallet;
   await words;
-  absorb(await decodePayload(first?.payload));
+  const theirs = await decodePayload(first?.payload);
+  // A copy on the pass that can't be read is never saved over.
+  if (first?.payload && !theirs) state.unreadable = true;
+  absorb(theirs);
   for (const item of first?.inbox || []) absorb(await decodePayload(item.payload));
-  // Quadra Words' progress kept on this device only (never synced): onto the pass.
+  // Quadra Words' progress on this device (left in place as a backup): onto
+  // the pass, per word the newest.
   try {
     const local = JSON.parse(localStorage.getItem('vocab_progress_v1') || 'null');
     if (local && typeof local === 'object') {
+      const before = JSON.stringify(state.progress);
       absorb({ progress: migrateWords({ progress: local, exportedAt: Date.now() }) });
-      dirty = true;
-      localStorage.removeItem('vocab_progress_v1');
+      if (JSON.stringify(state.progress) !== before) dirty = true;
     }
   } catch {}
   state.loaded = true;
