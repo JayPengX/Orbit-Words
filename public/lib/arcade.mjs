@@ -12,6 +12,12 @@
 
 // [id, icon, category, 中文名, English name, 中文說明, English line, most a round (NT$), NT$ per point]
 const LIST = [
+  // Long games: ten minutes and more
+  ['sudoku9', '🔢', 'long', '數獨', 'Sudoku', '長局 · 經典 9×9', 'Long · classic 9×9', 120, 1],
+  ['solitaire', '🃏', 'long', '接龍', 'Solitaire', '長局 · Klondike 翻一張', 'Long · Klondike, draw one', 120, 1],
+  ['minesbig', '🧨', 'long', '踩地雷（大盤）', 'Minesweeper XL', '長局 · 10×14 二十四顆雷', 'Long · 10×14, 24 mines', 110, 0.6],
+  ['checkers', '🔴', 'long', '跳棋', 'Checkers', '長局 · 對戰 Quadra', 'Long · versus Quadra', 100, 1.4],
+  ['wordsearch', '🔎', 'words', '找單字', 'Word search', '單字 · 三盤，看意思找字', 'Words · 3 grids, find by meaning', 90, 1],
   // Puzzles
   ['mines', '💣', 'puzzle', '踩地雷', 'Minesweeper', '邏輯 · 8×8 十顆雷', 'Logic · 8×8, 10 mines', 40, 0.5],
   ['lights', '💡', 'puzzle', '關燈', 'Lights out', '謎題 · 三盤', 'Puzzle · 3 boards', 40, 1],
@@ -55,7 +61,7 @@ const LIST = [
 
 export const ARCADE = LIST.map(([id, icon, cat, zh, en, kindZh, kindEn, max, rate]) => ({ id, icon, cat, zh, en, kindZh, kindEn, max, rate }));
 export const ARCADE_BY_ID = Object.fromEntries(ARCADE.map(g => [g.id, g]));
-export const CATEGORIES = ['words', 'puzzle', 'arcade', 'board', 'brain'];
+export const CATEGORIES = ['words', 'long', 'puzzle', 'arcade', 'board', 'brain'];
 
 // A round's pay: its score at the game's rate, whole dollars, up to its most.
 export function arcadePay(id, score) {
@@ -628,6 +634,11 @@ export const oddSize = level => Math.min(8, 2 + Math.floor(level / 3));
 // How to play each game, in a few lines: [中文, English]. Shown the first
 // time a game is opened and behind the ? in its bar.
 export const HOW = {
+  sudoku9: ['經典 9×9 數獨：每一列、每一行、每個 3×3 九宮格都要剛好有 1 到 9。點格子再點數字；「✎ 筆記」可以記下候選數字。填錯的數字算一次錯，錯三次結束。', 'Classic 9×9 sudoku: every row, column and 3×3 box holds 1 to 9 once. Tap a cell, then a number; ✎ Notes pencils in candidates. A wrong number is a mistake; three end the game.'],
+  solitaire: ['把四種花色各自從 A 疊到 K 收到右上角。下方七疊可以接成「紅黑交錯、由大到小」，空位只能放 K。點一張牌，它會自動移到能放的地方；點左上角的牌堆翻一張。', 'Build each suit from A to K on the four piles top right. Below, stack cards in descending order, alternating red and black; only a King goes in an empty space. Tap a card and it moves where it fits; tap the stock to turn one.'],
+  minesbig: ['和踩地雷一樣，只是更大：10×14、24 顆雷。數字代表旁邊 8 格有幾顆雷，切到「🚩 插旗」標記雷。第一下一定安全。', 'Minesweeper, bigger: 10×14 with 24 mines. A number is how many of the 8 around it are mines; switch to 🚩 to flag. The first tap is always safe.'],
+  checkers: ['你是紅棋，往上走，只能斜走一格。可以吃子時一定要吃（跳過對方棋子），能連跳就繼續跳。走到最底線升為王（♛），可以前後走。吃光對方或讓對方無路可走就贏。', 'You are red and move up, one square diagonally. A capture (jumping a piece) is compulsory, and keeps going while it can. Reaching the far row crowns a piece (♛), which moves both ways. Take every piece or leave Quadra no move to win.'],
+  wordsearch: ['下面是中文意思，英文單字藏在字母格裡（橫、直、斜）。找到後點它的第一個字母，再點最後一個字母。每盤八個字，共三盤。', 'The clues are meanings; the English words hide in the grid (across, down, diagonal). Tap a word’s first letter, then its last. Eight words a grid, three grids.'],
   pairs: ['翻兩張牌：一張英文、一張中文意思，配對成功就留著。全部配完進下一盤。連續配對有加成，配錯扣一點。', 'Turn two cards: an English word and its meaning. A match stays up; clear the board for the next. Matches in a row add a bonus; a miss costs a little.'],
   speed: ['60 秒內，看英文單字，從四個中文意思選對的。答得越多賺越多，連對有加成。', 'For 60 seconds, pick the right meaning of each word out of four. More right, more pay; runs add a bonus.'],
   hangman: ['看中文意思，一次猜一個字母拼出英文單字。猜錯會少一條命，命用完就換下一個字。', 'From the meaning, guess the English word a letter at a time. A wrong letter costs a life; out of lives, on to the next word.'],

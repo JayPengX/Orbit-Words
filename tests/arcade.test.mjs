@@ -8,7 +8,8 @@ test('every arcade game has a screen, a unique id and a sane pay', () => {
   assert.equal(new Set(A.ARCADE.map(g => g.id)).size, A.ARCADE.length);
   for (const g of A.ARCADE) {
     assert.ok(existsSync(new URL(`../public/arcade/${g.id}.js`, import.meta.url)), g.id);
-    assert.ok(g.max > 0 && g.max <= 60 && g.rate > 0, g.id);
+    // A short round pays at most NT$60; a long game (ten minutes and more) up to NT$120.
+    assert.ok(g.max > 0 && g.max <= (g.cat === 'long' || g.id === 'wordsearch' ? 120 : 60) && g.rate > 0, g.id);
     assert.equal(A.arcadePay(g.id, 1e6), g.max);
     assert.equal(A.arcadePay(g.id, 0), 0);
   }

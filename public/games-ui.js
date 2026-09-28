@@ -47,7 +47,7 @@ const writeList = (key, list) => {
     localStorage.setItem(key, JSON.stringify(list));
   } catch {}
 };
-const CAT_ICON = { words: '🔤', puzzle: '🧩', arcade: '🕹️', board: '♟️', brain: '🧠' };
+const CAT_ICON = { words: '🔤', long: '🕰️', puzzle: '🧩', arcade: '🕹️', board: '♟️', brain: '🧠' };
 
 // The games tab: today's earnings, today's challenge, a search and the
 // categories (favourites too), what you played lately, then every game as a
@@ -173,6 +173,8 @@ export function mountGames(container, context) {
     const isOpen = Boolean(game);
     shell.hub.hidden = isOpen;
     shell.stage.hidden = !isOpen;
+    // A game in play has the whole screen: the page underneath can't scroll.
+    document.documentElement.classList.toggle('rw-playing', isOpen);
     if (isOpen) {
       const i = info(game);
       shell.stageName.textContent = `${i.icon} ${i.name}`;
@@ -241,7 +243,7 @@ export function mountGames(container, context) {
     render();
     view.setAttribute?.('tabindex', '-1');
     view.focus?.({ preventScroll: true });
-    shell.stage.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    shell.slot.scrollTop = 0;
   }
   function close() {
     stopGame();
@@ -251,6 +253,7 @@ export function mountGames(container, context) {
     live = false;
     render();
     shell.hub.scrollIntoView({ block: 'start' });
+    document.documentElement.classList.remove('rw-playing');
   }
   reopen = open;
   roundDone = () => {
@@ -355,6 +358,8 @@ function finishRound(game, amount, box, summary, ms, score = null) {
 // A canvas drawn at the screen's pixel density, W x H in CSS pixels.
 function gameCanvas(W, H) {
   const canvas = el('canvas', { class: 'game-canvas', width: String(W * (window.devicePixelRatio || 1)), height: String(H * (window.devicePixelRatio || 1)) });
+  // Its shape, so the stage can size it to fit the screen's height too.
+  canvas.style.setProperty('--ar', String(W / H));
   const c = canvas.getContext('2d');
   c.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
   return { canvas, ctx: c };
@@ -1301,6 +1306,8 @@ function arcadeView(id, make) {
     t,
     L: (zh, en) => (lang === 'en' ? en : zh),
     rand: Math.random,
+    // The person's words (seen ones first): { key, word, meaning, level }.
+    words: () => ctx.words?.() || [],
     later,
     animate,
     canvas: gameCanvas,
@@ -1317,7 +1324,6 @@ function arcadeView(id, make) {
       api.set({ score, info: t('arcadeOver') });
       root?.classList.add('over');
       finishRound(id, arcadePay(id, score), box, summary ?? t('arcadeSummary', { n: Math.round(score * 10) / 10 }), Date.now() - started);
-      box.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     },
     get ended() {
       return ended;

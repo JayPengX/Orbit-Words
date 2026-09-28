@@ -11,11 +11,16 @@ Where Quadra pays for effort and explains itself (formerly Quadra Words).
   apps, weekly goals, today's earnings against each cap, badges, and how to
   grow the money.
 - **Words**: the 大考中心 high-school English reference list, levels 1 to 6
-  (6,170 words). Rounds of 10 mix reviews due and new words; six ways to
-  learn (flash cards, English → meaning, meaning → English, listen and pick,
-  unscramble, dictation) or Smart mode, which picks per word by how well you
-  know it. Leitner boxes: right moves a word up (due again in 1, 3, 7, 21
-  days), wrong sends it back; box 4 is mastered.
+  (6,170 words, every one recorded in Microsoft's Jenny voice). Rounds of
+  10, 20 or 30 mix reviews due and new words, and a missed word comes back
+  once at the end; six ways to learn (flash cards, English → meaning,
+  meaning → English, listen and pick, unscramble, dictation) or Smart mode,
+  which asks by how well you know a word (never unscrambling a phrase).
+  Leitner boxes: right moves a word up (due again in 1, 2, 5, 14 days),
+  wrong sends it back; box 4 is mastered. A new word right the first time
+  is already known and goes straight to box 3. The sound starts inside the
+  tap (iOS silences sound started later) through one reused audio element;
+  without the clip, the device's best English voice.
 - **Games**: word games (word pairs, speed match, hangman) and a break from
   words (2048, mini sudoku, colour memory, home run derby, free throws; the
   last two came from Quadra Play's arcade), plus 35 arcade games that aren't
@@ -34,7 +39,14 @@ Where Quadra pays for effort and explains itself (formerly Quadra Words).
   each game's best round is kept in the wallet setting `bests:vocab`.
 - **Notices** (the kit's `notify`): a mission or weekly goal newly ready to
   claim, and a streak that ends tonight (after 20:00 Taiwan time).
-- **Help**: every Quadra app's guide. Other apps link here with
+- **Long games** (`lib/long.mjs`, category 長局): 9×9 sudoku, Klondike
+  solitaire, a 10×14 minesweeper and checkers against Quadra, ten minutes
+  and more a game, paid up to NT$120; and **word search** (your words, found
+  by their meanings). A game in play takes the whole screen: the page
+  underneath is locked and canvases size to the space left, so nothing
+  scrolls under a thumb; a round's result slides up over the game.
+- **Help**: every Quadra app's guide, all in the same shape: what it is,
+  the tabs, a few topics, how it touches the money. Other apps link here with
   `#help=<app>` or `#help=<app>:<topic>` (`helpUrl` in the kit).
 
 ## Money
@@ -72,7 +84,10 @@ shared kit in `public/lib/quadra.mjs` and `public/quadra.css`, copied from
 public/
   index.html, app.js, games-ui.js, styles.css, sw.js, manifest.webmanifest
   data/words.json    [word, part of speech, level, meaning, phonetic]
-  data/audio/*.mp3   recordings for levels 4-6 (others use the browser's voice)
+  data/audio/*.mp3   a recording of every word (Microsoft's en-US Jenny neural
+                     voice; Shared-Proxy/tools/word-audio.py makes missing ones)
+  lib/voice.mjs      ranking the device's voices (a fallback, or chosen)
+  lib/long.mjs       the long games' rules
   lib/words.mjs      boxes, rounds, questions, saved progress
   lib/earn.mjs       earnings, missions, wealth ranks
   lib/games.mjs      game rules and pay

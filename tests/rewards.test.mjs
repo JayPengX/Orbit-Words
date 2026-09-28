@@ -20,13 +20,20 @@ test('the word list has levels 1 to 6 with meanings', () => {
 
 test('boxes go up on right answers, back to 1 on a miss, cards cap at 1', () => {
   const now = Date.parse('2026-09-28T04:00:00Z');
-  let p;
-  for (let i = 0; i < 4; i++) p = grade(p, true, { now }).p;
+  // Right the first time: already known, straight to box 3; one more masters it.
+  let p = grade(undefined, true, { now }).p;
+  assert.equal(p.b, 3);
+  p = grade(p, true, { now }).p;
   assert.equal(p.b, 4);
   assert.equal(p.m, 1);
+  // Missed first, then climbing one box at a time.
+  let s = grade(undefined, false, { now }).p;
+  assert.equal(s.b, 1);
+  for (let i = 0; i < 3; i++) s = grade(s, true, { now }).p;
+  assert.equal(s.b, 4);
   assert.equal(grade(p, false, { now }).p.b, 1);
   assert.equal(grade(undefined, true, { type: 'card', now }).p.b, 1);
-  assert.equal(grade(grade(undefined, true, { now }).p, true, { type: 'card', now }).p.b, 1);
+  assert.equal(grade(grade(undefined, false, { now }).p, true, { type: 'card', now }).p.b, 1);
   // First mastery pays once only.
   let q;
   let firsts = 0;

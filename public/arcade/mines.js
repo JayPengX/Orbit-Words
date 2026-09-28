@@ -4,15 +4,17 @@
 import { minesBoard, minesOpen, minesWon } from '../lib/arcade.mjs';
 
 const NUM = ['', '#2563eb', '#16a34a', '#dc2626', '#7c3aed', '#b45309', '#0891b2', '#111827', '#6b7280'];
-export default function mines(api) {
-  const W = 8;
-  const N = 10;
+export default api => makeMines(api, { W: 8, H: 8, N: 10, win: 20, par: 120 });
+
+// The board's size, mines, the bonus for clearing it and the time (s) the
+// time bonus counts down from.
+export function makeMines(api, { W, H, N, win, par }) {
   let board = null;
   let open = new Set();
   const flags = new Set();
   let flagMode = false;
   let started = 0;
-  const cells = Array.from({ length: W * W }, (_, i) => api.el('button', { class: 'mn-cell', type: 'button', 'aria-label': `${(i % W) + 1},${Math.floor(i / W) + 1}` }));
+  const cells = Array.from({ length: W * H }, (_, i) => api.el('button', { class: 'mn-cell', type: 'button', 'aria-label': `${(i % W) + 1},${Math.floor(i / W) + 1}` }));
   const flagBtn = api.el('button', { class: 'q-chip', type: 'button', 'aria-pressed': 'false', text: api.L('🚩 插旗', '🚩 Flag') });
   flagBtn.addEventListener('click', () => {
     flagMode = !flagMode;
@@ -20,7 +22,7 @@ export default function mines(api) {
   });
   const score = (won = false) => {
     const secs = started ? (Date.now() - started) / 1000 : 0;
-    return open.size + (won ? 20 + Math.max(0, Math.round((120 - secs) / 6)) : 0);
+    return open.size + (won ? win + Math.max(0, Math.round((par - secs) / (par / 20))) : 0);
   };
   const paint = (reveal = false) => {
     cells.forEach((c, i) => {
@@ -39,7 +41,7 @@ export default function mines(api) {
     }
     if (flags.has(i) || open.has(i)) return;
     if (!board) {
-      board = minesBoard(W, W, N, i);
+      board = minesBoard(W, H, N, i);
       started = Date.now();
     }
     if (board.mine[i]) {
@@ -64,5 +66,7 @@ export default function mines(api) {
     });
   });
   paint();
-  return api.el('div', { class: 'arc-col' }, [api.el('div', { class: 'mn-grid' }, cells), flagBtn]);
+  const grid = api.el('div', { class: `mn-grid${W > 8 ? ' big' : ''}` }, cells);
+  grid.style.gridTemplateColumns = `repeat(${W}, 1fr)`;
+  return api.el('div', { class: 'arc-col' }, [grid, flagBtn]);
 }

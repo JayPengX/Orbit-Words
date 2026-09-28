@@ -11,6 +11,7 @@ import {
 } from './lib/earn.mjs';
 import { GAMES, gameInfo, dailyGame, dailyBonus, mergeBests } from './lib/games.mjs';
 import { HELP_ORDER, helpFor, parseHelpHash } from './lib/help.mjs';
+import { pickVoice, rankVoices } from './lib/voice.mjs';
 import { detectLocale, makeT } from './lib/i18n.mjs';
 import { mountGames } from './games-ui.js';
 
@@ -250,27 +251,64 @@ async function loadWordList() {
   state.byKey = new Map(state.words.map(w => [w.key, w]));
 }
 
-// Pronunciation: the recorded clip (levels 4-6), else the browser's voice.
-let player = null;
-function speak(word, { slow = false } = {}) {
+// Pronunciation: every word has a recording in Microsoft's neural voice
+// (data/audio, en-US Jenny); slow is the same clip at three quarters speed.
+// One <audio> element is reused, so once a tap has played it (iOS only lets
+// sound start from a tap) later words play from code too, and each word is
+// started right in the tap that asks for it (never after a delay, which iOS
+// would silence). Without the clip (offline, a missing file): the device's
+// best English voice (lib/voice.mjs), or the one chosen in the settings.
+const clip = typeof Audio === 'function' ? new Audio() : null;
+if (clip) {
+  clip.preload = 'auto';
+  clip.preservesPitch = true;
+}
+let voices = [];
+const loadVoices = () => {
   try {
-    player?.pause();
+    voices = speechSynthesis.getVoices();
   } catch {}
-  const voice = () => {
-    if (!('speechSynthesis' in window)) return;
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(word.word);
-    u.lang = 'en-US';
-    u.rate = slow ? 0.7 : 0.92;
-    const v = speechSynthesis.getVoices().find(x => /^en(-|_)US/i.test(x.lang)) || speechSynthesis.getVoices().find(x => /^en/i.test(x.lang));
-    if (v) u.voice = v;
-    speechSynthesis.speak(u);
+};
+if ('speechSynthesis' in window) {
+  loadVoices();
+  speechSynthesis.addEventListener?.('voiceschanged', loadVoices);
+}
+const VOICE_KEY = 'rewards.voice';
+const chosenVoice = () => {
+  try {
+    return localStorage.getItem(VOICE_KEY) || '';
+  } catch {
+    return '';
+  }
+};
+function voiceSpeak(text, slow) {
+  if (!('speechSynthesis' in window)) return;
+  if (!voices.length) loadVoices();
+  const u = new SpeechSynthesisUtterance(text);
+  const v = pickVoice(voices, chosenVoice());
+  if (v) u.voice = v;
+  u.lang = v?.lang || 'en-US';
+  u.rate = slow ? 0.72 : 0.95;
+  if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel();
+  speechSynthesis.speak(u);
+  if (speechSynthesis.paused) speechSynthesis.resume();
+}
+function speak(word, { slow = false } = {}) {
+  const text = word.word;
+  if (!clip || chosenVoice()) return voiceSpeak(text, slow);
+  try {
+    clip.pause();
+  } catch {}
+  let fell = false;
+  const fallback = () => {
+    if (fell) return;
+    fell = true;
+    voiceSpeak(text, slow);
   };
-  if (word.level >= 4 && !slow) {
-    player = new Audio(`./data/audio/${encodeURIComponent(word.word)}.mp3`);
-    player.play().catch(voice);
-    player.onerror = voice;
-  } else voice();
+  clip.onerror = fallback;
+  clip.src = `./data/audio/${encodeURIComponent(text)}.mp3`;
+  clip.playbackRate = slow ? 0.75 : 1;
+  clip.play().catch(e => e?.name !== 'AbortError' && fallback());
 }
 const speakButton = (word, big = false) => el('button', { class: `speak${big ? ' big' : ''}`, type: 'button', 'aria-label': t('listen'), text: '🔊', onclick: e => (e.stopPropagation(), speak(word)) });
 
@@ -312,12 +350,36 @@ function renderWords() {
         el('div', { class: 'earn-mini' }, [el('small', { class: 'muted', text: t('todayWords') }), el('strong', { class: 'num', text: `${nt(today.words)} / ${nt(CAPS.words)}` })])
       ]),
       bar(today.words, CAPS.words, 'accent'),
+      el('div', { class: 'size-row' }, [
+        el('span', { class: 'muted', text: t('roundSize') }),
+        el('div', { class: 'segmented small', role: 'group' }, [10, 20, 30].map(n => el('button', { type: 'button', 'aria-pressed': String((state.size || 10) === n), text: t('wordsN', { n }), onclick: () => ((state.size = n), renderWords()) })))
+      ]),
       el('button', { class: 'q-btn primary block big-start', type: 'button', disabled: !selected.length, text: t('startRound'), onclick: startRound })
     ]),
     section(t('levels'), levelCards, { sub: t('levelsSub') }),
     section(t('modes'), modes),
-    section(t('progress'), progressCard(st))
+    section(t('progress'), progressCard(st)),
+    section(t('voiceTitle'), voicePicker(), { sub: t('voiceHint') })
   );
+}
+
+// The recordings, or one of this device's English voices (best first).
+function voicePicker() {
+  if (!voices.length) loadVoices();
+  const list = rankVoices(voices).slice(0, 12);
+  const select = el('select', { class: 'voice-select', 'aria-label': t('voiceTitle') }, [
+    el('option', { value: '', text: `🎙️ ${t('voiceAuto')}` }),
+    ...list.map(v => el('option', { value: v.name, text: `${v.name} · ${v.lang}` }))
+  ]);
+  select.value = chosenVoice();
+  select.addEventListener('change', () => {
+    try {
+      if (select.value) localStorage.setItem(VOICE_KEY, select.value);
+      else localStorage.removeItem(VOICE_KEY);
+    } catch {}
+    speak({ word: 'Hello, welcome to Quadra Rewards' });
+  });
+  return el('div', { class: 'q-card pad voice-card' }, [select]);
 }
 const MODE_ICON = { smart: '✨', card: '🗂️', meaning: '🔤', word: '🀄', listen: '🎧', letters: '🧩', spell: '✍️' };
 
@@ -343,7 +405,7 @@ function toggleLevel(l) {
 // ---- A round ---------------------------------------------------------------------------
 
 function startRound() {
-  const list = pickRound(state.words, state.progress, { levels: state.levels, size: 10 });
+  const list = pickRound(state.words, state.progress, { levels: state.levels, size: state.size || 10 });
   if (!list.length) return toast(t('nothingLeft'));
   state.round = { list, i: 0, results: [], earned: 0, q: null, answered: false, started: Date.now() };
   nextQuestion();
@@ -352,14 +414,15 @@ function startRound() {
 function nextQuestion() {
   const r = state.round;
   const word = r.list[r.i];
-  const type = state.mode === 'smart' ? smartType(state.progress[word.key]) : state.mode;
+  const type = r.retry?.has(word.key) ? 'meaning' : state.mode === 'smart' ? smartType(state.progress[word.key], Math.random, word) : state.mode;
   r.q = makeQuestion(word, type, state.words);
   r.answered = false;
   r.typed = '';
   r.built = [];
   r.revealed = false;
   renderWords();
-  if (['meaning', 'listen', 'spell', 'letters'].includes(type)) setTimeout(() => speak(word), 250);
+  // Straight away, inside the tap that led here (iOS plays sound only then).
+  if (['meaning', 'listen', 'spell', 'letters', 'card'].includes(type)) speak(word);
 }
 
 function answer(correct, typed = '') {
@@ -377,6 +440,13 @@ function answer(correct, typed = '') {
   r.earned += pay;
   r.results.push({ word, correct, type: r.q.type, before, after: stateOf(res.p), pay, typed, mastered: res.firstMastery });
   if (!correct) speak(word);
+  // A missed word comes back once at the end of the round, to fix it while
+  // it's fresh (asked by its meaning).
+  if (!correct && !r.retry?.has(word.key)) {
+    r.retry = r.retry || new Set();
+    r.retry.add(word.key);
+    r.list = [...r.list, word];
+  }
   renderWords();
   sync({ soon: true });
 }

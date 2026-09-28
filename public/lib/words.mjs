@@ -5,15 +5,19 @@
 // Every word the person has met has a box (a Leitner box): 0 new, 1 to 3
 // learning, 4 and 5 mastered. A right answer moves it up a box and schedules
 // it later (BOX_DAYS), a wrong one sends it back to box 1, due again today.
-// Only answers that test something move a word up: flash cards (grading
-// yourself) take a new word to box 1 at most.
+// A new word answered right the first time it's seen is one the person
+// already knows: it goes straight to box 3, so one more right answer on
+// review (two days on) masters it. Only answers that test something move a
+// word up: flash cards (grading yourself) take a new word to box 1 at most.
 //
 // A round mixes due reviews with new words, and asks each word the way that
 // suits its box: new words by meaning, then the reverse, then by sound, then
 // building it from letters, and mastered ones by dictation (hear it, spell it).
 
 export const LEVELS = [1, 2, 3, 4, 5, 6];
-export const BOX_DAYS = [0, 0, 1, 3, 7, 21];
+export const BOX_DAYS = [0, 0, 1, 2, 5, 14];
+// A new word right the first time: already known.
+export const KNOWN_BOX = 3;
 export const MASTERED = 4;
 export const TYPES = ['card', 'meaning', 'word', 'listen', 'letters', 'spell'];
 // Which study modes a person can choose; 'smart' picks per word.
@@ -43,6 +47,7 @@ export function grade(p, correct, { type = 'meaning', now = Date.now() } = {}) {
   let b;
   if (!correct) b = 1;
   else if (type === 'card') b = Math.max(1, was.b);
+  else if (!was.b && !was.n) b = KNOWN_BOX;
   else b = Math.min(5, (was.b || 0) + 1);
   const next = { ...was, b, d: today + BOX_DAYS[b], n: (was.n || 0) + 1, r: (was.r || 0) + (correct ? 1 : 0), t: now };
   const firstMastery = b >= MASTERED && !was.m;
@@ -50,14 +55,19 @@ export function grade(p, correct, { type = 'meaning', now = Date.now() } = {}) {
   return { p: next, firstMastery };
 }
 
-// The kind of question a word gets in smart mode, by its box.
-export function smartType(p, random = Math.random) {
+// The kind of question a word gets in smart mode, by its box: first its
+// meaning (see the word, pick the meaning), then the reverse (see the
+// meaning, pick the word), then by ear, then building it from its letters,
+// then dictation. A phrase or a long word is never unscrambled (too many
+// tiles for a phone): it's asked by ear, or spelled.
+export function smartType(p, random = Math.random, word = null) {
   const b = p?.b || 0;
-  if (b === 0) return p?.n ? 'meaning' : random() < 0.3 ? 'card' : 'meaning';
-  if (b === 1) return random() < 0.5 ? 'word' : 'meaning';
-  if (b === 2) return random() < 0.6 ? 'listen' : 'word';
-  if (b === 3) return random() < 0.6 ? 'letters' : 'listen';
-  return random() < 0.7 ? 'spell' : 'letters';
+  const long = word ? /\s/.test(word.word) || word.word.length > 11 : false;
+  if (b === 0) return 'meaning';
+  if (b === 1) return p?.n > 1 && random() < 0.5 ? 'word' : 'meaning';
+  if (b === 2) return random() < 0.6 ? 'word' : 'listen';
+  if (b === 3) return long ? 'listen' : random() < 0.6 ? 'letters' : 'listen';
+  return long || random() < 0.7 ? 'spell' : 'letters';
 }
 
 // The words for a round: due reviews first (most overdue, lowest box), then

@@ -600,3 +600,98 @@ h1 { font-size: 17px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.
 .gh-how[hidden] { display: none; }
 .gh-how strong { font-size: 14px; color: var(--accent); }
 .gh-how p { margin: 0; font-size: 14.5px; line-height: 1.6; color: var(--q-text); }
+
+/* Round size and the voice */
+.size-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 12px 0 2px; }
+.size-row .segmented button { min-width: 64px; }
+.voice-select { width: 100%; padding: 11px 12px; border-radius: 12px; border: 1px solid var(--q-border); background: var(--q-surface); color: var(--q-text); font: 600 15px var(--q-font); }
+.size-row .segmented { margin: 0; }
+
+/* ---- A game in play: the whole screen, nothing scrolls under a thumb ---- */
+html.rw-playing, html.rw-playing body { overflow: hidden; overscroll-behavior: none; height: 100%; }
+html.rw-playing .q-tabbar, html.rw-playing .appbar, html.rw-playing .mobile-bar { visibility: hidden; }
+html.rw-playing .gh-stage {
+  position: fixed; inset: 0; z-index: 90; display: flex; flex-direction: column; gap: 8px;
+  padding: calc(var(--q-top, env(safe-area-inset-top)) + 4px) max(12px, env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  background: var(--q-page);
+}
+html.rw-playing .gh-stage-bar { position: static; margin: 0; padding: 4px 0 8px; flex: none; }
+html.rw-playing .gh-how { flex: none; max-height: 34dvh; overflow: auto; }
+html.rw-playing .game-slot { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; }
+html.rw-playing .game-slot > * { flex: none; }
+/* Canvases as big as fit: the full width, but never taller than what's left
+   under the bars (their shape is --ar, width / height). */
+html.rw-playing .arc-canvas, html.rw-playing .game-canvas { width: 100%; max-width: min(520px, calc((100dvh - 210px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) * var(--ar, 1))); height: auto; margin: 0 auto; }
+html.rw-playing .game { touch-action: manipulation; }
+/* The result of a round: a card over the bottom of the game. */
+html.rw-playing .game-actions:has(.game-result) {
+  position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 95;
+  padding: 16px; border-radius: 20px; background: var(--q-surface); border: 1px solid var(--q-border); box-shadow: 0 18px 50px -12px rgba(0, 0, 0, 0.45);
+  max-height: 60dvh; overflow: auto; animation: rw-rise 0.22s ease-out;
+}
+@keyframes rw-rise { from { transform: translateY(24px); opacity: 0; } }
+
+/* ---- Long games ---- */
+.mn-grid.big { width: min(400px, 100%, calc((100dvh - 290px) * 10 / 14)); gap: 2px; }
+.mn-grid.big .mn-cell { font-size: 13px; border-radius: 4px; }
+/* Sudoku 9×9 */
+.sd9 { gap: 12px; }
+.sd9-grid { display: grid; grid-template-columns: repeat(9, 1fr); width: min(420px, 100%, calc(100dvh - 330px)); border: 2px solid var(--q-text); border-radius: 10px; overflow: hidden; background: var(--q-surface); }
+.sd9-cell { aspect-ratio: 1; border: 0; border-right: 1px solid var(--q-border); border-bottom: 1px solid var(--q-border); background: var(--q-surface); font: 700 clamp(15px, 4.8vw, 22px) var(--q-font); color: var(--vocab, #7c3aed); padding: 0; display: grid; place-items: center; }
+.sd9-cell.given { color: var(--q-text); font-weight: 800; }
+.sd9-cell.br { border-right: 2px solid var(--q-text); }
+.sd9-cell.bb { border-bottom: 2px solid var(--q-text); }
+.sd9-cell.peer { background: color-mix(in srgb, var(--q-accent) 6%, var(--q-surface)); }
+.sd9-cell.same { background: color-mix(in srgb, var(--q-accent) 16%, var(--q-surface)); }
+.sd9-cell.sel { background: color-mix(in srgb, var(--q-accent) 28%, var(--q-surface)); }
+.sd9-cell.bad { color: #dc2626; }
+.sd9-notes { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; height: 100%; }
+.sd9-notes i { font: 600 8px/1 var(--q-font); color: var(--q-muted); display: grid; place-items: center; font-style: normal; }
+.sd9-pad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; width: min(420px, 100%); }
+.sd9-key { height: 44px; border-radius: 12px; border: 1px solid var(--q-border); background: var(--q-surface); font: 800 19px var(--q-font); color: var(--q-text); }
+.sd9-key.erase { color: var(--q-muted); }
+/* Solitaire */
+.sl { gap: 10px; width: 100%; max-width: 480px; margin: 0 auto; }
+.sl.shake { animation: sl-shake 0.25s; }
+@keyframes sl-shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+.sl-top { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+.sl-gap { display: block; }
+.sl-slot { padding: 0; border: 0; background: none; }
+.sl-tab { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; align-items: start; min-height: 46dvh; }
+.sl-top, .sl-tab { width: 100%; }
+.sl-slot, .sl-in { display: block; width: 100%; }
+.sl-pile { display: flex; flex-direction: column; min-width: 0; }
+/* Cards overlap: each shows its top strip (margins in % are of the width). */
+.sl-in { padding: 0; border: 0; background: none; text-align: left; }
+.sl-in + .sl-in { margin-top: calc(-140% + 22px); }
+.sl-in.after-down { margin-top: calc(-140% + 9px); }
+.sl-card, .sl-empty { position: relative; display: block; width: 100%; aspect-ratio: 5 / 7; border-radius: 6px; }
+.sl-card.up { background: #fff; border: 1px solid #cbd5e1; color: #111827; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15); }
+.sl-card.red { color: #dc2626; }
+.sl-card.down { background: repeating-linear-gradient(45deg, #6d28d9 0 4px, #7c3aed 4px 8px); border: 1px solid #5b21b6; }
+.sl-card b { position: absolute; left: 3px; top: 1px; font: 800 clamp(10px, 3.2vw, 14px)/1.1 var(--q-font); }
+.sl-card i { position: absolute; right: 3px; top: 1px; font: 700 clamp(9px, 2.8vw, 12px)/1.1 var(--q-font); font-style: normal; }
+.sl-card em { position: absolute; inset: 0; display: grid; place-items: center; padding-top: 30%; font: 400 clamp(14px, 5vw, 22px) var(--q-font); font-style: normal; }
+.sl-empty { border: 1.5px dashed var(--q-border); display: grid; place-items: center; color: var(--q-muted); font-size: 16px; }
+/* Checkers */
+.ck-grid { display: grid; grid-template-columns: repeat(8, 1fr); width: min(420px, 100%, calc(100dvh - 300px)); border-radius: 10px; overflow: hidden; border: 2px solid #78350f; }
+.ck-cell { aspect-ratio: 1; border: 0; padding: 0; background: #fde68a; display: grid; place-items: center; }
+.ck-cell.dark { background: #92400e; }
+.ck-cell.can { box-shadow: inset 0 0 0 2px #fde047; }
+.ck-cell.sel { background: #b45309; }
+.ck-cell.to::after { content: ''; width: 30%; height: 30%; border-radius: 50%; background: rgba(253, 224, 71, 0.85); }
+.ck-piece { width: 78%; height: 78%; border-radius: 50%; display: grid; place-items: center; color: #fde047; font-size: clamp(12px, 3.6vw, 18px); box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.3); }
+.ck-piece.me { background: radial-gradient(circle at 35% 30%, #f87171, #b91c1c); }
+.ck-piece.ai { background: radial-gradient(circle at 35% 30%, #4b5563, #111827); }
+/* Word search */
+.ws { gap: 10px; }
+.ws-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; width: min(400px, 100%, calc(100dvh - 380px)); }
+.ws-cell { aspect-ratio: 1; border: 0; border-radius: 6px; background: var(--q-surface); font: 800 clamp(12px, 3.8vw, 17px) var(--q-font); color: var(--q-text); padding: 0; }
+.ws-cell.first { background: var(--q-accent); color: #fff; }
+.ws-cell.hit { background: color-mix(in srgb, var(--q-accent) 22%, var(--q-surface)); color: var(--q-accent); }
+.ws-clues { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; width: min(400px, 100%); }
+.ws-clues li { display: grid; font-size: 13px; min-width: 0; }
+.ws-clues li span { color: var(--q-text); font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ws-clues li b { font-size: 11.5px; color: var(--q-muted); font-weight: 600; }
+.ws-clues li.done span { text-decoration: line-through; color: var(--q-muted); }
+.ws-clues li.done b { color: var(--q-accent); }
