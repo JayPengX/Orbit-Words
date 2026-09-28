@@ -32,7 +32,7 @@ fixed ids, so nothing is paid twice), capped per Taiwan day
 | Games | about NT$15 a minute of typical play | NT$400 |
 | Missions | NT$40–60 each, claimed | NT$300 |
 
-Missions read each app's activity counts in the wallet (`act:<app>`) and
+Missions (Orbit Class included: checking the day's classes) read each app's activity counts in the wallet (`act:<app>`) and
 when each app was last opened; none is about betting.
 
 ## How it works

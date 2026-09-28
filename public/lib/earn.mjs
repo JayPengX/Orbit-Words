@@ -43,6 +43,8 @@ export const MISSIONS = [
   { id: 'game1', app: 'vocab', pay: 40, goal: 1, count: a => a.vocab?.game || 0 },
   { id: 'invest', app: 'stock', pay: 60, goal: 1, count: a => (a.stock?.trade || 0) + (a.stock?.watch || 0) },
   { id: 'match', app: 'match', pay: 40, goal: 1, count: a => (a.match?.open || 0) + (a.match?.follow || 0) },
+  // Orbit Class, Quadra's class schedule: checking the day's classes.
+  { id: 'orbit', app: 'orbit', pay: 50, goal: 1, count: a => (a.orbit?.open || 0) + (a.orbit?.edit || 0) },
   { id: 'tour', app: 'eco', pay: 40, goal: 3, count: (a, apps, day) => ['stock', 'match', 'vocab'].filter(x => apps?.[x]?.last && taipeiDay(apps[x].last) === day).length }
 ];
 export const missionId = (day, id) => `vocab:m:${day}:${id}`;

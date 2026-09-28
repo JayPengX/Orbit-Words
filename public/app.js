@@ -566,7 +566,7 @@ function renderHome() {
     section(t('growTitle'), el('div', { class: 'q-card pad grow' }, [el('p', { text: t('growText') }), el('div', { class: 'two-btn' }, [el('button', { class: 'q-btn', type: 'button', text: t('openHelp'), onclick: () => openHelp('vocab', 'rich') }), el('button', { class: 'q-btn primary', type: 'button', text: t('openSecurities'), onclick: () => q.go('stock') })])]))
   );
 }
-const MISSION_ICON = { words20: '📚', master3: '🏅', game1: '🎮', invest: '📈', match: '🏟️', tour: '🧭' };
+const MISSION_ICON = { words20: '📚', master3: '🏅', game1: '🎮', invest: '📈', match: '🏟️', orbit: '🪐', tour: '🧭' };
 
 function ranksCard(current) {
   return el(
@@ -582,6 +582,7 @@ function goMission(m) {
   if (m.app === 'vocab') return showTab(m.id === 'game1' ? 'games' : 'words');
   if (m.app === 'stock') return q.go('stock');
   if (m.app === 'match') return q.go('match');
+  if (m.app === 'orbit') return q.go('orbit');
   // The tour: the first app not opened today.
   const day = taipeiDay();
   const next = ['stock', 'match'].find(a => !(state.wallet?.apps?.[a]?.last && taipeiDay(state.wallet.apps[a].last) === day));
