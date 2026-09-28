@@ -153,3 +153,93 @@ test('help covers every app in both languages, and every string exists in both',
   assert.equal(parseHelpHash('#words'), null);
   assert.deepEqual(Object.keys(STRINGS.en).sort(), Object.keys(STRINGS.zh).sort());
 });
+
+test('new games: every one pays a modest round, inside the daily cap', async () => {
+  const { GAMES, bestRound, STREAK, ICON } = await import('../public/lib/games.mjs');
+  assert.equal(GAMES.length, 8);
+  for (const g of GAMES) {
+    assert.ok(STREAK[g] && ICON[g], g);
+    assert.ok(bestRound(g) > 0 && bestRound(g) <= 80, `${g} ${bestRound(g)}`);
+    assert.ok(STRINGS.zh[`game_${g}`] && STRINGS.en[`gameKind_${g}`], g);
+  }
+});
+
+test('speed match: four different meanings with the answer among them', async () => {
+  const { speedQuestion } = await import('../public/lib/games.mjs');
+  const pool = words.slice(0, 300).map(w => ({ key: w.key, word: w.word, meaning: w.zh.split('、')[0] }));
+  for (let i = 0; i < 50; i++) {
+    const q = speedQuestion(pool, random);
+    assert.equal(q.choices.length, 4);
+    assert.equal(new Set(q.choices.map(c => c.meaning)).size, 4);
+    assert.ok(q.choices.includes(q.word));
+  }
+});
+
+test('hangman: hits keep lives, misses cost one, solved and over', async () => {
+  const { guessLetter, hangmanSolved, hangmanOver, hangmanMask, hangmanPay, HANGMAN } = await import('../public/lib/games.mjs');
+  let s = { word: 'apple', guessed: new Set(), lives: HANGMAN.lives };
+  s = guessLetter(s, 'p').state;
+  assert.deepEqual(hangmanMask(s), ['_', 'p', 'p', '_', '_']);
+  const miss = guessLetter(s, 'z');
+  assert.equal(miss.hit, false);
+  assert.equal(miss.state.lives, HANGMAN.lives - 1);
+  assert.equal(guessLetter(miss.state, 'z').hit, null);
+  for (const ch of 'ale') s = guessLetter(s, ch).state;
+  assert.ok(hangmanSolved(s) && hangmanOver(s));
+  assert.ok(hangmanPay(6) > hangmanPay(1));
+});
+
+test('mini sudoku: a valid grid and a puzzle with exactly one answer', async () => {
+  const { sudokuPuzzle, sudokuCount, sudokuOk } = await import('../public/lib/games.mjs');
+  for (let n = 0; n < 40; n++) {
+    const { puzzle, solution } = sudokuPuzzle(random);
+    for (let i = 0; i < 16; i++) assert.ok(sudokuOk(solution, i, solution[i]));
+    assert.equal(sudokuCount(puzzle), 1);
+    assert.ok(puzzle.every((v, i) => !v || v === solution[i]));
+    assert.ok(puzzle.filter(Boolean).length <= 8);
+  }
+});
+
+test('daily challenge, weekly goals, badges and bests', async () => {
+  const { dailyGame, dailyBonus, DAILY, mergeBests, GAMES } = await import('../public/lib/games.mjs');
+  const { dailyStreak, dailyId, weeklyGoals, claimWeekly, weekStart, badges, longestStreak, streakAtRisk } = await import('../public/lib/earn.mjs');
+  assert.ok(GAMES.includes(dailyGame('2026-09-28')));
+  assert.equal(dailyGame('2026-09-28'), dailyGame('2026-09-28'));
+  assert.equal(dailyBonus(0), DAILY.base);
+  assert.equal(dailyBonus(99), DAILY.base + DAILY.perDay * DAILY.maxDays);
+  // Monday 28 Sep 2026, noon in Taiwan.
+  const now = Date.parse('2026-09-28T04:00:00Z');
+  assert.equal(weekStart(now), '2026-09-28');
+  assert.equal(weekStart(Date.parse('2026-10-04T15:00:00Z')), '2026-09-28');
+  const day = n => now - n * 86_400_000;
+  const entries = [];
+  for (let n = 1; n <= 7; n++) entries.push({ id: dailyId(taipeiDay(day(n))), t: day(n), app: 'vocab', kind: 'game', amount: 10 });
+  const wallet = { entries };
+  assert.equal(dailyStreak(wallet, now), 7);
+  assert.equal(longestStreak(wallet), 7);
+  assert.equal(streakAtRisk(wallet, now), 0);
+  assert.equal(streakAtRisk(wallet, Date.parse('2026-09-28T13:00:00Z')), 7);
+  const wk = { entries: [...entries, ...Array.from({ length: 10 }, (_, i) => ({ id: `vocab:g:${i}`, t: now - i, app: 'vocab', kind: 'game', amount: 150 }))] };
+  const goals = weeklyGoals(wk, now);
+  assert.equal(goals.find(g => g.id === 'games10').done, true);
+  assert.equal(goals.find(g => g.id === 'earn1500').done, true);
+  assert.equal(goals.find(g => g.id === 'days5').progress, 1);
+  const claim = claimWeekly(wk, 'games10', now);
+  assert.equal(claim.kind, 'mission');
+  assert.ok(claim.amount <= CAPS.mission);
+  assert.equal(claimWeekly({ entries: [...wk.entries, claim] }, 'games10', now), null);
+  const b = badges({ wallet: wk, mastered: 120, bests: {}, games: GAMES });
+  assert.ok(b.find(x => x.id === 'firstGame').earned);
+  assert.ok(b.find(x => x.id === 'words100').earned);
+  assert.ok(b.find(x => x.id === 'daily7').earned);
+  assert.ok(!b.find(x => x.id === 'allGames').earned);
+  assert.deepEqual(mergeBests({ pairs: { v: 10, t: 1 } }, { pairs: { v: 8, t: 2 }, merge: { v: 5, t: 3 } }), { pairs: { v: 10, t: 1 }, merge: { v: 5, t: 3 } });
+});
+
+test('the word of the day changes daily and is a single word', async () => {
+  const { wordOfDay } = await import('../public/lib/words.mjs');
+  const a = wordOfDay(words, Date.parse('2026-09-28T04:00:00Z'));
+  const b = wordOfDay(words, Date.parse('2026-09-29T04:00:00Z'));
+  assert.notEqual(a.key, b.key);
+  assert.match(a.word, /^[a-z]+$/);
+});

@@ -6,17 +6,24 @@ Where Quadra pays for effort and explains itself (formerly Quadra Words).
 
 ## What's in it
 
-- **Home**: your wealth rank (from the Quadra Pass wallet's total), next
-  steps, daily missions across the apps, today's earnings against each cap,
-  and how to grow the money.
+- **Home**: your wealth rank (from the Quadra Pass wallet's total), the word
+  of the day, next steps, today's game challenge, daily missions across the
+  apps, weekly goals, today's earnings against each cap, badges, and how to
+  grow the money.
 - **Words**: the 大考中心 high-school English reference list, levels 1 to 6
   (6,170 words). Rounds of 10 mix reviews due and new words; six ways to
   learn (flash cards, English → meaning, meaning → English, listen and pick,
   unscramble, dictation) or Smart mode, which picks per word by how well you
   know it. Leitner boxes: right moves a word up (due again in 1, 3, 7, 21
   days), wrong sends it back; box 4 is mastered.
-- **Games**: word pairs, 2048, home run derby and free throws (the last two
-  came from Quadra Play's arcade).
+- **Games**: word games (word pairs, speed match, hangman) and a break from
+  words (2048, mini sudoku, colour memory, home run derby, free throws; the
+  last two came from Quadra Play's arcade). A daily challenge (one game a day,
+  `dailyGame`) adds a bonus to its first paid round that grows with the days
+  in a row (NT$10 to NT$40, paid as a game, so inside the games' cap), and
+  each game's best round is kept in the wallet setting `bests:vocab`.
+- **Notices** (the kit's `notify`): a mission or weekly goal newly ready to
+  claim, and a streak that ends tonight (after 20:00 Taiwan time).
 - **Help**: every Quadra app's guide. Other apps link here with
   `#help=<app>` or `#help=<app>:<topic>` (`helpUrl` in the kit).
 
@@ -31,6 +38,10 @@ fixed ids, so nothing is paid twice), capped per Taiwan day
 | Words | NT$3 a right answer, NT$25 a first mastery | NT$600 |
 | Games | about NT$15 a minute of typical play | NT$400 |
 | Missions | NT$40–60 each, claimed | NT$300 |
+
+Weekly goals (Monday to Sunday, ids `vocab:wk:<Monday>:<goal>`) are paid as
+missions, inside the missions' cap. Badges are read from the record (wallet
+entries, words mastered, bests), so nothing extra is stored.
 
 Missions (Orbit Class included: checking the day's classes) read each app's activity counts in the wallet (`act:<app>`) and
 when each app was last opened; none is about betting.

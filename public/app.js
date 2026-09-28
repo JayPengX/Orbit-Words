@@ -3,10 +3,13 @@
 // daily missions pay into the Quadra Pass's shared wallet; the wealth ranks
 // show where the pool stands; the help centre explains every app.
 import {
-  quadraSession, accountButton, installGate, watchUpdates, recordAffinity, affinityPatch, setting, settingPatch, taipeiDay, poolBalance, money, randomId, APPS, ECONOMY
+  quadraSession, accountButton, installGate, watchUpdates, recordAffinity, affinityPatch, setting, settingPatch, taipeiDay, poolBalance, money, randomId, notify, APPS, ECONOMY
 } from './lib/quadra.mjs';
-import { LEVELS, MODES, loadWords, pickRound, smartType, makeQuestion, grade, payFor, sameWord, spellDiff, stats, stateOf, packProgress, unpackProgress, mergeProgress, migrateWords, shortMeaning } from './lib/words.mjs';
-import { CAPS, earnedToday, missions, claimEntry, rankOf, RANKS, streakDays, earnedAllTime } from './lib/earn.mjs';
+import { LEVELS, MODES, loadWords, pickRound, smartType, makeQuestion, grade, payFor, sameWord, spellDiff, stats, stateOf, packProgress, unpackProgress, mergeProgress, migrateWords, shortMeaning, wordOfDay } from './lib/words.mjs';
+import {
+  CAPS, earnedToday, missions, claimEntry, rankOf, RANKS, streakDays, earnedAllTime, streakAtRisk, dailyId, dailyStreak, weeklyGoals, claimWeekly, badges
+} from './lib/earn.mjs';
+import { GAMES, ICON as GAME_ICON, dailyGame, dailyBonus, mergeBests } from './lib/games.mjs';
 import { HELP_ORDER, helpFor, parseHelpHash } from './lib/help.mjs';
 import { detectLocale, makeT } from './lib/i18n.mjs';
 import { mountGames } from './games-ui.js';
@@ -112,6 +115,38 @@ const earned = () => {
   return e;
 };
 const walletHas = id => (state.wallet?.entries || []).some(e => e.id === id);
+// The wallet with what's still waiting to be sent, for anything counted from entries.
+const withOutbox = () => ({ ...(state.wallet || {}), entries: [...(state.wallet?.entries || []), ...outbox.read().filter(e => !walletHas(e.id))] });
+
+// Your best round per game: in the wallet's settings (bests:vocab), and on
+// this device until the pass has it.
+const BESTS_KEY = 'quadra.rewards.bests';
+let bestsDirty = false;
+function localBests() {
+  try {
+    return JSON.parse(localStorage.getItem(BESTS_KEY) || '{}');
+  } catch {
+    return {};
+  }
+}
+const bests = () => mergeBests(setting(state.wallet, 'bests:vocab', {}), localBests());
+function recordBest(game, v) {
+  const had = bests()[game];
+  if (!(v > 0) || (had && had.v >= v)) return false;
+  try {
+    localStorage.setItem(BESTS_KEY, JSON.stringify({ ...localBests(), [game]: { v, t: Date.now() } }));
+  } catch {}
+  bestsDirty = true;
+  return Boolean(had);
+}
+// Today's challenge: the game, whether it's played, the streak and its bonus.
+function daily() {
+  const day = taipeiDay();
+  const w = withOutbox();
+  const streak = dailyStreak(w);
+  const done = w.entries.some(e => e.id === dailyId(day));
+  return { day, game: dailyGame(day), done, streak, bonus: dailyBonus(streak) };
+}
 const room = kind => Math.max(0, CAPS[kind] - earned()[kind]);
 
 // Activity counts for the missions (act:vocab), added up here.
@@ -168,7 +203,8 @@ async function push() {
   if (!q.active || !state.loaded) return;
   closeBatchIfIdle();
   const out = outbox.read().filter(e => !walletHas(e.id));
-  const settings = { ...actPatch(), ...affinityPatch('vocab').settings };
+  const settings = { ...actPatch(), ...affinityPatch('vocab').settings, ...(bestsDirty ? settingPatch('bests:vocab', bests()).settings : {}) };
+  bestsDirty = false;
   if (!dirty && !out.length && !Object.keys(settings).length) return;
   const payload = dirty && !state.unreadable ? await encodePayload() : undefined;
   dirty = false;
@@ -178,6 +214,7 @@ async function push() {
     outbox.write(outbox.read().filter(e => !walletHas(e.id)));
   } catch (error) {
     if (payload) dirty = true;
+    if (settings['bests:vocab']) bestsDirty = true;
     throw error;
   }
   quietRefresh();
@@ -556,16 +593,83 @@ function renderHome() {
     { class: 'q-recs' },
     steps.slice(0, 4).map(s => el('button', { class: 'q-rec step', type: 'button', onclick: s.go }, [el('span', { class: 'step-icon', text: s.icon }), el('p', { class: 'q-rec-title', text: s.title }), el('p', { class: 'q-rec-sub', text: s.sub })]))
   );
+  const d = daily();
+  const dailyCard = el('button', { class: `q-card pad daily-card${d.done ? ' done' : ''}`, type: 'button', onclick: () => showTab('games') }, [
+    el('span', { class: 'daily-icon', 'aria-hidden': 'true', text: GAME_ICON[d.game] }),
+    el('span', { class: 'daily-text' }, [el('small', { text: t('dailyTitle') }), el('strong', { text: t(`game_${d.game}`) }), el('small', { class: 'muted', text: d.done ? t('dailyDone', { n: d.streak }) : t(d.streak ? 'dailyLine' : 'dailyLineNew', { v: nt(d.bonus), n: d.streak }) })]),
+    el('span', { class: 'daily-go', text: d.done ? '✓' : '▶' })
+  ]);
   put(
     box,
     rankCard,
+    wordOfDayCard(),
     section(t('nextSteps'), stepRow),
+    dailyCard,
     section(t('missions'), missionList, { sub: t('missionsSub', { v: nt(CAPS.mission) }) }),
+    section(t('weekly'), weeklyCard(), { sub: t('weeklySub') }),
     section(t('todayEarned'), earnCard, { sub: t('allTime', { v: nt(earnedAllTime(state.wallet)) }) }),
+    section(t('badgesTitle'), badgesCard(st), { sub: t('badgesSub') }),
     section(t('ranks'), ranksCard(r.index)),
     section(t('growTitle'), el('div', { class: 'q-card pad grow' }, [el('p', { text: t('growText') }), el('div', { class: 'two-btn' }, [el('button', { class: 'q-btn', type: 'button', text: t('openHelp'), onclick: () => openHelp('vocab', 'rich') }), el('button', { class: 'q-btn primary', type: 'button', text: t('openSecurities'), onclick: () => q.go('stock') })])]))
   );
 }
+// The word of the day: the same for everyone today; tap to hear it.
+function wordOfDayCard() {
+  const w = state.words && wordOfDay(state.words);
+  if (!w) return null;
+  const p = state.progress[w.key];
+  return el('div', { class: 'q-card pad wotd' }, [
+    el('div', { class: 'wotd-top' }, [el('small', { class: 'wotd-label', text: t('wotd') }), el('small', { class: 'muted', text: t(p ? `state_${stateOf(p)}` : 'state_new') })]),
+    el('div', { class: 'word-line' }, [el('strong', { class: 'word', text: w.word }), speakButton(w)]),
+    el('small', { class: 'muted', text: [w.ph ? `/${w.ph}/` : '', w.pos, t('level', { n: w.level })].filter(Boolean).join(' · ') }),
+    el('p', { class: 'meaning', text: shortMeaning(w.zh) })
+  ]);
+}
+
+// This week's goals, claimed like missions (inside the missions' daily cap).
+function weeklyCard() {
+  const goals = weeklyGoals(withOutbox());
+  return el(
+    'div',
+    { class: 'q-card list' },
+    goals.map(g => {
+      const action = g.claimed
+        ? el('span', { class: 'claimed', text: t('claimed') })
+        : g.done
+          ? el('button', { class: 'q-btn primary small', type: 'button', text: t('claim', { v: nt(g.pay) }), onclick: () => claimGoal(g.id) })
+          : null;
+      const shown = g.id === 'earn1500' ? `${nt(g.progress)} / ${nt(g.goal)}` : `${g.progress}/${g.goal}`;
+      return el('div', { class: `mission${g.claimed ? ' done' : ''}` }, [
+        el('span', { class: 'mission-icon', text: WEEKLY_ICON[g.id] }),
+        el('div', { class: 'mission-text' }, [el('strong', { text: t(`weekly_${g.id}`) }), el('div', { class: 'mission-bar' }, [bar(g.progress, g.goal, 'accent'), el('small', { class: 'num muted', text: `${shown} · ${nt(g.pay)}` })])]),
+        action
+      ]);
+    })
+  );
+}
+const WEEKLY_ICON = { days5: '📆', earn1500: '💵', missions10: '🎯', games10: '🕹️' };
+function claimGoal(id) {
+  const entry = claimWeekly(withOutbox(), id);
+  if (!entry || outbox.read().some(x => x.id === entry.id)) return toast(t('capReached'));
+  payEntry(entry);
+  toast(t('claimedToast', { v: nt(entry.amount) }), 'good');
+  refresh();
+}
+
+// Badges: milestones read from the record, the earned ones first.
+function badgesCard(st) {
+  const list = badges({ wallet: withOutbox(), mastered: st?.all.mastered || 0, bests: bests(), games: GAMES });
+  const got = list.filter(b => b.earned).length;
+  return el('div', { class: 'q-card pad' }, [
+    el('p', { class: 'muted badge-count num', text: t('badgesCount', { n: got, of: list.length }) }),
+    el(
+      'div',
+      { class: 'badge-grid' },
+      [...list].sort((a, b) => b.earned - a.earned).map(b => el('div', { class: `badge${b.earned ? ' on' : ''}`, title: t(`badgeHow_${b.id}`) }, [el('span', { class: 'badge-icon', text: b.icon }), el('strong', { text: t(`badge_${b.id}`) }), el('small', { text: t(`badgeHow_${b.id}`) })]))
+    )
+  ]);
+}
+
 const MISSION_ICON = { words20: '📚', master3: '🏅', game1: '🎮', invest: '📈', match: '🏟️', orbit: '🪐', tour: '🧭' };
 
 function ranksCard(current) {
@@ -665,13 +769,23 @@ const gameContext = {
     const pool = seen.length >= 30 ? seen : (state.words || []).filter(w => state.levels.includes(w.level));
     return pool.map(w => ({ key: w.key, word: w.word, meaning: shortMeaning(w.zh).split('、')[0], level: w.level }));
   },
+  bests,
+  daily,
   pay(game, amount) {
+    const d = daily();
     const paid = Math.max(0, Math.min(Math.round(amount), room('game')));
     act.game++;
     recordAffinity('vocab', ['vocab:games', `vocab:game:${game}`], 1);
-    if (paid > 0) payEntry({ id: `vocab:g:${randomId()}`, t: Date.now(), app: 'vocab', kind: 'game', amount: paid, note: game });
-    else sync();
-    return paid;
+    const best = recordBest(game, Math.round(amount));
+    if (paid > 0) outbox.write([...outbox.read(), { id: `vocab:g:${randomId()}`, t: Date.now(), app: 'vocab', kind: 'game', amount: paid, note: game }]);
+    // Today's challenge: its first paid round adds the bonus (inside the cap).
+    let bonus = 0;
+    if (game === d.game && !d.done && paid > 0) {
+      bonus = Math.min(d.bonus, room('game'));
+      if (bonus > 0) outbox.write([...outbox.read(), { id: dailyId(d.day), t: Date.now(), app: 'vocab', kind: 'game', amount: bonus, note: `daily:${game}` }]);
+    }
+    sync();
+    return { paid: paid + bonus, bonus, best };
   }
 };
 
@@ -696,7 +810,28 @@ $('account-slot').append(accountButton(q));
 q.on('wallet', w => {
   state.wallet = w;
   quietRefresh();
+  checkNotices();
 });
+
+// Notices (the kit's: a banner on screen, a system notice in the background
+// once turned on in the account sheet): a mission or weekly goal newly
+// ready to claim, and a streak that ends tonight.
+let readySeen = null;
+function checkNotices() {
+  if (!state.wallet || !state.loaded) return;
+  const w = withOutbox();
+  const ready = [
+    ...missions(w).filter(m => m.done && !m.claimed).map(m => [`m:${taipeiDay()}:${m.id}`, t(`mission_${m.id}`), m.pay]),
+    ...weeklyGoals(w).filter(g => g.done && !g.claimed).map(g => [`wk:${g.week}:${g.id}`, t(`weekly_${g.id}`), g.pay])
+  ];
+  // What was ready when the app opened is on the home screen already.
+  const fresh = readySeen ? ready.filter(([id]) => !readySeen.has(id)) : [];
+  readySeen = new Set([...(readySeen || []), ...ready.map(([id]) => id)]);
+  for (const [id, title, pay] of fresh) notify(q, { title: t('noticeReady', { v: nt(pay) }), body: title, tag: id, hash: 'home' });
+  const risk = streakAtRisk(w);
+  if (risk) notify(q, { title: t('noticeStreak', { n: risk }), body: t('noticeStreakBody'), tag: `streak:${taipeiDay()}`, hash: 'games' });
+}
+setInterval(checkNotices, 10 * 60_000);
 q.on('active', live => live && sync());
 
 async function boot() {
@@ -721,6 +856,7 @@ async function boot() {
   } catch {}
   state.loaded = true;
   $('loading').hidden = true;
+  checkNotices();
   const hash = location.hash.slice(1);
   const help = parseHelpHash(hash);
   if (help) {

@@ -7,14 +7,20 @@
 //   freethrow  free throws: stop the arrow in the green
 //   pairs      word pairs: match each English word with its meaning
 //   merge      2048: slide and merge the tiles
+//   speed      speed match: a word's meaning out of four, against the clock
+//   hangman    guess the word from its meaning, a letter at a time
+//   simon      colour memory: repeat a growing sequence
+//   sudoku     mini sudoku: three 4 x 4 puzzles
 //
 // The derby and free throws came from Quadra Play's arcade; their difficulty
 // follows the player (adapt), so a streak is always earned at the edge of
 // your skill.
 import { ECONOMY } from './quadra.mjs';
 
-export const GAMES = ['pairs', 'merge', 'derby', 'freethrow'];
-export const ICON = { derby: '⚾', freethrow: '🏀', pairs: '🃏', merge: '🔢' };
+export const GAMES = ['pairs', 'speed', 'hangman', 'merge', 'sudoku', 'simon', 'derby', 'freethrow'];
+export const ICON = { derby: '⚾', freethrow: '🏀', pairs: '🃏', merge: '🔢', speed: '⚡', hangman: '🔤', simon: '🎨', sudoku: '🧮' };
+// Which games use the word list (the rest are for a break from words).
+export const WORD_GAMES = new Set(['pairs', 'speed', 'hangman']);
 // Taiwan's minimum hourly wage in 2026 (NT$).
 export const MIN_WAGE = 196;
 // Pay points are scaled to NT$ so a typical minute pays ECONOMY.gamesPerMinute.
@@ -26,7 +32,11 @@ export const STREAK = {
   derby: { ladder: [3, 6], penalty: 1 },
   freethrow: { ladder: [3, 6], penalty: 1 },
   pairs: { every: 3, bonus: 3, penalty: 1 },
-  merge: { every: 4, bonus: 1, penalty: 0 }
+  merge: { every: 4, bonus: 1, penalty: 0 },
+  speed: { every: 5, bonus: 2, penalty: 1 },
+  hangman: { every: 3, bonus: 2, penalty: 1 },
+  simon: { every: 4, bonus: 2, penalty: 0 },
+  sudoku: { every: 3, bonus: 3, penalty: 1 }
 };
 
 export const ADAPT = { start: 0.15, up: 0.1, upBest: 0.14, down: 0.16 };
@@ -78,7 +88,10 @@ const EVENT_PAY = {
   derby: { hr: () => DERBY.pay.hr, hit: () => DERBY.pay.hit },
   freethrow: { swish: () => FREE_THROW.pay.swish, make: () => FREE_THROW.pay.make },
   pairs: { ok: () => PAIRS.pay },
-  merge: { ok: () => MERGE.pay }
+  merge: { ok: () => MERGE.pay },
+  speed: { ok: () => SPEED.pay },
+  hangman: { ok: () => HANGMAN.pay },
+  sudoku: { ok: () => SUDOKU.pay }
 };
 export function scoreRound(game, events) {
   const score = scorer(game);
@@ -205,6 +218,167 @@ export function bestRound(game) {
   if (game === 'derby') return scoreRound('derby', Array(DERBY.pitches).fill('hr')).total;
   if (game === 'freethrow') return scoreRound('freethrow', Array(FREE_THROW.shots).fill('swish')).total;
   if (game === 'pairs') return scoreRound('pairs', Array(PAIRS.boards * PAIRS.size).fill('ok')).total;
+  if (game === 'speed') return scoreRound('speed', Array(SPEED.best).fill('ok')).total;
+  if (game === 'hangman') {
+    const score = scorer('hangman');
+    for (let i = 0; i < HANGMAN.words; i++) score.good(hangmanPay(HANGMAN.lives));
+    return score.total;
+  }
+  if (game === 'simon') {
+    const score = scorer('simon');
+    for (let n = 1; n <= SIMON.max; n++) score.good(simonPay(n));
+    return score.total;
+  }
+  if (game === 'sudoku') {
+    const score = scorer('sudoku');
+    for (let i = 0; i < SUDOKU.puzzles; i++) score.good(SUDOKU.pay);
+    return score.total;
+  }
   return 60;
 }
 export const wageMinutes = paid => (paid / MIN_WAGE) * 60;
+
+// ---- Speed match ----------------------------------------------------------------------
+//
+// A word and four meanings; pick the right one before the clock runs out.
+// Every right answer pays, a wrong one costs a little (so guessing doesn't).
+export const SPEED = { seconds: 60, pay: 1.2, choices: 4, best: 40 };
+export function speedQuestion(words, random = Math.random, avoid = new Set()) {
+  const pool = words.filter(w => w.meaning && !avoid.has(w.key));
+  if (pool.length < SPEED.choices) return null;
+  const answer = pool[Math.floor(random() * pool.length)];
+  const choices = [answer];
+  const meanings = new Set([answer.meaning]);
+  for (let tries = 0; choices.length < SPEED.choices && tries < 200; tries++) {
+    const w = words[Math.floor(random() * words.length)];
+    if (!w.meaning || meanings.has(w.meaning)) continue;
+    meanings.add(w.meaning);
+    choices.push(w);
+  }
+  for (let i = choices.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [choices[i], choices[j]] = [choices[j], choices[i]];
+  }
+  return { word: answer, choices };
+}
+
+// ---- Hangman --------------------------------------------------------------------------
+//
+// Five words a round, each shown by its meaning and its length; guess the
+// letters. A solved word pays, more with lives left; a lost one costs.
+export const HANGMAN = { words: 5, lives: 6, pay: 3.5, perLife: 0.5, min: 4, max: 9 };
+export const hangmanPay = livesLeft => HANGMAN.pay + HANGMAN.perLife * livesLeft;
+export const hangmanWords = words => words.filter(w => w.meaning && /^[a-z]+$/.test(w.word) && w.word.length >= HANGMAN.min && w.word.length <= HANGMAN.max);
+// One guess: { state, hit } where state is { word, guessed: Set, lives }.
+export function guessLetter(state, letter) {
+  const ch = letter.toLowerCase();
+  if (!/^[a-z]$/.test(ch) || state.guessed.has(ch) || hangmanOver(state)) return { state, hit: null };
+  const guessed = new Set(state.guessed).add(ch);
+  const hit = state.word.includes(ch);
+  return { state: { ...state, guessed, lives: hit ? state.lives : state.lives - 1 }, hit };
+}
+export const hangmanSolved = state => [...state.word].every(ch => state.guessed.has(ch));
+export const hangmanOver = state => state.lives <= 0 || hangmanSolved(state);
+export const hangmanMask = state => [...state.word].map(ch => (state.guessed.has(ch) ? ch : '_'));
+
+// ---- Colour memory --------------------------------------------------------------------
+//
+// Four coloured pads light up in a sequence; repeat it. Every step cleared
+// adds one to the sequence and pays by its length; a slip ends the round.
+export const SIMON = { pads: 4, max: 14, pay: 0.45 };
+export const simonPay = n => SIMON.pay * n;
+export function simonSequence(n, random = Math.random) {
+  return Array.from({ length: n }, () => Math.floor(random() * SIMON.pads));
+}
+
+// ---- Mini sudoku ----------------------------------------------------------------------
+//
+// Three 4 x 4 puzzles (each row, column and 2 x 2 box holds 1-4 once), each
+// with exactly one answer. A solved puzzle pays; a wrong number costs.
+export const SUDOKU = { puzzles: 3, seconds: 150, pay: 8, givens: 6 };
+const BASE_GRID = [1, 2, 3, 4, 3, 4, 1, 2, 2, 1, 4, 3, 4, 3, 2, 1];
+function shuffled(list, random) {
+  const out = [...list];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+// A full grid: the base with its digits, rows within bands, bands, columns
+// within stacks and stacks shuffled, and maybe transposed.
+export function sudokuSolution(random = Math.random) {
+  const digits = shuffled([1, 2, 3, 4], random);
+  const bands = shuffled([0, 1], random);
+  const stacks = shuffled([0, 1], random);
+  const rows = bands.flatMap(b => shuffled([0, 1], random).map(r => b * 2 + r));
+  const cols = stacks.flatMap(st => shuffled([0, 1], random).map(c => st * 2 + c));
+  const flip = random() < 0.5;
+  const out = [];
+  for (let r = 0; r < 4; r++)
+    for (let c = 0; c < 4; c++) {
+      const [rr, cc] = flip ? [cols[c], rows[r]] : [rows[r], cols[c]];
+      out.push(digits[BASE_GRID[rr * 4 + cc] - 1]);
+    }
+  return out;
+}
+export function sudokuOk(grid, i, v) {
+  const r = Math.floor(i / 4);
+  const c = i % 4;
+  const br = r - (r % 2);
+  const bc = c - (c % 2);
+  for (let k = 0; k < 4; k++) {
+    if (k !== c && grid[r * 4 + k] === v) return false;
+    if (k !== r && grid[k * 4 + c] === v) return false;
+  }
+  for (let rr = br; rr < br + 2; rr++) for (let cc = bc; cc < bc + 2; cc++) if (rr * 4 + cc !== i && grid[rr * 4 + cc] === v) return false;
+  return true;
+}
+// How many answers a puzzle has (stops counting at `limit`).
+export function sudokuCount(grid, limit = 2) {
+  const i = grid.indexOf(0);
+  if (i < 0) return 1;
+  let n = 0;
+  for (let v = 1; v <= 4 && n < limit; v++) {
+    if (!sudokuOk(grid, i, v)) continue;
+    const next = [...grid];
+    next[i] = v;
+    n += sudokuCount(next, limit - n);
+  }
+  return n;
+}
+// A puzzle: { puzzle, solution }, cells emptied while the answer stays unique.
+export function sudokuPuzzle(random = Math.random, givens = SUDOKU.givens) {
+  const solution = sudokuSolution(random);
+  const puzzle = [...solution];
+  for (const i of shuffled([...Array(16).keys()], random)) {
+    if (puzzle.filter(Boolean).length <= givens) break;
+    const keep = puzzle[i];
+    puzzle[i] = 0;
+    if (sudokuCount(puzzle) !== 1) puzzle[i] = keep;
+  }
+  return { puzzle, solution };
+}
+
+// ---- The daily challenge ----------------------------------------------------------------
+//
+// One game a day (the same for everyone), its first paid round adding a
+// bonus that grows with the days in a row played; paid as a game, so inside
+// the games' daily cap.
+export const DAILY = { base: 10, perDay: 5, maxDays: 6 };
+export function dailyGame(day) {
+  let h = 0;
+  for (const ch of day) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return GAMES[h % GAMES.length];
+}
+export const dailyBonus = streak => DAILY.base + DAILY.perDay * Math.min(Math.max(0, streak), DAILY.maxDays);
+
+// ---- Your bests ------------------------------------------------------------------------
+//
+// The best round per game ({ game: { v, t } }, v in pay points before the
+// day's cap): kept in the wallet's settings, merged by the higher.
+export function mergeBests(a = {}, b = {}) {
+  const out = { ...a };
+  for (const [g, x] of Object.entries(b || {})) if (x && (!out[g] || x.v > out[g].v)) out[g] = x;
+  return out;
+}

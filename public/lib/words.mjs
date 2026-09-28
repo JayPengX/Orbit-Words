@@ -242,3 +242,19 @@ export function mergeProgress(a = {}, b = {}) {
   }
   return out;
 }
+
+// The word of the day: the same for everyone on a Taiwan day, from levels 3-6
+// (a single word, not a phrase), a different one each day.
+export function wordOfDay(words, now = Date.now()) {
+  const pool = words.filter(w => w.level >= 3 && /^[a-z]+$/.test(w.word) && w.zh);
+  if (!pool.length) return null;
+  const n = dayNum(now);
+  // A fixed stride coprime with the pool size walks the list without repeats.
+  let stride = 7919;
+  while (gcd(stride, pool.length) !== 1) stride++;
+  return pool[(n * stride) % pool.length];
+}
+function gcd(a, b) {
+  while (b) [a, b] = [b, a % b];
+  return a;
+}

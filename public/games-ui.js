@@ -5,7 +5,9 @@
 import {
   GAMES, ICON, STREAK, ADAPT, adapt, scorer, bestRound, wageMinutes, MIN_WAGE, PAY_SCALE,
   DERBY, pitchPlan, ballAt, swingResult, FREE_THROW, shotPlan, markerAt, shotResult,
-  PAIRS, pairsBoard, pairResult, MERGE, mergeBoard, move, spawn, canMove, mergePoints
+  PAIRS, pairsBoard, pairResult, MERGE, mergeBoard, move, spawn, canMove, mergePoints, WORD_GAMES,
+  SPEED, speedQuestion, HANGMAN, hangmanWords, hangmanPay, guessLetter, hangmanSolved, hangmanOver, hangmanMask,
+  SIMON, simonPay, simonSequence, SUDOKU, sudokuPuzzle
 } from './lib/games.mjs';
 import { money, ECONOMY } from './lib/quadra.mjs';
 
@@ -45,7 +47,9 @@ export function mountGames(container, context) {
           el('span', { class: 'game-icon', 'aria-hidden': 'true', text: ICON[g] }),
           el('strong', { text: t(`game_${g}`) }),
           el('small', { class: 'muted', text: t(`gameKind_${g}`) }),
-          el('small', { class: 'game-max', text: t('gameUpTo', { v: fmtMoney(bestRound(g), { sign: false }) }) })
+          el('small', { class: 'game-max', text: t('gameUpTo', { v: fmtMoney(bestRound(g), { sign: false }) }) }),
+          el('small', { class: 'game-best num' }),
+          el('span', { class: 'game-daily', hidden: '', text: t('dailyTag') })
         ])
       ])
     );
@@ -53,7 +57,19 @@ export function mountGames(container, context) {
     const headName = el('strong');
     const head = el('div', { class: 'game-head', hidden: '' }, [headName, el('button', { class: 'q-btn small', type: 'button', text: t('gameClose'), onclick: close })]);
     const intro = el('p', { class: 'section-sub', text: t('gamesIntro', { cap: fmtMoney(ECONOMY.gamesDailyCap, { sign: false }) }) });
-    const tileRow = el('div', { class: 'game-tiles' }, Object.values(tiles));
+    const wordTiles = el('div', { class: 'game-tiles' }, GAMES.filter(g => WORD_GAMES.has(g)).map(g => tiles[g]));
+    const breakTiles = el('div', { class: 'game-tiles' }, GAMES.filter(g => !WORD_GAMES.has(g)).map(g => tiles[g]));
+    const daily = el('button', { class: 'q-card pad daily-card', type: 'button' });
+    const bests = el('div', { class: 'q-card list bests' });
+    const tileRow = el('div', {}, [
+      daily,
+      el('h3', { class: 'games-h', text: t('gamesWords') }),
+      wordTiles,
+      el('h3', { class: 'games-h', text: t('gamesBreak') }),
+      breakTiles,
+      el('h3', { class: 'games-h', text: t('bestsTitle') }),
+      bests
+    ]);
     const card = el('div', { class: 'games' }, [
       el('div', { class: 'q-card pad cap-card' }, [el('div', { class: 'cap-top' }, [el('strong', { text: t('gamesTitle') }), capText]), el('div', { class: 'meter accent' }, [capFill])]),
       intro,
@@ -61,7 +77,7 @@ export function mountGames(container, context) {
       tileRow,
       slot
     ]);
-    shell = { card, capFill, capText, tiles, slot, head, headName, intro, tileRow };
+    shell = { card, capFill, capText, tiles, slot, head, headName, intro, tileRow, daily, bests };
     container.replaceChildren(card);
   };
   const render = () => {
@@ -76,13 +92,39 @@ export function mountGames(container, context) {
     shell.tileRow.hidden = isOpen;
     shell.head.hidden = !isOpen;
     if (isOpen) shell.headName.textContent = `${ICON[game]} ${t(`game_${game}`)}`;
+    // Today's challenge, and each game's best round.
+    const d = ctx.daily();
+    const b = ctx.bests();
+    for (const g of GAMES) {
+      const tile = shell.tiles[g];
+      tile.querySelector('.game-daily').hidden = g !== d.game || d.done;
+      tile.classList.toggle('daily', g === d.game && !d.done);
+      tile.querySelector('.game-best').textContent = b[g] ? t('bestShort', { v: fmtMoney(b[g].v, { sign: false }) }) : '';
+    }
+    shell.daily.onclick = () => open(d.game);
+    shell.daily.classList.toggle('done', d.done);
+    shell.daily.replaceChildren(
+      el('span', { class: 'daily-icon', 'aria-hidden': 'true', text: ICON[d.game] }),
+      el('span', { class: 'daily-text' }, [
+        el('small', { text: t('dailyTitle') }),
+        el('strong', { text: t(`game_${d.game}`) }),
+        el('small', { class: 'muted', text: d.done ? t('dailyDone', { n: d.streak }) : t(d.streak ? 'dailyLine' : 'dailyLineNew', { v: fmtMoney(d.bonus, { sign: false }), n: d.streak }) })
+      ]),
+      el('span', { class: 'daily-go', text: d.done ? '✓' : '▶' })
+    );
+    const played = GAMES.filter(g => b[g]).sort((x, y) => b[y].v - b[x].v);
+    shell.bests.replaceChildren(
+      ...(played.length
+        ? played.map(g => el('div', { class: 'best-row' }, [el('span', { class: 'best-icon', text: ICON[g] }), el('strong', { text: t(`game_${g}`) }), el('small', { class: 'muted num', text: new Date(b[g].t).toLocaleDateString(state.t('dateLocale')) }), el('strong', { class: 'num', text: fmtMoney(b[g].v, { sign: false }) })]))
+        : [el('p', { class: 'muted pad-row', text: t('bestsNone') })])
+    );
     if (shell.slot.firstChild !== view) shell.slot.replaceChildren(...(view ? [view] : []));
   };
   function open(g) {
     stopGame();
     game = g;
     live = true;
-    view = { derby: derbyView, freethrow: freeThrowView, pairs: pairsView, merge: mergeView }[g]();
+    view = { derby: derbyView, freethrow: freeThrowView, pairs: pairsView, merge: mergeView, speed: speedView, hangman: hangmanView, simon: simonView, sudoku: sudokuView }[g]();
     render();
     view.focus({ preventScroll: true });
     view.scrollIntoView({ block: 'start', behavior: 'smooth' });
@@ -173,7 +215,7 @@ function streakRule(game) {
 function finishRound(game, amount, box, summary, ms, score = null) {
   const t = state.t;
   stopGame();
-  const paid = ctx.pay(game, amount);
+  const { paid, bonus, best } = ctx.pay(game, amount);
   const minutes = Math.floor(ms / 60_000);
   const seconds = Math.round((ms % 60_000) / 1000);
   const work = wageMinutes(paid);
@@ -181,6 +223,8 @@ function finishRound(game, amount, box, summary, ms, score = null) {
     ...[
       el('p', { class: 'game-result' }, [document.createTextNode(summary), el('strong', { class: paid > 0 ? 'paid' : '', text: ` ${t('gamePaid', { v: fmtMoney(paid) })}` })]),
       score && (score.bonus || score.penalty) ? el('p', { class: 'note', text: t('scoreLine', { bonus: fmtMoney(score.bonus, { sign: false }), penalty: fmtMoney(score.penalty, { sign: false }) }) }) : null,
+      bonus > 0 ? el('p', { class: 'daily-paid', text: t('dailyPaid', { v: fmtMoney(bonus, { sign: false }) }) }) : null,
+      best ? el('p', { class: 'best-new', text: t('bestNew') }) : null,
       amount > paid ? el('p', { class: 'note', text: t('gameCapNote') }) : null,
       el('p', { class: 'note', text: t('gameWage', { m: minutes, s: seconds, work: work < 10 ? (Math.round(work * 10) / 10).toString() : Math.round(work), wage: fmtMoney(MIN_WAGE, { sign: false }) }) }),
       el('button', { class: 'q-btn primary game-big-button', type: 'button', text: t('gameAgain'), onclick: () => reopen(game) })
@@ -806,4 +850,308 @@ function mergeView() {
   paint();
   update();
   return view;
+}
+
+// A clock for the timed games: the HUD's count shows the seconds left.
+function countdown(seconds, onTick, onEnd) {
+  const began = performance.now();
+  const left = () => Math.max(0, seconds - Math.floor((performance.now() - began) / 1000));
+  const clock = setInterval(() => {
+    onTick(left());
+    if (performance.now() - began >= seconds * 1000) {
+      clearInterval(clock);
+      onEnd();
+    }
+  }, 250);
+  gameTimers.push(clock);
+  return { began, left, stop: () => clearInterval(clock) };
+}
+
+// Speed match: a word, four meanings, a minute.
+function speedView() {
+  const t = state.t;
+  const hud = gameHud();
+  const box = el('div', { class: 'game-actions' });
+  const stage = el('div', { class: 'speed-stage' });
+  const score = scorer('speed');
+  const words = ctx.words();
+  const recent = new Set();
+  let right = 0;
+  let wrong = 0;
+  let timer = null;
+  let over = false;
+  let lock = false;
+  const update = (left = SPEED.seconds) => hud.set({ done: SPEED.seconds - left, of: SPEED.seconds, earned: score.total, run: score.run, label: t('secondsLeft', { n: left }) });
+  const ask = () => {
+    const q = speedQuestion(words, Math.random, recent);
+    if (!q) return end();
+    recent.add(q.word.key);
+    if (recent.size > 30) recent.delete(recent.values().next().value);
+    stage.replaceChildren(
+      el('p', { class: 'speed-word', text: q.word.word }),
+      el(
+        'div',
+        { class: 'speed-choices' },
+        q.choices.map((c, i) =>
+          el('button', { class: 'speed-choice', type: 'button', 'data-n': String(i + 1), onclick: e => pick(c, q, e.currentTarget) }, [el('small', { text: String(i + 1) }), el('span', { text: c.meaning })])
+        )
+      )
+    );
+  };
+  function pick(c, q, button) {
+    if (over || lock) return;
+    const ok = c.key === q.word.key;
+    if (ok) {
+      right++;
+      hud.flash(score.good(SPEED.pay), true);
+    } else {
+      wrong++;
+      hud.flash(score.bad(), false);
+      stage.querySelectorAll('.speed-choice').forEach((b, i) => q.choices[i].key === q.word.key && b.classList.add('right'));
+    }
+    button.classList.add(ok ? 'right' : 'wrong');
+    update(timer.left());
+    lock = true;
+    later(() => ((lock = false), ask()), ok ? 180 : 650);
+  }
+  const end = () => {
+    if (over) return;
+    over = true;
+    timer?.stop();
+    finishRound('speed', score.total, box, t('speedDone', { n: right, miss: wrong }), timer ? performance.now() - timer.began : 0, score);
+  };
+  const start = () => {
+    box.replaceChildren();
+    timer = countdown(SPEED.seconds, update, end);
+    ask();
+  };
+  stage.append(el('p', { class: 'speed-word muted', text: t('speedReady') }));
+  box.append(el('button', { class: 'q-btn primary game-big-button', type: 'button', text: t('gameStart'), onclick: start }));
+  update();
+  return el('div', { class: 'game', tabindex: '0', onkeydown: e => stage.querySelector(`.speed-choice[data-n="${e.key}"]`)?.click() }, [
+    el('p', { class: 'note', text: `${t('speedRules', { s: SPEED.seconds, v: fmtPay(SPEED.pay) })} ${streakRule('speed')}` }),
+    hud.node,
+    stage,
+    box
+  ]);
+}
+
+// Hangman: guess the word from its meaning, a letter at a time.
+function hangmanView() {
+  const t = state.t;
+  const hud = gameHud();
+  const box = el('div', { class: 'game-actions' });
+  const stage = el('div', { class: 'hang-stage' });
+  const keys = el('div', { class: 'hang-keys' });
+  const score = scorer('hangman');
+  const pool = hangmanWords(ctx.words());
+  const used = new Set();
+  let n = 0;
+  let solved = 0;
+  let cur = null;
+  let meaning = '';
+  let began = 0;
+  let lock = false;
+  const update = () => hud.set({ done: n, of: HANGMAN.words, earned: score.total, run: score.run });
+  const next = () => {
+    if (n >= HANGMAN.words || !pool.length) return finishRound('hangman', score.total, box, t('hangDone', { n: solved, of: n }), performance.now() - began, score);
+    let w = pool[Math.floor(Math.random() * pool.length)];
+    for (let tries = 0; used.has(w.key) && tries < 50; tries++) w = pool[Math.floor(Math.random() * pool.length)];
+    used.add(w.key);
+    cur = { word: w.word, guessed: new Set(), lives: HANGMAN.lives };
+    meaning = w.meaning;
+    lock = false;
+    paint();
+  };
+  const paint = (reveal = false) => {
+    stage.replaceChildren(
+      el('p', { class: 'hang-meaning', text: meaning }),
+      el('p', { class: 'hang-word', 'aria-label': t('letters', { n: cur.word.length }) }, (reveal ? [...cur.word] : hangmanMask(cur)).map((ch, i) => el('span', { class: `hang-slot${ch !== '_' ? ' on' : ''}${reveal && !cur.guessed.has(cur.word[i]) ? ' missed' : ''}`, text: ch === '_' ? '' : ch }))),
+      el('p', { class: 'hang-lives', 'aria-label': t('hangLives', { n: cur.lives }) }, [el('span', { text: '❤️'.repeat(Math.max(0, cur.lives)) }), el('span', { class: 'lost', text: '🤍'.repeat(HANGMAN.lives - Math.max(0, cur.lives)) })])
+    );
+    keys.replaceChildren(
+      ...'abcdefghijklmnopqrstuvwxyz'.split('').map(ch =>
+        el('button', { class: `hang-key${cur.guessed.has(ch) ? (cur.word.includes(ch) ? ' hit' : ' miss') : ''}`, type: 'button', disabled: cur.guessed.has(ch) || lock, text: ch, onclick: () => guess(ch) })
+      )
+    );
+  };
+  function guess(ch) {
+    if (!cur || lock) return;
+    began ||= performance.now();
+    const r = guessLetter(cur, ch);
+    if (r.hit === null) return;
+    cur = r.state;
+    if (!hangmanOver(cur)) return paint();
+    n++;
+    lock = true;
+    if (hangmanSolved(cur)) {
+      solved++;
+      hud.flash(score.good(hangmanPay(cur.lives)), true);
+    } else hud.flash(score.bad(), false);
+    update();
+    paint(true);
+    later(next, hangmanSolved(cur) ? 700 : 1600);
+  }
+  next();
+  update();
+  return el('div', { class: 'game', tabindex: '0', onkeydown: e => /^[a-z]$/i.test(e.key) && (e.preventDefault(), guess(e.key.toLowerCase())) }, [
+    el('p', { class: 'note', text: `${t('hangRules', { n: HANGMAN.words, lives: HANGMAN.lives, v: fmtPay(HANGMAN.pay), life: fmtPay(HANGMAN.perLife) })} ${streakRule('hangman')}` }),
+    hud.node,
+    stage,
+    keys,
+    box
+  ]);
+}
+
+// Colour memory: watch the pads light up, then repeat the sequence.
+function simonView() {
+  const t = state.t;
+  const hud = gameHud();
+  const box = el('div', { class: 'game-actions' });
+  const status = el('p', { class: 'simon-status', 'aria-live': 'polite' });
+  const score = scorer('simon');
+  const pads = Array.from({ length: SIMON.pads }, (_, i) => el('button', { class: `simon-pad p${i}`, type: 'button', 'aria-label': t(`simonPad${i}`), onclick: () => tap(i) }));
+  const board = el('div', { class: 'simon-board' }, pads);
+  let seq = [];
+  let at = 0;
+  let phase = 'idle';
+  let cleared = 0;
+  let began = 0;
+  const update = () => hud.set({ done: cleared, of: SIMON.max, earned: score.total, run: score.run });
+  const light = (i, ms = 380) => {
+    pads[i].classList.add('lit');
+    later(() => pads[i].classList.remove('lit'), ms);
+  };
+  const play = () => {
+    phase = 'show';
+    status.textContent = t('simonWatch');
+    const gap = Math.max(260, 560 - seq.length * 20);
+    seq.forEach((p, k) => later(() => light(p, gap * 0.7), 500 + k * gap));
+    later(() => {
+      phase = 'input';
+      at = 0;
+      status.textContent = t('simonYou', { n: seq.length });
+    }, 500 + seq.length * gap);
+  };
+  function tap(i) {
+    if (phase === 'idle') return start();
+    if (phase !== 'input') return;
+    light(i, 200);
+    if (i !== seq[at]) {
+      phase = 'done';
+      status.textContent = t('simonWrong');
+      return later(() => finishRound('simon', score.total, box, t('simonDone', { n: cleared }), performance.now() - began, score), 700);
+    }
+    at++;
+    if (at < seq.length) return;
+    cleared++;
+    hud.flash(score.good(simonPay(seq.length)), true);
+    update();
+    if (cleared >= SIMON.max) {
+      phase = 'done';
+      return later(() => finishRound('simon', score.total, box, t('simonDone', { n: cleared }), performance.now() - began, score), 500);
+    }
+    seq = [...seq, ...simonSequence(1)];
+    phase = 'wait';
+    later(play, 500);
+  }
+  function start() {
+    began = performance.now();
+    box.replaceChildren();
+    seq = simonSequence(1);
+    play();
+  }
+  status.textContent = t('simonReady');
+  box.append(el('button', { class: 'q-btn primary game-big-button', type: 'button', text: t('gameStart'), onclick: start }));
+  update();
+  return el('div', { class: 'game', tabindex: '0', onkeydown: e => ['1', '2', '3', '4'].includes(e.key) && tap(Number(e.key) - 1) }, [
+    el('p', { class: 'note', text: `${t('simonRules', { max: SIMON.max })} ${streakRule('simon')}` }),
+    hud.node,
+    status,
+    board,
+    box
+  ]);
+}
+
+// Mini sudoku: three 4 x 4 puzzles; tap a square, then a number.
+function sudokuView() {
+  const t = state.t;
+  const hud = gameHud();
+  const box = el('div', { class: 'game-actions' });
+  const grid = el('div', { class: 'sudoku-grid' });
+  const pad = el('div', { class: 'sudoku-pad' });
+  const score = scorer('sudoku');
+  let solvedN = 0;
+  let wrong = 0;
+  let cur = null;
+  let cells = [];
+  let sel = -1;
+  let timer = null;
+  let over = false;
+  const update = (left = SUDOKU.seconds) => hud.set({ done: solvedN, of: SUDOKU.puzzles, earned: score.total, run: score.run, label: `${t('hudCount', { n: solvedN, of: SUDOKU.puzzles })} · ${t('secondsLeft', { n: left })}` });
+  const deal = () => {
+    cur = sudokuPuzzle();
+    cells = [...cur.puzzle];
+    sel = cells.indexOf(0);
+    paint();
+  };
+  const paint = (bad = -1) => {
+    grid.replaceChildren(
+      ...cells.map((v, i) =>
+        el('button', {
+          class: `sudoku-cell${cur.puzzle[i] ? ' given' : ''}${i === sel ? ' sel' : ''}${i === bad ? ' bad' : ''}${Math.floor(i / 4) === 1 ? ' band' : ''}${i % 4 === 1 ? ' stack' : ''}`,
+          type: 'button',
+          disabled: Boolean(cur.puzzle[i]) || over,
+          text: v ? String(v) : '',
+          onclick: () => ((sel = i), paint())
+        })
+      )
+    );
+  };
+  function put(v) {
+    if (over || sel < 0 || cur.puzzle[sel] || cells[sel]) return;
+    timer ||= countdown(SUDOKU.seconds, update, end);
+    if (cur.solution[sel] !== v) {
+      wrong++;
+      hud.flash(score.bad(), false);
+      update(timer.left());
+      return paint(sel);
+    }
+    cells[sel] = v;
+    if (cells.every(Boolean)) {
+      solvedN++;
+      hud.flash(score.good(SUDOKU.pay), true);
+      update(timer.left());
+      paint();
+      if (solvedN >= SUDOKU.puzzles) return later(end, 500);
+      return later(deal, 500);
+    }
+    // On to the next empty square.
+    const after = [...cells.keys()].filter(i => !cells[i]);
+    sel = after.find(i => i > sel) ?? after[0];
+    paint();
+  }
+  const end = () => {
+    if (over) return;
+    over = true;
+    timer?.stop();
+    paint();
+    finishRound('sudoku', score.total, box, t('sudokuDone', { n: solvedN, miss: wrong }), timer ? performance.now() - timer.began : 0, score);
+  };
+  pad.append(...[1, 2, 3, 4].map(v => el('button', { class: 'q-btn sudoku-num', type: 'button', text: String(v), onclick: () => put(v) })));
+  deal();
+  update();
+  return el('div', {
+    class: 'game',
+    tabindex: '0',
+    onkeydown: e => {
+      if (['1', '2', '3', '4'].includes(e.key)) put(Number(e.key));
+      const step = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -4, ArrowDown: 4 }[e.key];
+      if (step) {
+        e.preventDefault();
+        sel = Math.min(15, Math.max(0, sel + step));
+        paint();
+      }
+    }
+  }, [el('p', { class: 'note', text: `${t('sudokuRules', { n: SUDOKU.puzzles, s: SUDOKU.seconds, v: fmtPay(SUDOKU.pay) })} ${streakRule('sudoku')}` }), hud.node, grid, pad, box]);
 }

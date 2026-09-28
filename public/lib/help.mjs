@@ -187,10 +187,15 @@ export const HELP = {
         '每答對一題 NT$3，第一次精熟一個字再加 NT$25，一天最多 NT$600。字卡（自己判斷會不會）不算錢。'
       ]],
       ['games', '小遊戲', [
-        '單字配對、2048、全壘打大賽、罰球。每局約一到一分半鐘，玩得越好賺越多，一天最多 NT$400。'
+        '單字遊戲：單字配對、單字快配、猜單字。換換腦袋：2048、迷你數獨、顏色記憶、全壘打大賽、罰球。每局約一到一分半鐘，玩得越好賺越多，一天最多 NT$400。',
+        '今日挑戰：每天指定一款遊戲，當天第一局有入帳就再加獎金（NT$10 起，連續幾天玩就多一點，最多 NT$40），算在遊戲的每日上限內。',
+        '每款遊戲的最佳一局會記在「你的最佳紀錄」，跨裝置保留。'
       ]],
       ['missions', '每日任務', [
-        '每天幾個小任務：背 20 題、精熟 3 個字、玩一局遊戲、在 Securities 交易或加入觀察、在 Fixtures 看一場比賽、在 Orbit Class 看今天的課表、打開三個服務。完成後按「領取」，一天最多 NT$300。'
+        '每天幾個小任務：背 20 題、精熟 3 個字、玩一局遊戲、在 Securities 交易或加入觀察、在 Fixtures 看一場比賽、在 Orbit Class 看今天的課表、打開三個服務。完成後按「領取」，一天最多 NT$300。',
+        '每週目標（週一到週日）：5 天有練習、賺 NT$1,500、完成 10 個任務、玩 10 局遊戲，完成後領取，也算在任務的每日上限內。',
+        '成就徽章記錄里程碑（精熟字數、連續天數、每種遊戲都玩過…），首頁還有每天換一個的「今日單字」。',
+        '在帳號選單開啟通知後，任務或每週目標可以領取時、連續天數當晚快斷時會提醒你。'
       ]],
       ['rich', '財富等級', [
         '依錢包總額分成八個等級，從「起步」到「億萬」。最穩的方法：每天在 Rewards 賺一點，放進 Securities 長期投資，避開 Play 的抽成。'
@@ -207,10 +212,15 @@ export const HELP = {
         'NT$3 a right answer, NT$25 more the first time a word is mastered, NT$600 a day at most. Flash cards (grading yourself) don’t pay.'
       ]],
       ['games', 'Mini games', [
-        'Word pairs, 2048, home run derby and free throws. A minute or so a round; play well and it pays more, NT$400 a day at most.'
+        'Word games: word pairs, speed match and hangman. A break from words: 2048, mini sudoku, colour memory, home run derby and free throws. A minute or so a round; play well and it pays more, NT$400 a day at most.',
+        'Today’s challenge: one game a day; its first paid round adds a bonus (from NT$10, a little more for each day in a row, up to NT$40), inside the games’ daily limit.',
+        'Each game’s best round is kept under “Your bests”, on every device.'
       ]],
       ['missions', 'Daily missions', [
-        'A few small things a day: 20 word answers, 3 words mastered, a game, a trade or watch in Securities, a match in Fixtures, today’s classes in Orbit Class, three services opened. Claim each when done, NT$300 a day at most.'
+        'A few small things a day: 20 word answers, 3 words mastered, a game, a trade or watch in Securities, a match in Fixtures, today’s classes in Orbit Class, three services opened. Claim each when done, NT$300 a day at most.',
+        'Weekly goals (Monday to Sunday): practise on 5 days, earn NT$1,500, finish 10 missions, play 10 games; claimed like missions, inside the same daily limit.',
+        'Badges mark milestones (words mastered, days in a row, every game played…), and home shows a new word of the day every day.',
+        'With notifications on (the account sheet), you’re told when a mission or weekly goal is ready to claim and when a streak is about to end tonight.'
       ]],
       ['rich', 'Wealth ranks', [
         'Eight ranks by your wallet’s total, from Starter to Tycoon. The steady way up: earn a little in Rewards every day, invest it in Securities for the long run, and skip Play’s cut.'
