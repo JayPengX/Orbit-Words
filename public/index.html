@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#7c3aed" />
+<meta name="build-version" content="dev" />
+<title>Quadra Rewards</title>
+<meta name="description" content="背單字、玩小遊戲、完成任務賺錢，還有所有 Quadra 服務的說明。" />
+<link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-title" content="Rewards" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="application-name" content="Quadra Rewards" />
+<link rel="manifest" href="./manifest.webmanifest" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Quadra Rewards" />
+<meta property="og:title" content="Quadra Rewards" />
+<meta property="og:description" content="背單字、玩小遊戲、完成任務賺錢，還有所有 Quadra 服務的說明。" />
+<meta property="og:url" content="https://jaypengx.github.io/Quadra-Rewards/" />
+<meta property="og:image" content="https://jaypengx.github.io/Quadra-Rewards/og-image.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image" content="https://jaypengx.github.io/Quadra-Rewards/og-image-square.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="1200" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="preconnect" href="https://orbit-workers-proxy.pengzjay.workers.dev" crossorigin />
+<link rel="stylesheet" href="./styles.css" />
+<link rel="stylesheet" href="./quadra.css" />
+</head>
+<body>
+<div id="loading" class="loading" role="status" aria-live="polite">
+  <div class="loading-box">
+    <img class="loading-logo" src="./favicon.svg" alt="" width="72" height="72" />
+    <p class="loading-brand">QUADRA</p>
+    <p class="loading-title">Quadra Rewards</p>
+    <div id="loading-spinner" class="spinner" aria-hidden="true"></div>
+    <div id="loading-error" class="loading-error" hidden>
+      <p id="loading-error-text"></p>
+      <button id="loading-reload" class="q-btn" type="button">重新整理 · Reload</button>
+    </div>
+  </div>
+</div>
+<script>
+  (function () {
+    var zh = /^zh/i.test(navigator.language || '');
+    function $(id) { return document.getElementById(id); }
+    window.__fxFail = function (message) {
+      if ($('loading').hidden) return;
+      $('loading-error-text').textContent = message || (zh ? '頁面沒有正常啟動，可能是網路不穩。' : "The page didn't start, maybe a network hiccup.");
+      $('loading-error').hidden = false;
+      $('loading-spinner').hidden = true;
+    };
+    $('loading-reload').onclick = function () { location.reload(); };
+    window.addEventListener('error', function () { if (!window.__fxStarted) window.__fxFail(); });
+    setTimeout(function () { if (!window.__fxStarted) window.__fxFail(); }, 15000);
+  })();
+</script>
+<header class="appbar">
+  <div class="appbar-inner">
+    <div class="brand">
+      <img class="brand-logo" src="./favicon.svg" alt="" width="34" height="34" />
+      <div class="brand-text">
+        <h1>Quadra Rewards</h1>
+        <p id="status" class="status" aria-live="polite"></p>
+      </div>
+    </div>
+    <nav id="tabs" class="tabs q-tabbar" role="tablist">
+      <button id="tab-home" class="tab q-tab" role="tab" type="button" data-tab="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span></span></button>
+      <button id="tab-words" class="tab q-tab" role="tab" type="button" data-tab="words"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/><path d="M9 8h7M9 12h5"/></svg><span></span></button>
+      <button id="tab-games" class="tab q-tab" role="tab" type="button" data-tab="games"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="7" width="20" height="12" rx="5"/><path d="M7 11v4M5 13h4"/><circle cx="15.5" cy="12" r="1"/><circle cx="18" cy="14.5" r="1"/></svg><span></span></button>
+      <button id="tab-help" class="tab q-tab" role="tab" type="button" data-tab="help"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M9.3 9.2a2.8 2.8 0 0 1 5.4 1c0 1.9-2.7 2.4-2.7 4"/><circle cx="12" cy="17.4" r=".6"/></svg><span></span></button>
+    </nav>
+    <div id="account-slot" class="account-slot"></div>
+  </div>
+</header>
+
+<main class="page">
+  <div id="mobile-bar" class="mobile-bar"></div>
+  <div id="panel-home" class="tab-panel" role="tabpanel"></div>
+  <div id="panel-words" class="tab-panel" role="tabpanel" hidden></div>
+  <div id="panel-games" class="tab-panel" role="tabpanel" hidden></div>
+  <div id="panel-help" class="tab-panel" role="tabpanel" hidden></div>
+</main>
+<div id="toasts" class="toasts" aria-live="polite"></div>
+<script type="module" src="./app.js" onerror="window.__fxFail()"></script>
+</body>
+</html>
