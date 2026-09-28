@@ -15,7 +15,7 @@ export const HELP = {
         '在新裝置登入：輸入通行碼，或在已登入的裝置打開帳戶選單按「新增裝置」，取得 8 碼裝置代碼（10 分鐘內有效、只能用一次）來登入。'
       ]],
       ['money', '一個錢包', [
-        '所有服務共用一個新台幣錢包（都是模擬的錢）。新帳號有 NT$110,000；之後每個月 1 日發薪 NT$7,000，那個月第一次打開任何一個服務時就會入帳（帳戶選單的餘額下面有寫下次發薪日）。',
+        '所有服務共用一個新台幣錢包（都是模擬的錢）。新帳號有 NT$110,000；之後每個月 1 日發薪 NT$7,000，那個月第一次打開任何一個服務時就會入帳，沒打開的月份下次打開時補發（帳戶選單的餘額下面有寫下次發薪日）。',
         'Securities 是讓錢長大的地方（投資）；Play 是錢會變少的地方（運彩和彩券平均都會輸）；Rewards 是靠努力賺錢的地方（背單字、小遊戲、每日任務）；Fixtures 只看資料不花錢。'
       ]],
       ['one', '一次只用一個服務', [
@@ -35,7 +35,7 @@ export const HELP = {
         'On a new device, enter the pass, or on a signed-in device choose “Add a device” in the account menu for an 8-character device code (10 minutes, once).'
       ]],
       ['money', 'One wallet', [
-        'All the services share one NT$ wallet (play money). A new pass starts with NT$110,000; then payday brings NT$7,000 on the 1st of every month, the first time that month you open any service (the account menu shows the next payday under your balance).',
+        'All the services share one NT$ wallet (play money). A new pass starts with NT$110,000; then payday brings NT$7,000 on the 1st of every month, the first time that month you open any service; a month you miss is paid when you’re back (the account menu shows the next payday under your balance).',
         'Securities is where money grows (investing); Play is where it shrinks (sports bets and the lottery lose on average); Rewards is where effort earns it (words, mini games, daily missions); Fixtures is data only.'
       ]],
       ['one', 'One service at a time', [
