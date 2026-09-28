@@ -624,3 +624,51 @@ export const schultePay = seconds => Math.max(0, Math.round(50 - seconds));
 // The odd tile's colour gap shrinks as levels go up.
 export const oddGap = level => Math.max(4, 40 - level * 2.2);
 export const oddSize = level => Math.min(8, 2 + Math.floor(level / 3));
+
+// How to play each game, in a few lines: [中文, English]. Shown the first
+// time a game is opened and behind the ? in its bar.
+export const HOW = {
+  pairs: ['翻兩張牌：一張英文、一張中文意思，配對成功就留著。全部配完進下一盤。連續配對有加成，配錯扣一點。', 'Turn two cards: an English word and its meaning. A match stays up; clear the board for the next. Matches in a row add a bonus; a miss costs a little.'],
+  speed: ['60 秒內，看英文單字，從四個中文意思選對的。答得越多賺越多，連對有加成。', 'For 60 seconds, pick the right meaning of each word out of four. More right, more pay; runs add a bonus.'],
+  hangman: ['看中文意思，一次猜一個字母拼出英文單字。猜錯會少一條命，命用完就換下一個字。', 'From the meaning, guess the English word a letter at a time. A wrong letter costs a life; out of lives, on to the next word.'],
+  merge: ['滑動讓所有方塊往同一邊移動，兩個相同數字碰在一起就合併。合出越大的數字分數越高，格子滿了就結束。', 'Swipe to slide every tile; two equal numbers that meet merge. Bigger tiles score more; it ends when the board is full.'],
+  sudoku: ['4×4 數獨：每一列、每一行、每個 2×2 小格都要剛好有 1 到 4。點格子再點數字填入。', '4×4 sudoku: every row, column and 2×2 box holds 1 to 4 once. Tap a cell, then a number.'],
+  simon: ['看顏色亮起的順序，然後照同樣順序點。每一輪多一個，記得越長賺越多。', 'Watch the colours light up, then tap them in the same order. Each round adds one.'],
+  derby: ['投手投球後，在球飛到本壘板（打擊區）的那一刻點擊揮棒。越準打得越遠，全壘打最多錢。', 'Tap to swing as the pitch reaches the plate. The better the timing, the further it flies; home runs pay most.'],
+  freethrow: ['箭頭會左右擺動，點一下讓它停在綠色區域就投進。停在正中間是空心球。', 'Tap to stop the swinging arrow in the green to score; dead centre is a swish.'],
+  mines: ['點格子打開；數字代表旁邊 8 格裡有幾顆雷。用數字推理哪裡安全，切到「🚩 插旗」標記雷。第一下一定安全，打開所有安全格就贏。', 'Tap to open a cell; a number says how many of the 8 around it are mines. Reason out the safe ones; switch to 🚩 to flag mines. The first tap is always safe; open every safe cell to win.'],
+  lights: ['點一盞燈，它和上下左右的燈都會切換開關。目標：把所有燈都關掉。按的次數越少越好。', 'Tapping a light switches it and the ones above, below and beside it. Turn every light off, in as few taps as you can.'],
+  slide: ['點空格旁邊的數字，把它滑進空格。排成 1 2 3 / 4 5 6 / 7 8 空格 就完成。', 'Tap a tile next to the gap to slide it in. Put them in order 1-8 with the gap last.'],
+  codebreak: ['電腦藏了 4 個顏色（可能重複）。選 4 個顏色按「猜」：● 代表顏色和位置都對，○ 代表顏色對但位置錯。8 次內猜中。', 'Four hidden colours (they can repeat). Pick four and tap Guess: ● right colour, right place; ○ right colour, wrong place. Crack it within 8 guesses.'],
+  nonogram: ['每一列左邊、每一行上面的數字，代表那一排連續塗黑的格數（例如「2 1」是先 2 格、空一格以上、再 1 格）。照數字把格子塗黑。', 'The numbers by each row and above each column are the runs of filled cells in it, in order ("2 1": two, a gap, then one). Fill cells to match.'],
+  flood: ['從左上角開始，每次選一個顏色，左上角那一塊會變成這個顏色並吃掉相鄰同色的格子。22 步內讓整盤變同一色。', 'The top-left region takes the colour you pick and swallows neighbours of that colour. Make the whole board one colour within 22 moves.'],
+  hanoi: ['把整座塔從左邊搬到最右邊的柱子。一次只能搬最上面一個圓盤，大的不能疊在小的上面。點一根柱子拿起，再點另一根放下。', 'Move the whole tower to the right-hand peg, one top disc at a time, never a bigger disc on a smaller one. Tap a peg to lift, another to drop.'],
+  sokoban: ['用方向鍵或滑動移動小人，把每個 📦 推到黃點（目標）上。只能推不能拉，推到牆角就拿不出來，可以「上一步」或「重來」。', 'Move with the arrows or swipes and push every 📦 onto a yellow goal. You can only push, never pull; use Undo or Restart when stuck.'],
+  maze: ['用方向鍵或滑動，帶老鼠從左上角走到右下角的旗子。兩分鐘內走完三個迷宮。', 'With the arrows or swipes, lead the mouse from the top-left to the flag. Three mazes in two minutes.'],
+  queens: ['在 6×6 棋盤放 6 個皇后：每一列、每一行只能一個，而且不能在同一條斜線上。衝突的皇后會變紅。點格子放或拿起。', 'Place 6 queens on the 6×6 board: one per row and column, none sharing a diagonal. Clashing queens turn red. Tap to place or remove.'],
+  snake: ['滑動或方向鍵轉彎，吃蘋果會變長、變快。撞到牆或自己就結束。', 'Swipe or use the arrows to turn. Apples make you longer and faster; hitting a wall or yourself ends it.'],
+  blocks: ['方塊會落下：點左半邊/右半邊移動，點上方旋轉，往下滑直接落下。排滿一整行就消除，一次消越多行分數越高。兩分鐘。', 'Blocks fall: tap left or right half to move, tap the top to turn, swipe down to drop. Full rows clear; more at once scores more. Two minutes.'],
+  breakout: ['手指左右拖動下方的擋板接住球，把上面的磚塊全部打掉。漏接三次就結束。', 'Drag the paddle to keep the ball up and break all the bricks. Miss it three times and it’s over.'],
+  flappy: ['點一下小鳥往上飛，不點就往下掉。穿過綠色水管中間的空隙，碰到就結束。', 'Tap to flap up; stop and it falls. Fly through the gaps in the pipes; touching one ends it.'],
+  runner: ['點一下跳過仙人掌和老鷹。速度會越來越快。', 'Tap to jump the cacti and birds. It keeps speeding up.'],
+  stack: ['方塊左右移動，點一下放下。沒對齊的部分會被切掉，塔越來越窄。完全對齊得雙倍分數。', 'Tap to drop the sliding block. Whatever hangs over is cut off; a perfect drop scores double.'],
+  dodge: ['左右拖動火箭閃開落下的隕石，撐越久分數越高（最多 60 秒）。', 'Drag the rocket to dodge the falling rocks; the longer you last the better (up to 60 s).'],
+  catch: ['左右拖動籃子接水果（⭐ 3 分），避開炸彈（扣 3 分）。45 秒。', 'Drag the basket to catch fruit (⭐ is 3), and avoid bombs (−3). 45 seconds.'],
+  whack: ['地鼠冒出來就點牠：🐹 1 分、🌟 3 分；不要打兔子 🐰（扣 2 分）。40 秒。', 'Tap moles as they pop up: 🐹 1, 🌟 3; don’t hit the bunny 🐰 (−2). 40 seconds.'],
+  pong: ['拖動下方你的球拍把球打回去，讓 Quadra（上方）接不到就得分。先得 7 分的贏。打在球拍邊緣球會斜飛。', 'Drag your paddle (bottom) to return the ball; get it past Quadra (top) to score. First to 7 wins. Hitting with the edge angles it.'],
+  aim: ['靶子出現就點它，越快點分數越高，靶子會越來越小。點空白處扣 1 分。30 秒。', 'Tap each target as it appears; quicker taps score more and targets shrink. Tapping empty space costs 1. 30 seconds.'],
+  tictactoe: ['你是 ✕，和 Quadra 輪流下，先連成一排三個（橫、直、斜）的贏。五盤，贏一盤 8、平手 3。', 'You are ✕; take turns with Quadra, and three in a row (any line) wins. Five games: a win pays 8, a draw 3.'],
+  connect4: ['點一欄把紅色棋子投下去，棋子會掉到最底。先連成四個（橫、直、斜）就贏。', 'Tap a column to drop your red disc; it falls to the lowest space. Four in a row (any direction) wins.'],
+  reversi: ['你是黑棋。下在能把白棋「夾在你的兩顆棋中間」的位置（灰點），被夾住的白棋都會翻成黑的。最後棋子多的贏。', 'You are black. Play where you trap white discs in a line between yours (the grey dots); they flip to black. Most discs at the end wins.'],
+  gomoku: ['你是黑子先下，和 Quadra 輪流在交叉點落子。先連成五顆（橫、直、斜）就贏。記得擋住對方的四連。', 'You play black and go first; take turns placing stones. Five in a row in any direction wins; block Quadra’s fours.'],
+  nim: ['每次從「同一排」拿走任意顆石頭（點石頭選要拿幾顆，再按拿走）。拿到最後一顆的人贏。三盤。', 'Each turn take any number of stones from one row (tap to choose, then Take). Whoever takes the last stone wins. Three games.'],
+  math: ['60 秒內算出答案，從四個選項點對的。答對越多越好，答錯扣 1。越後面越難。', 'Solve each sum and tap the right answer of four within 60 seconds. Wrong costs 1; it gets harder.'],
+  reaction: ['畫面是紅色時等著，一變綠色就立刻點。太早點會扣分。共五次，平均越快分數越高。', 'Wait while it’s red; tap the moment it turns green. Too early costs points. Five tries; faster average, more pay.'],
+  schulte: ['從 1 開始依順序點到 25，越快越好。點錯一次加 2 秒。', 'Tap 1 to 25 in order as fast as you can; a wrong tap adds 2 seconds.'],
+  oddcolor: ['所有方塊裡有一個顏色稍微不一樣，找到並點它。越後面格子越多、顏色越接近。點錯扣 3 秒，60 秒。', 'One tile is a slightly different shade: tap it. Grids grow and shades get closer. A wrong tap costs 3 seconds; 60 seconds.'],
+  digits: ['一串數字會出現一下子，消失後把它打出來。答對下一次多一位，錯三次結束。', 'A number flashes up; type it back once it’s gone. Right adds a digit; three misses end it.'],
+  gridmem: ['有些方格會亮一下，記住位置，熄滅後點出同樣的格子。每一關多一格，總共錯三次結束。', 'Some squares light up briefly; tap the same ones once they go dark. Each level adds one; three wrong taps end it.'],
+  stroop: ['看字的「顏色」，不是字的意思。例如藍色的「紅」要選「藍」。45 秒，答錯扣 1。', 'Pick the colour the word is printed in, not what it says: “RED” in blue ink is blue. 45 seconds; wrong costs 1.'],
+  count: ['點點會閃一下就消失，選出剛才有幾個點。十題，答得快加分。', 'Dots flash for a moment: how many were there? Ten rounds; quick answers score a bit more.'],
+  compare: ['左右兩邊是算式或分數，點比較大的那一邊。45 秒，答錯扣 1，後面會變難。', 'Tap the bigger side: sums, products or fractions. 45 seconds; wrong costs 1, and it gets harder.']
+};

@@ -593,3 +593,10 @@ h1 { font-size: 17px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.
 .cp-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center; width: min(360px, 100%); }
 .cp-side { padding: 28px 8px; border-radius: 18px; border: 1px solid var(--q-border); background: var(--q-surface); color: var(--q-text); font-size: 24px; font-weight: 900; }
 .cp-vs { font-weight: 800; color: var(--q-muted); }
+
+.gh-how-btn { flex: none; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--q-border); background: var(--q-surface); color: var(--accent); font-weight: 900; font-size: 17px; cursor: pointer; }
+.gh-how-btn[aria-expanded='true'] { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+.gh-how { display: grid; gap: 6px; justify-items: start; padding: 14px 16px; border-radius: 16px; background: var(--accent-wash); border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); }
+.gh-how[hidden] { display: none; }
+.gh-how strong { font-size: 14px; color: var(--accent); }
+.gh-how p { margin: 0; font-size: 14.5px; line-height: 1.6; color: var(--q-text); }

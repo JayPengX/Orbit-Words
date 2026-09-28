@@ -2,7 +2,7 @@
 // the browser's language, or the language picked in any Quadra app).
 export const STRINGS = {
   zh: {
-    gamesSearch: '搜尋遊戲', cat_all: '全部', cat_fav: '★ 最愛', cat_words: '單字', cat_puzzle: '謎題', cat_arcade: '動作', cat_board: '棋盤', cat_brain: '腦力', gamesRecent: '最近玩過', gamesNoMatch: '找不到符合的遊戲。', gamesNoFav: '點遊戲卡右上角的 ☆ 加入最愛。', gamesCount: '{n} 款遊戲', gameBack: '遊戲列表', favAdd: '加入最愛', favRemove: '移出最愛', gameLoading: '載入中…', gameLoadFail: '載入失敗，請檢查網路後再試。', gamesToday: '今天 {v} / {cap}',
+    gamesSearch: '搜尋遊戲', howToPlay: '怎麼玩', howGotIt: '知道了', cat_all: '全部', cat_fav: '★ 最愛', cat_words: '單字', cat_puzzle: '謎題', cat_arcade: '動作', cat_board: '棋盤', cat_brain: '腦力', gamesRecent: '最近玩過', gamesNoMatch: '找不到符合的遊戲。', gamesNoFav: '點遊戲卡右上角的 ☆ 加入最愛。', gamesCount: '{n} 款遊戲', gameBack: '遊戲列表', favAdd: '加入最愛', favRemove: '移出最愛', gameLoading: '載入中…', gameLoadFail: '載入失敗，請檢查網路後再試。', gamesToday: '今天 {v} / {cap}',
     arcadeScore: '分數 {n}', arcadeTime: '{n} 秒', arcadeRound: '第 {n}/{of} 局', arcadeTapStart: '點一下開始', arcadeOver: '結束！', arcadeSummary: '得分 {n}。', arcadeLevel: '第 {n} 關',
     tab_home: '首頁', tab_words: '單字', tab_games: '遊戲', tab_help: '說明',
     statusLine: '今天賺了 {v}',
@@ -69,7 +69,7 @@ export const STRINGS = {
     noticeReady: '可以領取 {v}', noticeStreak: '🔥 連續 {n} 天快斷了', noticeStreakBody: '今天還沒練習：背幾個字或玩一局就能保住。'
   },
   en: {
-    gamesSearch: 'Search games', cat_all: 'All', cat_fav: '★ Favourites', cat_words: 'Words', cat_puzzle: 'Puzzles', cat_arcade: 'Action', cat_board: 'Board', cat_brain: 'Brain', gamesRecent: 'Played lately', gamesNoMatch: 'No game matches.', gamesNoFav: 'Tap ☆ on a game’s card to add it here.', gamesCount: '{n} games', gameBack: 'All games', favAdd: 'Add to favourites', favRemove: 'Remove from favourites', gameLoading: 'Loading…', gameLoadFail: 'Couldn’t load it: check the connection and try again.', gamesToday: 'Today {v} / {cap}',
+    gamesSearch: 'Search games', howToPlay: 'How to play', howGotIt: 'Got it', cat_all: 'All', cat_fav: '★ Favourites', cat_words: 'Words', cat_puzzle: 'Puzzles', cat_arcade: 'Action', cat_board: 'Board', cat_brain: 'Brain', gamesRecent: 'Played lately', gamesNoMatch: 'No game matches.', gamesNoFav: 'Tap ☆ on a game’s card to add it here.', gamesCount: '{n} games', gameBack: 'All games', favAdd: 'Add to favourites', favRemove: 'Remove from favourites', gameLoading: 'Loading…', gameLoadFail: 'Couldn’t load it: check the connection and try again.', gamesToday: 'Today {v} / {cap}',
     arcadeScore: 'Score {n}', arcadeTime: '{n}s', arcadeRound: 'Round {n}/{of}', arcadeTapStart: 'Tap to start', arcadeOver: 'Over!', arcadeSummary: 'Scored {n}.', arcadeLevel: 'Level {n}',
     tab_home: 'Home', tab_words: 'Words', tab_games: 'Games', tab_help: 'Help',
     statusLine: 'Earned today {v}',

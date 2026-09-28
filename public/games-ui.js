@@ -9,7 +9,7 @@ import {
   SPEED, speedQuestion, HANGMAN, hangmanWords, hangmanPay, guessLetter, hangmanSolved, hangmanOver, hangmanMask,
   SIMON, simonPay, simonSequence, SUDOKU, sudokuPuzzle, ALL_GAMES, gameInfo
 } from './lib/games.mjs';
-import { ARCADE_BY_ID, CATEGORIES, arcadePay } from './lib/arcade.mjs';
+import { ARCADE_BY_ID, CATEGORIES, arcadePay, HOW } from './lib/arcade.mjs';
 import { money, ECONOMY } from './lib/quadra.mjs';
 
 const state = { t: null, arcadeFrame: 0 };
@@ -33,6 +33,7 @@ const fmtPay = pts => money(pts * PAY_SCALE, { cents: pts * PAY_SCALE < 10 });
 
 const FAV_KEY = 'quadra.rewards.favs';
 const RECENT_KEY = 'quadra.rewards.recent';
+const HOW_SEEN_KEY = 'quadra.rewards.howSeen';
 const readList = key => {
   try {
     const v = JSON.parse(localStorage.getItem(key) || '[]');
@@ -86,16 +87,20 @@ export function mountGames(container, context) {
     const stageName = el('strong');
     const stageKind = el('small', { class: 'muted' });
     const stageEarned = el('small', { class: 'gh-stage-earned num' });
+    const how = el('div', { class: 'gh-how', hidden: '' });
+    const howBtn = el('button', { class: 'gh-how-btn', type: 'button', 'aria-label': t('howToPlay'), 'aria-expanded': 'false', text: '?', onclick: () => showHow(how.hidden) });
     const stage = el('div', { class: 'gh-stage', hidden: '' }, [
       el('div', { class: 'gh-stage-bar' }, [
         el('button', { class: 'gh-back', type: 'button', 'aria-label': t('gameBack'), onclick: close }, [el('span', { 'aria-hidden': 'true', text: '‹' }), el('span', { text: t('gameBack') })]),
         el('div', { class: 'gh-stage-title' }, [stageName, stageKind]),
-        stageEarned
+        stageEarned,
+        howBtn
       ]),
+      how,
       slot
     ]);
     const card = el('div', { class: 'games' }, [hub, stage]);
-    shell = { card, capFill, capText, hub, stage, stageName, stageKind, stageEarned, slot, chips, recent, grid, count, daily, bests, search };
+    shell = { card, capFill, capText, hub, stage, stageName, stageKind, stageEarned, slot, chips, recent, grid, count, daily, bests, search, how, howBtn };
     container.replaceChildren(card);
   };
 
@@ -198,6 +203,19 @@ export function mountGames(container, context) {
     if (shell.slot.firstChild !== view) shell.slot.replaceChildren(...(view ? [view] : []));
   };
 
+  // How to play: open the first time a game is played, then behind the ?.
+  function showHow(on) {
+    const text = HOW[game]?.[lang() === 'en' ? 1 : 0];
+    shell.how.hidden = !on || !text;
+    shell.howBtn.setAttribute('aria-expanded', String(!shell.how.hidden));
+    if (!text) return;
+    shell.how.replaceChildren(el('strong', { text: state.t('howToPlay') }), el('p', { text }), el('button', { class: 'q-btn small', type: 'button', text: state.t('howGotIt'), onclick: () => showHow(false) }));
+    if (on) {
+      const seen = readList(HOW_SEEN_KEY);
+      if (!seen.includes(game)) writeList(HOW_SEEN_KEY, [...seen, game]);
+    }
+  }
+
   let opening = 0;
   async function open(g) {
     stopGame();
@@ -205,6 +223,8 @@ export function mountGames(container, context) {
     live = true;
     writeList(RECENT_KEY, [g, ...readList(RECENT_KEY).filter(x => x !== g)].slice(0, 12));
     const mine = ++opening;
+    shell.howBtn.hidden = !HOW[g];
+    showHow(!readList(HOW_SEEN_KEY).includes(g));
     if (ARCADE_BY_ID[g]) {
       view = el('p', { class: 'muted gh-loading', text: state.t('gameLoading') });
       render();

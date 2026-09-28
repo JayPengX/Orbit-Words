@@ -117,3 +117,8 @@ test('brain games: sums are right, choices hold the answer', () => {
   }
   assert.equal(A.reactionPay(250), 31);
 });
+
+test('every game has how-to-play text in both languages', async () => {
+  const { ALL_GAMES } = await import('../public/lib/games.mjs');
+  for (const g of ALL_GAMES) assert.ok(A.HOW[g]?.[0] && A.HOW[g]?.[1], g);
+});
