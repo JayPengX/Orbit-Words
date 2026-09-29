@@ -746,3 +746,29 @@ html.rw-playing .game-actions:has(.game-result) {
 .qz-opt .mr-grid { width: 64px; }
 .mr-grid i { aspect-ratio: 1; border-radius: 3px; background: color-mix(in srgb, var(--q-text) 10%, transparent); }
 .mr-grid i.on { background: #7c3aed; }
+.ab-slots { display: flex; gap: 8px; }
+.ab-slot { display: grid; place-items: center; width: 52px; height: 60px; border-radius: 12px; background: var(--q-surface); border: 2px solid var(--q-border); font-size: 28px; font-weight: 900; }
+.ab-slot.on { border-color: var(--accent); }
+.ab-pad { width: min(340px, 100%); }
+.ab-log { display: grid; gap: 4px; width: min(260px, 100%); margin: 0; padding-left: 26px; font-size: 16px; }
+.ab-log li { display: flex; justify-content: space-between; }
+.ab-log b { color: var(--accent); }
+.pg-board { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; width: min(340px, 100%); }
+.pg-hole { aspect-ratio: 1; border: 0; border-radius: 50%; background: radial-gradient(circle, rgba(0, 0, 0, 0.18) 0 30%, transparent 31%), color-mix(in srgb, #a16207 22%, var(--q-surface)); padding: 0; }
+.pg-hole.off { visibility: hidden; }
+.pg-hole.peg { background: radial-gradient(circle at 35% 35%, #fde68a, #b45309 60%), color-mix(in srgb, #a16207 22%, var(--q-surface)); }
+.pg-hole.sel { outline: 3px solid #2563eb; }
+.pg-hole.can { box-shadow: inset 0 0 0 3px #22c55e; }
+.gcell.tk { font-size: 26px; }
+.sky { display: grid; grid-template-columns: 26px 1fr 26px; grid-template-areas: '. t .' 'l g r' '. b .'; gap: 4px; width: min(360px, 100%); align-items: center; }
+.sky .gboard { grid-area: g; width: 100%; }
+.sky-clues { display: grid; gap: 4px; font-weight: 800; color: #b45309; text-align: center; }
+.sky-clues.top, .sky-clues.bottom { grid-template-columns: repeat(var(--n), 1fr); }
+.sky-clues.top { grid-area: t; } .sky-clues.bottom { grid-area: b; } .sky-clues.left { grid-area: l; } .sky-clues.right { grid-area: r; }
+.sky-clues.left, .sky-clues.right { grid-template-rows: repeat(var(--n), 1fr); height: 100%; align-items: center; }
+.gboard.futo { gap: 14px; width: min(310px, 88%); }
+.gboard.futo .gcell { position: relative; overflow: visible; }
+.fs { position: absolute; font-style: normal; font-size: 13px; font-weight: 900; color: #e11d48; pointer-events: none; }
+.fs.h { right: -12px; top: 50%; transform: translateY(-50%); }
+.fs.v { bottom: -15px; left: 50%; transform: translateX(-50%); }
+.gboard.magic { width: min(240px, 100%); }

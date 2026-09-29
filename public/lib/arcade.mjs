@@ -60,7 +60,13 @@ const LIST = [
   ['fractions', '➗', 'numbers', '分數比大小', 'Bigger fraction', '數字 · 60 秒', 'Numbers · 60 s', 45, 1.5],
   ['clock', '🕰️', 'numbers', '看時鐘', 'Read the clock', '數字 · 60 秒', 'Numbers · 60 s', 45, 1.8],
   ['estimate', '📐', 'numbers', '估算', 'Estimate', '數字 · 45 秒', 'Numbers · 45 s', 40, 1.6],
-  ['change', '🪙', 'numbers', '找零錢', 'Give change', '數字 · 60 秒', 'Numbers · 60 s', 45, 2.2]
+  ['change', '🪙', 'numbers', '找零錢', 'Give change', '數字 · 60 秒', 'Numbers · 60 s', 45, 2.2],
+  ['bulls', '🐂', 'logic', '1A2B', 'Bulls and cows', '推理 · 兩組密碼', 'Deduction · 2 codes', 50, 1],
+  ['pegs', '📍', 'logic', '孔明棋', 'Peg solitaire', '謎題 · 經典 33 洞', 'Puzzle · classic 33 holes', 50, 1.1],
+  ['takuzu', '⚫', 'logic', '二元數獨', 'Binary puzzle', '邏輯 · 兩盤 6×6', 'Logic · two 6×6', 45, 1],
+  ['skyscrapers', '🏙️', 'logic', '摩天樓', 'Skyscrapers', '邏輯 · 4×4 與 5×5', 'Logic · 4×4 and 5×5', 50, 1],
+  ['futoshiki', '🔣', 'logic', '不等式數獨', 'Futoshiki', '邏輯 · 4×4 與 5×5', 'Logic · 4×4 and 5×5', 50, 1],
+  ['magicsq', '✨', 'numbers', '魔方陣', 'Magic square', '數字 · 三盤 3×3', 'Numbers · three 3×3', 45, 1]
 ];
 
 // Long games (ten minutes and more): a badge on the card, and a bigger most a round.
@@ -640,6 +646,12 @@ export const oddSize = level => Math.min(8, 2 + Math.floor(level / 3));
 // How to play each game, in a few lines: [中文, English]. Shown the first
 // time a game is opened and behind the ? in its bar.
 export const HOW = {
+  bulls: ["猜 4 個不重複的數字。A 是數字和位置都對，B 是數字對但位置錯，例如 1A2B。每組最多 10 次，越少次猜中分數越高。", "Guess four different digits. A: right digit, right place; B: right digit, wrong place (say 1A2B). Ten guesses a code; fewer score more."],
+  pegs: ["點一顆棋，再點它能跳到的空洞：跳過相鄰的一顆，被跳過的那顆拿走。沒步可走就結束。拿越多分數越高，只剩一顆有大獎勵（剩在正中間更多）。", "Tap a peg, then the hole it can jump to: over a neighbour, which is removed. It ends when no jump is left. Each peg taken scores; one left scores big (more in the centre)."],
+  takuzu: ["在 6×6 格子填 ● 和 ○：同一排或同一行不能有三個一樣的連在一起，而且每排每行 ● 和 ○ 各三個。點格子輪流換 ● ○ 空白。", "Fill the 6×6 with ● and ○: never three alike in a row or column, and three of each in every row and column. Tap to cycle ● ○ blank."],
+  skyscrapers: ["每排每行各有一棟 1 到 n 層樓（每種高度一次）。旁邊的數字是從那一邊看過去看得到幾棟：高的會擋住後面矮的。", "Each row and column has one building of every height 1 to n. A clue says how many you can see from that side: taller ones hide shorter ones behind."],
+  futoshiki: ["每排每行填 1 到 n 各一次，而且格子之間的 < > 符號都要成立（∧ ∨ 是上下）。", "1 to n once in every row and column, and every < or > between squares must hold (∧ ∨ between rows)."],
+  magicsq: ["把 1 到 9 填進 3×3，讓每一排、每一行、兩條對角線加起來都是 15。越快完成分數越高。", "Put 1 to 9 in the square so every row, column and both diagonals make 15. Faster scores more."],
   truefalse: ['每題一個英文字和一個中文意思，意思對就按 ⭕，不對按 ❌。答對加 1 分，答錯扣 1 分，60 秒。', 'A word and a meaning: ⭕ if it’s right, ❌ if not. +1 right, −1 wrong, 60 seconds.'],
   missing: ['單字少了一個字母（看中文意思），從四個字母中選出缺的那個。答錯扣 1 分，60 秒。', 'A word with one letter gone (its meaning shown): pick the missing letter of four. −1 for a wrong one, 60 seconds.'],
   wordsort: ['看到單字，判斷它是名詞、動詞、形容詞還是副詞。60 秒。', 'Noun, verb, adjective or adverb? 60 seconds.'],

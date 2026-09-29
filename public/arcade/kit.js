@@ -210,3 +210,28 @@ export function latin(n, rand) {
   const syms = perm([...Array(n).keys()].map(i => i + 1));
   return rows.map(r => cols.map(c => syms[base[r][c] - 1]));
 }
+
+// ---- A number grid with a keypad (skyscrapers, futoshiki, magic squares) --------------
+// cells: n×n values (0 empty), given: which are fixed. Tap a square, then a number.
+// onChange(values) after every entry; decorate(i, cell) adds clues or marks.
+export function numberGrid(api, { n, cols = n, values, given, max = n, onChange, decorate = null, cls = '' }) {
+  let sel = values.findIndex((v, i) => !given[i]);
+  const cells = values.map((_, i) => api.el('button', { class: 'gcell', type: 'button', onclick: () => ((sel = i), paint()) }));
+  const board = api.el('div', { class: `gboard ${cls}`, style: `grid-template-columns: repeat(${cols}, 1fr)` }, cells);
+  const set = v => {
+    if (sel < 0 || given[sel] || api.ended) return;
+    values[sel] = v;
+    paint();
+    onChange(values);
+  };
+  const pad = api.el('div', { class: 'gpad' }, [...Array.from({ length: max }, (_, i) => api.el('button', { class: 'q-btn', type: 'button', text: String(i + 1), onclick: () => set(i + 1) })), api.el('button', { class: 'q-btn ghost', type: 'button', text: '⌫', onclick: () => set(0) })]);
+  function paint(bad = new Set()) {
+    cells.forEach((c, i) => {
+      c.textContent = values[i] ? String(values[i]) : '';
+      c.className = `gcell${given[i] ? ' given' : ''}${i === sel ? ' sel' : ''}${bad.has(i) ? ' bad' : ''}`;
+      decorate?.(i, c);
+    });
+  }
+  paint();
+  return { board, pad, paint, cells };
+}
