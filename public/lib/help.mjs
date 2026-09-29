@@ -89,6 +89,12 @@ export const HELP = {
       ['time', '時光機', [
         '在「紀錄」試算：幾年前投入一筆錢（或每月定期定額）到某個標的，現在會變多少，中間最大跌幅多少。'
       ]],
+      ['truth', '它怎麼賺你的錢', [
+        '券商靠你交易賺錢，不是靠你賺錢：每一筆買賣都收手續費（台股 0.1425%，最低 NT$20），賣出再收 0.3% 證交稅；美股、日股的手續費更高。「限時活動」、漲幅榜、熱門排行和為你推薦，都是為了讓你多交易。',
+        '換匯的「銀行賣」和「銀行買」之間的差價就是費用，換過去再換回來，錢就少一截。',
+        '融資借款按天收利息，而且放大的不只是獲利：跌到維持率不夠會被強制賣出（斷頭），賠的比自己的本金還多。',
+        '長期來說，大多數人的報酬輸給「買一檔指數 ETF 放著不動」：手續費、稅、價差和追高殺低一點一點吃掉報酬。分析師的目標價常常猜錯，而且大多偏樂觀。'
+      ]],
       ['money', '錢怎麼算', [
         'Securities 的新台幣就是 Quadra 餘額：買進時從錢包出去，賣出時回來。手續費和稅照各市場真實規定（台股最低 NT$20，海外是複委託常見網路費率）；股利照各國規定預扣稅，除息日取得權利，幾週後現金入帳。',
         '長期分散投資是讓錢變多最穩的方法。'
@@ -120,6 +126,12 @@ export const HELP = {
       ['time', 'Time machine', [
         'Under History: what a lump sum (or a monthly plan) put into anything years ago would be worth now, and its worst drop on the way.'
       ]],
+      ['truth', 'How it makes money from you', [
+        'A broker earns from your trading, not your gains: every buy and sell pays a commission (0.1425% in Taiwan, NT$20 at least), a sale also 0.3% tax, and US and Japanese trades cost more. The featured offers, movers and “for you” rows are there to make you trade more.',
+        'The gap between the bank’s selling and buying rates is the FX fee: change money there and back and some of it is gone.',
+        'Margin loans charge interest every day, and they magnify losses as well as gains: fall below the maintenance ratio and your holdings are sold for you, possibly losing more than you put in.',
+        'Over the long run most people do worse than simply buying one index ETF and leaving it: commissions, taxes, spreads and buying high and selling low eat the returns. Analysts’ price targets are often wrong, and mostly too optimistic.'
+      ]],
       ['money', 'Money', [
         'Securities’ NT$ is the Quadra balance: buying takes from the wallet, selling brings it back. Fees and taxes follow each market’s real rules (Taiwan at least NT$20; abroad a Taiwan broker’s usual online rate); dividends have each country’s withholding, earned on the ex-date, paid weeks later.',
         'Investing widely for the long run is the steadiest way to grow money.'
@@ -145,6 +157,12 @@ export const HELP = {
       ['lottery', '彩券', [
         '大樂透、威力彩、今彩539、3星彩、4星彩、38／39／49樂合彩、BINGO BINGO、雙贏彩、大福彩，和 6 種刮刮樂。每張遊戲卡都能「快選 1 注」，打開可以自選或快選 5 注。中獎自動入帳並通知你。'
       ]],
+      ['truth', '它怎麼賺你的錢', [
+        '運彩的賠率比真實機率低：兩選一的玩法每下 NT$100，長期平均只拿回約 NT$86；足球不讓分約 83；比分、最高單局這類更少。依法運彩的獎金支出不能超過銷售額的 78%。',
+        '串關每多一場就再被抽一次：2 關平均回約 75，3 關約 64，5 關不到 50。賠率偏低的選項「限過關」，就是逼你串關。',
+        '彩券抽得更多：電腦彩券每 NT$100 平均回 50–60，刮刮樂 63–75（越貴的越高）；中獎超過 NT$5,000 還要扣 20% 稅和 0.4% 印花稅。',
+        '為你推薦、「今天開賣中」、Fixtures 每場比賽的「下注」按鈕，都是要你多下注。短期會有人贏，但下得越久，結果越接近上面那些平均：幾乎每個長期下注的人都是輸的。'
+      ]],
       ['money', '錢怎麼算', [
         '下注和買彩券從錢包扣款，中獎自動入帳。運彩每注平均抽約 13%（NT$100 平均拿回 NT$87），串越多關抽成疊越多；電腦彩券平均只還五到七成，刮刮樂約 58%。',
         'Play 是體驗和理解機率的地方，長期一定會輸；想讓錢變多，去 Securities 投資或到 Rewards 賺。'
@@ -167,6 +185,12 @@ export const HELP = {
       ]],
       ['lottery', 'Lottery', [
         'Lotto 6/49, Super Lotto, Daily Cash 539, 3 and 4 Digits, the 38, 39 and 49 M games, BINGO BINGO, Lotto 12/24 and more, and 6 scratch cards. Every card has a one-tap quick pick; open one to pick numbers or quick pick 5. Winnings are paid automatically, with a notice.'
+      ]],
+      ['truth', 'How it makes money from you', [
+        'The odds pay less than the real chances: on a two-way market every NT$100 brings back about NT$86 in the long run, soccer’s win-draw-win about 83, correct scores and top innings less. By law the Sports Lottery can pay out at most 78% of what it sells.',
+        'Every extra game in a parlay is cut again: 2 legs return about 75, 3 about 64, 5 under 50. Short prices sold only in parlays (限過關) are there to push you into them.',
+        'The lottery takes more: draw games return 50–60 per NT$100, scratch cards 63–75 (dearer ones more), and prizes over NT$5,000 lose 20% tax and 0.4% stamp duty.',
+        'The “for you” picks, the “open for bets” banner and the Bet buttons on every game in Fixtures are there to make you bet more. Some people win for a while, but the longer you bet the closer you get to those averages: almost everyone who bets for long loses.'
       ]],
       ['money', 'Money', [
         'Bets and tickets come out of the wallet, and winnings go straight back in. The sports lottery keeps about 13% of each bet (NT$100 returns NT$87 on average), more in parlays; number games return about 50–75%, scratch cards about 58%.',
@@ -192,6 +216,9 @@ export const HELP = {
       ['watch', '台灣轉播', [
         '比賽頁和推薦卡片會列出台灣可以收看的頻道與平台（愛爾達、緯來、DAZN、博斯、各聯盟的官方訂閱…）。轉播權會變動，以各平台公告為準。'
       ]],
+      ['truth', '它怎麼賺你的錢', [
+        'Fixtures 本身不收錢，它是 Play 的招牌：首頁的「今天 N 場開賣中」橫幅、每場比賽旁的「下注」按鈕和比賽頁的「到 Play 下注」，都是要把看比賽變成下注。'
+      ]],
       ['money', '錢怎麼算', [
         'Fixtures 不用錢：看比賽、追蹤都免費。每天打開一場比賽可以完成 Rewards 的每日任務。'
       ]]
@@ -212,6 +239,9 @@ export const HELP = {
       ]],
       ['watch', 'Watching in Taiwan', [
         'Match pages and pick cards list where to watch in Taiwan (ELTA, Videoland, DAZN, Sportcast, league passes…). Rights change; each service’s own listings are the final word.'
+      ]],
+      ['truth', 'How it makes money from you', [
+        'Fixtures costs nothing itself: it’s Play’s shop window. The “games open for bets” banner, the Bet button beside every game and “Bet in Play” on a game page are all there to turn watching into betting.'
       ]],
       ['money', 'Money', [
         'Fixtures is free: watching and following cost nothing. Opening a match each day completes a daily mission in Rewards.'
