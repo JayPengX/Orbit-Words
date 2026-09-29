@@ -62,6 +62,6 @@ export default function snake(api) {
       if (['up', 'down', 'left', 'right'].includes(kind)) turn(kind);
     }
   });
-  api.swipe(stage, d => turn(d));
-  return api.el('div', { class: 'arc-col' }, [stage, dpad(api, turn)]);
+  api.swipe(stage, d => stage.press(d));
+  return api.el('div', { class: 'arc-col' }, [stage, dpad(api, d => stage.press(d))]);
 }

@@ -262,6 +262,7 @@ export function mountGames(container, context) {
   };
   return {
     render,
+    open,
     stop: close,
     busy: () => live
   };

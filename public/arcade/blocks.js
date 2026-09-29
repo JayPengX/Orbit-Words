@@ -110,6 +110,6 @@ export default function blocks(api) {
       } else if (['left', 'right', 'up', 'down', 'action'].includes(kind)) act(kind === 'action' ? 'down' : kind);
     }
   });
-  api.swipe(stage, d => d === 'down' && act('down'));
+  api.swipe(stage, d => d === 'down' && stage.press('down'));
   return stage;
 }

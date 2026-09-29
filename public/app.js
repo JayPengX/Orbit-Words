@@ -664,7 +664,8 @@ function renderHome() {
     steps.slice(0, 4).map(s => el('button', { class: 'q-rec step', type: 'button', onclick: s.go }, [el('span', { class: 'step-icon', text: s.icon }), el('p', { class: 'q-rec-title', text: s.title }), el('p', { class: 'q-rec-sub', text: s.sub })]))
   );
   const d = daily();
-  const dailyCard = el('button', { class: `q-card pad daily-card${d.done ? ' done' : ''}`, type: 'button', onclick: () => showTab('games') }, [
+  // Straight into today's game (the games tab under it, for after).
+  const dailyCard = el('button', { class: `q-card pad daily-card${d.done ? ' done' : ''}`, type: 'button', onclick: () => (showTab('games'), games?.open(d.game)) }, [
     el('span', { class: 'daily-icon', 'aria-hidden': 'true', text: gameInfo(d.game, t, locale).icon }),
     el('span', { class: 'daily-text' }, [el('small', { text: t('dailyTitle') }), el('strong', { text: gameInfo(d.game, t, locale).name }), el('small', { class: 'muted', text: d.done ? t('dailyDone', { n: d.streak }) : t(d.streak ? 'dailyLine' : 'dailyLineNew', { v: nt(d.bonus), n: d.streak }) })]),
     el('span', { class: 'daily-go', text: d.done ? '✓' : '▶' })

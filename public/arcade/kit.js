@@ -46,7 +46,7 @@ export function dpad(api, fn, { action = null } = {}) {
 }
 
 // A canvas game: a loop at the screen's frame rate once started (a tap, or
-// a key), step(dt) moving things and draw(c) painting; `input(kind, x, y)`
+// a key, an on-screen arrow or swipe via stage.press), step(dt) moving things and draw(c) painting; `input(kind, x, y)`
 // for taps and keys. Returns the stage.
 export function canvasGame(api, W, H, { step, draw, input, hint }) {
   const { canvas, ctx } = api.canvas(W, H);
@@ -100,7 +100,13 @@ export function canvasGame(api, W, H, { step, draw, input, hint }) {
     input?.(dir);
   });
   api.animate(loop);
-  return api.el('div', { class: 'arc-stage' }, [canvas]);
+  const stage = api.el('div', { class: 'arc-stage' }, [canvas]);
+  // An on-screen arrow or a swipe: starts the game too, and counts as that move.
+  stage.press = dir => {
+    if (begin()) input?.('start');
+    input?.(dir);
+  };
+  return stage;
 }
 
 // Numbers drawn at the canvas's top.
