@@ -59,31 +59,25 @@
     setTimeout(function () { if (!window.__fxStarted) window.__fxFail(); }, 15000);
   })();
 </script>
-<header class="appbar">
-  <div class="appbar-inner">
-    <div class="brand">
-      <img class="brand-logo" src="./favicon.svg" alt="" width="34" height="34" />
-      <div class="brand-text">
-        <h1>Quadra Rewards</h1>
-        <p id="status" class="status" aria-live="polite"></p>
+<header class="q-appbar">
+  <div class="q-appbar-inner">
+    <div class="q-brand">
+      <img class="q-brand-logo" src="./favicon.svg" alt="" width="34" height="34" />
+      <div class="q-brand-text">
+        <h1 id="title">Quadra Rewards</h1>
+        <p id="status" class="q-status" aria-live="polite"></p>
       </div>
     </div>
-    <nav id="tabs" class="tabs q-tabbar" role="tablist">
-      <button id="tab-home" class="tab q-tab" role="tab" type="button" data-tab="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span></span></button>
-      <button id="tab-words" class="tab q-tab" role="tab" type="button" data-tab="words"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/><path d="M9 8h7M9 12h5"/></svg><span></span></button>
-      <button id="tab-games" class="tab q-tab" role="tab" type="button" data-tab="games"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="7" width="20" height="12" rx="5"/><path d="M7 11v4M5 13h4"/><circle cx="15.5" cy="12" r="1"/><circle cx="18" cy="14.5" r="1"/></svg><span></span></button>
-      <button id="tab-help" class="tab q-tab" role="tab" type="button" data-tab="help"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M9.3 9.2a2.8 2.8 0 0 1 5.4 1c0 1.9-2.7 2.4-2.7 4"/><circle cx="12" cy="17.4" r=".6"/></svg><span></span></button>
-    </nav>
-    <div id="account-slot" class="account-slot"></div>
+    <nav id="tabs" class="q-tabbar" role="tablist"></nav>
+    <div id="top-actions" class="q-actions"></div>
   </div>
 </header>
 
 <main class="page">
-  <div id="mobile-bar" class="mobile-bar"></div>
   <div id="panel-home" class="tab-panel" role="tabpanel"></div>
   <div id="panel-words" class="tab-panel" role="tabpanel" hidden></div>
   <div id="panel-games" class="tab-panel" role="tabpanel" hidden></div>
-  <div id="panel-help" class="tab-panel" role="tabpanel" hidden></div>
+  <div id="panel-missions" class="tab-panel" role="tabpanel" hidden></div>
 </main>
 <div id="toasts" class="toasts" aria-live="polite"></div>
 <script type="module" src="./app.js" onerror="window.__fxFail()"></script>

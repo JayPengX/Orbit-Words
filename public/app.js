@@ -3,7 +3,7 @@
 // daily missions pay into the Quadra Pass's shared wallet; the wealth ranks
 // show where the pool stands; the help centre explains every app.
 import {
-  quadraSession, accountButton, installGate, watchUpdates, recordAffinity, affinityPatch, setting, settingPatch, taipeiDay, poolBalance, money, randomId, notify, schedulePush, APPS, ECONOMY, ask, plusCard, plusMember
+  quadraSession, tabBar, topActions, installGate, watchUpdates, recordAffinity, affinityPatch, setting, settingPatch, taipeiDay, poolBalance, money, randomId, notify, schedulePush, APPS, ECONOMY, ask, plusCard, plusMember
 } from './lib/quadra.mjs';
 import { SHOP, shopEntry, freezes, boostUntil, capsFor, ownedPacks, packPrice, packEntry, packOwned } from './lib/shop.mjs';
 import { LEVELS, PACK_IDS, addPacks, levelRank, inLevels, MODES, loadWords, pickRound, smartType, markKnown, makeQuestion, grade, payFor, sameWord, spellDiff, stats, stateOf, packProgress, unpackProgress, mergeProgress, migrateWords, shortMeaning, wordOfDay } from './lib/words.mjs';
@@ -20,7 +20,7 @@ const locale = detectLocale();
 const t = makeT(locale);
 document.documentElement.lang = locale === 'zh' ? 'zh-Hant' : 'en';
 const $ = id => document.getElementById(id);
-const TABS = ['home', 'words', 'games', 'help'];
+const TABS = ['home', 'words', 'games', 'missions'];
 const VERSION = document.querySelector('meta[name="build-version"]')?.content || 'dev';
 
 const state = {
@@ -693,7 +693,6 @@ function renderHome() {
   const streak = streakDays(state.wallet);
   const e = earned();
   const ms = missions(state.wallet);
-  const st = state.words ? stats(myWords(), state.progress) : null;
   const cap = caps();
   const held = freezes(withOutbox()).held;
   const rankCard = el('div', { class: 'rank-card' }, [
@@ -711,23 +710,9 @@ function renderHome() {
       e.total >= cap.total ? el('p', { class: 'rank-full', text: t('todayFull') }) : null
     ])
   ]);
-  const claimedN = ms.filter(m => m.claimed).length;
-  const missionRow = m => {
-      const action = m.claimed
-        ? el('span', { class: 'claimed', text: t('claimed') })
-        : m.done
-          ? el('button', { class: 'q-btn primary small', type: 'button', text: m.freebet ? t('claimFree') : t('claim', { v: nt(m.pay) }), onclick: () => claim(m.id) })
-          : el('button', { class: 'q-btn small', type: 'button', text: t('go'), onclick: () => goMission(m) });
-      return el('div', { class: `mission${m.claimed ? ' done' : ''}` }, [
-        el('span', { class: 'mission-icon', text: MISSION_ICON[m.id] }),
-        el('div', { class: 'mission-text' }, [el('strong', { text: t(`mission_${m.id}`) }), el('div', { class: 'mission-bar' }, [bar(m.progress, m.goal, 'accent'), el('small', { class: 'num muted', text: `${m.progress}/${m.goal} · ${m.freebet ? t('freeBetPay', { v: nt(m.freebet) }) : nt(m.pay)}` })])]),
-        action
-      ]);
-  };
-  const missionList = el('div', { class: 'q-card list' }, [
-    ...[...ms].filter(m => !m.claimed).sort((a, b) => b.done - a.done).map(missionRow),
-    claimedN ? el('details', { class: 'mission-done' }, [el('summary', { text: t('missionsDone', { n: claimedN }) }), ...ms.filter(m => m.claimed).map(missionRow)]) : null
-  ].filter(Boolean));
+  // The missions most worth doing now (ready to claim first); all of them,
+  // the weekly goals, badges and ranks are on 任務.
+  const next = ms.filter(m => !m.claimed).sort((a, b) => b.done - a.done).slice(0, 3);
   const d = daily();
   // Straight into today's game (the games tab under it, for after).
   const dailyCard = el('button', { class: `q-card pad daily-card${d.done ? ' done' : ''}`, type: 'button', onclick: () => (showTab('games'), games?.open(d.game)) }, [
@@ -739,17 +724,49 @@ function renderHome() {
     box,
     rankCard,
     dailyCard,
+    next.length ? section(t('missions'), el('div', { class: 'q-card list' }, next.map(missionRow)), { action: el('button', { type: 'button', text: `${t('missionsAll')} ›`, onclick: () => showTab('missions') }) }) : null,
     section(t('shopTitle'), shopCard()),
     wordOfDayCard(),
-    section(t('missions'), missionList),
-    section(t('weekly'), weeklyCard()),
-    section(t('badgesTitle'), badgesCard(st), { sub: t('allTime', { v: nt(earnedAllTime(state.wallet)) }) }),
-    section(t('ranks'), ranksCard(r.index)),
     el('div', { class: 'spend-line' }, [
       el('small', { class: 'muted', text: t('spendLine') }),
       el('button', { class: 'link-btn', type: 'button', text: t('spendPlay'), onclick: () => q.go('odds') }),
       el('button', { class: 'link-btn', type: 'button', text: t('spendStock'), onclick: () => q.go('stock') })
     ])
+  );
+}
+
+// ---- 任務: every daily mission, the weekly goals, badges and ranks ---------------------------
+
+function missionRow(m) {
+  const action = m.claimed
+    ? el('span', { class: 'claimed', text: t('claimed') })
+    : m.done
+      ? el('button', { class: 'q-btn primary small', type: 'button', text: m.freebet ? t('claimFree') : t('claim', { v: nt(m.pay) }), onclick: () => claim(m.id) })
+      : el('button', { class: 'q-btn small', type: 'button', text: t('go'), onclick: () => goMission(m) });
+  return el('div', { class: `mission${m.claimed ? ' done' : ''}` }, [
+    el('span', { class: 'mission-icon', text: MISSION_ICON[m.id] }),
+    el('div', { class: 'mission-text' }, [el('strong', { text: t(`mission_${m.id}`) }), el('div', { class: 'mission-bar' }, [bar(m.progress, m.goal, 'accent'), el('small', { class: 'num muted', text: `${m.progress}/${m.goal} · ${m.freebet ? t('freeBetPay', { v: nt(m.freebet) }) : nt(m.pay)}` })])]),
+    action
+  ]);
+}
+// Missions and weekly goals done but not yet claimed: the 任務 tab's count.
+const readyToClaim = () => (state.wallet ? missions(state.wallet).filter(m => m.done && !m.claimed).length + weeklyGoals(withOutbox()).filter(g => g.done && !g.claimed).length : 0);
+function renderMissions() {
+  const box = $('panel-missions');
+  if (!state.wallet) return put(box, el('div', { class: 'center-spin' }, [el('div', { class: 'spinner' })]));
+  const ms = missions(state.wallet);
+  const st = state.words ? stats(myWords(), state.progress) : null;
+  const claimedN = ms.filter(m => m.claimed).length;
+  const list = el('div', { class: 'q-card list' }, [
+    ...[...ms].filter(m => !m.claimed).sort((a, b) => b.done - a.done).map(missionRow),
+    claimedN ? el('details', { class: 'mission-done' }, [el('summary', { text: t('missionsDone', { n: claimedN }) }), ...ms.filter(m => m.claimed).map(missionRow)]) : null
+  ].filter(Boolean));
+  put(
+    box,
+    section(t('missions'), list),
+    section(t('weekly'), weeklyCard()),
+    section(t('badgesTitle'), badgesCard(st), { sub: t('allTime', { v: nt(earnedAllTime(state.wallet)) }) }),
+    section(t('ranks'), ranksCard(rankOf(poolBalance(state.wallet)).index))
   );
 }
 
@@ -886,46 +903,59 @@ function claim(id) {
 
 // ---- Help ---------------------------------------------------------------------------------
 
-function openHelp(app, topic = null) {
+// A sheet over the app (the ? in the top-right, or another app's help link):
+// one app's topics, the others a chip away.
+let helpSheet = null;
+function openHelp(app = state.help.app, topic = null) {
   state.help = { app, topic };
-  showTab('help');
+  if (!helpSheet?.open) {
+    helpSheet?.remove();
+    helpSheet = el('dialog', { class: 'q-sheet help-sheet', 'aria-label': t('helpTitle') });
+    helpSheet.addEventListener('click', e => e.target === helpSheet && helpSheet.close());
+    helpSheet.addEventListener('close', () => {
+      helpSheet.remove();
+      try {
+        history.replaceState(null, '', `#${state.tab}`);
+      } catch {}
+    });
+    document.body.append(helpSheet);
+    helpSheet.showModal();
+  }
+  renderHelp();
 }
 function renderHelp() {
-  const box = $('panel-help');
   const { app, topic } = state.help;
+  try {
+    history.replaceState(null, '', `#help=${app}${topic ? `:${topic}` : ''}`);
+  } catch {}
   const chips = el(
     'div',
     { class: 'q-chips' },
-    HELP_ORDER.map(a => el('button', { class: 'q-chip', type: 'button', 'aria-pressed': String(app === a), text: a === 'pass' ? 'Quadra Pass' : APPS[a].short, onclick: () => ((state.help = { app: a, topic: null }), renderHelp()) }))
+    HELP_ORDER.map(a => el('button', { class: 'q-chip', type: 'button', 'aria-pressed': String(app === a), text: a === 'pass' ? 'Quadra Pass' : APPS[a].short, onclick: () => ((state.help = { app: a, topic: null }), renderHelp(), (helpSheet.scrollTop = 0)) }))
   );
   const topics = helpFor(app, locale);
   const cards = topics.map(([id, title, paras]) =>
     el('article', { class: `q-card pad help-card${topic === id ? ' focus' : ''}`, id: `help-${id}` }, [el('h3', { text: title }), ...paras.map(p => el('p', { text: p }))])
   );
   const open = app !== 'pass' && app !== 'vocab' ? el('button', { class: 'q-btn primary block', type: 'button', text: t('openApp', { app: APPS[app].name }), onclick: () => q.go(app) }) : null;
-  put(box, chips, el('div', { class: 'help-list' }, cards), open);
+  const head = el('div', { class: 'q-sheet-head' }, [el('h2', { text: t('helpTitle') }), el('button', { class: 'q-close', type: 'button', 'aria-label': t('close'), text: '×', onclick: () => helpSheet.close() })]);
+  put(helpSheet, head, chips, el('div', { class: 'help-list' }, cards), open);
   if (topic) setTimeout(() => $(`help-${topic}`)?.scrollIntoView({ block: 'start', behavior: 'smooth' }), 50);
 }
 
 // ---- Tabs and start -------------------------------------------------------------------------
 
 let games = null;
+const TAB_ICONS = { home: 'home', words: 'book', games: 'gamepad', missions: 'target' };
+const tabNav = tabBar({ tabs: TABS.map(id => ({ id, label: t(`tab_${id}`), icon: TAB_ICONS[id] })), onSelect: (tab, { again }) => !again && showTab(tab) });
 function renderTabs() {
-  for (const tab of TABS) {
-    const b = $(`tab-${tab}`);
-    b.setAttribute('aria-selected', String(state.tab === tab));
-    b.querySelector('span').textContent = t(`tab_${tab}`);
-    $(`panel-${tab}`).hidden = state.tab !== tab;
-  }
+  tabNav.select(state.tab);
+  tabNav.badge('missions', readyToClaim());
 }
 function showTab(tab) {
   if (state.tab === 'games' && tab !== 'games') games?.stop();
   state.tab = tab;
-  try {
-    history.replaceState(null, '', tab === 'help' ? `#help=${state.help.app}${state.help.topic ? `:${state.help.topic}` : ''}` : `#${tab}`);
-  } catch {}
   renderTabs();
-  window.scrollTo({ top: 0 });
   refresh();
 }
 function refresh() {
@@ -935,11 +965,11 @@ function refresh() {
     games ||= mountGames($('panel-games'), gameContext);
     games.render();
   }
-  if (state.tab === 'help') renderHelp();
+  if (state.tab === 'missions') renderMissions();
+  tabNav.badge('missions', readyToClaim());
   const s = $('status');
   if (s) s.textContent = state.wallet ? t('statusLine', { v: nt(earned().total) }) : '';
 }
-for (const b of document.querySelectorAll('#tabs .tab')) b.addEventListener('click', () => showTab(b.dataset.tab));
 
 // What the games need from the app: text, money, today's room, the words,
 // and paying a round.
@@ -974,24 +1004,12 @@ const gameContext = {
   }
 };
 
-{
-  const phone = matchMedia('(max-width: 720px)');
-  const place = () => {
-    if (phone.matches) $('mobile-bar').append($('status'), $('account-slot'));
-    else {
-      document.querySelector('.brand-text').append($('status'));
-      document.querySelector('.appbar-inner').append($('account-slot'));
-    }
-  };
-  place();
-  phone.addEventListener('change', place);
-}
-
 window.__fxStarted = true;
 const gated = installGate('vocab', locale);
 watchUpdates({ current: VERSION, key: 'quadraRewards', cachePrefix: 'quadra-rewards-', busy: () => Boolean(state.round && !state.round.done) || Boolean(games?.busy()) });
+// The same top-right in every Quadra app; help opens here, over the app.
+topActions(q, { help: () => openHelp('vocab') });
 renderTabs();
-$('account-slot').append(accountButton(q));
 q.on('wallet', w => {
   state.wallet = w;
   useFreezes();
@@ -1063,10 +1081,8 @@ async function boot() {
   checkNotices();
   const hash = location.hash.slice(1);
   const help = parseHelpHash(hash);
-  if (help) {
-    state.help = help;
-    showTab('help');
-  } else showTab(TABS.includes(hash) ? hash : 'home');
+  showTab(TABS.includes(hash) ? hash : 'home');
+  if (help) openHelp(help.app, help.topic);
   // The pass gets the (possibly migrated) progress and anything left to send.
   if (first?.payload && !first.payload.startsWith('z3:')) dirty = true;
   await sync();

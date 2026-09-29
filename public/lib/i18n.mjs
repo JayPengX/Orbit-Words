@@ -4,7 +4,7 @@ export const STRINGS = {
   zh: {
     gamesSearch: '搜尋遊戲', howToPlay: '怎麼玩', howGotIt: '知道了', cat_all: '全部', cat_fav: '★ 最愛', cat_words: '單字', cat_logic: '邏輯', cat_puzzle: '益智', cat_action: '動作', cat_reflex: '反應', cat_board: '棋類', cat_cards: '牌類', cat_brain: '記憶', cat_numbers: '數字', longTag: '長局', gamesRecent: '最近玩過', gamesNew: '新遊戲', gamesFavs: '我的最愛', gamesSeeAll: '全部 {n} 款', newTag: '新', gamesNoMatch: '找不到符合的遊戲。', gamesNoFav: '點 ☆ 加入最愛', gamesCount: '{n} 款遊戲', gameBack: '遊戲列表', favAdd: '加入最愛', favRemove: '移出最愛', gameLoading: '載入中…', gameLoadFail: '載入失敗，請再試一次', gamesToday: '{v} / {cap}', gamesAlso: '接著玩',
     arcadeScore: '分數 {n}', arcadeTime: '{n} 秒', arcadeRound: '第 {n}/{of} 局', arcadeTapStart: '點一下開始', arcadeOver: '結束！', arcadeSummary: '得分 {n}。', arcadeLevel: '第 {n} 關',
-    tab_home: '首頁', tab_words: '單字', tab_games: '遊戲', tab_help: '說明',
+    tab_home: '首頁', tab_words: '單字', tab_games: '遊戲', tab_missions: '任務', helpTitle: '說明', missionsAll: '全部任務', close: '關閉',
     statusLine: '今天賺了 {v}',
     // Home
     yourRank: '財富等級', streak: '🔥 連續 {n} 天', toNext: '還差 {v} 到「{rank}」', topRank: '已經是最高等級',
@@ -86,7 +86,7 @@ export const STRINGS = {
   en: {
     gamesSearch: 'Search games', howToPlay: 'How to play', howGotIt: 'Got it', cat_all: 'All', cat_fav: '★ Favourites', cat_words: 'Words', cat_logic: 'Logic', cat_puzzle: 'Puzzles', cat_action: 'Action', cat_reflex: 'Reflex', cat_board: 'Board', cat_cards: 'Cards', cat_brain: 'Memory', cat_numbers: 'Numbers', longTag: 'Long', gamesRecent: 'Played lately', gamesNew: 'New games', gamesFavs: 'Favourites', gamesSeeAll: 'All {n}', newTag: 'New', gamesNoMatch: 'No game matches.', gamesNoFav: 'Tap ☆ to add one', gamesCount: '{n} games', gameBack: 'All games', favAdd: 'Add to favourites', favRemove: 'Remove from favourites', gameLoading: 'Loading…', gameLoadFail: 'Couldn’t load. Try again.', gamesToday: '{v} / {cap}', gamesAlso: 'Play next',
     arcadeScore: 'Score {n}', arcadeTime: '{n}s', arcadeRound: 'Round {n}/{of}', arcadeTapStart: 'Tap to start', arcadeOver: 'Over!', arcadeSummary: 'Scored {n}.', arcadeLevel: 'Level {n}',
-    tab_home: 'Home', tab_words: 'Words', tab_games: 'Games', tab_help: 'Help',
+    tab_home: 'Home', tab_words: 'Words', tab_games: 'Games', tab_missions: 'Missions', helpTitle: 'Help', missionsAll: 'All missions', close: 'Close',
     statusLine: 'Earned today {v}',
     yourRank: 'Wealth rank', streak: '🔥 {n} days in a row', toNext: '{v} to go to {rank}', topRank: 'The top rank',
     rank_start: 'Starter', rank_saver: 'Saver', rank_steady: 'Steady', rank_comfort: 'Comfortable', rank_wealthy: 'Wealthy', rank_rich: 'Rich', rank_multi: 'Multi-millionaire', rank_tycoon: 'Tycoon',

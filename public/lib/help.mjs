@@ -80,7 +80,7 @@ export const HELP = {
         'Quadra 讓錢長大的地方：用錢包裡的新台幣投資全世界的股票、ETF、各國公債、共同基金、加密貨幣、黃金白銀存摺和外匯，價格都是真實市場價格。'
       ]],
       ['tabs', '每個分頁', [
-        '「市場」：帳戶摘要、為你推薦、漲跌幅並排、各分類清單（每張 15 檔）和搜尋；點任何標的看走勢、公司資料和下單。',
+        '「首頁」：帳戶摘要、為你推薦、漲跌幅並排、各分類清單（每張 15 檔）和搜尋；點任何標的看走勢、公司資料和下單。',
         '「資產」：淨值與走勢、配置、持股、現金與各幣別錢包、股利利息收入、定期定額和到價提醒。',
         '「換匯・融資」：三個畫面：換匯（你付出／你會收到，兩邊都能輸入）、匯率看板、融資（已借、維持率、額度）。',
         '「紀錄」：每筆交易與異動、委託單、投資統計，以及「時光機」。'
@@ -116,7 +116,7 @@ export const HELP = {
         'Where Quadra’s money grows: invest the NT$ in your wallet in stocks, ETFs, government bonds, mutual funds, crypto, gold and silver passbooks and forex worldwide, at real market prices.'
       ]],
       ['tabs', 'The tabs', [
-        'Markets: your account at a glance, for you, gainers and losers side by side, lists by kind (15 each) and search; tap anything for its chart, company facts and the order ticket.',
+        'Home: your account at a glance, for you, gainers and losers side by side, lists by kind (15 each) and search; tap anything for its chart, company facts and the order ticket.',
         'Portfolio: net worth and its history, allocation, holdings, cash and each currency’s wallet, income, monthly plans and price alerts.',
         'FX & loans: three views: exchange (you pay / you get, type either), the rates board, and loans (borrowed, the ratio, the limit).',
         'History: every trade and change, orders, stats, and the time machine.'
@@ -212,11 +212,11 @@ export const HELP = {
         'Quadra 的運動資料中心：所有運動的比分、賽程、排名、球隊和球員，每場比賽的詳細數據，還有依你追蹤的運動排好的推薦。Play 有開賣的比賽有「到 Play 下注」。'
       ]],
       ['tabs', '每個分頁', [
-        '「推薦」：選一天（前三天到下週），當天每場比賽依你的喜好排好：先是不撞時間的精選，再來是其他比賽；可以只看追蹤的、你的球隊或某個運動。',
+        '「首頁」：選一天（前三天到下週），當天每場比賽依你的喜好排好：先是不撞時間的精選，再來是其他比賽；可以只看追蹤的、你的球隊或某個運動。',
         '「賽事」：依運動和聯賽找比賽，打開就在離現在最近的比賽日；季後賽、季前賽、盃賽可以篩選。賽車、高爾夫、網球、格鬥顯示整季賽程。',
         '「直播」：現在進行中的比賽，和三小時內開打的。',
         '「追蹤」：你的運動、聯賽、球隊和選手的比賽、結果和排名。',
-        '「排名」：每個聯賽的排名，含與第一名的差距（積分或勝差）。'
+        '右上角：說明、重新整理和你的 Quadra Pass；再點一次目前的分頁會回到頂端。'
       ]],
       ['follow', '追蹤', [
         '依喜好順序追蹤運動（第一個最優先），再選每種運動的聯賽；球隊在比賽或球隊頁按「+ 追蹤」，網球、高爾夫、F1、UFC 的選手在選手頁追蹤。追蹤的球隊開賽和完賽會通知你；Play 的推薦也用你的追蹤。'
@@ -236,11 +236,11 @@ export const HELP = {
         'Quadra’s sports data centre: every sport’s scores, schedules, tables, teams and players, each match’s details, and picks ranked by what you follow. Matches Play sells have Bet in Play.'
       ]],
       ['tabs', 'The tabs', [
-        'For you: pick a day (three days back to a week ahead): every match of it, ranked for you, a no-clash plan first, then the rest; narrow it to what you follow, your teams or one sport.',
+        'Home: pick a day (three days back to a week ahead): every match of it, ranked for you, a no-clash plan first, then the rest; narrow it to what you follow, your teams or one sport.',
         'Matches: by sport and league, opening on the game day nearest to now; filter playoffs, preseason or cups. Racing, golf, tennis and fighting show the whole season.',
         'Live: everything in progress now, and what starts in the next three hours.',
         'Following: your sports, leagues, teams and players: their games, results and tables.',
-        'Tables: every league’s table, with the gap to the top (points or games behind).'
+        'Top right: help, refresh and your Quadra Pass; tap the open tab again to go back to its top.'
       ]],
       ['follow', 'Following', [
         'Follow sports in order of priority (the first counts most), then leagues in each; follow teams with “+ Follow” on a match or team page, and tennis, golf, F1 and UFC players on their page. A followed team’s start and final score come as notices, and Play’s picks use your follows too.'
@@ -262,10 +262,11 @@ export const HELP = {
         'Quadra 靠努力賺錢的地方：背單字、玩遊戲、完成每日任務，錢直接進錢包。所有 App 的說明也都在這裡。'
       ]],
       ['tabs', '每個分頁', [
-        '「首頁」：今天可賺與已賺、今日挑戰、加值（保護卡、單字加倍、Plus）、今日單字、每日任務、每週目標、徽章和財富等級。',
+        '「首頁」：今天可賺與已賺、今日挑戰、接下來的任務、加值（保護卡、單字加倍、Plus）和今日單字。',
         '「單字」：選級別或單字包和學習方式，開始一輪。',
         '「遊戲」：單字遊戲、長局、謎題、動作、棋盤、腦力，可以搜尋和加入最愛；每天有一款今日挑戰。',
-        '「說明」：每個 Quadra App 的說明（就是這裡）。'
+        '「任務」：每日任務、每週目標、徽章和財富等級；完成待領取的數量會標在分頁上。',
+        '右上角的「?」：每個 Quadra App 的說明（就是這裡）。'
       ]],
       ['words', '背單字', [
         '大考中心高中英文參考詞彙第 1 到 6 級，共 6,170 字，每個字都有真人發音錄音（Microsoft Jenny）。每一輪 10、20 或 30 個字，混合該複習的字和新字；答錯的字會在這一輪最後再問一次。',
@@ -297,10 +298,11 @@ export const HELP = {
         'Where effort earns money in Quadra: words, games and daily missions pay straight into the wallet. Every app’s help lives here too.'
       ]],
       ['tabs', 'The tabs', [
-        'Home: what today can pay and has paid, today’s challenge, extras (streak protection, word pay ×2, Plus), the word of the day, daily missions, weekly goals, badges and your wealth rank.',
+        'Home: what today can pay and has paid, today’s challenge, the next missions, extras (streak protection, word pay ×2, Plus) and the word of the day.',
         'Words: pick levels or word packs and a way to learn, and start a round.',
         'Games: word games, long games, puzzles, action, board and brain games, with search and favourites; one game a day is today’s challenge.',
-        'Help: every Quadra app’s guide (this page).'
+        'Missions: daily missions, weekly goals, badges and your wealth rank; the tab shows how many are ready to claim.',
+        'The ? at the top right: every Quadra app’s guide (this page).'
       ]],
       ['words', 'Words', [
         'The high-school English reference list, levels 1 to 6: 6,170 words, each with a recording (Microsoft’s Jenny voice). A round is 10, 20 or 30 words, reviews and new ones mixed; a missed word comes back once at the end of the round.',
