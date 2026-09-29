@@ -24,7 +24,7 @@ export const STRINGS = {
     modeHint_smart: '依熟練度自動變換', modeHint_card: '翻卡自我檢查', modeHint_meaning: '看英文選中文', modeHint_word: '看中文選英文', modeHint_listen: '只聽發音', modeHint_letters: '把字母排好', modeHint_spell: '聽了拼出來',
     ask_card: '你知道這個字的意思嗎？', ask_meaning: '這個字是什麼意思？', ask_word: '哪個英文是這個意思？', ask_listen: '你聽到的是哪個字？', ask_letters: '把字母排成這個字', ask_spell: '聽發音，拼出這個字',
     showMeaning: '看意思', notYet: '還不熟', knewIt: '我會了', tapToHear: '點一下再聽一次', listen: '聽發音', undo: '退一格', check: '確認', letters: '{n} 個字母',
-    fbRight: '答對了！', fbKnew: '好，記下來了', fbWrong: '答錯了', fbMastered: '🏅 精熟！', next: '下一題', seeResult: '看結果', endRound: '結束這一輪',
+    tooEasy: '太簡單，我已經會了 ›', fbRight: '答對了！', fbKnew: '好，記下來了', fbWrong: '答錯了', fbMastered: '🏅 精熟！', next: '下一題', seeResult: '看結果', endRound: '結束這一輪',
     state_new: '新字', state_learning: '學習中', state_mastered: '精熟',
     summaryLine: '這輪賺了 {v}，精熟 {m} 個字', capReached: '今天這項已經賺滿，明天再來。', backToWords: '回單字', again: '再一輪', nothingLeft: '這些級別都學完了，選別的級別吧！',
     // Games
@@ -89,7 +89,7 @@ export const STRINGS = {
     modeHint_smart: 'Changes with how well you know it', modeHint_card: 'Flip and check yourself', modeHint_meaning: 'English → meaning', modeHint_word: 'Meaning → English', modeHint_listen: 'Sound only', modeHint_letters: 'Unscramble it', modeHint_spell: 'Hear it, spell it',
     ask_card: 'Do you know what it means?', ask_meaning: 'What does it mean?', ask_word: 'Which word means this?', ask_listen: 'Which word did you hear?', ask_letters: 'Put the letters in order', ask_spell: 'Listen and spell it',
     showMeaning: 'Show meaning', notYet: 'Not yet', knewIt: 'I knew it', tapToHear: 'Tap to hear it again', listen: 'Listen', undo: 'Undo', check: 'Check', letters: '{n} letters',
-    fbRight: 'Right!', fbKnew: 'Noted', fbWrong: 'Not quite', fbMastered: '🏅 Mastered!', next: 'Next', seeResult: 'See results', endRound: 'End the round',
+    tooEasy: 'Too easy, I know it ›', fbRight: 'Right!', fbKnew: 'Noted', fbWrong: 'Not quite', fbMastered: '🏅 Mastered!', next: 'Next', seeResult: 'See results', endRound: 'End the round',
     state_new: 'New', state_learning: 'Learning', state_mastered: 'Mastered',
     summaryLine: 'Earned {v} this round, {m} words mastered', capReached: 'Today’s limit for this is reached: back tomorrow.', backToWords: 'Back to words', again: 'Another round', nothingLeft: 'Nothing left in these levels: pick others!',
     gamesTitle: 'Games today', gamesEarned: '{v} of {cap}', gamesCapped: 'Today’s limit reached', gamesIntro: 'Earn by effort, about a minute a round, {cap} a day at most.',

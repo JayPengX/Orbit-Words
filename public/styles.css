@@ -696,3 +696,9 @@ html.rw-playing .game-actions:has(.game-result) {
 .ws-clues li b { font-size: 11.5px; color: var(--q-muted); font-weight: 600; }
 .ws-clues li.done span { text-decoration: line-through; color: var(--q-muted); }
 .ws-clues li.done b { color: var(--q-accent); }
+
+/* A round on a phone: after an answer, 下一題 stays pinned above the tab bar. */
+.too-easy { display: block; margin: 10px auto 0; color: var(--q-muted); }
+.answered { padding-bottom: 76px; }
+.next-bar { position: fixed; left: 0; right: 0; bottom: calc(var(--bottom-nav, 0px) + 10px); z-index: 50; display: flex; justify-content: center; padding: 0 16px; pointer-events: none; }
+.next-bar .q-btn { pointer-events: auto; width: min(560px, 100%); box-shadow: 0 10px 24px -10px rgb(0 0 0 / 0.45); }

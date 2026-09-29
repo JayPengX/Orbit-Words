@@ -5,7 +5,7 @@
 import {
   quadraSession, accountButton, installGate, watchUpdates, recordAffinity, affinityPatch, setting, settingPatch, taipeiDay, poolBalance, money, randomId, notify, schedulePush, APPS, ECONOMY
 } from './lib/quadra.mjs';
-import { LEVELS, MODES, loadWords, pickRound, smartType, makeQuestion, grade, payFor, sameWord, spellDiff, stats, stateOf, packProgress, unpackProgress, mergeProgress, migrateWords, shortMeaning, wordOfDay } from './lib/words.mjs';
+import { LEVELS, MODES, loadWords, pickRound, smartType, markKnown, makeQuestion, grade, payFor, sameWord, spellDiff, stats, stateOf, packProgress, unpackProgress, mergeProgress, migrateWords, shortMeaning, wordOfDay } from './lib/words.mjs';
 import {
   CAPS, earnedToday, missions, claimEntry, rankOf, RANKS, streakDays, earnedAllTime, streakAtRisk, dailyId, dailyStreak, weeklyGoals, claimWeekly, badges
 } from './lib/earn.mjs';
@@ -421,8 +421,9 @@ function nextQuestion() {
   r.built = [];
   r.revealed = false;
   renderWords();
-  // Straight away, inside the tap that led here (iOS plays sound only then).
-  if (['meaning', 'listen', 'spell', 'letters', 'card'].includes(type)) speak(word);
+  // Only when the question is the sound (by ear, dictation): straight away,
+  // inside the tap that led here (iOS plays sound only then). Else 🔊 plays it.
+  if (['listen', 'spell'].includes(type)) speak(word);
 }
 
 function answer(correct, typed = '') {
@@ -439,7 +440,6 @@ function answer(correct, typed = '') {
   if (res.firstMastery) act.master++;
   r.earned += pay;
   r.results.push({ word, correct, type: r.q.type, before, after: stateOf(res.p), pay, typed, mastered: res.firstMastery });
-  if (!correct) speak(word);
   // A missed word comes back once at the end of the round, to fix it while
   // it's fresh (asked by its meaning).
   if (!correct && !r.retry?.has(word.key)) {
@@ -449,6 +449,19 @@ function answer(correct, typed = '') {
   }
   renderWords();
   sync({ soon: true });
+}
+// 太簡單: the word is known; it's put away and the round moves on.
+function tooEasy() {
+  const r = state.round;
+  if (!r || r.answered) return;
+  const word = r.q.word;
+  const before = stateOf(state.progress[word.key]);
+  state.progress = { ...state.progress, [word.key]: markKnown(state.progress[word.key]) };
+  dirty = true;
+  r.results.push({ word, correct: true, type: 'known', before, after: 'mastered', pay: 0, typed: '', mastered: false });
+  r.list = [...r.list.slice(0, r.i + 1), ...r.list.slice(r.i + 1).filter(w => w.key !== word.key)];
+  sync({ soon: true });
+  advance();
 }
 function advance() {
   const r = state.round;
@@ -559,8 +572,8 @@ function questionView(r) {
       done && !last.correct ? el('p', { class: 'diff' }, spellDiff(last.typed, word.word).map(d => el('span', { class: d.ok ? '' : 'bad', text: d.ch }))) : null
     );
   }
-  if (!done) return el('div', {}, [card]);
-  return el('div', {}, [card, feedback(last)]);
+  if (!done) return el('div', {}, [card, question.type === 'card' ? null : el('button', { class: 'q-btn small ghost too-easy', type: 'button', text: t('tooEasy'), onclick: tooEasy })]);
+  return el('div', { class: 'answered' }, [card, feedback(last)]);
 }
 
 function feedback(res) {
@@ -570,9 +583,11 @@ function feedback(res) {
   setTimeout(() => next.focus({ preventScroll: true }), 0);
   return el('div', { class: `q-card pad feedback ${res.correct ? 'good' : 'bad'}` }, [
     el('div', { class: 'fb-top' }, [el('strong', { text: status }), res.pay ? el('span', { class: 'fb-pay num', text: `+${nt(res.pay)}` }) : null]),
-    res.type === 'card' ? null : wordHead(word, { meaning: true }),
+    // The word's on screen already for a meaning question: its meaning only.
+    res.type === 'card' ? null : res.type === 'meaning' ? el('p', { class: 'meaning', text: word.zh }) : wordHead(word, { meaning: true }),
     el('small', { class: 'muted', text: t(`state_${res.after}`) }),
-    next
+    // Pinned above the tab bar: no scrolling down for it.
+    el('div', { class: 'next-bar' }, [next])
   ]);
 }
 

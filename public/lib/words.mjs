@@ -47,12 +47,21 @@ export function grade(p, correct, { type = 'meaning', now = Date.now() } = {}) {
   let b;
   if (!correct) b = 1;
   else if (type === 'card') b = Math.max(1, was.b);
-  else if (!was.b && !was.n) b = KNOWN_BOX;
+  // Known already: right the first time. Asked the hard way (the meaning to
+  // the word, by ear, spelled), that's known well enough to count as mastered.
+  else if (!was.b && !was.n) b = ['word', 'listen', 'letters', 'spell'].includes(type) ? MASTERED : KNOWN_BOX;
   else b = Math.min(5, (was.b || 0) + 1);
   const next = { ...was, b, d: today + BOX_DAYS[b], n: (was.n || 0) + 1, r: (was.r || 0) + (correct ? 1 : 0), t: now };
   const firstMastery = b >= MASTERED && !was.m;
   if (firstMastery) next.m = 1;
   return { p: next, firstMastery };
+}
+
+// "Too easy": a word the person already knows, mastered and out of the way
+// for two months (no pay: nothing was answered).
+export function markKnown(p, now = Date.now()) {
+  const was = p || { b: 0, d: 0, n: 0, r: 0, t: 0 };
+  return { ...was, b: 5, d: dayNum(now) + 60, t: now, m: 1 };
 }
 
 // The kind of question a word gets in smart mode, by its box: first its
@@ -63,7 +72,8 @@ export function grade(p, correct, { type = 'meaning', now = Date.now() } = {}) {
 export function smartType(p, random = Math.random, word = null) {
   const b = p?.b || 0;
   const long = word ? /\s/.test(word.word) || word.word.length > 11 : false;
-  if (b === 0) return 'meaning';
+  // New: by meaning; a harder word (level 4 up) the other way round.
+  if (b === 0) return word?.level >= 4 && random() < 0.6 ? 'word' : 'meaning';
   if (b === 1) return p?.n > 1 && random() < 0.5 ? 'word' : 'meaning';
   if (b === 2) return random() < 0.6 ? 'word' : 'listen';
   if (b === 3) return long ? 'listen' : random() < 0.6 ? 'letters' : 'listen';
@@ -78,9 +88,11 @@ export function pickRound(words, progress, { levels = LEVELS, size = 10, now = D
   const due = inLevels
     .filter(w => progress[w.key]?.b && progress[w.key].d <= today)
     .sort((a, b) => progress[a.key].d - progress[b.key].d || progress[a.key].b - progress[b.key].b || random() - 0.5);
-  // New words by level, then in a fixed mixed order (not alphabetical).
-  const fresh = inLevels.filter(w => !progress[w.key]?.b).sort((a, b) => a.level - b.level || hash(a.key) - hash(b.key));
-  // New words: the lower levels first, a little shuffled within the next few.
+  // New words from every chosen level alike, the hardest first (a fixed mixed
+  // order within a level, not alphabetical), a little shuffled within the next few.
+  const byLevel = [...new Set(inLevels.map(w => w.level))].sort((a, b) => b - a).map(l => inLevels.filter(w => w.level === l && !progress[w.key]?.b).sort((a, b) => hash(a.key) - hash(b.key)));
+  const fresh = [];
+  for (let i = 0; fresh.length < 60 && byLevel.some(list => i < list.length); i++) for (const list of byLevel) if (i < list.length) fresh.push(list[i]);
   const window = fresh.slice(0, 60).sort(() => random() - 0.5);
   // Reviews take their share (all of the round when nothing new is left),
   // new words the rest; either one fills in when the other runs short.
