@@ -901,3 +901,42 @@ html.rw-playing .game-actions:has(.game-result) {
 .ps-line { font-size: 11px; font-weight: 700; color: #fde68a; line-height: 1.2; }
 .ps-line.col { text-align: center; }
 .cg.shake { animation: sl-shake 0.25s; }
+/* Batch 6: reflex and board games */
+.bl-sky { position: relative; width: min(360px, 100%); height: min(430px, 58vh); overflow: hidden; border-radius: 18px; background: linear-gradient(#7dd3fc, #e0f2fe); touch-action: manipulation; }
+.bl { position: absolute; bottom: -80px; width: 54px; height: 66px; padding: 0; border: 0; border-radius: 50% 50% 46% 46%; background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.7), transparent 30%), hsl(var(--h) 80% 55%); animation: bl-rise linear forwards; font-size: 30px; }
+.bl::after { content: ''; position: absolute; left: 50%; bottom: -14px; width: 1px; height: 14px; background: rgba(0, 0, 0, 0.3); }
+.bl.gold { background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.8), transparent 30%), #eab308; box-shadow: 0 0 14px #fde047; }
+.bl.bomb { background: none; }
+.bl.pop { animation: bl-pop 0.2s forwards !important; }
+@keyframes bl-rise { to { transform: translateY(calc(-1 * min(430px, 58vh) - 100px)); } }
+@keyframes bl-pop { to { transform: scale(1.6); opacity: 0; } }
+.gn-light { width: min(220px, 60vw); aspect-ratio: 1; border: 10px solid #1f2937; border-radius: 50%; background: #374151; transition: background 0.08s; touch-action: manipulation; }
+.gn-light.green { background: #22c55e; box-shadow: 0 0 40px #22c55e; }
+.gn-light.red { background: #ef4444; box-shadow: 0 0 40px #ef4444; }
+.gn-light.ok { background: #bbf7d0; } .gn-light.bad { background: #7f1d1d; }
+.db-board { display: grid; width: min(320px, 90%); align-items: center; justify-items: center; }
+.db-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--q-text); }
+.db-line { padding: 0; border: 0; border-radius: 4px; background: var(--q-sunken); }
+.db-line.h { width: 100%; height: 10px; } .db-line.v { width: 10px; height: 100%; min-height: 58px; }
+.db-line.me { background: #3b82f6; } .db-line.them { background: #f97316; }
+.db-line.last { box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.7); }
+.db-box { display: grid; place-items: center; width: 100%; height: 100%; font-weight: 800; font-size: 14px; }
+.db-box.me { background: rgba(59, 130, 246, 0.2); color: #1d4ed8; } .db-box.them { background: rgba(249, 115, 22, 0.2); color: #c2410c; }
+.mc-board { display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; grid-template-rows: 1fr 1fr; gap: 6px; width: min(400px, 100%); padding: 10px; border-radius: 22px; background: linear-gradient(#b45309, #92400e); }
+.mc-store { min-width: 0; grid-row: 1 / 3; display: grid; place-content: center; text-align: center; border-radius: 26px; background: rgba(0, 0, 0, 0.25); color: #fef3c7; }
+.mc-store b { font-size: 24px; } .mc-store small { font-size: 11px; }
+.mc-store.me { grid-column: 3; }
+.mc-row { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 5px; grid-column: 2; min-width: 0; }
+.mc-pit { min-width: 0; aspect-ratio: 1; display: grid; place-content: center; padding: 2px; border: 0; border-radius: 50%; background: rgba(0, 0, 0, 0.28); color: #fef3c7; }
+.mc-pit b { font-size: 18px; } .mc-stones { font-size: 6px; line-height: 1; letter-spacing: 1px; word-break: break-all; max-width: 80%; color: #fde68a; }
+.mc-pit.me:not(:disabled) { box-shadow: inset 0 0 0 2px #fde68a; }
+.mc-pit:disabled { opacity: 1; }
+.mc-pit.last { background: rgba(250, 204, 21, 0.35); }
+.bs-sea { display: grid; gap: 2px; width: min(300px, 100%); padding: 4px; border-radius: 12px; background: #1e3a8a; }
+.bs-sea.mine { width: min(190px, 60%); }
+.bs-cell { aspect-ratio: 1; display: grid; place-items: center; padding: 0; border: 0; border-radius: 3px; background: #3b82f6; color: #fff; font-size: 14px; }
+.bs-sea.mine .bs-cell { font-size: 10px; }
+.bs-cell:disabled { opacity: 1; }
+.bs-cell.miss { background: #60a5fa; } .bs-cell.hit { background: #f97316; } .bs-cell.sunk { background: #7f1d1d; }
+.bs-cell.ship { background: #64748b; } .bs-cell.ship.hit { background: #dc2626; }
+.bs-cell.last { outline: 2px solid #fde047; }

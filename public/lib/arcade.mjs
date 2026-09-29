@@ -92,7 +92,22 @@ const LIST = [
   ['pyramid', '🔺', 'cards', '金字塔', 'Pyramid', '撲克 · 三座', 'Cards · 3 pyramids', 55, 1],
   ['golf', '⛳', 'cards', '高爾夫接龍', 'Golf', '撲克 · 兩局', 'Cards · 2 deals', 50, 1],
   ['tripeaks', '🏔️', 'cards', '三峰接龍', 'TriPeaks', '撲克 · 兩局', 'Cards · 2 deals', 60, 1],
-  ['pokersq', '🂡', 'cards', '撲克方塊', 'Poker squares', '撲克 · 25 張', 'Cards · 25 cards', 50, 0.35]
+  ['pokersq', '🂡', 'cards', '撲克方塊', 'Poker squares', '撲克 · 25 張', 'Cards · 25 cards', 50, 0.35],
+  ['invaders', '👾', 'action', '小蜜蜂', 'Invaders', '動作 · 一條命', 'Action · one life', 45, 0.5],
+  ['frogger', '🐸', 'action', '過馬路', 'Frogger', '動作 · 三條命', 'Action · 3 lives', 45, 0.5],
+  ['jetpack', '🧑‍🚀', 'action', '噴射背包', 'Jetpack', '動作 · 一條命', 'Action · one life', 45, 1],
+  ['keepy', '⚽', 'reflex', '顛球', 'Keep-up', '反應 · 一顆球', 'Reflex · one ball', 45, 0.75],
+  ['racer', '🏎️', 'action', '賽車', 'Racer', '動作 · 一條命', 'Action · one life', 45, 0.5],
+  ['jump', '🐰', 'action', '跳跳兔', 'Jumper', '動作 · 一條命', 'Action · one life', 45, 0.5],
+  ['minigolf', '🏌️', 'action', '迷你高爾夫', 'Mini golf', '動作 · 六洞', 'Action · 6 holes', 45, 1.25],
+  ['archery', '🎯', 'reflex', '射箭', 'Archery', '反應 · 十箭', 'Reflex · 10 arrows', 45, 0.5],
+  ['rhythm', '🎵', 'reflex', '節奏大師', 'Rhythm', '反應 · 45 秒', 'Reflex · 45 s', 45, 0.2],
+  ['pianotiles', '🎹', 'reflex', '別踩白塊', 'Piano tiles', '反應 · 一條命', 'Reflex · one life', 45, 0.3],
+  ['balloons', '🎈', 'reflex', '射氣球', 'Balloons', '反應 · 45 秒', 'Reflex · 45 s', 45, 0.5],
+  ['gonogo', '🚦', 'reflex', '紅綠燈', 'Go / no-go', '反應 · 40 次', 'Reflex · 40 lights', 45, 0.7],
+  ['dotsboxes', '🔲', 'board', '點格棋', 'Dots and boxes', '棋盤 · 對 Quadra', 'Board · vs Quadra', 55, 1],
+  ['mancala', '🪨', 'board', '播棋', 'Mancala', '棋盤 · 對 Quadra', 'Board · vs Quadra', 50, 0.8],
+  ['battleship', '🚢', 'board', '海戰棋', 'Battleship', '棋盤 · 對 Quadra', 'Board · vs Quadra', 45, 1.2]
 ];
 
 // Long games (ten minutes and more): a badge on the card, and a bigger most a round.
@@ -672,6 +687,21 @@ export const oddSize = level => Math.min(8, 2 + Math.floor(level / 3));
 // How to play each game, in a few lines: [中文, English]. Shown the first
 // time a game is opened and behind the ? in its bar.
 export const HOW = {
+  invaders: ["拖動或按方向鍵移動火箭，會自動發射。打下一架 1 分，清完一波加 5 分、下一波更快。被炸到或敵人降到底就結束。", "Drag or use the arrows; the rocket fires by itself. Each invader scores 1, a cleared wave 5 and a faster one comes. A hit, or invaders reaching you, ends it."],
+  frogger: ["點青蛙的前後左右（或方向鍵）跳一格。馬路上別被車撞，河裡要踩在木頭上。每前進到新的一排 1 分，到對岸 5 分。", "Tap beside the frog (or use the arrows) to hop. Dodge cars; in the river, ride the logs. A new row scores 1, the far bank 5."],
+  jetpack: ["按住往上飛，放開往下掉，躲開電網、吃金幣。每飛 10 公尺 1 分，一枚金幣 1 分。", "Hold to fly up, let go to fall; dodge the zappers and grab coins. Every 10 m scores 1, and each coin 1."],
+  keepy: ["點球把它踢起來，點球的左邊球往右飛、點右邊往左。落地就結束，一下 1 分，最多 60 下。", "Tap the ball to kick it up; hit its left side to send it right and the other way round. It ends when it lands; a kick scores 1, 60 at most."],
+  racer: ["三條車道，點車子的左邊或右邊（或方向鍵）換道，閃過迎面的車。越開越快，超一台 1 分。", "Three lanes: tap left or right of your car (or use the arrows) to change lanes and dodge traffic. It keeps speeding up; each car passed scores 1."],
+  jump: ["兔子會自己彈跳，左右拖動（或方向鍵）讓牠落在平台上往上爬。藍色會動、棕色踩了會斷、🌀 彈更高。每 10 公尺 1 分。", "The rabbit bounces by itself; drag (or use the arrows) to land it on platforms and climb. Blue ones move, brown ones break, 🌀 springs higher. Every 10 m scores 1."],
+  minigolf: ["從任何地方往後拉瞄準（拉越長力道越大），放開擊球，球會撞牆反彈。每洞 7 減桿數（一桿進洞 6 分），打六桿還沒進就換下一洞。", "Pull back from anywhere to aim (further is harder) and let go to putt; the ball bounces off walls. Each hole scores 7 minus your strokes (a hole in one 6); after six strokes you move on."],
+  archery: ["準心會晃，對準紅心時點一下放箭。注意下方的風向，風會把箭吹偏。十箭，正中 10 環、外圈 1 環。", "The sight drifts; tap to shoot when it's on the gold. Watch the wind below: it blows the arrow sideways. Ten arrows, 10 in the middle down to 1."],
+  rhythm: ["音符從四條軌道掉下來，碰到白線時點那一欄（或按 ← ↓ ↑ →）。完美 2 分、不錯 1 分，每連續 10 個再加 2 分。", "Notes fall down four lanes; tap the lane (or ← ↓ ↑ →) as each hits the white line. Perfect scores 2, good 1, and every 10 in a row adds 2."],
+  pianotiles: ["黑塊一排排往下捲，由下往上點黑塊。點到白色、或讓黑塊溜出底部就結束，會越來越快。一塊 1 分。", "Rows scroll down; tap the black tiles from the bottom up. A white tap, or a black tile slipping past, ends it, and it keeps speeding up. A tile scores 1."],
+  balloons: ["氣球往上飄，飛走前點破它。一般 1 分、金色 3 分，點到炸彈扣 3 分。", "Pop the balloons before they float away. Normal ones score 1, gold 3; a bomb costs 3."],
+  gonogo: ["亮綠燈就趕快點（越快分數越高，最多 2 分），亮紅燈千萬別點（忍住加 0.5，點了扣 2）。", "Green: tap as fast as you can (up to 2 for a quick one). Red: don't touch (holding back scores 0.5, a tap costs 2)."],
+  dotsboxes: ["輪流在兩點之間畫一條線，畫下第四邊把格子圍起來就歸你，而且再畫一次。一格 3 分，格子比 Quadra 多再加 10 分。小心別畫出第三邊送格子給對手。", "Take turns drawing a line between two dots; draw a box's fourth side to own it and go again. A box scores 3, owning more adds 10. Careful not to draw a third side for Quadra."],
+  mancala: ["選你這排（下面）的一格，把石頭逆時針一顆顆放進後面的格子和你的倉庫（右邊）。最後一顆落在倉庫再走一次；落在自己的空格，就把它和對面的石頭一起收走。倉庫裡一顆 1 分，贏了加 10 分。", "Pick one of your pits (bottom row) and sow its stones one by one counter-clockwise, into your store (right) too. The last in your store: go again. The last in an empty pit of yours takes it and the stones across. A stone in your store scores 1; winning adds 10."],
+  battleship: ["你和 Quadra 各有五艘船藏在 8×8 的海上，輪流開火。打中 1 分、擊沉一艘 2 分，先擊沉整支艦隊再加 12 分。打中之後往旁邊找！", "You and Quadra each hide five ships on an 8×8 sea and take turns firing. A hit scores 1, a ship sunk 2, and sinking the whole fleet first 12. After a hit, search around it!"],
   freecell: ["52 張全部翻開分成八列，左上四個空格各放一張牌。把四種花色從 A 排到 K 收到右上。列裡只能放比它小 1、顏色相反的牌。點牌會自動移到能放的地方；一次能搬幾張看空格和空列有多少。收一張 1 分，全部收完再加時間獎勵。", "All 52 cards face up in eight columns; four free cells hold a card each. Build each suit A to K on the right. In the columns, place a card one lower in the other colour. Tap a card to move it where it fits; how many move at once depends on free cells and empty columns. A card home scores 1, finishing adds a time bonus."],
   spider: ["兩種花色、十列。在同一列裡用同一種花色從 K 排到 A，排好就整組收走。點牌把它（連同下面同花色的一串）搬到大 1 的牌上；卡住就按發牌，每列發一張。完成一組 10 分，每翻開一張蓋著的牌 ½ 分。", "Two suits, ten columns. Build K down to A in one suit inside a column and it leaves the table. Tap a card to move it (with the same-suit run under it) onto a card one higher; deal ten more when stuck. A finished run scores 10, each hidden card turned up ½."],
   pyramid: ["兩張沒被蓋住的牌加起來 13 就一起消掉（J=11、Q=12、K=13 可以自己消）。右下的牌堆一次翻一張，翻完還能再翻兩輪。清掉金字塔一張 1 分，清光加 8 分再來一座，最多三座。", "Two uncovered cards adding to 13 clear together (J 11, Q 12, K clears alone). The stock turns one at a time, twice more once it runs out. Each pyramid card scores 1; clearing it adds 8 and deals the next, three at most."],
