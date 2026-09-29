@@ -421,8 +421,7 @@ h1 { font-size: 17px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.
 .gh-cap { display: grid; gap: 8px; padding: 14px 16px; border-radius: 18px; background: var(--q-surface); border: 1px solid var(--q-border); }
 .gh-cap-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 14px; font-weight: 700; color: var(--q-text-2); }
 .gh-cap-top strong { color: var(--q-text); font-size: 15px; }
-.gh-daily { position: relative; overflow: hidden; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 14px; padding: 16px; border: 0; border-radius: 22px; color: #fff; text-align: left; font: inherit; cursor: pointer; background: linear-gradient(135deg, var(--cat-a, var(--accent)), var(--cat-b, #c084fc)); box-shadow: 0 14px 30px -18px var(--cat-a, var(--accent)); }
-.gh-daily::after { content: ''; position: absolute; right: -40px; top: -50px; width: 150px; height: 150px; border-radius: 50%; background: rgba(255, 255, 255, 0.14); }
+.gh-daily { position: relative; overflow: hidden; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 14px; padding: 16px; border: 0; border-radius: 22px; color: #fff; text-align: left; font: inherit; cursor: pointer; background: radial-gradient(circle 75px at calc(100% - 35px) 25px, rgba(255, 255, 255, 0.14) 99%, transparent), linear-gradient(135deg, var(--cat-a, var(--accent)), var(--cat-b, #c084fc)); box-shadow: 0 14px 30px -18px var(--cat-a, var(--accent)); }
 .gh-daily.done { filter: saturate(0.5); }
 .gh-daily-icon { width: 54px; height: 54px; display: grid; place-items: center; border-radius: 16px; background: rgba(255, 255, 255, 0.22); font-size: 30px; }
 .gh-daily-text { display: grid; gap: 1px; min-width: 0; }
