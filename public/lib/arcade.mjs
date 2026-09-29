@@ -66,7 +66,17 @@ const LIST = [
   ['takuzu', '⚫', 'logic', '二元數獨', 'Binary puzzle', '邏輯 · 兩盤 6×6', 'Logic · two 6×6', 45, 1],
   ['skyscrapers', '🏙️', 'logic', '摩天樓', 'Skyscrapers', '邏輯 · 4×4 與 5×5', 'Logic · 4×4 and 5×5', 50, 1],
   ['futoshiki', '🔣', 'logic', '不等式數獨', 'Futoshiki', '邏輯 · 4×4 與 5×5', 'Logic · 4×4 and 5×5', 50, 1],
-  ['magicsq', '✨', 'numbers', '魔方陣', 'Magic square', '數字 · 三盤 3×3', 'Numbers · three 3×3', 45, 1]
+  ['magicsq', '✨', 'numbers', '魔方陣', 'Magic square', '數字 · 三盤 3×3', 'Numbers · three 3×3', 45, 1],
+  ['pipes', '🚰', 'puzzle', '水管', 'Pipes', '益智 · 兩盤', 'Puzzle · 2 boards', 45, 1],
+  ['colorsort', '🧪', 'puzzle', '倒水排序', 'Water sort', '益智 · 三關', 'Puzzle · 3 levels', 50, 1],
+  ['samegame', '🟥', 'puzzle', '消方塊', 'Same game', '益智 · 一盤', 'Puzzle · one board', 50, 0.25],
+  ['match3', '🍓', 'puzzle', '消消樂', 'Match three', '益智 · 60 秒', 'Puzzle · 60 s', 45, 0.3],
+  ['lines', '🔵', 'puzzle', '五子連珠', 'Color lines', '益智 · 到盤面滿為止', 'Puzzle · until the board fills', 45, 0.5],
+  ['dots', '🟣', 'puzzle', '連點', 'Dots', '益智 · 60 秒', 'Puzzle · 60 s', 45, 0.4],
+  ['onet', '🐼', 'puzzle', '連連看', 'Onet', '益智 · 3 分鐘', 'Puzzle · 3 minutes', 50, 1.6],
+  ['jigsaw', '🖼️', 'puzzle', '拼圖', 'Jigsaw', '益智 · 3×3 與 4×4', 'Puzzle · 3×3 and 4×4', 45, 1],
+  ['blockfit', '🟨', 'puzzle', '方塊消除', 'Block fit', '益智 · 到放不下為止', 'Puzzle · until nothing fits', 50, 0.2],
+  ['rushhour', '🚗', 'puzzle', '華容道', 'Rush hour', '益智 · 三關塞車', 'Puzzle · 3 jams', 50, 1]
 ];
 
 // Long games (ten minutes and more): a badge on the card, and a bigger most a round.
@@ -646,6 +656,16 @@ export const oddSize = level => Math.min(8, 2 + Math.floor(level / 3));
 // How to play each game, in a few lines: [中文, English]. Shown the first
 // time a game is opened and behind the ? in its bar.
 export const HOW = {
+  pipes: ["點水管轉 90 度，讓水從中間的水龍頭流到每一格水管。兩盤，轉越少下分數越高。", "Tap a pipe to turn it; get water from the tap in the middle to every pipe. Two boards; fewer turns score more."],
+  colorsort: ["點一管再點另一管，把上面的顏色倒過去：只能倒在同色上面或空管裡，一管最多四格。每管都只剩一種顏色就過關。", "Tap a tube, then another, to pour its top colour: only onto the same colour or into an empty tube, four to a tube. One colour per tube wins the level."],
+  samegame: ["點兩塊以上連在一起的同色方塊消掉，上面的往下掉、空的欄往左靠。一次消越多分數越高（多出來的平方），全部清光有獎勵。", "Tap two or more touching blocks of a colour; the rest fall and slide left. Bigger groups score much more (squared); clearing the board adds a bonus."],
+  match3: ["點兩顆相鄰的水果交換，連成三顆以上一樣的就消掉，連鎖也算分。60 秒。", "Swap two neighbouring fruits to line up three or more alike; they clear and chains count too. 60 seconds."],
+  lines: ["點一顆球，再點它走得到的空格（中間不能被擋住）。同色五顆以上連成一線（橫、直、斜）就消掉得分；沒消掉的話會多出三顆球。盤面滿了結束。", "Tap a ball, then a free square it can reach (the way not blocked). Five or more of a colour in a line (any direction) clear and score; otherwise three new balls appear. It ends when the board fills."],
+  dots: ["手指滑過相鄰（上下左右）的同色點，兩個以上放開就消掉，越長分數越多。60 秒。", "Drag through touching dots (up, down, left, right) of one colour; two or more clear when you let go, longer chains more. 60 seconds."],
+  onet: ["點兩個一樣的圖案，如果能用轉彎不超過兩次的線連起來（線只能走空格，外框也算空的），就一起消掉。3 分鐘內清空，剩的時間也算分。", "Tap two matching tiles: if a line with at most two turns joins them through empty squares (the edge counts), both go. Clear the board in 3 minutes; time left scores too."],
+  jigsaw: ["圖片被切成小塊打亂了，點兩塊交換位置，拼回完整的圖。放對位置的會有綠框。", "The picture’s cut up and mixed: tap two pieces to swap them until it’s whole. A piece in place gets a green edge."],
+  blockfit: ["選下面三塊中的一塊，點盤面放它的左上角。排滿一整排或一整行就消掉（同時消越多越高分）。三塊都放完會再給三塊，放不下了就結束。", "Pick one of the three pieces and tap where its top-left goes. A full row or column clears (more at once score more). Three new pieces come when all are placed; it ends when none fits."],
+  rushhour: ["車子只能沿著車身方向前後滑。點一台車，再點綠色格子把它滑過去，讓紅車從右邊出口開出去。每關都保證有解，越接近最少步數分數越高。", "Cars slide only along their length. Tap a car, then a green square to slide it, and get the red car out on the right. Every jam is solvable; closer to the fewest moves scores more."],
   bulls: ["猜 4 個不重複的數字。A 是數字和位置都對，B 是數字對但位置錯，例如 1A2B。每組最多 10 次，越少次猜中分數越高。", "Guess four different digits. A: right digit, right place; B: right digit, wrong place (say 1A2B). Ten guesses a code; fewer score more."],
   pegs: ["點一顆棋，再點它能跳到的空洞：跳過相鄰的一顆，被跳過的那顆拿走。沒步可走就結束。拿越多分數越高，只剩一顆有大獎勵（剩在正中間更多）。", "Tap a peg, then the hole it can jump to: over a neighbour, which is removed. It ends when no jump is left. Each peg taken scores; one left scores big (more in the centre)."],
   takuzu: ["在 6×6 格子填 ● 和 ○：同一排或同一行不能有三個一樣的連在一起，而且每排每行 ● 和 ○ 各三個。點格子輪流換 ● ○ 空白。", "Fill the 6×6 with ● and ○: never three alike in a row or column, and three of each in every row and column. Tap to cycle ● ○ blank."],
