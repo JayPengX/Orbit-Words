@@ -130,3 +130,83 @@ export function quitButton(api, score) {
 }
 // A row of buttons under a board.
 export const row = (api, kids) => api.el('div', { class: 'arc-row' }, kids.filter(Boolean));
+
+// ---- A timed quiz: questions one after another against the clock -------------------
+//
+// ask(level 0-1, index) returns { prompt: text or node, choices: [text or node], answer:
+// index, wide? } ; a right answer scores 1 (bonus: fast ones more), a wrong one
+// takes 1 off. Used by the quick-answer games (words, numbers, patterns…).
+export function quiz(api, { seconds = 60, ask, start = null, wide = false, per = 1 }) {
+  let score = 0;
+  let right = 0;
+  let asked = 0;
+  let left = () => seconds;
+  let lock = false;
+  const prompt = api.el('div', { class: 'qz-prompt' });
+  const opts = api.el('div', { class: `qz-opts${wide ? ' wide' : ''}` });
+  const info = () => api.L(`${left()} 秒 · 答對 ${right}`, `${left()}s · ${right} right`);
+  const next = () => {
+    lock = false;
+    const q = ask(Math.min(1, right / 20), asked++);
+    prompt.replaceChildren(typeof q.prompt === 'string' ? api.el('span', { text: q.prompt }) : q.prompt);
+    opts.className = `qz-opts${q.wide ?? wide ? ' wide' : ''}`;
+    opts.replaceChildren(
+      ...q.choices.map((c, i) =>
+        api.el('button', { class: 'qz-opt', type: 'button', onclick: e => {
+          if (api.ended || lock) return;
+          lock = true;
+          const ok = i === q.answer;
+          if (ok) (score += per, right++);
+          else score = Math.max(0, score - 1);
+          e.currentTarget.classList.add(ok ? 'ok' : 'bad');
+          if (!ok) opts.children[q.answer]?.classList.add('ok');
+          api.set({ score, info: info() });
+          api.later(next, ok ? 180 : 650);
+        } }, [typeof c === 'string' || typeof c === 'number' ? document.createTextNode(String(c)) : c])
+      )
+    );
+  };
+  const go = () => {
+    left = countdown(api, seconds, () => api.set({ score, info: info() }), () => api.end(score, api.L(`答對 ${right} 題。`, `${right} right.`)));
+    next();
+  };
+  const btn = startButton(api, start, go);
+  return api.el('div', { class: 'arc-col qz' }, [prompt, opts, btn]);
+}
+
+// ---- Playing cards ---------------------------------------------------------------------
+export const SUITS = ['♠', '♥', '♦', '♣'];
+export const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+// A shuffled deck: { r: 1-13, s: 0-3, red }.
+export function deck(rand, suits = [0, 1, 2, 3]) {
+  const d = [];
+  for (const s of suits) for (let r = 1; r <= 13; r++) d.push({ r, s, red: s === 1 || s === 2, id: `${r}${s}` });
+  for (let i = d.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [d[i], d[j]] = [d[j], d[i]];
+  }
+  return d;
+}
+// A card's face (or its back), as a button.
+export function cardEl(api, c, { up = true, onclick = null, cls = '' } = {}) {
+  const b = api.el('button', { class: `pc ${up ? (c.red ? 'red' : 'black') : 'back'} ${cls}`, type: 'button', onclick, disabled: onclick ? null : true });
+  if (up) b.append(api.el('span', { class: 'pc-r', text: RANKS[c.r - 1] }), api.el('span', { class: 'pc-s', text: SUITS[c.s] }));
+  return b;
+}
+
+// ---- Latin squares (futoshiki, skyscrapers) ---------------------------------------------
+// An n×n grid where every row and column holds 1…n once.
+export function latin(n, rand) {
+  const base = Array.from({ length: n }, (_, r) => Array.from({ length: n }, (_, c) => ((r + c) % n) + 1));
+  const perm = a => {
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(rand() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  };
+  const rows = perm([...Array(n).keys()]);
+  const cols = perm([...Array(n).keys()]);
+  const syms = perm([...Array(n).keys()].map(i => i + 1));
+  return rows.map(r => cols.map(c => syms[base[r][c] - 1]));
+}

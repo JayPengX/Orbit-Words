@@ -10,7 +10,6 @@
 //   speed      speed match: a word's meaning out of four, against the clock
 //   hangman    guess the word from its meaning, a letter at a time
 //   simon      colour memory: repeat a growing sequence
-//   sudoku     mini sudoku: three 4 x 4 puzzles
 //
 // The derby and free throws came from Quadra Play's arcade; their difficulty
 // follows the player (adapt), so a streak is always earned at the edge of
@@ -18,18 +17,18 @@
 import { ECONOMY } from './quadra.mjs';
 import { ARCADE, ARCADE_BY_ID } from './arcade.mjs';
 
-export const GAMES = ['pairs', 'speed', 'hangman', 'merge', 'sudoku', 'simon', 'derby', 'freethrow'];
+export const GAMES = ['pairs', 'speed', 'hangman', 'merge', 'simon', 'derby', 'freethrow'];
 export const ICON = { derby: '⚾', freethrow: '🏀', pairs: '🃏', merge: '🔢', speed: '⚡', hangman: '🔤', simon: '🎨', sudoku: '🧮' };
 // Which games use the word list (the rest are for a break from words).
 export const WORD_GAMES = new Set(['pairs', 'speed', 'hangman']);
 // Every game: these eight, then the arcade (arcade.mjs), and each one's
 // category for the games list.
 export const ALL_GAMES = [...GAMES, ...ARCADE.map(g => g.id)];
-const CLASSIC_CAT = { pairs: 'words', speed: 'words', hangman: 'words', merge: 'puzzle', sudoku: 'puzzle', simon: 'brain', derby: 'arcade', freethrow: 'arcade' };
+const CLASSIC_CAT = { pairs: 'words', speed: 'words', hangman: 'words', merge: 'puzzle', simon: 'brain', derby: 'action', freethrow: 'action' };
 // A game's icon, name, line and category, in `t`'s language (t: i18n's).
 export function gameInfo(id, t, lang = 'zh') {
   const a = ARCADE_BY_ID[id];
-  if (a) return { id, icon: a.icon, name: lang === 'en' ? a.en : a.zh, kind: lang === 'en' ? a.kindEn : a.kindZh, cat: a.cat, arcade: true };
+  if (a) return { id, icon: a.icon, name: lang === 'en' ? a.en : a.zh, kind: lang === 'en' ? a.kindEn : a.kindZh, cat: a.cat, long: a.long, arcade: true };
   return { id, icon: ICON[id] || '🎮', name: t(`game_${id}`), kind: t(`gameKind_${id}`), cat: CLASSIC_CAT[id] || 'puzzle', arcade: false };
 }
 // Taiwan's minimum hourly wage in 2026 (NT$).

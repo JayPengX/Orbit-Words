@@ -47,7 +47,7 @@ const writeList = (key, list) => {
     localStorage.setItem(key, JSON.stringify(list));
   } catch {}
 };
-const CAT_ICON = { words: '🔤', long: '🕰️', puzzle: '🧩', arcade: '🕹️', board: '♟️', brain: '🧠' };
+const CAT_ICON = { words: '🔤', logic: '🧠', puzzle: '🧩', action: '🕹️', reflex: '⚡', board: '♟️', cards: '🃏', brain: '💭', numbers: '🔢' };
 
 // The games tab: today's earnings, today's challenge, a search and the
 // categories (favourites too), what you played lately, then every game as a
@@ -131,6 +131,7 @@ export function mountGames(container, context) {
       star,
       el('strong', { class: 'gh-name', text: i.name }),
       el('small', { class: 'gh-kind', text: i.kind }),
+      i.long ? el('span', { class: 'gh-long', text: t('longTag') }) : null,
       el('div', { class: 'gh-foot' }, [
         el('small', { class: 'gh-max num', text: t('gameUpTo', { v: fmtMoney(bestRound(g), { sign: false }) }) }),
         b ? el('small', { class: 'gh-best num', text: `🏆 ${fmtMoney(b.v, { sign: false })}` }) : null

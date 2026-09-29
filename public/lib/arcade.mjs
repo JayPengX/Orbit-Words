@@ -8,60 +8,66 @@
 // long-standing public-domain games: minesweeper, lights out, the 8-puzzle,
 // mastermind, nonograms, flood-it, towers of Hanoi, sokoban, n-queens,
 // snake, falling blocks, breakout, pong, tic-tac-toe, connect four, reversi,
-// gomoku, nim, the Schulte table, the Stroop test…).
+// gomoku, the Schulte table, the Stroop test…).
 
 // [id, icon, category, 中文名, English name, 中文說明, English line, most a round (NT$), NT$ per point]
 const LIST = [
-  // Long games: ten minutes and more
-  ['sudoku9', '🔢', 'long', '數獨', 'Sudoku', '長局 · 經典 9×9', 'Long · classic 9×9', 120, 1],
-  ['solitaire', '🃏', 'long', '接龍', 'Solitaire', '長局 · Klondike 翻一張', 'Long · Klondike, draw one', 120, 1],
-  ['minesbig', '🧨', 'long', '踩地雷（大盤）', 'Minesweeper XL', '長局 · 10×14 二十四顆雷', 'Long · 10×14, 24 mines', 110, 0.6],
-  ['checkers', '🔴', 'long', '跳棋', 'Checkers', '長局 · 對戰 Quadra', 'Long · versus Quadra', 100, 1.4],
+  ['sudoku9', '🔢', 'logic', '數獨', 'Sudoku', '長局 · 經典 9×9', 'Long · classic 9×9', 120, 1],
+  ['solitaire', '🃏', 'cards', '接龍', 'Solitaire', '長局 · Klondike 翻一張', 'Long · Klondike, draw one', 120, 1],
+  ['minesbig', '🧨', 'logic', '踩地雷（大盤）', 'Minesweeper XL', '長局 · 10×14 二十四顆雷', 'Long · 10×14, 24 mines', 110, 0.6],
+  ['checkers', '🔴', 'board', '跳棋', 'Checkers', '長局 · 對戰 Quadra', 'Long · versus Quadra', 100, 1.4],
   ['wordsearch', '🔎', 'words', '找單字', 'Word search', '單字 · 三盤，看意思找字', 'Words · 3 grids, find by meaning', 90, 1],
-  // Puzzles
-  ['mines', '💣', 'puzzle', '踩地雷', 'Minesweeper', '邏輯 · 8×8 十顆雷', 'Logic · 8×8, 10 mines', 40, 0.5],
-  ['lights', '💡', 'puzzle', '關燈', 'Lights out', '謎題 · 三盤', 'Puzzle · 3 boards', 40, 1],
+  ['mines', '💣', 'logic', '踩地雷', 'Minesweeper', '邏輯 · 8×8 十顆雷', 'Logic · 8×8, 10 mines', 40, 0.5],
+  ['lights', '💡', 'logic', '關燈', 'Lights out', '謎題 · 三盤', 'Puzzle · 3 boards', 40, 1],
   ['slide', '🧩', 'puzzle', '數字推盤', 'Sliding puzzle', '謎題 · 三盤 3×3', 'Puzzle · three 3×3', 40, 1],
-  ['codebreak', '🔐', 'puzzle', '猜密碼', 'Code breaker', '推理 · 兩組密碼', 'Deduction · 2 codes', 50, 1],
-  ['nonogram', '🖼️', 'puzzle', '數織', 'Nonogram', '邏輯 · 兩張 5×5', 'Logic · two 5×5', 40, 1],
+  ['codebreak', '🔐', 'logic', '猜密碼', 'Code breaker', '推理 · 兩組密碼', 'Deduction · 2 codes', 50, 1],
+  ['nonogram', '🖼️', 'logic', '數織', 'Nonogram', '邏輯 · 兩張 5×5', 'Logic · two 5×5', 40, 1],
   ['flood', '🌊', 'puzzle', '顏色填滿', 'Flood it', '策略 · 22 步', 'Strategy · 22 moves', 40, 1],
   ['hanoi', '🗼', 'puzzle', '河內塔', 'Tower of Hanoi', '謎題 · 4 和 5 層', 'Puzzle · 4 then 5 discs', 35, 1],
   ['sokoban', '📦', 'puzzle', '推箱子', 'Sokoban', '謎題 · 三關', 'Puzzle · 3 levels', 40, 1],
   ['maze', '🌀', 'puzzle', '迷宮', 'Maze', '方向 · 三個迷宮', 'Direction · 3 mazes', 40, 1],
-  ['queens', '👑', 'puzzle', '六皇后', 'Six queens', '邏輯 · 兩盤', 'Logic · 2 boards', 40, 1],
-  // Arcade
-  ['snake', '🐍', 'arcade', '貪食蛇', 'Snake', '動作 · 越長越難', 'Action · longer, harder', 50, 1.5],
-  ['blocks', '🧱', 'arcade', '俄羅斯方塊', 'Falling blocks', '動作 · 2 分鐘', 'Action · 2 minutes', 50, 3],
-  ['breakout', '🏓', 'arcade', '打磚塊', 'Breakout', '動作 · 三條命', 'Action · 3 lives', 45, 0.8],
-  ['flappy', '🐤', 'arcade', '飛飛鳥', 'Flappy bird', '動作 · 點一下飛', 'Action · tap to flap', 45, 1.5],
-  ['runner', '🦖', 'arcade', '小恐龍', 'Dino run', '動作 · 點一下跳', 'Action · tap to jump', 45, 1.2],
-  ['stack', '🏗️', 'arcade', '疊疊樂', 'Stack', '抓時機 · 越疊越窄', 'Timing · narrower and narrower', 45, 1.5],
-  ['dodge', '☄️', 'arcade', '閃隕石', 'Dodge', '動作 · 撐 60 秒', 'Action · last 60 s', 40, 0.6],
-  ['catch', '🍎', 'arcade', '接水果', 'Fruit catch', '動作 · 45 秒', 'Action · 45 s', 40, 0.6],
-  ['whack', '🔨', 'arcade', '打地鼠', 'Whack-a-mole', '反應 · 40 秒', 'Reflex · 40 s', 35, 0.5],
-  ['pong', '🥎', 'arcade', '乒乓', 'Pong', '對戰 · 先得 7 分', 'Versus · first to 7', 40, 4],
-  ['aim', '🎯', 'arcade', '瞄準', 'Aim trainer', '反應 · 30 秒', 'Reflex · 30 s', 35, 0.6],
-  // Board games against Quadra
+  ['queens', '👑', 'logic', '六皇后', 'Six queens', '邏輯 · 兩盤', 'Logic · 2 boards', 40, 1],
+  ['snake', '🐍', 'action', '貪食蛇', 'Snake', '動作 · 越長越難', 'Action · longer, harder', 50, 1.5],
+  ['blocks', '🧱', 'action', '俄羅斯方塊', 'Falling blocks', '動作 · 2 分鐘', 'Action · 2 minutes', 50, 3],
+  ['breakout', '🏓', 'action', '打磚塊', 'Breakout', '動作 · 三條命', 'Action · 3 lives', 45, 0.8],
+  ['flappy', '🐤', 'action', '飛飛鳥', 'Flappy bird', '動作 · 點一下飛', 'Action · tap to flap', 45, 1.5],
+  ['runner', '🦖', 'action', '小恐龍', 'Dino run', '動作 · 點一下跳', 'Action · tap to jump', 45, 1.2],
+  ['stack', '🏗️', 'action', '疊疊樂', 'Stack', '抓時機 · 越疊越窄', 'Timing · narrower and narrower', 45, 1.5],
+  ['dodge', '☄️', 'action', '閃隕石', 'Dodge', '動作 · 撐 60 秒', 'Action · last 60 s', 40, 0.6],
+  ['catch', '🍎', 'action', '接水果', 'Fruit catch', '動作 · 45 秒', 'Action · 45 s', 40, 0.6],
+  ['whack', '🔨', 'reflex', '打地鼠', 'Whack-a-mole', '反應 · 40 秒', 'Reflex · 40 s', 35, 0.5],
+  ['pong', '🥎', 'action', '乒乓', 'Pong', '對戰 · 先得 7 分', 'Versus · first to 7', 40, 4],
+  ['aim', '🎯', 'reflex', '瞄準', 'Aim trainer', '反應 · 30 秒', 'Reflex · 30 s', 35, 0.6],
   ['tictactoe', '⭕', 'board', '井字棋', 'Tic-tac-toe', '對戰 · 五盤', 'Versus · best of 5', 40, 1],
   ['connect4', '🔴', 'board', '四子棋', 'Connect four', '對戰 · 一盤', 'Versus · one game', 35, 1],
   ['reversi', '⚫', 'board', '黑白棋', 'Reversi', '對戰 · 6×6', 'Versus · 6×6', 40, 1],
   ['gomoku', '⚪', 'board', '五子棋', 'Gomoku', '對戰 · 9×9', 'Versus · 9×9', 35, 1],
-  ['nim', '🪨', 'board', '取石子', 'Nim', '對戰 · 三盤', 'Versus · 3 games', 30, 1],
-  // Brain
-  ['math', '➗', 'brain', '心算快打', 'Quick maths', '腦力 · 60 秒', 'Brain · 60 s', 45, 1.2],
-  ['reaction', '⚡', 'brain', '反應力', 'Reaction time', '反應 · 五次', 'Reflex · 5 tries', 35, 1],
+  ['math', '➗', 'numbers', '心算快打', 'Quick maths', '腦力 · 60 秒', 'Brain · 60 s', 45, 1.2],
+  ['reaction', '⚡', 'reflex', '反應力', 'Reaction time', '反應 · 五次', 'Reflex · 5 tries', 35, 1],
   ['schulte', '🔟', 'brain', '數字方格', 'Schulte table', '專注 · 1 到 25', 'Focus · 1 to 25', 35, 1],
   ['oddcolor', '🟩', 'brain', '找不同色', 'Odd colour', '眼力 · 60 秒', 'Eyes · 60 s', 45, 1],
   ['digits', '🔢', 'brain', '數字記憶', 'Number memory', '記憶 · 越來越長', 'Memory · longer and longer', 40, 1],
   ['gridmem', '🟦', 'brain', '方格記憶', 'Grid memory', '記憶 · 越來越多', 'Memory · more and more', 40, 1],
   ['stroop', '🎨', 'brain', '顏色干擾', 'Stroop', '專注 · 45 秒', 'Focus · 45 s', 40, 1],
-  ['count', '🔴', 'brain', '數點點', 'Quick count', '眼力 · 十題', 'Eyes · 10 rounds', 35, 3.5],
-  ['compare', '⚖️', 'brain', '比大小', 'Bigger or smaller', '腦力 · 45 秒', 'Brain · 45 s', 40, 0.8]
+  ['compare', '⚖️', 'numbers', '比大小', 'Bigger or smaller', '腦力 · 45 秒', 'Brain · 45 s', 40, 0.8],
+  ['truefalse', '⭕', 'words', '對錯快判', 'True or false', '單字 · 60 秒', 'Words · 60 s', 45, 1.4],
+  ['missing', '🔡', 'words', '缺字母', 'Missing letter', '單字 · 60 秒', 'Words · 60 s', 45, 1.8],
+  ['wordsort', '🗂️', 'words', '詞性分類', 'Parts of speech', '單字 · 60 秒', 'Words · 60 s', 45, 1.6],
+  ['wordchain', '🔗', 'words', '字尾接龍', 'Word chain', '單字 · 60 秒', 'Words · 60 s', 45, 1.8],
+  ['patterns', '🧮', 'brain', '找規律', 'What comes next', '推理 · 60 秒', 'Reasoning · 60 s', 45, 2.5],
+  ['mirror', '🔄', 'brain', '心智旋轉', 'Turn it round', '空間 · 60 秒', 'Space · 60 s', 45, 2],
+  ['primes', '🔱', 'numbers', '質數', 'Prime or not', '數字 · 45 秒', 'Numbers · 45 s', 40, 1.3],
+  ['fractions', '➗', 'numbers', '分數比大小', 'Bigger fraction', '數字 · 60 秒', 'Numbers · 60 s', 45, 1.5],
+  ['clock', '🕰️', 'numbers', '看時鐘', 'Read the clock', '數字 · 60 秒', 'Numbers · 60 s', 45, 1.8],
+  ['estimate', '📐', 'numbers', '估算', 'Estimate', '數字 · 45 秒', 'Numbers · 45 s', 40, 1.6],
+  ['change', '🪙', 'numbers', '找零錢', 'Give change', '數字 · 60 秒', 'Numbers · 60 s', 45, 2.2]
 ];
 
-export const ARCADE = LIST.map(([id, icon, cat, zh, en, kindZh, kindEn, max, rate]) => ({ id, icon, cat, zh, en, kindZh, kindEn, max, rate }));
+// Long games (ten minutes and more): a badge on the card, and a bigger most a round.
+export const LONG = new Set(['sudoku9', 'solitaire', 'minesbig', 'checkers', 'wordsearch', 'freecell', 'spider']);
+export const ARCADE = LIST.map(([id, icon, cat, zh, en, kindZh, kindEn, max, rate]) => ({ id, icon, cat, zh, en, kindZh, kindEn, max, rate, long: LONG.has(id) }));
 export const ARCADE_BY_ID = Object.fromEntries(ARCADE.map(g => [g.id, g]));
-export const CATEGORIES = ['words', 'long', 'puzzle', 'arcade', 'board', 'brain'];
+export const CATEGORIES = ['words', 'logic', 'puzzle', 'action', 'reflex', 'board', 'cards', 'brain', 'numbers'];
 
 // A round's pay: its score at the game's rate, whole dollars, up to its most.
 export function arcadePay(id, score) {
@@ -634,6 +640,17 @@ export const oddSize = level => Math.min(8, 2 + Math.floor(level / 3));
 // How to play each game, in a few lines: [中文, English]. Shown the first
 // time a game is opened and behind the ? in its bar.
 export const HOW = {
+  truefalse: ['每題一個英文字和一個中文意思，意思對就按 ⭕，不對按 ❌。答對加 1 分，答錯扣 1 分，60 秒。', 'A word and a meaning: ⭕ if it’s right, ❌ if not. +1 right, −1 wrong, 60 seconds.'],
+  missing: ['單字少了一個字母（看中文意思），從四個字母中選出缺的那個。答錯扣 1 分，60 秒。', 'A word with one letter gone (its meaning shown): pick the missing letter of four. −1 for a wrong one, 60 seconds.'],
+  wordsort: ['看到單字，判斷它是名詞、動詞、形容詞還是副詞。60 秒。', 'Noun, verb, adjective or adverb? 60 seconds.'],
+  wordchain: ['從四個字裡選出「開頭字母」等於上一個字「最後一個字母」的那個，接下去。60 秒。', 'Pick the word that starts with the last letter of the one shown, and keep the chain going. 60 seconds.'],
+  patterns: ['看前五個數字的規律，選出下一個。規律越來越難：加、乘、平方、交錯、費氏數列。60 秒。', 'Find the rule in five numbers and pick the next: adding, multiplying, squares, alternating, Fibonacci. 60 seconds.'],
+  mirror: ['上面的圖形被「轉」了幾次，選出轉過以後的樣子。其他三個是翻面（鏡像）的，不算。60 秒。', 'Which of the four is the shape turned round? The other three are flipped (mirror images). 60 seconds.'],
+  primes: ['這個數是不是質數（只能被 1 和自己整除）？數字會越來越大。45 秒。', 'Is it a prime (divisible only by 1 and itself)? The numbers grow. 45 seconds.'],
+  fractions: ['左右兩個分數哪個大？也可能一樣大。60 秒。', 'Which fraction is bigger, or are they equal? 60 seconds.'],
+  clock: ['看指針時鐘選出正確時間：短針是小時，紅色長針是分鐘。先是 5 分鐘一格，後面每一分鐘都有。60 秒。', 'Read the clock: the short hand is the hour, the long red one the minutes. Five-minute steps first, then any minute. 60 seconds.'],
+  estimate: ['不用算到底，選出最接近的答案。45 秒。', 'No need to work it out: pick the nearest answer. 45 seconds.'],
+  change: ['超商結帳：算出付錢後要找多少零錢。東西越買越多。60 秒。', 'At the convenience store: how much change for what was paid? The baskets grow. 60 seconds.'],
   sudoku9: ['經典 9×9 數獨：每一列、每一行、每個 3×3 九宮格都要剛好有 1 到 9。點格子再點數字；「✎ 筆記」可以記下候選數字。填錯的數字算一次錯，錯三次結束。', 'Classic 9×9 sudoku: every row, column and 3×3 box holds 1 to 9 once. Tap a cell, then a number; ✎ Notes pencils in candidates. A wrong number is a mistake; three end the game.'],
   solitaire: ['把四種花色各自從 A 疊到 K 收到右上角。下方七疊可以接成「紅黑交錯、由大到小」，空位只能放 K。點一張牌，它會自動移到能放的地方；點左上角的牌堆翻一張。', 'Build each suit from A to K on the four piles top right. Below, stack cards in descending order, alternating red and black; only a King goes in an empty space. Tap a card and it moves where it fits; tap the stock to turn one.'],
   minesbig: ['和踩地雷一樣，只是更大：10×14、24 顆雷。數字代表旁邊 8 格有幾顆雷，切到「🚩 插旗」標記雷。第一下一定安全。', 'Minesweeper, bigger: 10×14 with 24 mines. A number is how many of the 8 around it are mines; switch to 🚩 to flag. The first tap is always safe.'],

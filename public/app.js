@@ -853,7 +853,7 @@ const gameContext = {
   words: () => {
     const seen = (state.words || []).filter(w => state.progress[w.key]?.b);
     const pool = seen.length >= 30 ? seen : (state.words || []).filter(w => state.levels.includes(w.level));
-    return pool.map(w => ({ key: w.key, word: w.word, meaning: shortMeaning(w.zh).split('、')[0], level: w.level }));
+    return pool.map(w => ({ key: w.key, word: w.word, meaning: shortMeaning(w.zh).split('、')[0], level: w.level, pos: w.pos }));
   },
   bests,
   daily,
