@@ -643,16 +643,14 @@ function renderHome() {
     ]),
     el('p', { class: 'rank-balance num', text: nt(balance) }),
     r.next ? bar(r.progress, 1, 'light') : null,
-    el('p', { class: 'rank-next', text: r.next ? t('toNext', { v: nt(r.toNext), rank: t(`rank_${r.next.id}`) }) : t('topRank') })
+    el('p', { class: 'rank-next', text: r.next ? t('toNext', { v: nt(r.toNext), rank: t(`rank_${r.next.id}`) }) : t('topRank') }),
+    el('div', { class: 'rank-today' }, [
+      el('div', { class: 'rank-today-head' }, [el('small', { text: t('todayEarned') }), el('strong', { class: 'num', text: nt(e.total) })]),
+      el('div', { class: 'rank-today-row' }, ['words', 'game', 'mission'].map(k => el('div', { class: 'rank-today-part' }, [el('small', { text: t(`earn_${k}`) }), bar(e[k], CAPS[k], 'light'), el('small', { class: 'num', text: `${nt(e[k])} / ${nt(CAPS[k])}` })])))
+    ])
   ]);
-  const earnCard = el('div', { class: 'q-card pad earn-card' }, [
-    el('div', { class: 'earn-head' }, [el('strong', { text: t('todayEarned') }), el('strong', { class: 'num accent', text: nt(e.total) })]),
-    ...['words', 'game', 'mission'].map(k => el('div', { class: 'earn-row' }, [el('span', { text: t(`earn_${k}`) }), bar(e[k], CAPS[k], 'accent'), el('small', { class: 'num', text: `${nt(e[k])} / ${nt(CAPS[k])}` })]))
-  ]);
-  const missionList = el(
-    'div',
-    { class: 'q-card list' },
-    ms.map(m => {
+  const claimedN = ms.filter(m => m.claimed).length;
+  const missionRow = m => {
       const action = m.claimed
         ? el('span', { class: 'claimed', text: t('claimed') })
         : m.done
@@ -663,8 +661,11 @@ function renderHome() {
         el('div', { class: 'mission-text' }, [el('strong', { text: t(`mission_${m.id}`) }), el('div', { class: 'mission-bar' }, [bar(m.progress, m.goal, 'accent'), el('small', { class: 'num muted', text: `${m.progress}/${m.goal} · ${nt(m.pay)}` })])]),
         action
       ]);
-    })
-  );
+  };
+  const missionList = el('div', { class: 'q-card list' }, [
+    ...[...ms].filter(m => !m.claimed).sort((a, b) => b.done - a.done).map(missionRow),
+    claimedN ? el('details', { class: 'mission-done' }, [el('summary', { text: t('missionsDone', { n: claimedN }) }), ...ms.filter(m => m.claimed).map(missionRow)]) : null
+  ].filter(Boolean));
   // Next steps: what's most worth doing now.
   const steps = [];
   const due = st ? LEVELS.filter(l => state.levels.includes(l)).reduce((s, l) => s + st[l].due, 0) : 0;
@@ -688,13 +689,12 @@ function renderHome() {
   put(
     box,
     rankCard,
+    dailyCard,
     wordOfDayCard(),
     section(t('nextSteps'), stepRow),
-    dailyCard,
     section(t('missions'), missionList, { sub: t('missionsSub', { v: nt(CAPS.mission) }) }),
     section(t('weekly'), weeklyCard(), { sub: t('weeklySub') }),
-    section(t('todayEarned'), earnCard, { sub: t('allTime', { v: nt(earnedAllTime(state.wallet)) }) }),
-    section(t('badgesTitle'), badgesCard(st), { sub: t('badgesSub') }),
+    section(t('badgesTitle'), badgesCard(st), { sub: t('allTime', { v: nt(earnedAllTime(state.wallet)) }) }),
     section(t('ranks'), ranksCard(r.index)),
     section(t('growTitle'), el('div', { class: 'q-card pad grow' }, [el('p', { text: t('growText') }), el('div', { class: 'two-btn' }, [el('button', { class: 'q-btn', type: 'button', text: t('openHelp'), onclick: () => openHelp('vocab', 'rich') }), el('button', { class: 'q-btn primary', type: 'button', text: t('openSecurities'), onclick: () => q.go('stock') })])]))
   );
@@ -746,26 +746,26 @@ function claimGoal(id) {
 function badgesCard(st) {
   const list = badges({ wallet: withOutbox(), mastered: st?.all.mastered || 0, bests: bests(), games: GAMES });
   const got = list.filter(b => b.earned).length;
+  const sorted = [...list].sort((a, b) => b.earned - a.earned);
   return el('div', { class: 'q-card pad' }, [
-    el('p', { class: 'muted badge-count num', text: t('badgesCount', { n: got, of: list.length }) }),
-    el(
-      'div',
-      { class: 'badge-grid' },
-      [...list].sort((a, b) => b.earned - a.earned).map(b => el('div', { class: `badge${b.earned ? ' on' : ''}`, title: t(`badgeHow_${b.id}`) }, [el('span', { class: 'badge-icon', text: b.icon }), el('strong', { text: t(`badge_${b.id}`) }), el('small', { text: t(`badgeHow_${b.id}`) })]))
-    )
+    el('div', { class: 'badge-strip-head' }, [el('strong', { class: 'num', text: t('badgesCount', { n: got, of: list.length }) }), bar(got, list.length, 'accent')]),
+    el('div', { class: 'badge-strip' }, sorted.map(b => el('span', { class: `badge-dot${b.earned ? ' on' : ''}`, title: `${t(`badge_${b.id}`)}：${t(`badgeHow_${b.id}`)}`, text: b.icon }))),
+    el('details', { class: 'badge-more' }, [
+      el('summary', { text: t('badgesSee') }),
+      el('div', { class: 'badge-grid' }, sorted.map(b => el('div', { class: `badge${b.earned ? ' on' : ''}` }, [el('span', { class: 'badge-icon', text: b.icon }), el('strong', { text: t(`badge_${b.id}`) }), el('small', { text: t(`badgeHow_${b.id}`) })])))
+    ])
   ]);
 }
 
 const MISSION_ICON = { words20: '📚', master3: '🏅', game1: '🎮', invest: '📈', match: '🏟️', orbit: '🪐', tour: '🧭' };
 
 function ranksCard(current) {
-  return el(
-    'div',
-    { class: 'q-card list ranks' },
-    RANKS.map((rk, i) =>
+  return el('details', { class: 'q-card list ranks' }, [
+    el('summary', { class: 'rank-row current' }, [el('span', { class: 'rank-icon sm', text: RANKS[current].icon }), el('strong', { text: t(`rank_${RANKS[current].id}`) }), el('small', { class: 'muted', text: t('ranksSee') })]),
+    ...RANKS.map((rk, i) =>
       el('div', { class: `rank-row${i === current ? ' current' : i < current ? ' passed' : ''}` }, [el('span', { class: 'rank-icon sm', text: rk.icon }), el('strong', { text: t(`rank_${rk.id}`) }), el('small', { class: 'num muted', text: rk.min ? nt(rk.min) : '—' })])
     )
-  );
+  ]);
 }
 
 function goMission(m) {

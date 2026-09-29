@@ -940,3 +940,66 @@ html.rw-playing .game-actions:has(.game-result) {
 .bs-cell.miss { background: #60a5fa; } .bs-cell.hit { background: #f97316; } .bs-cell.sunk { background: #7f1d1d; }
 .bs-cell.ship { background: #64748b; } .bs-cell.ship.hit { background: #dc2626; }
 .bs-cell.last { outline: 2px solid #fde047; }
+/* Games hub: rows to browse, a list for a category or a search */
+.gh-front { display: grid; gap: 22px; }
+.gh-sec { display: grid; gap: 10px; min-width: 0; }
+.gh-sec-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.gh-sec-head h3 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -0.01em; }
+.gh-sec-icon { font-size: 18px; }
+.gh-more { padding: 6px 2px 6px 10px; border: 0; background: none; color: var(--accent); font: 700 14px/1 inherit; font-family: inherit; cursor: pointer; }
+.gh-front .gh-strip { scroll-snap-type: x mandatory; scroll-padding-left: 16px; }
+.gh-tile { position: relative; flex: 0 0 auto; width: 104px; display: grid; justify-items: start; align-content: start; gap: 3px; padding: 0; border: 0; background: none; color: var(--q-text); font: inherit; text-align: left; cursor: pointer; scroll-snap-align: start; }
+.gh-tile .gh-icon { width: 104px; height: 104px; margin-bottom: 6px; border-radius: 26px; font-size: 50px; }
+.gh-tile:active .gh-icon { transform: scale(0.96); }
+.gh-tile-name { max-width: 104px; font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gh-tile-sub { font-size: 11.5px; font-weight: 650; color: var(--q-muted); }
+.gh-tile .gh-new, .gh-tile .gh-long { position: absolute; left: 8px; top: 8px; }
+.gh-new { padding: 1px 7px; border-radius: 999px; background: #ef4444; color: #fff; font-size: 10.5px; font-weight: 800; }
+.gh-new.inline, .gh-long.inline, .gh-daily-tag.inline { position: static; margin-left: 6px; vertical-align: 2px; }
+.gh-list { display: grid; border-radius: 20px; background: var(--q-surface); border: 1px solid var(--q-border); overflow: hidden; }
+.gh-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 12px 8px 12px 14px; cursor: pointer; }
+.gh-row + .gh-row { border-top: 1px solid var(--q-border); }
+.gh-row:active { background: var(--q-sunken); }
+.gh-row .gh-icon { width: 56px; height: 56px; border-radius: 16px; font-size: 30px; }
+.gh-row-text { display: grid; gap: 1px; min-width: 0; }
+.gh-row .gh-name { font-size: 15.5px; }
+.gh-row .gh-kind { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gh-row-pay { font-size: 11.5px; }
+.gh-row .gh-star { position: static; }
+.gh-tile { width: 92px; } .gh-tile .gh-icon { width: 92px; height: 92px; border-radius: 24px; font-size: 44px; } .gh-tile-name { max-width: 92px; }
+.gh-next { display: grid; gap: 8px; width: 100%; margin-top: 6px; padding-top: 14px; border-top: 1px solid var(--q-border); }
+.gh-next-h { margin: 0; font-size: 13px; font-weight: 750; color: var(--q-text-2); }
+.gh-next-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.gh-next-game { display: grid; justify-items: center; gap: 6px; padding: 10px 4px; border: 1px solid var(--q-border); border-radius: 16px; background: var(--q-surface); color: var(--q-text); font: 650 12.5px/1.2 inherit; font-family: inherit; cursor: pointer; }
+.gh-next-game .gh-icon { width: 44px; height: 44px; font-size: 24px; border-radius: 13px; }
+.gh-next-game span:last-child { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* The round's result card folds away to look at the finished board. */
+.game-fold { display: none; }
+html.rw-playing .game-actions:has(.game-result) .game-fold { display: grid; place-items: center; position: absolute; top: 8px; right: 8px; width: 34px; height: 34px; border: 0; border-radius: 50%; background: var(--q-sunken); color: var(--q-text-2); font-size: 18px; font-weight: 900; line-height: 1; cursor: pointer; }
+html.rw-playing .game-actions.min > :not(.game-fold, .game-result, .game-big-button) { display: none; }
+html.rw-playing .game-actions.min { padding: 12px 50px 12px 14px; }
+html.rw-playing .game-actions.min .game-big-button { min-height: 44px; }
+/* Home: today's earnings in the rank card */
+.rank-today { display: grid; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.22); }
+.rank-today-head { display: flex; justify-content: space-between; align-items: baseline; }
+.rank-today-head small { font-size: 12.5px; opacity: 0.9; }
+.rank-today-head strong { font-size: 17px; }
+.rank-today-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.rank-today-part { display: grid; gap: 4px; min-width: 0; }
+.rank-today-part small { font-size: 11px; opacity: 0.9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Home: claimed missions folded */
+.mission-done > summary { padding: 12px 16px; color: var(--q-muted); font-size: 13.5px; font-weight: 650; cursor: pointer; list-style: none; }
+.mission-done > summary::before { content: '✓ '; color: var(--win); }
+.mission-done[open] > summary { border-bottom: 1px solid var(--q-border); }
+/* Home: badges as a strip */
+.badge-strip-head { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px; margin-bottom: 12px; }
+.badge-strip-head strong { font-size: 14px; }
+.badge-strip { display: flex; flex-wrap: wrap; gap: 8px; }
+.badge-dot { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 12px; background: var(--q-sunken); font-size: 22px; filter: grayscale(1); opacity: 0.45; }
+.badge-dot.on { background: var(--accent-wash); filter: none; opacity: 1; }
+.badge-more > summary { margin-top: 12px; color: var(--accent); font-size: 13.5px; font-weight: 700; cursor: pointer; list-style: none; }
+.badge-more[open] > summary { margin-bottom: 10px; }
+/* Home: the ranks folded under the current one */
+details.ranks > summary { list-style: none; cursor: pointer; }
+details.ranks > summary small { margin-left: auto; color: var(--accent); }
+details.ranks[open] > summary { display: none; }

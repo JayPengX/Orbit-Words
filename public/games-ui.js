@@ -9,7 +9,7 @@ import {
   SPEED, speedQuestion, HANGMAN, hangmanWords, hangmanPay, guessLetter, hangmanSolved, hangmanOver, hangmanMask,
   SIMON, simonPay, simonSequence, SUDOKU, sudokuPuzzle, ALL_GAMES, gameInfo
 } from './lib/games.mjs';
-import { ARCADE_BY_ID, CATEGORIES, arcadePay, HOW } from './lib/arcade.mjs';
+import { ARCADE_BY_ID, CATEGORIES, arcadePay, HOW, NEW_GAMES } from './lib/arcade.mjs';
 import { money, ECONOMY } from './lib/quadra.mjs';
 
 const state = { t: null, arcadeFrame: 0 };
@@ -104,41 +104,65 @@ export function mountGames(container, context) {
     container.replaceChildren(card);
   };
 
-  const cardFor = (g, { small = false } = {}) => {
+  // A small tile for the rows of the front page: icon, name, what a round pays.
+  const tileFor = g => {
     const t = state.t;
     const i = info(g);
     const b = ctx.bests()[g];
-    const d = ctx.daily();
-    const favs = readList(FAV_KEY);
-    const fav = favs.includes(g);
-    const star = el('button', {
-      class: `gh-star${fav ? ' on' : ''}`,
-      type: 'button',
-      'aria-pressed': String(fav),
-      'aria-label': t(fav ? 'favRemove' : 'favAdd'),
-      text: fav ? '★' : '☆',
-      onclick: e => {
-        e.stopPropagation();
-        const now = readList(FAV_KEY);
-        writeList(FAV_KEY, now.includes(g) ? now.filter(x => x !== g) : [g, ...now]);
-        paintList();
-      }
-    });
-    if (small)
-      return el('button', { class: `gh-mini cat-${i.cat}`, type: 'button', onclick: () => open(g) }, [el('span', { class: 'gh-icon', 'aria-hidden': 'true', text: i.icon }), el('span', { class: 'gh-mini-name', text: i.name })]);
-    return el('div', { class: `gh-card cat-${i.cat}${g === d.game && !d.done ? ' daily' : ''}`, role: 'button', tabindex: '0', onclick: () => open(g), onkeydown: e => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), open(g)) }, [
+    return el('button', { class: `gh-tile cat-${i.cat}`, type: 'button', onclick: () => open(g) }, [
       el('span', { class: 'gh-icon', 'aria-hidden': 'true', text: i.icon }),
-      star,
-      el('strong', { class: 'gh-name', text: i.name }),
-      el('small', { class: 'gh-kind', text: i.kind }),
-      i.long ? el('span', { class: 'gh-long', text: t('longTag') }) : null,
-      el('div', { class: 'gh-foot' }, [
-        el('small', { class: 'gh-max num', text: t('gameUpTo', { v: fmtMoney(bestRound(g), { sign: false }) }) }),
-        b ? el('small', { class: 'gh-best num', text: `🏆 ${fmtMoney(b.v, { sign: false })}` }) : null
-      ]),
-      g === d.game && !d.done ? el('span', { class: 'gh-daily-tag', text: t('dailyTag') }) : null
+      NEW_GAMES.has(g) ? el('span', { class: 'gh-new', text: t('newTag') }) : i.long ? el('span', { class: 'gh-long', text: t('longTag') }) : null,
+      el('strong', { class: 'gh-tile-name', text: i.name }),
+      el('small', { class: 'gh-tile-sub num', text: b ? `🏆 ${fmtMoney(b.v, { sign: false })}` : t('gameUpTo', { v: fmtMoney(bestRound(g), { sign: false }) }).replace(/^一局最多約 /, '最多 ').replace(/^Up to about (.+) a round$/, 'Up to $1') })
     ]);
   };
+  // One row of the list view: icon, name, kind, pay, best, star.
+  const rowFor = g => {
+    const t = state.t;
+    const i = info(g);
+    const b = ctx.bests()[g];
+    const fav = readList(FAV_KEY).includes(g);
+    const d = ctx.daily();
+    return el('div', { class: `gh-row cat-${i.cat}`, role: 'button', tabindex: '0', onclick: () => open(g), onkeydown: e => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), open(g)) }, [
+      el('span', { class: 'gh-icon', 'aria-hidden': 'true', text: i.icon }),
+      el('span', { class: 'gh-row-text' }, [
+        el('strong', { class: 'gh-name' }, [
+          document.createTextNode(i.name),
+          NEW_GAMES.has(g) ? el('span', { class: 'gh-new inline', text: t('newTag') }) : null,
+          i.long ? el('span', { class: 'gh-long inline', text: t('longTag') }) : null,
+          g === d.game && !d.done ? el('span', { class: 'gh-daily-tag inline', text: t('dailyTag') }) : null
+        ]),
+        el('small', { class: 'gh-kind', text: i.kind }),
+        el('small', { class: 'gh-row-pay num' }, [el('span', { class: 'gh-max', text: t('gameUpTo', { v: fmtMoney(bestRound(g), { sign: false }) }) }), b ? el('span', { class: 'gh-best', text: ` · 🏆 ${fmtMoney(b.v, { sign: false })}` }) : null])
+      ]),
+      el('button', {
+        class: `gh-star${fav ? ' on' : ''}`,
+        type: 'button',
+        'aria-pressed': String(fav),
+        'aria-label': t(fav ? 'favRemove' : 'favAdd'),
+        text: fav ? '★' : '☆',
+        onclick: e => {
+          e.stopPropagation();
+          const now = readList(FAV_KEY);
+          writeList(FAV_KEY, now.includes(g) ? now.filter(x => x !== g) : [g, ...now]);
+          paintList();
+        }
+      })
+    ]);
+  };
+  const section = (title, games, { cat = null, icon = null } = {}) =>
+    el('section', { class: 'gh-sec' }, [
+      el('div', { class: 'gh-sec-head' }, [
+        el('h3', {}, [icon ? el('span', { class: 'gh-sec-icon', 'aria-hidden': 'true', text: icon }) : null, document.createTextNode(title)]),
+        cat ? el('button', { class: 'gh-more', type: 'button', text: `${state.t('gamesSeeAll', { n: games.length })} ›`, onclick: () => pickCat(cat) }) : null
+      ]),
+      el('div', { class: 'gh-strip' }, games.map(tileFor))
+    ]);
+  function pickCat(c) {
+    ui.cat = c;
+    paintList();
+    shell.chips.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  }
 
   function paintList() {
     if (!shell) return;
@@ -150,17 +174,34 @@ export function mountGames(container, context) {
       )
     );
     const q = ui.q;
+    // The front page: rows to browse. A category, the favourites or a search: a list.
+    if (ui.cat === 'all' && !q) {
+      const recent = readList(RECENT_KEY).filter(g => ALL_GAMES.includes(g)).slice(0, 10);
+      const favGames = favs.filter(g => ALL_GAMES.includes(g));
+      const byCat = c => ALL_GAMES.filter(g => info(g).cat === c);
+      shell.recent.hidden = true;
+      shell.count.textContent = t('gamesCount', { n: ALL_GAMES.length });
+      shell.grid.className = 'gh-front';
+      shell.grid.replaceChildren(
+        ...[
+          recent.length ? section(t('gamesRecent'), recent) : null,
+          favGames.length ? section(t('gamesFavs'), favGames) : null,
+          section(t('gamesNew'), [...NEW_GAMES].reverse()),
+          ...CATEGORIES.map(c => section(t(`cat_${c}`), byCat(c), { cat: c, icon: CAT_ICON[c] }))
+        ].filter(Boolean)
+      );
+      return;
+    }
     const list = ALL_GAMES.filter(g => {
       const i = info(g);
       if (ui.cat === 'fav' && !favs.includes(g)) return false;
       if (ui.cat !== 'all' && ui.cat !== 'fav' && i.cat !== ui.cat) return false;
       return !q || `${i.name} ${i.kind} ${g}`.toLowerCase().includes(q);
     });
-    const recent = readList(RECENT_KEY).slice(0, 8);
-    shell.recent.hidden = !recent.length || ui.cat !== 'all' || Boolean(q);
-    shell.recent.replaceChildren(el('p', { class: 'gh-h', text: t('gamesRecent') }), el('div', { class: 'gh-strip' }, recent.map(g => cardFor(g, { small: true }))));
+    shell.recent.hidden = true;
     shell.count.textContent = t('gamesCount', { n: list.length });
-    shell.grid.replaceChildren(...(list.length ? list.map(g => cardFor(g)) : [el('p', { class: 'gh-empty', text: ui.cat === 'fav' && !q ? t('gamesNoFav') : t('gamesNoMatch') })]));
+    shell.grid.className = 'gh-list';
+    shell.grid.replaceChildren(...(list.length ? list.map(rowFor) : [el('p', { class: 'gh-empty', text: ui.cat === 'fav' && !q ? t('gamesNoFav') : t('gamesNoMatch') })]));
   }
 
   const render = () => {
@@ -336,6 +377,22 @@ function streakRule(game) {
 
 // A finished round: paid (up to today's room), then what the work came to
 // against the minimum wage.
+// Three other games to go on to: two of the same kind, one of another.
+function nextGames(game) {
+  const t = state.t;
+  const lang = ctx.locale === 'en' ? 'en' : 'zh';
+  const cat = gameInfo(game, t, lang).cat;
+  const shuffle = a => a.map(g => [Math.random(), g]).sort((x, y) => x[0] - y[0]).map(x => x[1]);
+  const same = shuffle(ALL_GAMES.filter(g => g !== game && gameInfo(g, t, lang).cat === cat)).slice(0, 2);
+  const other = shuffle(ALL_GAMES.filter(g => gameInfo(g, t, lang).cat !== cat)).slice(0, 3 - same.length);
+  return el('div', { class: 'gh-next' }, [
+    el('p', { class: 'gh-next-h', text: t('gamesAlso') }),
+    el('div', { class: 'gh-next-row' }, [...same, ...other].map(g => {
+      const i = gameInfo(g, t, lang);
+      return el('button', { class: `gh-next-game cat-${i.cat}`, type: 'button', onclick: () => reopen(g) }, [el('span', { class: 'gh-icon', 'aria-hidden': 'true', text: i.icon }), el('span', { text: i.name })]);
+    }))
+  ]);
+}
 function finishRound(game, amount, box, summary, ms, score = null) {
   const t = state.t;
   stopGame();
@@ -343,15 +400,22 @@ function finishRound(game, amount, box, summary, ms, score = null) {
   const minutes = Math.floor(ms / 60_000);
   const seconds = Math.round((ms % 60_000) / 1000);
   const work = wageMinutes(paid);
+  box.classList.remove('min');
+  const fold = el('button', { class: 'game-fold', type: 'button', 'aria-label': t('gameClose'), text: '⌄', onclick: () => {
+    const min = box.classList.toggle('min');
+    fold.textContent = min ? '⌃' : '⌄';
+  } });
   box.replaceChildren(
     ...[
+      fold,
       el('p', { class: 'game-result' }, [document.createTextNode(summary), el('strong', { class: paid > 0 ? 'paid' : '', text: ` ${t('gamePaid', { v: fmtMoney(paid) })}` })]),
       score && (score.bonus || score.penalty) ? el('p', { class: 'note', text: t('scoreLine', { bonus: fmtMoney(score.bonus, { sign: false }), penalty: fmtMoney(score.penalty, { sign: false }) }) }) : null,
       bonus > 0 ? el('p', { class: 'daily-paid', text: t('dailyPaid', { v: fmtMoney(bonus, { sign: false }) }) }) : null,
       best ? el('p', { class: 'best-new', text: t('bestNew') }) : null,
       amount > paid ? el('p', { class: 'note', text: t('gameCapNote') }) : null,
       el('p', { class: 'note', text: t('gameWage', { m: minutes, s: seconds, work: work < 10 ? (Math.round(work * 10) / 10).toString() : Math.round(work), wage: fmtMoney(MIN_WAGE, { sign: false }) }) }),
-      el('button', { class: 'q-btn primary game-big-button', type: 'button', text: t('gameAgain'), onclick: () => reopen(game) })
+      el('button', { class: 'q-btn primary game-big-button', type: 'button', text: t('gameAgain'), onclick: () => reopen(game) }),
+      nextGames(game)
     ].filter(Boolean)
   );
   roundDone();

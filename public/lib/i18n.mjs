@@ -2,7 +2,7 @@
 // the browser's language, or the language picked in any Quadra app).
 export const STRINGS = {
   zh: {
-    gamesSearch: '搜尋遊戲', howToPlay: '怎麼玩', howGotIt: '知道了', cat_all: '全部', cat_fav: '★ 最愛', cat_words: '單字', cat_logic: '邏輯', cat_puzzle: '益智', cat_action: '動作', cat_reflex: '反應', cat_board: '棋類', cat_cards: '牌類', cat_brain: '記憶', cat_numbers: '數字', longTag: '長局', gamesRecent: '最近玩過', gamesNoMatch: '找不到符合的遊戲。', gamesNoFav: '點遊戲卡右上角的 ☆ 加入最愛。', gamesCount: '{n} 款遊戲', gameBack: '遊戲列表', favAdd: '加入最愛', favRemove: '移出最愛', gameLoading: '載入中…', gameLoadFail: '載入失敗，請檢查網路後再試。', gamesToday: '今天 {v} / {cap}',
+    gamesSearch: '搜尋遊戲', howToPlay: '怎麼玩', howGotIt: '知道了', cat_all: '全部', cat_fav: '★ 最愛', cat_words: '單字', cat_logic: '邏輯', cat_puzzle: '益智', cat_action: '動作', cat_reflex: '反應', cat_board: '棋類', cat_cards: '牌類', cat_brain: '記憶', cat_numbers: '數字', longTag: '長局', gamesRecent: '最近玩過', gamesNew: '新遊戲', gamesFavs: '我的最愛', gamesSeeAll: '全部 {n} 款', newTag: '新', gamesNoMatch: '找不到符合的遊戲。', gamesNoFav: '點遊戲卡右上角的 ☆ 加入最愛。', gamesCount: '{n} 款遊戲', gameBack: '遊戲列表', favAdd: '加入最愛', favRemove: '移出最愛', gameLoading: '載入中…', gameLoadFail: '載入失敗，請檢查網路後再試。', gamesToday: '{v} / {cap}', gamesAlso: '接著玩',
     arcadeScore: '分數 {n}', arcadeTime: '{n} 秒', arcadeRound: '第 {n}/{of} 局', arcadeTapStart: '點一下開始', arcadeOver: '結束！', arcadeSummary: '得分 {n}。', arcadeLevel: '第 {n} 關',
     tab_home: '首頁', tab_words: '單字', tab_games: '遊戲', tab_help: '說明',
     statusLine: '今天賺了 {v}',
@@ -13,7 +13,7 @@ export const STRINGS = {
     missions: '每日任務', missionsSub: '完成後領取，一天最多 {v}。', claim: '領取 {v}', claimed: '已領取', go: '去做', claimedToast: '已領取 {v}',
     mission_words20: '練習 20 題單字', mission_master3: '精熟 3 個單字', mission_game1: '玩完一局小遊戲', mission_invest: '在 Securities 交易或加入觀察', mission_match: '在 Fixtures 看一場比賽或追蹤球隊', mission_tour: '今天打開 Securities、Fixtures 和 Rewards', mission_orbit: '在 Orbit Class 看今天的課表',
     todayEarned: '今天賺的錢', allTime: '在 Rewards 總共賺了 {v}', earn_words: '單字', earn_game: '遊戲', earn_mission: '任務',
-    ranks: '財富等級', growTitle: '怎麼變有錢', growText: '每天在這裡靠努力賺一點，再放到 Securities 長期投資，讓時間和複利幫你。Play 的運彩和彩券平均都會輸錢，只適合當娛樂。',
+    ranks: '財富等級', ranksSee: '看全部等級', missionsDone: '已完成 {n} 項', badgesSee: '看徽章說明', growTitle: '怎麼變有錢', growText: '每天在這裡靠努力賺一點，再放到 Securities 長期投資，讓時間和複利幫你。Play 的運彩和彩券平均都會輸錢，只適合當娛樂。',
     openHelp: '看說明', openSecurities: '打開 Securities', openApp: '打開 {app}',
     // Words
     wordsTitle: '背單字', wordsSub: '第 {levels} 級 · {due} 個該複習', pickLevel: '先選要練習的級別', todayWords: '今天單字', roundSize: '一回', wordsN: '{n} 個字', voiceTitle: '單字發音', voiceAuto: '真人錄音（Microsoft Jenny）', voiceHint: '每個單字都有錄音；也可以改用這台裝置的語音。', startRound: '開始這一輪',
@@ -69,7 +69,7 @@ export const STRINGS = {
     noticeReady: '🎁 {v} 可以領了', noticeStreak: '🔥 連續 {n} 天快斷了', noticeStreakSoon: '🔥 今天還沒練習', noticeStreakBody: '背幾個字或玩一局就能保住'
   },
   en: {
-    gamesSearch: 'Search games', howToPlay: 'How to play', howGotIt: 'Got it', cat_all: 'All', cat_fav: '★ Favourites', cat_words: 'Words', cat_logic: 'Logic', cat_puzzle: 'Puzzles', cat_action: 'Action', cat_reflex: 'Reflex', cat_board: 'Board', cat_cards: 'Cards', cat_brain: 'Memory', cat_numbers: 'Numbers', longTag: 'Long', gamesRecent: 'Played lately', gamesNoMatch: 'No game matches.', gamesNoFav: 'Tap ☆ on a game’s card to add it here.', gamesCount: '{n} games', gameBack: 'All games', favAdd: 'Add to favourites', favRemove: 'Remove from favourites', gameLoading: 'Loading…', gameLoadFail: 'Couldn’t load it: check the connection and try again.', gamesToday: 'Today {v} / {cap}',
+    gamesSearch: 'Search games', howToPlay: 'How to play', howGotIt: 'Got it', cat_all: 'All', cat_fav: '★ Favourites', cat_words: 'Words', cat_logic: 'Logic', cat_puzzle: 'Puzzles', cat_action: 'Action', cat_reflex: 'Reflex', cat_board: 'Board', cat_cards: 'Cards', cat_brain: 'Memory', cat_numbers: 'Numbers', longTag: 'Long', gamesRecent: 'Played lately', gamesNew: 'New games', gamesFavs: 'Favourites', gamesSeeAll: 'All {n}', newTag: 'New', gamesNoMatch: 'No game matches.', gamesNoFav: 'Tap ☆ on a game’s card to add it here.', gamesCount: '{n} games', gameBack: 'All games', favAdd: 'Add to favourites', favRemove: 'Remove from favourites', gameLoading: 'Loading…', gameLoadFail: 'Couldn’t load it: check the connection and try again.', gamesToday: '{v} / {cap}', gamesAlso: 'Play next',
     arcadeScore: 'Score {n}', arcadeTime: '{n}s', arcadeRound: 'Round {n}/{of}', arcadeTapStart: 'Tap to start', arcadeOver: 'Over!', arcadeSummary: 'Scored {n}.', arcadeLevel: 'Level {n}',
     tab_home: 'Home', tab_words: 'Words', tab_games: 'Games', tab_help: 'Help',
     statusLine: 'Earned today {v}',
@@ -79,7 +79,7 @@ export const STRINGS = {
     missions: 'Daily missions', missionsSub: 'Claim each when done, {v} a day at most.', claim: 'Claim {v}', claimed: 'Claimed', go: 'Go', claimedToast: 'Claimed {v}',
     mission_words20: 'Answer 20 word questions', mission_master3: 'Master 3 words', mission_game1: 'Finish a mini game', mission_invest: 'Trade or watch in Securities', mission_match: 'Open a match or follow a team in Fixtures', mission_tour: 'Open Securities, Fixtures and Rewards today', mission_orbit: 'Check today’s classes in Orbit Class',
     todayEarned: 'Earned today', allTime: '{v} earned in Rewards so far', earn_words: 'Words', earn_game: 'Games', earn_mission: 'Missions',
-    ranks: 'Wealth ranks', growTitle: 'How to get rich', growText: 'Earn a little here every day, then invest it in Securities for the long run and let time and compounding work. Play’s bets and lottery lose on average: fun, not a plan.',
+    ranks: 'Wealth ranks', ranksSee: 'See every rank', missionsDone: '{n} done', badgesSee: 'What each badge takes', growTitle: 'How to get rich', growText: 'Earn a little here every day, then invest it in Securities for the long run and let time and compounding work. Play’s bets and lottery lose on average: fun, not a plan.',
     openHelp: 'Read more', openSecurities: 'Open Securities', openApp: 'Open {app}',
     wordsTitle: 'Words', wordsSub: 'Levels {levels} · {due} due', pickLevel: 'Pick the levels to practise', todayWords: 'Words today', roundSize: 'Round', wordsN: '{n} words', voiceTitle: 'Word voice', voiceAuto: 'Recordings (Microsoft Jenny)', voiceHint: 'Recordings play for every word; or read them in one of this device’s voices.', startRound: 'Start the round',
     levels: 'Levels', levelsSub: 'The high-school English reference list, about 1,000 words a level. Pick any.', level: 'Level {n}', dueN: '{n} due',

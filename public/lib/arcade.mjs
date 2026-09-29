@@ -794,3 +794,6 @@ export const HOW = {
   count: ['點點會閃一下就消失，選出剛才有幾個點。十題，答得快加分。', 'Dots flash for a moment: how many were there? Ten rounds; quick answers score a bit more.'],
   compare: ['左右兩邊是算式或分數，點比較大的那一邊。45 秒，答錯扣 1，後面會變難。', 'Tap the bigger side: sums, products or fractions. 45 seconds; wrong costs 1, and it gets harder.']
 };
+
+// The newest games (the last two batches): a 新 badge and their own row.
+export const NEW_GAMES = new Set(ARCADE.slice(-21).map(g => g.id));
