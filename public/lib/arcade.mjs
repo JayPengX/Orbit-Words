@@ -76,7 +76,17 @@ const LIST = [
   ['onet', '🐼', 'puzzle', '連連看', 'Onet', '益智 · 3 分鐘', 'Puzzle · 3 minutes', 50, 1.6],
   ['jigsaw', '🖼️', 'puzzle', '拼圖', 'Jigsaw', '益智 · 3×3 與 4×4', 'Puzzle · 3×3 and 4×4', 45, 1],
   ['blockfit', '🟨', 'puzzle', '方塊消除', 'Block fit', '益智 · 到放不下為止', 'Puzzle · until nothing fits', 50, 0.2],
-  ['rushhour', '🚗', 'puzzle', '華容道', 'Rush hour', '益智 · 三關塞車', 'Puzzle · 3 jams', 50, 1]
+  ['rushhour', '🚗', 'puzzle', '華容道', 'Rush hour', '益智 · 三關塞車', 'Puzzle · 3 jams', 50, 1],
+  ['wordle', '🟩', 'words', '猜字 Wordle', 'Wordle', '單字 · 兩個字', 'Words · 2 words', 50, 1],
+  ['anagram', '🔀', 'words', '字母重組', 'Anagrams', '單字 · 90 秒', 'Words · 90 s', 45, 1],
+  ['typing', '⌨️', 'words', '打字快手', 'Speed typing', '單字 · 60 秒', 'Words · 60 s', 45, 0.5],
+  ['boggle', '🔡', 'words', '字母方塊', 'Boggle', '單字 · 2 分鐘', 'Words · 2 min', 50, 1],
+  ['make24', '🎴', 'numbers', '24 點', 'Make 24', '數字 · 2 分鐘', 'Numbers · 2 min', 50, 1],
+  ['sumtarget', '➕', 'numbers', '湊數', 'Make the sum', '數字 · 60 秒', 'Numbers · 60 s', 45, 1],
+  ['nback', '🔁', 'brain', 'N-back 記憶', 'N-back', '記憶 · 36 題', 'Memory · 36 letters', 45, 1],
+  ['pathmem', '👣', 'brain', '路徑記憶', 'Path memory', '記憶 · 三條命', 'Memory · 3 lives', 45, 1],
+  ['emojimem', '👀', 'brain', '哪裡變了', 'What changed', '記憶 · 十回', 'Memory · 10 rounds', 45, 1],
+  ['spotdiff', '🔍', 'brain', '找不同', 'Spot the difference', '眼力 · 五張', 'Eyes · 5 pictures', 50, 1]
 ];
 
 // Long games (ten minutes and more): a badge on the card, and a bigger most a round.
@@ -656,6 +666,16 @@ export const oddSize = level => Math.min(8, 2 + Math.floor(level / 3));
 // How to play each game, in a few lines: [中文, English]. Shown the first
 // time a game is opened and behind the ? in its bar.
 export const HOW = {
+  wordle: ["猜五個字母的英文單字，六次機會。綠色：字母和位置都對；黃色：有這個字母但位置不對；灰色：沒有。兩個字，越少次猜中分數越高。", "Guess the five-letter word in six tries. Green: right letter, right place; yellow: in the word, wrong place; grey: not in it. Two words; fewer guesses score more."],
+  anagram: ["把打亂的字母點回正確順序拼出單字（有中文提示）。點錯位置可以點回去。越長的字分數越高。", "Tap the jumbled letters back into order to spell the word (with its Chinese meaning as a hint). Longer words score more."],
+  typing: ["看中文，打出英文單字再按 Enter。拼對就下一個，每個字母算一分，打錯扣分。", "See the Chinese, type the English word and press Enter. A letter scores a point; mistakes cost."],
+  boggle: ["從 4×4 的字母裡，沿著相鄰的格子（斜的也可以）連出三個字母以上的英文單字，同一格一個字只能用一次。越長的字分數越高。", "Join touching letters (diagonals too) into words of three letters or more; each square once per word. Longer words score far more."],
+  make24: ["四個數字每個用一次，用加減乘除算出 24。點一個數字、一個運算、再點另一個數字，兩個就合成一個。每題都有解，跳過扣一分。", "Use each of the four numbers once with + − × ÷ to make 24: tap a number, an operation and another number to combine them. Every deal can be solved; skipping costs a point."],
+  sumtarget: ["點幾個數字，加起來剛好等於目標就消掉並換新的。超過就重選。一次用越多個數字分數越高。", "Tap numbers that add up exactly to the target to clear them. Go over and you start again. More numbers per sum score more."],
+  nback: ["字母一個一個出現，跟兩個前的字母一樣就按「一樣」（20 題之後變成三個前）。抓到得 2 分，按錯或漏掉扣 1 分。", "Letters appear one by one; press Match when one is the same as two back (three back after 20). A catch scores 2; a wrong press or a miss costs 1."],
+  pathmem: ["看格子一格一格亮起來，照順序點回去。每次多一步，錯三次結束。", "Watch squares light up one after another, then tap them in order. One step longer each time; three mistakes end it."],
+  emojimem: ["記住每一格的圖，畫面暗掉之後會有一格換成別的，點出換掉的那一格。每回多一格。", "Remember the pictures; after a blink one of them is different. Tap it. One more picture each round."],
+  spotdiff: ["上下兩張圖有三個地方不一樣，在下面那張點出來。每張 40 秒，越快找到分數越高，點錯扣一分。", "The two pictures differ in three places; tap them on the bottom one. 40 seconds a picture; faster finds score more, wrong taps cost a point."],
   pipes: ["點水管轉 90 度，讓水從中間的水龍頭流到每一格水管。兩盤，轉越少下分數越高。", "Tap a pipe to turn it; get water from the tap in the middle to every pipe. Two boards; fewer turns score more."],
   colorsort: ["點一管再點另一管，把上面的顏色倒過去：只能倒在同色上面或空管裡，一管最多四格。每管都只剩一種顏色就過關。", "Tap a tube, then another, to pour its top colour: only onto the same colour or into an empty tube, four to a tube. One colour per tube wins the level."],
   samegame: ["點兩塊以上連在一起的同色方塊消掉，上面的往下掉、空的欄往左靠。一次消越多分數越高（多出來的平方），全部清光有獎勵。", "Tap two or more touching blocks of a colour; the rest fall and slide left. Bigger groups score much more (squared); clearing the board adds a bonus."],

@@ -235,3 +235,14 @@ export function numberGrid(api, { n, cols = n, values, given, max = n, onChange,
   paint();
   return { board, pad, paint, cells };
 }
+
+// The whole word list (every level), for games that check what you type: a set
+// of lower-case words. Fetched once (the service worker has it cached).
+let dictionary = null;
+export async function allWords() {
+  if (!dictionary) {
+    const rows = await fetch('./data/words.json').then(r => r.json());
+    dictionary = new Set(rows.map(r => String(r[0]).toLowerCase()).filter(w => /^[a-z]+$/.test(w)));
+  }
+  return dictionary;
+}
