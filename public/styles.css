@@ -417,7 +417,7 @@ h1 { font-size: 17px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.
 .cat-arcade { --cat-a: #f97316; --cat-b: #fbbf24; }
 .cat-board { --cat-a: #334155; --cat-b: #94a3b8; }
 .cat-brain { --cat-a: #db2777; --cat-b: #f9a8d4; }
-.gh-hub { display: grid; gap: 14px; }
+.gh-hub { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
 .gh-cap { display: grid; gap: 8px; padding: 14px 16px; border-radius: 18px; background: var(--q-surface); border: 1px solid var(--q-border); }
 .gh-cap-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 14px; font-weight: 700; color: var(--q-text-2); }
 .gh-cap-top strong { color: var(--q-text); font-size: 15px; }
