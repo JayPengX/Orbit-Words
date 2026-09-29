@@ -281,7 +281,8 @@ export const HELP = {
         '答對升一格、答錯回第一格，第 4 格算「精熟」，該複習時再出現（1、2、5、14 天後）。第一次見到就答對的字代表你本來就會，直接跳到第 3 格，再答對一次就精熟。'
       ]],
       ['games', '遊戲', [
-        '短局一到兩分鐘；「長局」（數獨、接龍、大盤踩地雷、跳棋）和找單字要十分鐘以上，玩得越好賺越多。',
+        '103 款遊戲，分成單字、邏輯、益智、動作、反應、棋類、牌類、記憶和數字九類。遊戲頁一排排瀏覽，點「全部」看整類，也能搜尋或加入最愛；一局結束會推薦接著玩的遊戲。',
+        '短局一到兩分鐘；「長局」（數獨、接龍、新接龍、蜘蛛接龍、大盤踩地雷、跳棋）和找單字要十分鐘以上，玩得越好賺越多。',
         '遊戲開始後佔滿整個畫面，不會捲動；右上角的「?」隨時看玩法。',
         '今日挑戰：當天第一局有入帳就加獎金（NT$10 起，連續幾天多一點，最多 NT$40）。每款遊戲的最佳紀錄跨裝置保留。'
       ]],
@@ -310,7 +311,8 @@ export const HELP = {
         'Right moves a word up a box, wrong back to box 1; box 4 is mastered, and each word returns when due (1, 2, 5, 14 days). A new word right the first time is one you know: it jumps to box 3, and one more right answer masters it.'
       ]],
       ['games', 'Games', [
-        'Short games take a minute or two; the long ones (sudoku, solitaire, big minesweeper, checkers) and word search ten minutes or more. Play well and they pay more.',
+        '103 games in nine kinds: words, logic, puzzles, action, reflex, board, cards, memory and numbers. Browse them row by row, open a whole kind with See all, search, or keep favourites; a finished round suggests what to play next.',
+        'Short games take a minute or two; the long ones (sudoku, solitaire, FreeCell, Spider, big minesweeper, checkers) and word search ten minutes or more. Play well and they pay more.',
         'A game in play has the whole screen and nothing scrolls; the ? at the top shows how to play.',
         'Today’s challenge: its first paid round adds a bonus (from NT$10, a little more each day in a row, up to NT$40). Each game’s best is kept on every device.'
       ]],
