@@ -374,11 +374,11 @@ function renderWords() {
       ]),
       el('button', { class: 'q-btn primary block big-start', type: 'button', disabled: !selected.length, text: t('startRound'), onclick: startRound })
     ]),
-    section(t('levels'), levelCards, { sub: t('levelsSub') }),
-    section(t('packsTitle'), packCards(st), { sub: t('packsSub') }),
+    section(t('levels'), levelCards),
+    section(t('packsTitle'), packCards(st)),
     section(t('modes'), modes),
     section(t('progress'), progressCard(st)),
-    section(t('voiceTitle'), voicePicker(), { sub: t('voiceHint') })
+    section(t('voiceTitle'), voicePicker())
   );
 }
 
@@ -728,19 +728,6 @@ function renderHome() {
     ...[...ms].filter(m => !m.claimed).sort((a, b) => b.done - a.done).map(missionRow),
     claimedN ? el('details', { class: 'mission-done' }, [el('summary', { text: t('missionsDone', { n: claimedN }) }), ...ms.filter(m => m.claimed).map(missionRow)]) : null
   ].filter(Boolean));
-  // Next steps: what's most worth doing now.
-  const steps = [];
-  const due = st ? myLevels().reduce((s, l) => s + (st[l]?.due || 0), 0) : 0;
-  if (room('words') > 0) steps.push({ icon: '📚', title: due ? t('stepReview', { n: due }) : t('stepLearn'), sub: t('stepWordsSub', { v: nt(room('words')) }), go: () => showTab('words') });
-  const undone = ms.find(m => m.done && !m.claimed);
-  if (undone) steps.push({ icon: '🎁', title: t('stepClaim'), sub: t(`mission_${undone.id}`), go: () => claim(undone.id) });
-  if (room('game') > 0) steps.push({ icon: '🎮', title: t('stepGame'), sub: t('stepGameSub', { v: nt(room('game')) }), go: () => showTab('games') });
-  steps.push({ icon: '📈', title: t('stepInvest'), sub: t('stepInvestSub'), go: () => q.go('stock') });
-  const stepRow = el(
-    'div',
-    { class: 'q-recs' },
-    steps.slice(0, 4).map(s => el('button', { class: 'q-rec step', type: 'button', onclick: s.go }, [el('span', { class: 'step-icon', text: s.icon }), el('p', { class: 'q-rec-title', text: s.title }), el('p', { class: 'q-rec-sub', text: s.sub })]))
-  );
   const d = daily();
   // Straight into today's game (the games tab under it, for after).
   const dailyCard = el('button', { class: `q-card pad daily-card${d.done ? ' done' : ''}`, type: 'button', onclick: () => (showTab('games'), games?.open(d.game)) }, [
@@ -752,11 +739,10 @@ function renderHome() {
     box,
     rankCard,
     dailyCard,
-    section(t('shopTitle'), shopCard(), { sub: t('shopSub') }),
+    section(t('shopTitle'), shopCard()),
     wordOfDayCard(),
-    section(t('nextSteps'), stepRow),
-    section(t('missions'), missionList, { sub: t('missionsSub', { v: nt(cap.mission) }) }),
-    section(t('weekly'), weeklyCard(), { sub: t('weeklySub') }),
+    section(t('missions'), missionList),
+    section(t('weekly'), weeklyCard()),
     section(t('badgesTitle'), badgesCard(st), { sub: t('allTime', { v: nt(earnedAllTime(state.wallet)) }) }),
     section(t('ranks'), ranksCard(r.index)),
     el('div', { class: 'spend-line' }, [

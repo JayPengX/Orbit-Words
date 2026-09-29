@@ -3,7 +3,7 @@
 // finished round is paid through the app (ctx.pay), as much as today's room
 // allows.
 import {
-  STREAK, ADAPT, adapt, scorer, bestRound, wageMinutes, MIN_WAGE, PAY_SCALE,
+  STREAK, ADAPT, adapt, scorer, bestRound, PAY_SCALE,
   DERBY, pitchPlan, ballAt, swingResult, FREE_THROW, shotPlan, markerAt, shotResult,
   PAIRS, pairsBoard, pairResult, MERGE, mergeBoard, move, spawn, canMove, mergePoints,
   SPEED, speedQuestion, HANGMAN, hangmanWords, hangmanPay, guessLetter, hangmanSolved, hangmanOver, hangmanMask,
@@ -375,8 +375,6 @@ function streakRule(game) {
   return r.penalty ? state.t('streakRule', { every: r.every, bonus: v(r.bonus), penalty: v(r.penalty) }) : state.t('streakRuleSafe', { every: r.every, bonus: v(r.bonus) });
 }
 
-// A finished round: paid (up to today's room), then what the work came to
-// against the minimum wage.
 // Three other games to go on to: two of the same kind, one of another.
 function nextGames(game) {
   const t = state.t;
@@ -397,9 +395,6 @@ function finishRound(game, amount, box, summary, ms, score = null) {
   const t = state.t;
   stopGame();
   const { paid, bonus, best } = ctx.pay(game, amount);
-  const minutes = Math.floor(ms / 60_000);
-  const seconds = Math.round((ms % 60_000) / 1000);
-  const work = wageMinutes(paid);
   box.classList.remove('min');
   const fold = el('button', { class: 'game-fold', type: 'button', 'aria-label': t('gameClose'), text: '⌄', onclick: () => {
     const min = box.classList.toggle('min');
@@ -413,7 +408,6 @@ function finishRound(game, amount, box, summary, ms, score = null) {
       bonus > 0 ? el('p', { class: 'daily-paid', text: t('dailyPaid', { v: fmtMoney(bonus, { sign: false }) }) }) : null,
       best ? el('p', { class: 'best-new', text: t('bestNew') }) : null,
       amount > paid ? el('p', { class: 'note', text: t('gameCapNote') }) : null,
-      el('p', { class: 'note', text: t('gameWage', { m: minutes, s: seconds, work: work < 10 ? (Math.round(work * 10) / 10).toString() : Math.round(work), wage: fmtMoney(MIN_WAGE, { sign: false }) }) }),
       el('button', { class: 'q-btn primary game-big-button', type: 'button', text: t('gameAgain'), onclick: () => reopen(game) }),
       nextGames(game)
     ].filter(Boolean)
