@@ -3,7 +3,7 @@
 // daily missions pay into the Quadra Pass's shared wallet; the wealth ranks
 // show where the pool stands; the help centre explains every app.
 import {
-  quadraSession, accountButton, installGate, watchUpdates, recordAffinity, affinityPatch, setting, settingPatch, taipeiDay, poolBalance, money, randomId, notify, APPS, ECONOMY
+  quadraSession, accountButton, installGate, watchUpdates, recordAffinity, affinityPatch, setting, settingPatch, taipeiDay, poolBalance, money, randomId, notify, schedulePush, APPS, ECONOMY
 } from './lib/quadra.mjs';
 import { LEVELS, MODES, loadWords, pickRound, smartType, makeQuestion, grade, payFor, sameWord, spellDiff, stats, stateOf, packProgress, unpackProgress, mergeProgress, migrateWords, shortMeaning, wordOfDay } from './lib/words.mjs';
 import {
@@ -902,6 +902,23 @@ function checkNotices() {
   if (risk) notify(q, { title: t('noticeStreak', { n: risk }), body: t('noticeStreakBody'), tag: `streak:${taipeiDay()}`, hash: 'games', kind: 'streak' });
 }
 setInterval(checkNotices, 10 * 60_000);
+
+// While the app is closed: 20:00 Taipei, a reminder that the streak ends
+// tonight (today, if nothing's been played yet; the next two evenings, in
+// case the app isn't opened).
+function syncPush() {
+  const w = state.wallet;
+  if (!w) return;
+  const now = Date.now();
+  const n = streakDays(w, now);
+  const played = (w.entries || []).some(e => e.app === 'vocab' && ['words', 'reward', 'game'].includes(e.kind) && taipeiDay(e.t) === taipeiDay(now));
+  const eight = day => Date.parse(`${taipeiDay(now + day * 86_400_000)}T20:00:00+08:00`);
+  const items = [];
+  if (!played && n > 0 && eight(0) > now) items.push({ at: eight(0), title: t('noticeStreak', { n }), body: t('noticeStreakBody'), tag: `streak:${taipeiDay(now)}`, hash: 'games', kind: 'streak' });
+  for (const day of [1, 2]) items.push({ at: eight(day), title: t('noticeStreakSoon'), body: t('noticeStreakBody'), tag: `streak:${taipeiDay(now + day * 86_400_000)}`, hash: 'games', kind: 'streak' });
+  schedulePush(q, items);
+}
+q.on('wallet', () => setTimeout(syncPush, 2000));
 q.on('active', live => live && sync());
 
 async function boot() {

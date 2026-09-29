@@ -66,7 +66,7 @@ export const STRINGS = {
     badge_missions50: '任務達人', badgeHow_missions50: '領過 50 次任務獎金',
     badge_earned10k: '萬元戶', badgeHow_earned10k: '在 Rewards 累計賺 NT$10,000',
     badge_wealthy: '富裕', badgeHow_wealthy: 'Quadra 餘額達到 NT$1,000,000',
-    noticeReady: '可以領取 {v}', noticeStreak: '🔥 連續 {n} 天快斷了', noticeStreakBody: '今天還沒練習：背幾個字或玩一局就能保住。'
+    noticeReady: '可以領取 {v}', noticeStreak: '🔥 連續 {n} 天快斷了', noticeStreakSoon: '🔥 今天還沒練習', noticeStreakBody: '今天還沒練習：背幾個字或玩一局就能保住。'
   },
   en: {
     gamesSearch: 'Search games', howToPlay: 'How to play', howGotIt: 'Got it', cat_all: 'All', cat_fav: '★ Favourites', cat_words: 'Words', cat_long: 'Long games', cat_puzzle: 'Puzzles', cat_arcade: 'Action', cat_board: 'Board', cat_brain: 'Brain', gamesRecent: 'Played lately', gamesNoMatch: 'No game matches.', gamesNoFav: 'Tap ☆ on a game’s card to add it here.', gamesCount: '{n} games', gameBack: 'All games', favAdd: 'Add to favourites', favRemove: 'Remove from favourites', gameLoading: 'Loading…', gameLoadFail: 'Couldn’t load it: check the connection and try again.', gamesToday: 'Today {v} / {cap}',
@@ -130,7 +130,7 @@ export const STRINGS = {
     badge_missions50: 'On a mission', badgeHow_missions50: 'Claim 50 mission rewards',
     badge_earned10k: 'Ten grand', badgeHow_earned10k: 'Earn NT$10,000 in Rewards',
     badge_wealthy: 'Wealthy', badgeHow_wealthy: 'Reach a Quadra balance of NT$1,000,000',
-    noticeReady: 'Ready to claim: {v}', noticeStreak: '🔥 Your {n}-day streak ends tonight', noticeStreakBody: 'Nothing yet today: a few words or one game keeps it going.'
+    noticeReady: 'Ready to claim: {v}', noticeStreak: '🔥 Your {n}-day streak ends tonight', noticeStreakSoon: '🔥 Nothing played yet today', noticeStreakBody: 'Nothing yet today: a few words or one game keeps it going.'
   }
 };
 
