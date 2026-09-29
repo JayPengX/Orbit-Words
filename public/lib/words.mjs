@@ -45,7 +45,6 @@ export const BOX_DAYS = [0, 0, 1, 2, 5, 14];
 // A new word right the first time: already known.
 export const KNOWN_BOX = 3;
 export const MASTERED = 4;
-export const TYPES = ['card', 'meaning', 'word', 'listen', 'letters', 'spell'];
 // Which study modes a person can choose; 'smart' picks per word.
 export const MODES = ['smart', 'card', 'meaning', 'word', 'listen', 'letters', 'spell'];
 const DAY = 86_400_000;

@@ -8,7 +8,7 @@
 //   game      a finished game round ('vocab:g:…')
 //   mission   a claimed mission ('vocab:m:<day>:<mission>', once a day each)
 import { ECONOMY, taipeiDay, todayActivity, poolBalance } from './quadra.mjs';
-import { capsFor, frozenDays, freezes, freezeEntry } from './shop.mjs';
+import { capsFor, freezes, freezeEntry, frozenDays } from './shop.mjs';
 
 export const CAPS = { words: ECONOMY.vocab.dailyCap, game: ECONOMY.gamesDailyCap, mission: ECONOMY.missionsDailyCap };
 const KIND_OF = { words: 'words', reward: 'words', game: 'game', mission: 'mission' };

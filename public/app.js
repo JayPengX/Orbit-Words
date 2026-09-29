@@ -3,7 +3,7 @@
 // daily missions pay into the Quadra Pass's shared wallet; the wealth ranks
 // show where the pool stands; the help centre explains every app.
 import {
-  quadraSession, tabBar, topActions, installGate, watchUpdates, recordAffinity, affinityPatch, setting, settingPatch, taipeiDay, poolBalance, money, randomId, notify, schedulePush, APPS, ECONOMY, ask, plusCard, plusMember
+  quadraSession, tabBar, topActions, installGate, watchUpdates, recordAffinity, setting, settingPatch, taipeiDay, poolBalance, money, randomId, notify, schedulePush, APPS, ECONOMY, ask, plusCard, plusMember, affinityPatch
 } from './lib/quadra.mjs';
 import { SHOP, shopEntry, freezes, boostUntil, capsFor, ownedPacks, packPrice, packEntry, packOwned } from './lib/shop.mjs';
 import { LEVELS, PACK_IDS, addPacks, levelRank, inLevels, MODES, loadWords, pickRound, smartType, markKnown, makeQuestion, grade, payFor, sameWord, spellDiff, stats, stateOf, packProgress, unpackProgress, mergeProgress, migrateWords, shortMeaning, wordOfDay } from './lib/words.mjs';

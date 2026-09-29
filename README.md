@@ -45,9 +45,14 @@ Where Quadra pays for effort and explains itself (formerly Quadra Words).
   by their meanings). A game in play takes the whole screen: the page
   underneath is locked and canvases size to the space left, so nothing
   scrolls under a thumb; a round's result slides up over the game.
+- **任務 Missions** (a tab): every daily mission, the weekly goals, badges
+  and wealth ranks; the tab shows how many are ready to claim. Home keeps
+  the next three missions.
 - **Help**: every Quadra app's guide, all in the same shape: what it is,
-  the tabs, a few topics, how it touches the money. Other apps link here with
-  `#help=<app>` or `#help=<app>:<topic>` (`helpUrl` in the kit).
+  the tabs, a few topics, how it touches the money. A sheet over the app,
+  opened by the ? at the top right (the kit's `topActions`, as in every app)
+  or by other apps' links, `#help=<app>` or `#help=<app>:<topic>` (`helpUrl`
+  in the kit).
 
 ## Money
 

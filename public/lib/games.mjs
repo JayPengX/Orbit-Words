@@ -15,12 +15,10 @@
 // follows the player (adapt), so a streak is always earned at the edge of
 // your skill.
 import { ECONOMY } from './quadra.mjs';
-import { ARCADE, ARCADE_BY_ID } from './arcade.mjs';
+import { ARCADE_BY_ID, ARCADE } from './arcade.mjs';
 
 export const GAMES = ['pairs', 'speed', 'hangman', 'merge', 'simon', 'derby', 'freethrow'];
 export const ICON = { derby: '⚾', freethrow: '🏀', pairs: '🃏', merge: '🔢', speed: '⚡', hangman: '🔤', simon: '🎨', sudoku: '🧮' };
-// Which games use the word list (the rest are for a break from words).
-export const WORD_GAMES = new Set(['pairs', 'speed', 'hangman']);
 // Every game: these eight, then the arcade (arcade.mjs), and each one's
 // category for the games list.
 export const ALL_GAMES = [...GAMES, ...ARCADE.map(g => g.id)];
@@ -219,11 +217,6 @@ export const canMove = board => ['left', 'right', 'up', 'down'].some(d => move(b
 // Pay points for a move's merges.
 export const mergePoints = merged => merged.filter(v => v >= 16).reduce((s, v) => s + Math.log2(v) - 3, 0);
 
-// ---- Pay facts for the rules lines -------------------------------------------------------
-export const PACE = {
-  derby: { seconds: 60, events: ['hr', 'hit', 'miss', 'hit', 'hit', 'hr', 'miss', 'hit', 'miss', 'hr', 'hit', 'miss', 'hit', 'hit', 'hr', 'miss', 'hit', 'miss'] },
-  freethrow: { seconds: 60, events: ['swish', 'make', 'miss', 'make', 'make', 'swish', 'miss', 'make', 'miss', 'swish', 'make', 'miss', 'make', 'make', 'swish', 'miss', 'make', 'miss'] }
-};
 export function bestRound(game) {
   if (ARCADE_BY_ID[game]) return ARCADE_BY_ID[game].max;
   if (game === 'derby') return scoreRound('derby', Array(DERBY.pitches).fill('hr')).total;
@@ -247,7 +240,6 @@ export function bestRound(game) {
   }
   return 60;
 }
-export const wageMinutes = paid => (paid / MIN_WAGE) * 60;
 
 // ---- Speed match ----------------------------------------------------------------------
 //

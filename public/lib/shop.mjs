@@ -8,7 +8,7 @@
 //              that day
 //   pack       a word pack, bought once ('vocab:shop:pack:<id>', so never twice)
 //   Plus       a protection card every Plus month, a higher word cap, packs at half price
-import { ECONOMY, taipeiDay, plusMonths, plusMember } from './quadra.mjs';
+import { ECONOMY, taipeiDay, plusMember, plusMonths } from './quadra.mjs';
 
 export const SHOP = {
   freeze: { price: 300, hold: 3 },

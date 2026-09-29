@@ -9,7 +9,7 @@ import {
   SPEED, speedQuestion, HANGMAN, hangmanWords, hangmanPay, guessLetter, hangmanSolved, hangmanOver, hangmanMask,
   SIMON, simonPay, simonSequence, SUDOKU, sudokuPuzzle, ALL_GAMES, gameInfo
 } from './lib/games.mjs';
-import { ARCADE_BY_ID, CATEGORIES, arcadePay, HOW, NEW_GAMES } from './lib/arcade.mjs';
+import { ARCADE_BY_ID, arcadePay, HOW, NEW_GAMES, CATEGORIES } from './lib/arcade.mjs';
 import { money } from './lib/quadra.mjs';
 
 const state = { t: null, arcadeFrame: 0 };
