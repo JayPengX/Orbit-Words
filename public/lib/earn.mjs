@@ -36,8 +36,10 @@ export function earnedAllTime(wallet) {
 
 // ---- Missions: a few things a day across the apps, paid when claimed ----------------
 //
-// None of them is about betting. Progress comes from each app's activity
-// counts in the wallet (activityPatch) and when each app was last opened.
+// Progress comes from each app's activity counts in the wallet
+// (activityPatch) and when each app was last opened. Most pay cash (inside
+// the missions' daily cap); the ones about Play and Securities' plans give
+// a free bet instead (`freebet`: its value, a token Play stakes: kit freeBets).
 export const MISSIONS = [
   { id: 'words20', app: 'vocab', pay: 25, goal: 20, count: a => a.vocab?.answer || 0 },
   { id: 'master3', app: 'vocab', pay: 20, goal: 3, count: a => a.vocab?.master || 0 },
@@ -46,9 +48,13 @@ export const MISSIONS = [
   { id: 'match', app: 'match', pay: 15, goal: 1, count: a => (a.match?.open || 0) + (a.match?.follow || 0) },
   // Orbit Class, Quadra's class schedule: checking the day's classes.
   { id: 'orbit', app: 'orbit', pay: 15, goal: 1, count: a => (a.orbit?.open || 0) + (a.orbit?.edit || 0) },
-  { id: 'tour', app: 'eco', pay: 15, goal: 3, count: (a, apps, day) => ['stock', 'match', 'vocab'].filter(x => apps?.[x]?.last && taipeiDay(apps[x].last) === day).length }
+  { id: 'tour', app: 'eco', pay: 15, goal: 3, count: (a, apps, day) => ['stock', 'match', 'vocab'].filter(x => apps?.[x]?.last && taipeiDay(apps[x].last) === day).length },
+  { id: 'parlay3', app: 'odds', freebet: 50, goal: 1, count: a => a.odds?.parlay || 0 },
+  { id: 'scratch', app: 'odds', freebet: 30, goal: 1, count: a => a.odds?.scratch || 0 },
+  { id: 'plan', app: 'stock', freebet: 50, goal: 1, count: a => a.stock?.plan || 0 }
 ];
 export const missionId = (day, id) => `vocab:m:${day}:${id}`;
+export const freeBetId = (day, id) => `vocab:fb:${day}:${id}`;
 
 export function missions(wallet, now = Date.now()) {
   const day = taipeiDay(now);
@@ -56,7 +62,7 @@ export function missions(wallet, now = Date.now()) {
   const ids = new Set((wallet?.entries || []).map(e => e.id));
   return MISSIONS.map(m => {
     const progress = Math.min(m.goal, m.count(act, wallet?.apps, day));
-    return { ...m, progress, done: progress >= m.goal, claimed: ids.has(missionId(day, m.id)) };
+    return { ...m, pay: m.pay || 0, progress, done: progress >= m.goal, claimed: ids.has(missionId(day, m.id)) || ids.has(freeBetId(day, m.id)) };
   });
 }
 // The entry claiming a mission (null when it isn't done, is claimed, or
@@ -64,6 +70,8 @@ export function missions(wallet, now = Date.now()) {
 export function claimEntry(wallet, id, now = Date.now()) {
   const m = missions(wallet, now).find(x => x.id === id);
   if (!m || !m.done || m.claimed) return null;
+  // A free bet: a token, outside the cash cap.
+  if (m.freebet) return { id: freeBetId(taipeiDay(now), id), t: now, app: 'vocab', kind: 'freebet', amount: 0, note: String(m.freebet) };
   const amount = Math.min(m.pay, roomToday(wallet, 'mission', 0, now));
   if (amount <= 0) return null;
   return { id: missionId(taipeiDay(now), id), t: now, app: 'vocab', kind: 'mission', amount, note: id };

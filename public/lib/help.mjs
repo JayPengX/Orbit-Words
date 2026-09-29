@@ -170,7 +170,8 @@ export const HELP = {
       ['boost', '串關加成與提前兌現', [
         '串關加成：3 場以上的串關全過時多給獎金，3 場 +5%、4 場 +8%、5 場 +12%、6 場 +15%、7 場以上 +20%；Plus 會員加倍，最高 +40%。',
         '提前兌現：比賽還沒結束也能先把投注單換成現金，金額依目前賠率計算，扣 5%（Plus 扣 2%）。',
-        '首頁的「精選串關」幫你挑好大聯賽的熱門組合，一鍵加到投注單。'
+        '首頁的「精選串關」幫你挑好大聯賽的熱門組合，一鍵加到投注單。',
+        '免費投注：Rewards 任務送的，在投注單上點一下就用在這張單（串關或單一選項），不扣本金，贏了拿獎金（不含本金），7 天內有效；不能提前兌現。'
       ]],
       ['money', '錢怎麼算', [
         '下注和買彩券從錢包扣款，中獎自動入帳並通知你。彩券中獎超過 NT$5,000 照規定扣 20% 所得稅和 0.4% 印花稅。'
@@ -197,7 +198,8 @@ export const HELP = {
       ['boost', 'Parlay boost and cash out', [
         'Parlay boost: a winning parlay of 3 or more legs pays extra: +5% for 3, +8% for 4, +12% for 5, +15% for 6, +20% for 7 or more; doubled for Plus members, up to +40%.',
         'Cash out: turn a slip into cash before the games end, priced at the current odds less 5% (2% with Plus).',
-        'Featured parlays on the home screen put together big-league picks, added to the slip in one tap.'
+        'Featured parlays on the home screen put together big-league picks, added to the slip in one tap.',
+        'Free bets: from Rewards missions; tap one on the slip to use it on that slip (a parlay or one pick). Nothing comes off your balance, a win pays the winnings (not the stake), and it lasts 7 days; no cash out.'
       ]],
       ['money', 'Money', [
         'Bets and tickets come out of the wallet, and winnings go straight back in, with a notice. Lottery prizes over NT$5,000 have 20% tax and 0.4% stamp duty taken, as the rules say.'
@@ -277,7 +279,7 @@ export const HELP = {
         '今日挑戰：當天第一局有入帳就加獎金（NT$5 起，連續幾天多一點，最多 NT$20）。每款遊戲的最佳紀錄跨裝置保留。'
       ]],
       ['missions', '每日任務與每週目標', [
-        '每天幾個小任務（背 20 題、精熟 3 個字、玩一局遊戲、在 Securities 交易或加入觀察、在 Fixtures 看一場比賽、在 Orbit Class 看課表、打開三個 App），完成後按「領取」。',
+        '每天幾個小任務（背 20 題、精熟 3 個字、玩一局遊戲、在 Securities 交易或加入觀察、在 Fixtures 看一場比賽、在 Orbit Class 看課表、打開三個 App），完成後按「領取」。在 Play 串 3 場以上、買一張刮刮樂、在 Securities 設定定期定額，這三個任務送的是 Play 的免費投注（NT$30–50，7 天內有效）：用在一張單上，不扣本金，贏了拿獎金。',
         '每週目標（週一到週日）：5 天有練習、賺 NT$1,000、完成 10 個任務、玩 10 局遊戲。開啟通知後，可以領取時和連續天數快斷時會提醒你。'
       ]],
       ['extras', '加值', [
@@ -312,7 +314,7 @@ export const HELP = {
         'Today’s challenge: its first paid round adds a bonus (from NT$5, a little more each day in a row, up to NT$20). Each game’s best is kept on every device.'
       ]],
       ['missions', 'Missions and weekly goals', [
-        'A few small things a day (20 word answers, 3 words mastered, a game, a trade or watch in Securities, a match in Fixtures, your classes in Orbit Class, three apps opened); claim each when done.',
+        'A few small things a day (20 word answers, 3 words mastered, a game, a trade or watch in Securities, a match in Fixtures, your classes in Orbit Class, three apps opened); claim each when done. A parlay of 3 or more in Play, a scratch card, or a monthly plan in Securities each give a free bet in Play instead (NT$30–50, 7 days): staked on one slip, nothing off your balance, and a win pays the winnings.',
         'Weekly goals (Monday to Sunday): practise on 5 days, earn NT$1,000, finish 10 missions, play 10 games. With notices on, you’re told when there’s something to claim and when a streak is about to end.'
       ]],
       ['extras', 'Extras', [

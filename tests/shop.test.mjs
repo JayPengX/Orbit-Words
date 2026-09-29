@@ -75,3 +75,18 @@ test('word packs: bought once, half price for Plus, and they join the word list'
     for (const r of packs[id]) assert.ok(r.length === 3 && r[0] && r[1] && r[2], JSON.stringify(r));
   }
 });
+
+test('missions about Play and plans give a free bet, outside the cash cap, once a day', async () => {
+  const { missions, claimEntry } = await import('../public/lib/earn.mjs');
+  const { freeBets } = await import('../public/lib/quadra.mjs');
+  const day = taipeiDay(now);
+  const w = { entries: [], settings: { 'act:odds': { value: { day, n: { parlay: 1, scratch: 1 } }, t: now } } };
+  const ms = Object.fromEntries(missions(w, now).map(m => [m.id, m]));
+  assert.ok(ms.parlay3.done && ms.scratch.done && !ms.plan.done);
+  const e = claimEntry(w, 'parlay3', now);
+  assert.deepEqual([e.id, e.kind, e.amount, e.note], [`vocab:fb:${day}:parlay3`, 'freebet', 0, '50']);
+  const after = { ...w, entries: [e] };
+  assert.equal(claimEntry(after, 'parlay3', now), null);
+  assert.ok(missions(after, now).find(m => m.id === 'parlay3').claimed);
+  assert.deepEqual(freeBets(after, now).map(x => x.value), [50]);
+});

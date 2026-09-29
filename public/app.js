@@ -716,11 +716,11 @@ function renderHome() {
       const action = m.claimed
         ? el('span', { class: 'claimed', text: t('claimed') })
         : m.done
-          ? el('button', { class: 'q-btn primary small', type: 'button', text: t('claim', { v: nt(m.pay) }), onclick: () => claim(m.id) })
+          ? el('button', { class: 'q-btn primary small', type: 'button', text: m.freebet ? t('claimFree') : t('claim', { v: nt(m.pay) }), onclick: () => claim(m.id) })
           : el('button', { class: 'q-btn small', type: 'button', text: t('go'), onclick: () => goMission(m) });
       return el('div', { class: `mission${m.claimed ? ' done' : ''}` }, [
         el('span', { class: 'mission-icon', text: MISSION_ICON[m.id] }),
-        el('div', { class: 'mission-text' }, [el('strong', { text: t(`mission_${m.id}`) }), el('div', { class: 'mission-bar' }, [bar(m.progress, m.goal, 'accent'), el('small', { class: 'num muted', text: `${m.progress}/${m.goal} · ${nt(m.pay)}` })])]),
+        el('div', { class: 'mission-text' }, [el('strong', { text: t(`mission_${m.id}`) }), el('div', { class: 'mission-bar' }, [bar(m.progress, m.goal, 'accent'), el('small', { class: 'num muted', text: `${m.progress}/${m.goal} · ${m.freebet ? t('freeBetPay', { v: nt(m.freebet) }) : nt(m.pay)}` })])]),
         action
       ]);
   };
@@ -868,7 +868,7 @@ function badgesCard(st) {
   ]);
 }
 
-const MISSION_ICON = { words20: '📚', master3: '🏅', game1: '🎮', invest: '📈', match: '🏟️', orbit: '🪐', tour: '🧭' };
+const MISSION_ICON = { words20: '📚', master3: '🏅', game1: '🎮', invest: '📈', match: '🏟️', orbit: '🪐', tour: '🧭', parlay3: '🎫', scratch: '🎟️', plan: '🗓️' };
 
 function ranksCard(current) {
   return el('details', { class: 'q-card list ranks' }, [
@@ -883,6 +883,7 @@ function goMission(m) {
   if (m.app === 'vocab') return showTab(m.id === 'game1' ? 'games' : 'words');
   if (m.app === 'stock') return q.go('stock');
   if (m.app === 'match') return q.go('match');
+  if (m.app === 'odds') return q.go('odds', m.id === 'scratch' ? 'lottery' : '');
   if (m.app === 'orbit') return q.go('orbit');
   // The tour: the first app not opened today.
   const day = taipeiDay();
@@ -893,7 +894,7 @@ function claim(id) {
   const entry = claimEntry(state.wallet, id);
   if (!entry || outbox.read().some(x => x.id === entry.id)) return toast(t('capReached'));
   payEntry(entry);
-  toast(t('claimedToast', { v: nt(entry.amount) }), 'good');
+  toast(entry.kind === 'freebet' ? t('claimedFree', { v: nt(Number(entry.note)) }) : t('claimedToast', { v: nt(entry.amount) }), 'good');
   refresh();
 }
 
@@ -1020,7 +1021,7 @@ function checkNotices() {
   if (!state.wallet || !state.loaded) return;
   const w = withOutbox();
   const ready = [
-    ...missions(w).filter(m => m.done && !m.claimed).map(m => [`m:${taipeiDay()}:${m.id}`, t(`mission_${m.id}`), m.pay]),
+    ...missions(w).filter(m => m.done && !m.claimed).map(m => [`m:${taipeiDay()}:${m.id}`, t(`mission_${m.id}`), m.freebet || m.pay]),
     ...weeklyGoals(w).filter(g => g.done && !g.claimed).map(g => [`wk:${g.week}:${g.id}`, t(`weekly_${g.id}`), g.pay])
   ];
   // What was ready when the app opened is on the home screen already.
