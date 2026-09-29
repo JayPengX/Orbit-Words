@@ -7,7 +7,7 @@
 //   tabs    「每個分頁」: one line per tab, in the tab bar's order
 //   …       what's particular to it (a few topics)
 //   money   「錢怎麼算」: how it touches the one Quadra wallet
-// (The Quadra Pass's own guide: what, account, one, safe, money.)
+// (The Quadra Pass's own guide: what, account, one, safe, plus, money.)
 //
 // HELP[app][lang] = [[topic id, title, [paragraphs]], …]
 
@@ -33,6 +33,11 @@ export const HELP = {
         '伺服器只保存通行碼的雜湊值；裝置上只有會過期、可以撤銷的登入憑證，不會有通行碼本身。',
         '帳戶裡可以「登出其他所有裝置」（這台保持登入），或「更換通行碼」（新的只顯示一次，舊的立刻失效）。忘記通行碼時，在還登入的裝置更換一組就好。'
       ]],
+      ['plus', 'Quadra Plus 會員', [
+        '一個會員、所有 Quadra App：每月 NT$290，從 Quadra 餘額扣款，第一次加入的那個月免費，隨時可以取消（用到月底）。在帳戶裡加入或管理；會員的帳戶按鈕有金色星星。',
+        'Securities：手續費 5 折、換匯點差減半、融資利率少 1%、台幣活存 2%（一般 0.8%）。Play：串關加成加倍、提前兌現只扣 2%（一般 5%）。',
+        '划不划算看你用多少：Securities 要每月交易量很大才回本，Play 的加成再多也還是輸。Rewards 的「說明」裡每個 App 的「它怎麼賺你的錢」有算給你看。'
+      ]],
       ['money', '錢怎麼算', [
         '所有 App 共用一個新台幣錢包（都是模擬的錢）。新帳號有 NT$110,000；每個月 1 日發薪 NT$7,000，那個月第一次打開任何 App 時入帳，沒打開的月份下次補發。',
         'Securities 讓錢長大（投資）；Play 讓錢變少（運彩和彩券平均都會輸）；Rewards 靠努力賺錢（單字、遊戲、任務）；Fixtures 和 Orbit Class 不用錢。錢只存在 Quadra Pass，不能在帳號之間轉。'
@@ -56,6 +61,11 @@ export const HELP = {
         'The server keeps only a hash of the pass; devices keep only sign-ins that expire and can be revoked, never the pass itself.',
         'The account can sign out every other device (this one stays in) or change the pass (the new one is shown once, the old one stops at once). Forgot it? Change it from a device that’s still signed in.'
       ]],
+      ['plus', 'Quadra Plus', [
+        'One membership for every Quadra app: NT$290 a month from the Quadra balance, the first month you ever join free, cancel any time (it lasts to the end of the month). Join or manage it in the account; a member’s account button has a gold star.',
+        'Securities: half commission, half the FX spread, loans 1 point cheaper, 2% on NT$ cash (0.8% otherwise). Play: the parlay boost doubled, and cash out keeps 2% instead of 5%.',
+        'Whether it pays depends on use: Securities needs a lot of trading each month to earn the fee back, and Play still loses with the bigger boost. Each app’s “How it makes money from you” in Rewards’ help works it out.'
+      ]],
       ['money', 'Money', [
         'Every app shares one NT$ wallet (play money). A new pass starts with NT$110,000; payday brings NT$7,000 on the 1st of every month, the first time that month you open any app; a month you miss is paid when you’re back.',
         'Securities grows money (investing); Play shrinks it (sports bets and the lottery lose on average); Rewards earns it with effort (words, games, missions); Fixtures and Orbit Class don’t use it. Money lives on the Quadra Pass only and can’t move between passes.'
@@ -68,7 +78,7 @@ export const HELP = {
         'Quadra 讓錢長大的地方：用錢包裡的新台幣投資全世界的股票、ETF、各國公債、共同基金、加密貨幣、黃金白銀存摺和外匯。錢是模擬的，價格是真的。'
       ]],
       ['tabs', '每個分頁', [
-        '「市場」：為你推薦、世界市場、各分類清單和搜尋；點任何標的看走勢、公司資料和下單。',
+        '「市場」：帳戶摘要、為你推薦、漲跌幅並排、各分類清單（每張 15 檔）和搜尋；點任何標的看走勢、公司資料和下單。',
         '「資產」：淨值與走勢、配置、持股、現金與各幣別錢包、股利利息收入、定期定額和到價提醒。',
         '「換匯・融資」：三個畫面：換匯（你付出／你會收到，兩邊都能輸入）、匯率看板、融資（已借、維持率、額度）。',
         '「紀錄」：每筆交易與異動、委託單、投資統計，以及「時光機」。'
@@ -90,7 +100,8 @@ export const HELP = {
         '在「紀錄」試算：幾年前投入一筆錢（或每月定期定額）到某個標的，現在會變多少，中間最大跌幅多少。'
       ]],
       ['truth', '它怎麼賺你的錢', [
-        '券商靠你交易賺錢，不是靠你賺錢：每一筆買賣都收手續費（台股 0.1425%，最低 NT$20），賣出再收 0.3% 證交稅；美股、日股的手續費更高。「限時活動」、漲幅榜、熱門排行和為你推薦，都是為了讓你多交易。',
+        '券商靠你交易賺錢，不是靠你賺錢：每一筆買賣都收手續費（台股 0.1425%，最低 NT$20），賣出再收 0.3% 證交稅；美股、日股的手續費更高。漲幅榜、熱門排行和為你推薦，都是為了讓你多交易。',
+        'Quadra Plus（每月 NT$290）手續費 5 折、點差減半，聽起來很划算，但要每月手續費超過 NT$580 才回本，也就是台股每月買賣約 NT$40 萬；活存 2% 比一般多 1.2%，要放著約 NT$29 萬現金才抵得過月費。「每筆都在省錢」的感覺，本身就會讓人交易得更多。第一個月免費，是為了讓你習慣它。',
         '換匯的「銀行賣」和「銀行買」之間的差價就是費用，換過去再換回來，錢就少一截。',
         '融資借款按天收利息，而且放大的不只是獲利：跌到維持率不夠會被強制賣出（斷頭），賠的比自己的本金還多。',
         '長期來說，大多數人的報酬輸給「買一檔指數 ETF 放著不動」：手續費、稅、價差和追高殺低一點一點吃掉報酬。分析師的目標價常常猜錯，而且大多偏樂觀。'
@@ -105,7 +116,7 @@ export const HELP = {
         'Where Quadra’s money grows: invest the NT$ in your wallet in stocks, ETFs, government bonds, mutual funds, crypto, gold and silver passbooks and forex worldwide. The money is pretend; the prices are real.'
       ]],
       ['tabs', 'The tabs', [
-        'Markets: for you, world markets, lists by kind and search; tap anything for its chart, company facts and the order ticket.',
+        'Markets: your account at a glance, for you, gainers and losers side by side, lists by kind (15 each) and search; tap anything for its chart, company facts and the order ticket.',
         'Portfolio: net worth and its history, allocation, holdings, cash and each currency’s wallet, income, monthly plans and price alerts.',
         'FX & loans: three views: exchange (you pay / you get, type either), the rates board, and loans (borrowed, the ratio, the limit).',
         'History: every trade and change, orders, stats, and the time machine.'
@@ -127,7 +138,8 @@ export const HELP = {
         'Under History: what a lump sum (or a monthly plan) put into anything years ago would be worth now, and its worst drop on the way.'
       ]],
       ['truth', 'How it makes money from you', [
-        'A broker earns from your trading, not your gains: every buy and sell pays a commission (0.1425% in Taiwan, NT$20 at least), a sale also 0.3% tax, and US and Japanese trades cost more. The featured offers, movers and “for you” rows are there to make you trade more.',
+        'A broker earns from your trading, not your gains: every buy and sell pays a commission (0.1425% in Taiwan, NT$20 at least), a sale also 0.3% tax, and US and Japanese trades cost more. The movers, most-traded and “for you” rows are there to make you trade more.',
+        'Quadra Plus (NT$290 a month) halves commission and the FX spread, which sounds like a deal, but it only pays for itself once your commission tops NT$580 a month: about NT$400,000 of Taiwan trades. The 2% on cash (1.2 points more) needs about NT$290,000 sitting idle to cover the fee. Feeling that every trade saves money is itself what makes people trade more; the free first month is there to make it a habit.',
         'The gap between the bank’s selling and buying rates is the FX fee: change money there and back and some of it is gone.',
         'Margin loans charge interest every day, and they magnify losses as well as gains: fall below the maintenance ratio and your holdings are sold for you, possibly losing more than you put in.',
         'Over the long run most people do worse than simply buying one index ETF and leaving it: commissions, taxes, spreads and buying high and selling low eat the returns. Analysts’ price targets are often wrong, and mostly too optimistic.'
@@ -145,7 +157,7 @@ export const HELP = {
         '運彩賠率由 DraftKings、Polymarket 等市場價格估算；彩券用台灣彩券的真實開獎號碼。'
       ]],
       ['tabs', '每個分頁', [
-        '「首頁」：餘額、投注中的金額、你在 Fixtures 追蹤的比賽和為你推薦。',
+        '「首頁」：餘額、各大聯賽的焦點比賽和賠率、你的投注（可以提前兌現）和彩券頭獎。',
         '「賽事」：每個運動、每場還沒開始的比賽和冠軍盤；點選項加入投注單。',
         '「彩券」：每種電腦彩券和刮刮樂，快選或自選。',
         '「投注單」：單場或串關，確認後送出。',
@@ -161,7 +173,9 @@ export const HELP = {
         '運彩的賠率比真實機率低：兩選一的玩法每下 NT$100，長期平均只拿回約 NT$86；足球不讓分約 83；比分、最高單局這類更少。依法運彩的獎金支出不能超過銷售額的 78%。',
         '串關每多一場就再被抽一次：2 關平均回約 75，3 關約 64，5 關不到 50。賠率偏低的選項「限過關」，就是逼你串關。',
         '彩券抽得更多：電腦彩券每 NT$100 平均回 50–60，刮刮樂 63–75（越貴的越高）；中獎超過 NT$5,000 還要扣 20% 稅和 0.4% 印花稅。',
-        '為你推薦、「今天開賣中」、Fixtures 每場比賽的「下注」按鈕，都是要你多下注。短期會有人贏，但下得越久，結果越接近上面那些平均：幾乎每個長期下注的人都是輸的。'
+        '「串關加成」是讓你多串幾關的誘餌：3 關加 5%，NT$100 平均從約 64 變成約 66；就算串到 7 關加 20%，也只從 38 變成約 45。Plus 會員加倍，3 關約 71、7 關約 53，還是輸。',
+        '「提前兌現」用莊家自己的賠率（已含抽成）算你這張單現在值多少，再扣 5%（Plus 扣 2%）：怕輸想先拿錢，等於再付一次手續費。',
+        '首頁的焦點比賽、頭獎金額和 Fixtures 每場比賽旁的「投注」小按鈕，都是要你多下注。短期會有人贏，但下得越久，結果越接近上面那些平均：幾乎每個長期下注的人都是輸的。'
       ]],
       ['money', '錢怎麼算', [
         '下注和買彩券從錢包扣款，中獎自動入帳。運彩每注平均抽約 13%（NT$100 平均拿回 NT$87），串越多關抽成疊越多；電腦彩券平均只還五到七成，刮刮樂約 58%。',
@@ -174,7 +188,7 @@ export const HELP = {
         'Odds are estimated from DraftKings, Polymarket and other markets; the lottery uses Taiwan Lottery’s real draws.'
       ]],
       ['tabs', 'The tabs', [
-        'Home: the balance, money in open bets, the games you follow in Fixtures and picks for you.',
+        'Home: the balance, featured big-league games with prices, your bets (with cash out) and the lottery jackpots.',
         'Games: every sport, every match not yet started and the futures; tap a pick to add it to the slip.',
         'Lottery: every number game and scratch card, quick pick or your own numbers.',
         'Slip: singles or a parlay, placed when you confirm.',
@@ -190,7 +204,9 @@ export const HELP = {
         'The odds pay less than the real chances: on a two-way market every NT$100 brings back about NT$86 in the long run, soccer’s win-draw-win about 83, correct scores and top innings less. By law the Sports Lottery can pay out at most 78% of what it sells.',
         'Every extra game in a parlay is cut again: 2 legs return about 75, 3 about 64, 5 under 50. Short prices sold only in parlays (限過關) are there to push you into them.',
         'The lottery takes more: draw games return 50–60 per NT$100, scratch cards 63–75 (dearer ones more), and prizes over NT$5,000 lose 20% tax and 0.4% stamp duty.',
-        'The “for you” picks, the “open for bets” banner and the Bet buttons on every game in Fixtures are there to make you bet more. Some people win for a while, but the longer you bet the closer you get to those averages: almost everyone who bets for long loses.'
+        'The parlay boost is bait to add more legs: +5% on 3 legs moves NT$100 from about 64 back to about 66; even 7 legs at +20% only go from 38 to about 45. Plus doubles it (about 71 and 53): still a loss.',
+        'Cash out prices your slip with the house’s own odds (its cut included) and then keeps 5% (2% with Plus): taking the money early out of fear pays the house again.',
+        'The featured games and jackpots on the home screen, and the small Bet chip beside every game in Fixtures, are there to make you bet more. Some people win for a while, but the longer you bet the closer you get to those averages: almost everyone who bets for long loses.'
       ]],
       ['money', 'Money', [
         'Bets and tickets come out of the wallet, and winnings go straight back in. The sports lottery keeps about 13% of each bet (NT$100 returns NT$87 on average), more in parlays; number games return about 50–75%, scratch cards about 58%.',
@@ -217,7 +233,7 @@ export const HELP = {
         '比賽頁和推薦卡片會列出台灣可以收看的頻道與平台（愛爾達、緯來、DAZN、博斯、各聯盟的官方訂閱…）。轉播權會變動，以各平台公告為準。'
       ]],
       ['truth', '它怎麼賺你的錢', [
-        'Fixtures 本身不收錢，它是 Play 的招牌：首頁的「今天 N 場開賣中」橫幅、每場比賽旁的「下注」按鈕和比賽頁的「到 Play 下注」，都是要把看比賽變成下注。'
+        'Fixtures 本身不收錢，它是 Play 的櫥窗：每場有開賣的比賽旁都有一顆安靜的「投注」／「場中」小按鈕，比賽頁有「到 Play 下注」。做得越低調、越像資訊的一部分，越不會讓人警覺，目的都是把看比賽變成下注。'
       ]],
       ['money', '錢怎麼算', [
         'Fixtures 不用錢：看比賽、追蹤都免費。每天打開一場比賽可以完成 Rewards 的每日任務。'
@@ -241,7 +257,7 @@ export const HELP = {
         'Match pages and pick cards list where to watch in Taiwan (ELTA, Videoland, DAZN, Sportcast, league passes…). Rights change; each service’s own listings are the final word.'
       ]],
       ['truth', 'How it makes money from you', [
-        'Fixtures costs nothing itself: it’s Play’s shop window. The “games open for bets” banner, the Bet button beside every game and “Bet in Play” on a game page are all there to turn watching into betting.'
+        'Fixtures costs nothing itself: it’s Play’s shop window. A quiet Bet / Live chip sits beside every game Play sells, and a game page has “Bet in Play”. The more it looks like part of the information, the less it feels like an ad, and it’s all there to turn watching into betting.'
       ]],
       ['money', 'Money', [
         'Fixtures is free: watching and following cost nothing. Opening a match each day completes a daily mission in Rewards.'
