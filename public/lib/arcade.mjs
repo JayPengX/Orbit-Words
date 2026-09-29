@@ -86,7 +86,13 @@ const LIST = [
   ['nback', '🔁', 'brain', 'N-back 記憶', 'N-back', '記憶 · 36 題', 'Memory · 36 letters', 45, 1],
   ['pathmem', '👣', 'brain', '路徑記憶', 'Path memory', '記憶 · 三條命', 'Memory · 3 lives', 45, 1],
   ['emojimem', '👀', 'brain', '哪裡變了', 'What changed', '記憶 · 十回', 'Memory · 10 rounds', 45, 1],
-  ['spotdiff', '🔍', 'brain', '找不同', 'Spot the difference', '眼力 · 五張', 'Eyes · 5 pictures', 50, 1]
+  ['spotdiff', '🔍', 'brain', '找不同', 'Spot the difference', '眼力 · 五張', 'Eyes · 5 pictures', 50, 1],
+  ['freecell', '🗂️', 'cards', '新接龍', 'FreeCell', '撲克 · 長局', 'Cards · long game', 90, 1],
+  ['spider', '🕷️', 'cards', '蜘蛛接龍', 'Spider', '撲克 · 長局', 'Cards · long game', 110, 1],
+  ['pyramid', '🔺', 'cards', '金字塔', 'Pyramid', '撲克 · 三座', 'Cards · 3 pyramids', 55, 1],
+  ['golf', '⛳', 'cards', '高爾夫接龍', 'Golf', '撲克 · 兩局', 'Cards · 2 deals', 50, 1],
+  ['tripeaks', '🏔️', 'cards', '三峰接龍', 'TriPeaks', '撲克 · 兩局', 'Cards · 2 deals', 60, 1],
+  ['pokersq', '🂡', 'cards', '撲克方塊', 'Poker squares', '撲克 · 25 張', 'Cards · 25 cards', 50, 0.35]
 ];
 
 // Long games (ten minutes and more): a badge on the card, and a bigger most a round.
@@ -666,6 +672,12 @@ export const oddSize = level => Math.min(8, 2 + Math.floor(level / 3));
 // How to play each game, in a few lines: [中文, English]. Shown the first
 // time a game is opened and behind the ? in its bar.
 export const HOW = {
+  freecell: ["52 張全部翻開分成八列，左上四個空格各放一張牌。把四種花色從 A 排到 K 收到右上。列裡只能放比它小 1、顏色相反的牌。點牌會自動移到能放的地方；一次能搬幾張看空格和空列有多少。收一張 1 分，全部收完再加時間獎勵。", "All 52 cards face up in eight columns; four free cells hold a card each. Build each suit A to K on the right. In the columns, place a card one lower in the other colour. Tap a card to move it where it fits; how many move at once depends on free cells and empty columns. A card home scores 1, finishing adds a time bonus."],
+  spider: ["兩種花色、十列。在同一列裡用同一種花色從 K 排到 A，排好就整組收走。點牌把它（連同下面同花色的一串）搬到大 1 的牌上；卡住就按發牌，每列發一張。完成一組 10 分，每翻開一張蓋著的牌 ½ 分。", "Two suits, ten columns. Build K down to A in one suit inside a column and it leaves the table. Tap a card to move it (with the same-suit run under it) onto a card one higher; deal ten more when stuck. A finished run scores 10, each hidden card turned up ½."],
+  pyramid: ["兩張沒被蓋住的牌加起來 13 就一起消掉（J=11、Q=12、K=13 可以自己消）。右下的牌堆一次翻一張，翻完還能再翻兩輪。清掉金字塔一張 1 分，清光加 8 分再來一座，最多三座。", "Two uncovered cards adding to 13 clear together (J 11, Q 12, K clears alone). The stock turns one at a time, twice more once it runs out. Each pyramid card scores 1; clearing it adds 8 and deals the next, three at most."],
+  golf: ["七列各五張。每列最下面那張，比底下牌堆大 1 或小 1 就能打上去（K 和 A 不相連）。沒得打就翻一張。打掉一張 1 分，全部清光再加剩下的牌數。兩局。", "Seven columns of five. A column's bottom card goes onto the pile if it is one higher or lower (K and A don't join). Turn the stock when stuck. Each card scores 1; clearing adds the stock left. Two deals."],
+  tripeaks: ["三座山的牌，翻開的牌比底下那張大 1 或小 1 就能接上去（K 和 A 相連）。連續接越多張越多分，打掉山頂再加 5 分。兩局。", "Play an uncovered card one higher or lower than the pile (K and A join). Long streaks score extra; each peak top adds 5. Two deals."],
+  pokersq: ["25 張牌一張一張來，放進 5×5 的格子（放了就不能動）。放完後五橫五直共十條，各算一手撲克牌型：同花順 75、四條 50、葫蘆 25、同花 20、順子 15、三條 10、兩對 5、一對 2。", "25 cards come one at a time; put each in the 5×5 grid for good. Then the five rows and five columns are each scored as a poker hand: straight flush 75, four of a kind 50, full house 25, flush 20, straight 15, three of a kind 10, two pair 5, a pair 2."],
   wordle: ["猜五個字母的英文單字，六次機會。綠色：字母和位置都對；黃色：有這個字母但位置不對；灰色：沒有。兩個字，越少次猜中分數越高。", "Guess the five-letter word in six tries. Green: right letter, right place; yellow: in the word, wrong place; grey: not in it. Two words; fewer guesses score more."],
   anagram: ["把打亂的字母點回正確順序拼出單字（有中文提示）。點錯位置可以點回去。越長的字分數越高。", "Tap the jumbled letters back into order to spell the word (with its Chinese meaning as a hint). Longer words score more."],
   typing: ["看中文，打出英文單字再按 Enter。拼對就下一個，每個字母算一分，打錯扣分。", "See the Chinese, type the English word and press Enter. A letter scores a point; mistakes cost."],

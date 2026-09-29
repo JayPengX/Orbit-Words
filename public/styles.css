@@ -870,3 +870,34 @@ html.rw-playing .game-actions:has(.game-result) {
 .sd-cell { aspect-ratio: 1; display: grid; place-items: center; padding: 0; border: 0; border-radius: 8px; background: none; font-size: 24px; }
 .sd-cell.ok { box-shadow: inset 0 0 0 3px #ef4444; border-radius: 50%; }
 .sd-cell.bad { background: rgba(239, 68, 68, 0.25); }
+/* Batch 5: card tables (cards size to the table: .fl) */
+.cg { gap: 10px; }
+.cg .pc.fl, .cg .pc-slot.fl { width: 100%; height: auto; aspect-ratio: 5 / 7; }
+.cg .pc.fl { display: flex; align-items: flex-start; justify-content: center; gap: 1px; padding: 3px 0 0; font-size: clamp(11px, 3.3vw, 15px); border-radius: 5px; }
+.cg .pc.fl .pc-r, .cg .pc.fl .pc-s { font-size: inherit; }
+.cg .pc.fl.back { align-items: center; padding: 0; color: #fff; }
+.cg .pc-slot.fl { display: grid; place-items: center; border-radius: 5px; color: rgba(255, 255, 255, 0.5); font-size: 18px; background: none; }
+.cg .pc.can { box-shadow: 0 0 0 2px #fde047; }
+.cg-top { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; width: 100%; }
+.cg-tab { display: grid; gap: 4px; width: 100%; align-items: start; min-height: 200px; }
+.cg-pile { display: flex; flex-direction: column; }
+.cg-pile > .pc + .pc { margin-top: -100%; }
+.cg.spider .cg-pile > .pc.back + .pc { margin-top: -118%; }
+.cg.spider .cg-tab { gap: 2px; }
+.cg.spider .pc.fl { font-size: clamp(10px, 2.8vw, 14px); }
+.pyr { display: flex; flex-direction: column; align-items: center; width: 100%; }
+.pyr-row { display: grid; grid-template-columns: repeat(var(--n, 7), 1fr); gap: 4px; width: 100%; justify-content: center; }
+.pyr-row { width: calc((100% + 4px) / 7 * var(--n) - 4px); }
+.pyr-row + .pyr-row { margin-top: -9%; }
+.pc-gap { visibility: hidden; aspect-ratio: 5 / 7; }
+.pyr-side, .golf-bottom { grid-template-columns: repeat(7, 1fr); width: 100%; align-items: center; }
+.tp-board { position: relative; width: 100%; aspect-ratio: 10 / 3.35; }
+.tp-board .pc.fl { position: absolute; width: 9.4%; }
+.tp-streak { grid-column: span 3; color: #fde047; font-weight: 800; }
+.ps-now { display: flex; align-items: center; gap: 12px; min-height: 70px; }
+.ps-now .pc { width: 50px; height: 70px; }
+.ps-board { display: grid; width: min(290px, 100%); margin: 0 auto; grid-template-columns: repeat(5, 1fr) 58px; gap: 4px; align-items: center; }
+.ps-empty { cursor: pointer; }
+.ps-line { font-size: 11px; font-weight: 700; color: #fde68a; line-height: 1.2; }
+.ps-line.col { text-align: center; }
+.cg.shake { animation: sl-shake 0.25s; }
