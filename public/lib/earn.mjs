@@ -8,6 +8,7 @@
 //   game      a finished game round ('vocab:g:…')
 //   mission   a claimed mission ('vocab:m:<day>:<mission>', once a day each)
 import { ECONOMY, taipeiDay, todayActivity, poolBalance } from './quadra.mjs';
+import { capsFor, frozenDays, freezes, freezeEntry } from './shop.mjs';
 
 export const CAPS = { words: ECONOMY.vocab.dailyCap, game: ECONOMY.gamesDailyCap, mission: ECONOMY.missionsDailyCap };
 const KIND_OF = { words: 'words', reward: 'words', game: 'game', mission: 'mission' };
@@ -26,7 +27,7 @@ export function earnedToday(wallet, now = Date.now()) {
   return out;
 }
 // Room left today for a kind, counting what's waiting to be sent.
-export const roomToday = (wallet, kind, pending = 0, now = Date.now()) => Math.max(0, CAPS[kind] - earnedToday(wallet, now)[kind] - pending);
+export const roomToday = (wallet, kind, pending = 0, now = Date.now()) => Math.max(0, capsFor(wallet, now)[kind] - earnedToday(wallet, now)[kind] - pending);
 
 // Everything Rewards has ever paid.
 export function earnedAllTime(wallet) {
@@ -89,10 +90,14 @@ export function rankOf(balance) {
 }
 export const walletRank = wallet => rankOf(poolBalance(wallet));
 
+// Days with word practice or a game, and the days a protection card covered.
+const played = e => e.app === 'vocab' && (e.kind === 'words' || e.kind === 'reward' || e.kind === 'game');
+export const activeDays = wallet => new Set([...(wallet?.entries || []).filter(played).map(e => taipeiDay(e.t)), ...frozenDays(wallet)]);
+
 // Days in a row with word practice or a game, from the entries (today counts
-// once something is paid).
+// once something is paid; a day a protection card covered counts too).
 export function streakDays(wallet, now = Date.now()) {
-  const days = new Set((wallet?.entries || []).filter(e => e.app === 'vocab' && (e.kind === 'words' || e.kind === 'reward' || e.kind === 'game')).map(e => taipeiDay(e.t)));
+  const days = activeDays(wallet);
   let n = 0;
   let t = now;
   if (!days.has(taipeiDay(t))) t -= 86_400_000;
@@ -104,8 +109,8 @@ export function streakDays(wallet, now = Date.now()) {
 }
 
 // The longest run of days in a row with word practice or a game.
-export function longestStreak(wallet, match = e => e.app === 'vocab' && (e.kind === 'words' || e.kind === 'reward' || e.kind === 'game')) {
-  const days = [...new Set((wallet?.entries || []).filter(match).map(e => taipeiDay(e.t)))].sort();
+export function longestStreak(wallet, match = null) {
+  const days = [...(match ? new Set((wallet?.entries || []).filter(match).map(e => taipeiDay(e.t))) : activeDays(wallet))].sort();
   let best = 0;
   let run = 0;
   let prev = null;
@@ -120,10 +125,26 @@ export function longestStreak(wallet, match = e => e.app === 'vocab' && (e.kind 
 // yet today, and it's evening in Taiwan.
 export function streakAtRisk(wallet, now = Date.now()) {
   const today = taipeiDay(now);
-  const played = (wallet?.entries || []).some(e => e.app === 'vocab' && (e.kind === 'words' || e.kind === 'reward' || e.kind === 'game') && taipeiDay(e.t) === today);
   const hour = new Date(now + 8 * 3_600_000).getUTCHours();
   const n = streakDays(wallet, now);
-  return !played && n > 0 && hour >= 20 ? n : 0;
+  return !activeDays(wallet).has(today) && n > 0 && hour >= 20 ? n : 0;
+}
+
+// The protection cards to use now: the days missed since the streak's last
+// day (not today, which can still be played), when the cards held cover all
+// of them. Empty when nothing was missed or a card can't save the streak.
+export function freezeDue(wallet, now = Date.now()) {
+  const held = freezes(wallet, now).held;
+  if (!held) return [];
+  const days = activeDays(wallet);
+  const gap = [];
+  let t = now - 86_400_000;
+  while (!days.has(taipeiDay(t)) && gap.length <= held) {
+    gap.push(taipeiDay(t));
+    t -= 86_400_000;
+  }
+  if (!gap.length || gap.length > held) return [];
+  return gap.reverse().map(day => freezeEntry(day, now));
 }
 
 // ---- The daily challenge (games.mjs picks the game) ----------------------------------------

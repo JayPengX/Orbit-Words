@@ -3,11 +3,12 @@
 // daily missions pay into the Quadra Pass's shared wallet; the wealth ranks
 // show where the pool stands; the help centre explains every app.
 import {
-  quadraSession, accountButton, installGate, watchUpdates, recordAffinity, affinityPatch, setting, settingPatch, taipeiDay, poolBalance, money, randomId, notify, schedulePush, APPS, ECONOMY
+  quadraSession, accountButton, installGate, watchUpdates, recordAffinity, affinityPatch, setting, settingPatch, taipeiDay, poolBalance, money, randomId, notify, schedulePush, APPS, ECONOMY, ask, plusCard, plusMember
 } from './lib/quadra.mjs';
+import { SHOP, shopEntry, freezes, boostUntil, capsFor, challengeRecord, stakeEntry, prizeEntry, challengePrize } from './lib/shop.mjs';
 import { LEVELS, MODES, loadWords, pickRound, smartType, markKnown, makeQuestion, grade, payFor, sameWord, spellDiff, stats, stateOf, packProgress, unpackProgress, mergeProgress, migrateWords, shortMeaning, wordOfDay } from './lib/words.mjs';
 import {
-  CAPS, earnedToday, missions, claimEntry, rankOf, RANKS, streakDays, earnedAllTime, streakAtRisk, dailyId, dailyStreak, weeklyGoals, claimWeekly, badges
+  earnedToday, missions, claimEntry, rankOf, RANKS, streakDays, earnedAllTime, streakAtRisk, dailyId, dailyStreak, weeklyGoals, claimWeekly, badges, freezeDue
 } from './lib/earn.mjs';
 import { GAMES, gameInfo, dailyGame, dailyBonus, mergeBests } from './lib/games.mjs';
 import { HELP_ORDER, helpFor, parseHelpHash } from './lib/help.mjs';
@@ -140,6 +141,30 @@ function recordBest(game, v) {
   bestsDirty = true;
   return Boolean(had);
 }
+// The challenge bars (each game's highest median so far): in the wallet's
+// settings (bars:vocab), and on this device until the pass has it.
+const BARS_KEY = 'quadra.rewards.bars';
+let barsDirty = false;
+function localBars() {
+  try {
+    return JSON.parse(localStorage.getItem(BARS_KEY) || '{}') || {};
+  } catch {
+    return {};
+  }
+}
+function bars() {
+  const out = { ...setting(state.wallet, 'bars:vocab', {}) };
+  for (const [g, v] of Object.entries(localBars())) if (Number.isFinite(v) && !(out[g] >= v)) out[g] = v;
+  return out;
+}
+function raiseBar(game, v) {
+  if (!(v > (bars()[game] || 0))) return;
+  try {
+    localStorage.setItem(BARS_KEY, JSON.stringify({ ...localBars(), [game]: v }));
+  } catch {}
+  barsDirty = true;
+}
+
 // Today's challenge: the game, whether it's played, the streak and its bonus.
 function daily() {
   const day = taipeiDay();
@@ -148,7 +173,9 @@ function daily() {
   const done = w.entries.some(e => e.id === dailyId(day));
   return { day, game: dailyGame(day), done, streak, bonus: dailyBonus(streak) };
 }
-const room = kind => Math.max(0, CAPS[kind] - earned()[kind]);
+const caps = () => capsFor(withOutbox());
+const room = kind => Math.max(0, caps()[kind] - earned()[kind]);
+const boosted = () => boostUntil(withOutbox()) > Date.now();
 
 // Activity counts for the missions (act:vocab), added up here.
 const act = { answer: 0, master: 0, game: 0 };
@@ -170,6 +197,8 @@ function actPatch() {
 let batch = null;
 function addWordPay(amount) {
   if (amount <= 0) return 0;
+  // The ×2 boost bought in the shop.
+  if (boosted()) amount *= 2;
   const paid = Math.min(amount, room('words') - (batch?.amount || 0));
   if (paid <= 0) return 0;
   batch ||= { id: `vocab:w:${randomId()}`, t: Date.now(), app: 'vocab', kind: 'words', amount: 0, n: 0 };
@@ -204,8 +233,9 @@ async function push() {
   if (!q.active || !state.loaded) return;
   closeBatchIfIdle();
   const out = outbox.read().filter(e => !walletHas(e.id));
-  const settings = { ...actPatch(), ...affinityPatch('vocab').settings, ...(bestsDirty ? settingPatch('bests:vocab', bests()).settings : {}) };
+  const settings = { ...actPatch(), ...affinityPatch('vocab').settings, ...(bestsDirty ? settingPatch('bests:vocab', bests()).settings : {}), ...(barsDirty ? settingPatch('bars:vocab', bars()).settings : {}) };
   bestsDirty = false;
+  barsDirty = false;
   if (!dirty && !out.length && !Object.keys(settings).length) return;
   const payload = dirty && !state.unreadable ? await encodePayload() : undefined;
   dirty = false;
@@ -216,6 +246,7 @@ async function push() {
   } catch (error) {
     if (payload) dirty = true;
     if (settings['bests:vocab']) bestsDirty = true;
+    if (settings['bars:vocab']) barsDirty = true;
     throw error;
   }
   quietRefresh();
@@ -347,9 +378,10 @@ function renderWords() {
     el('div', { class: 'q-card pad start-card' }, [
       el('div', { class: 'start-top' }, [
         el('div', {}, [el('h2', { text: t('wordsTitle') }), el('p', { class: 'muted', text: selected.length ? t('wordsSub', { due, levels: selected.join('、') }) : t('pickLevel') })]),
-        el('div', { class: 'earn-mini' }, [el('small', { class: 'muted', text: t('todayWords') }), el('strong', { class: 'num', text: `${nt(today.words)} / ${nt(CAPS.words)}` })])
+        el('div', { class: 'earn-mini' }, [el('small', { class: 'muted', text: t('todayWords') }), el('strong', { class: 'num', text: `${nt(today.words)} / ${nt(caps().words)}` })])
       ]),
-      bar(today.words, CAPS.words, 'accent'),
+      bar(today.words, caps().words, 'accent'),
+      boostLine(),
       el('div', { class: 'size-row' }, [
         el('span', { class: 'muted', text: t('roundSize') }),
         el('div', { class: 'segmented small', role: 'group' }, [10, 20, 30].map(n => el('button', { type: 'button', 'aria-pressed': String((state.size || 10) === n), text: t('wordsN', { n }), onclick: () => ((state.size = n), renderWords()) })))
@@ -635,18 +667,21 @@ function renderHome() {
   const e = earned();
   const ms = missions(state.wallet);
   const st = state.words ? stats(state.words, state.progress) : null;
+  const cap = caps();
+  const held = freezes(withOutbox()).held;
   const rankCard = el('div', { class: 'rank-card' }, [
     el('div', { class: 'rank-top' }, [
       el('span', { class: 'rank-icon', text: r.rank.icon }),
       el('div', {}, [el('small', { text: t('yourRank') }), el('strong', { text: t(`rank_${r.rank.id}`) })]),
-      streak ? el('span', { class: 'streak', text: t('streak', { n: streak }) }) : null
+      streak ? el('span', { class: 'streak', text: `${t('streak', { n: streak })}${held ? ` · 🛡️${held}` : ''}` }) : null
     ]),
     el('p', { class: 'rank-balance num', text: nt(balance) }),
     r.next ? bar(r.progress, 1, 'light') : null,
     el('p', { class: 'rank-next', text: r.next ? t('toNext', { v: nt(r.toNext), rank: t(`rank_${r.next.id}`) }) : t('topRank') }),
     el('div', { class: 'rank-today' }, [
-      el('div', { class: 'rank-today-head' }, [el('small', { text: t('todayEarned') }), el('strong', { class: 'num', text: nt(e.total) })]),
-      el('div', { class: 'rank-today-row' }, ['words', 'game', 'mission'].map(k => el('div', { class: 'rank-today-part' }, [el('small', { text: t(`earn_${k}`) }), bar(e[k], CAPS[k], 'light'), el('small', { class: 'num', text: `${nt(e[k])} / ${nt(CAPS[k])}` })])))
+      el('div', { class: 'rank-today-head' }, [el('small', { text: t('todayCan', { v: nt(cap.total) }) }), el('strong', { class: 'num', text: t('todayGot', { v: nt(e.total) }) })]),
+      el('div', { class: 'rank-today-row' }, ['words', 'game', 'mission'].map(k => el('div', { class: 'rank-today-part' }, [el('small', { text: t(`earn_${k}`) }), bar(e[k], cap[k], 'light'), el('small', { class: 'num', text: `${nt(e[k])} / ${nt(cap[k])}` })]))),
+      e.total >= cap.total ? el('p', { class: 'rank-full', text: t('todayFull') }) : null
     ])
   ]);
   const claimedN = ms.filter(m => m.claimed).length;
@@ -690,14 +725,74 @@ function renderHome() {
     box,
     rankCard,
     dailyCard,
+    section(t('shopTitle'), shopCard(), { sub: t('shopSub') }),
+    challengeCard(),
     wordOfDayCard(),
     section(t('nextSteps'), stepRow),
-    section(t('missions'), missionList, { sub: t('missionsSub', { v: nt(CAPS.mission) }) }),
+    section(t('missions'), missionList, { sub: t('missionsSub', { v: nt(cap.mission) }) }),
     section(t('weekly'), weeklyCard(), { sub: t('weeklySub') }),
     section(t('badgesTitle'), badgesCard(st), { sub: t('allTime', { v: nt(earnedAllTime(state.wallet)) }) }),
     section(t('ranks'), ranksCard(r.index)),
-    section(t('growTitle'), el('div', { class: 'q-card pad grow' }, [el('p', { text: t('growText') }), el('div', { class: 'two-btn' }, [el('button', { class: 'q-btn', type: 'button', text: t('openHelp'), onclick: () => openHelp('vocab', 'rich') }), el('button', { class: 'q-btn primary', type: 'button', text: t('openSecurities'), onclick: () => q.go('stock') })])]))
+    el('div', { class: 'spend-line' }, [
+      el('small', { class: 'muted', text: t('spendLine') }),
+      el('button', { class: 'link-btn', type: 'button', text: t('spendPlay'), onclick: () => q.go('odds') }),
+      el('button', { class: 'link-btn', type: 'button', text: t('spendStock'), onclick: () => q.go('stock') })
+    ])
   );
+}
+
+// ---- The shop: streak protection, the ×2 boost, and Quadra Plus ------------------------------
+
+async function buy(item) {
+  const price = SHOP[item].price;
+  if (poolBalance(withOutbox()) < price) return toast(t('shopFunds'));
+  const ok = await ask({ lang: locale, icon: item === 'freeze' ? '🛡️' : '⚡', title: t(`shop_${item}`), body: t(`shopAsk_${item}`, { v: nt(price) }), ok: t('shopBuy', { v: nt(price) }), cancel: t('shopCancel') });
+  if (!ok) return;
+  payEntry(shopEntry(item, randomId(), Date.now(), t(`shop_${item}`)));
+  toast(t(`shopDone_${item}`), 'good');
+  refresh();
+}
+function boostLeft() {
+  const end = boostUntil(withOutbox());
+  return end ? Math.max(1, Math.ceil((end - Date.now()) / 60_000)) : 0;
+}
+// Under the word cap: the boost running, or one to buy.
+function boostLine() {
+  const left = boostLeft();
+  return left
+    ? el('p', { class: 'boost-on', text: t('boostOn', { n: left }) })
+    : el('button', { class: 'boost-buy', type: 'button', onclick: () => buy('boost') }, [el('span', { text: t('boostPitch') }), el('strong', { class: 'num', text: nt(SHOP.boost.price) })]);
+}
+function shopCard() {
+  const f = freezes(withOutbox());
+  const left = boostLeft();
+  const member = plusMember(state.wallet);
+  const row = (icon, title, sub, action) => el('div', { class: 'shop-row' }, [el('span', { class: 'shop-icon', 'aria-hidden': 'true', text: icon }), el('div', { class: 'shop-text' }, [el('strong', { text: title }), el('small', { text: sub })]), action]);
+  const price = (item, disabled = false) => el('button', { class: 'q-btn small', type: 'button', disabled, onclick: () => buy(item) }, [el('span', { class: 'num', text: nt(SHOP[item].price) })]);
+  return el('div', { class: 'q-card list shop' }, [
+    row('🛡️', t('shop_freeze'), f.held ? t('freezeHeld', { n: f.held }) : t('freezeSub'), f.held >= SHOP.freeze.hold ? el('span', { class: 'claimed', text: t('freezeFull') }) : price('freeze')),
+    row('⚡', t('shop_boost'), left ? t('boostOn', { n: left }) : t('boostSub', { v: nt(SHOP.boost.capBonus) }), price('boost')),
+    el('div', { class: 'shop-plus' }, [plusCard(q, { compact: true }), el('small', { class: 'muted', text: member ? t('plusRewardsOn', { v: nt(SHOP.plus.wordsCap) }) : t('plusRewards', { v: nt(SHOP.plus.wordsCap) }) })])
+  ]);
+}
+// Game challenges: a line into the games tab, with your record once you've played one.
+function challengeCard() {
+  const rec = challengeRecord(withOutbox());
+  return el('button', { class: 'q-card pad challenge-card', type: 'button', onclick: () => showTab('games') }, [
+    el('span', { class: 'challenge-icon', 'aria-hidden': 'true', text: '🏁' }),
+    el('span', { class: 'daily-text' }, [el('small', { text: t('chTitle') }), el('strong', { text: t('chPitch') }), el('small', { class: 'muted', text: rec.n ? t('chRecord', { n: rec.n, w: rec.wins, v: nt(rec.won) }) : t('chHow') })]),
+    el('span', { class: 'daily-go', text: '›' })
+  ]);
+}
+
+// Protection cards used by themselves: the days missed since the streak's last day.
+function useFreezes() {
+  if (!state.wallet || !state.loaded) return;
+  const due = freezeDue(withOutbox()).filter(e => !outbox.read().some(x => x.id === e.id));
+  if (!due.length) return;
+  outbox.write([...outbox.read(), ...due]);
+  sync();
+  toast(t('freezeUsed', { n: due.length, streak: streakDays(withOutbox()) }), 'good');
 }
 // The word of the day: the same for everyone today; tap to hear it.
 function wordOfDayCard() {
@@ -850,6 +945,22 @@ const gameContext = {
   locale,
   nt,
   room: () => room('game'),
+  cap: () => caps().game,
+  bars,
+  raiseBar,
+  // A challenge's stake, taken now (null if it's turned down or can't be paid).
+  async stake(game, stake, target) {
+    if (poolBalance(withOutbox()) < stake) return (toast(t('shopFunds')), null);
+    const name = gameInfo(game, t, locale).name;
+    const ok = await ask({ lang: locale, icon: '🏁', title: t('chAskTitle', { game: name }), body: t('chAsk', { target, v: nt(stake), prize: nt(challengePrize(stake)) }), ok: t('chAskOk', { v: nt(stake) }), cancel: t('shopCancel') });
+    if (!ok) return null;
+    const key = randomId();
+    payEntry(stakeEntry(key, stake, game, Date.now(), t('chNote', { game: name })));
+    return key;
+  },
+  prize(key, stake, game) {
+    payEntry(prizeEntry(key, stake, Date.now(), t('chNote', { game: gameInfo(game, t, locale).name })));
+  },
   words: () => {
     const seen = (state.words || []).filter(w => state.progress[w.key]?.b);
     const pool = seen.length >= 30 ? seen : (state.words || []).filter(w => state.levels.includes(w.level));
@@ -895,6 +1006,7 @@ renderTabs();
 $('account-slot').append(accountButton(q));
 q.on('wallet', w => {
   state.wallet = w;
+  useFreezes();
   quietRefresh();
   checkNotices();
 });
@@ -959,6 +1071,7 @@ async function boot() {
   } catch {}
   state.loaded = true;
   $('loading').hidden = true;
+  useFreezes();
   checkNotices();
   const hash = location.hash.slice(1);
   const help = parseHelpHash(hash);

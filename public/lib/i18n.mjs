@@ -13,7 +13,7 @@ export const STRINGS = {
     missions: '每日任務', missionsSub: '完成後領取，一天最多 {v}。', claim: '領取 {v}', claimed: '已領取', go: '去做', claimedToast: '已領取 {v}',
     mission_words20: '練習 20 題單字', mission_master3: '精熟 3 個單字', mission_game1: '玩完一局小遊戲', mission_invest: '在 Securities 交易或加入觀察', mission_match: '在 Fixtures 看一場比賽或追蹤球隊', mission_tour: '今天打開 Securities、Fixtures 和 Rewards', mission_orbit: '在 Orbit Class 看今天的課表',
     todayEarned: '今天賺的錢', allTime: '在 Rewards 總共賺了 {v}', earn_words: '單字', earn_game: '遊戲', earn_mission: '任務',
-    ranks: '財富等級', ranksSee: '看全部等級', missionsDone: '已完成 {n} 項', badgesSee: '看徽章說明', growTitle: '怎麼變有錢', growText: '每天在這裡靠努力賺一點，再放到 Securities 長期投資，讓時間和複利幫你。Play 的運彩和彩券平均都會輸錢，只適合當娛樂。',
+    ranks: '財富等級', ranksSee: '看全部等級', missionsDone: '已完成 {n} 項', badgesSee: '看徽章說明',
     openHelp: '看說明', openSecurities: '打開 Securities', openApp: '打開 {app}',
     // Words
     wordsTitle: '背單字', wordsSub: '第 {levels} 級 · {due} 個該複習', pickLevel: '先選要練習的級別', todayWords: '今天單字', roundSize: '一回', wordsN: '{n} 個字', voiceTitle: '單字發音', voiceAuto: '真人錄音（Microsoft Jenny）', voiceHint: '每個單字都有錄音；也可以改用這台裝置的語音。', startRound: '開始這一輪',
@@ -65,8 +65,21 @@ export const STRINGS = {
     badge_allGames: '全能玩家', badgeHow_allGames: '八款經典遊戲都玩過', badge_games20: '遊戲大師', badgeHow_games20: '玩過 20 種不同的遊戲',
     badge_missions50: '任務達人', badgeHow_missions50: '領過 50 次任務獎金',
     badge_earned10k: '萬元戶', badgeHow_earned10k: '在 Rewards 累計賺 NT$10,000',
-    badge_wealthy: '富裕', badgeHow_wealthy: 'Quadra 餘額達到 NT$1,000,000',
-    noticeReady: '🎁 {v} 可以領了', noticeStreak: '🔥 連續 {n} 天快斷了', noticeStreakSoon: '🔥 今天還沒練習', noticeStreakBody: '背幾個字或玩一局就能保住'
+    badge_wealthy: '富裕', badgeHow_wealthy: 'Quadra 餘額達到 NT$500,000',
+    noticeReady: '🎁 {v} 可以領了', noticeStreak: '🔥 連續 {n} 天快斷了', noticeStreakSoon: '🔥 今天還沒練習', noticeStreakBody: '背幾個字或玩一局就能保住',
+    todayCan: '今日可賺 {v}', todayGot: '已賺 {v}', todayFull: '今天的努力獎勵都領到了。明天再來；手上的錢可以到 Play 看精選串關，或放進 Securities。',
+    shopTitle: '加值', shopSub: '讓連續紀錄不斷、讓練習更值得',
+    shop_freeze: '連續紀錄保護卡', shop_boost: '單字加倍 30 分鐘',
+    freezeSub: '漏掉一天也不斷，自動使用', freezeHeld: '持有 {n} 張 · 漏掉一天時自動使用', freezeFull: '已滿 3 張',
+    boostSub: '單字獎勵 ×2，今天上限再加 {v}', boostOn: '⚡ 加倍中 · 還有 {n} 分鐘', boostPitch: '⚡ 單字獎勵 ×2，30 分鐘',
+    shopAsk_freeze: '從 Quadra 餘額扣 {v}。哪天沒練習，它會自動保住你的連續紀錄（最多持有 3 張）。', shopAsk_boost: '從 Quadra 餘額扣 {v}。接下來 30 分鐘每題單字獎勵加倍，今天的單字上限也提高。',
+    shopBuy: '購買 {v}', shopCancel: '先不要', shopDone_freeze: '🛡️ 保護卡已放進你的帳戶', shopDone_boost: '⚡ 加倍開始，30 分鐘', shopFunds: 'Quadra 餘額不足',
+    plusRewards: 'Plus 會員在 Rewards：每月一張保護卡、單字上限 +{v}', plusRewardsOn: 'Plus 會員權益：每月一張保護卡、單字上限 +{v}',
+    freezeUsed: '🛡️ 用了 {n} 張保護卡，連續 {streak} 天保住了',
+    chTitle: '遊戲挑戰賽', chPitch: '押 NT$50–500，贏自己拿 1.8 倍', chHow: '每款遊戲玩滿 5 局後開放，目標是你最近的中位分數', chRecord: '挑戰 {n} 次 · 贏 {w} 次 · 共贏 {v}',
+    spendLine: '錢拿去用：', spendPlay: 'Play 精選串關 ›', spendStock: 'Securities ›',
+    chWarm: '再玩 {n} 局就能開挑戰賽', chTarget: '🏁 挑戰：超過 {target} 分', chWin: '押 NT$，贏拿 {x} 倍', chOn: '挑戰中：超過 {target} 分贏 {v}', chWon: '🏁 挑戰成功！{score} 分超過 {target}，贏得 {v}', chLost: '🏁 {score} 分，差一點（目標 {target}）。再挑戰一次？',
+    chAskTitle: '{game} 挑戰賽', chAsk: '押 {v}，這局超過 {target} 分就拿 {prize}。離開或重來這局都算結束。', chAskOk: '押 {v} 開始', chNote: '挑戰 {game}'
   },
   en: {
     gamesSearch: 'Search games', howToPlay: 'How to play', howGotIt: 'Got it', cat_all: 'All', cat_fav: '★ Favourites', cat_words: 'Words', cat_logic: 'Logic', cat_puzzle: 'Puzzles', cat_action: 'Action', cat_reflex: 'Reflex', cat_board: 'Board', cat_cards: 'Cards', cat_brain: 'Memory', cat_numbers: 'Numbers', longTag: 'Long', gamesRecent: 'Played lately', gamesNew: 'New games', gamesFavs: 'Favourites', gamesSeeAll: 'All {n}', newTag: 'New', gamesNoMatch: 'No game matches.', gamesNoFav: 'Tap ☆ on a game’s card to add it here.', gamesCount: '{n} games', gameBack: 'All games', favAdd: 'Add to favourites', favRemove: 'Remove from favourites', gameLoading: 'Loading…', gameLoadFail: 'Couldn’t load it: check the connection and try again.', gamesToday: '{v} / {cap}', gamesAlso: 'Play next',
@@ -79,7 +92,7 @@ export const STRINGS = {
     missions: 'Daily missions', missionsSub: 'Claim each when done, {v} a day at most.', claim: 'Claim {v}', claimed: 'Claimed', go: 'Go', claimedToast: 'Claimed {v}',
     mission_words20: 'Answer 20 word questions', mission_master3: 'Master 3 words', mission_game1: 'Finish a mini game', mission_invest: 'Trade or watch in Securities', mission_match: 'Open a match or follow a team in Fixtures', mission_tour: 'Open Securities, Fixtures and Rewards today', mission_orbit: 'Check today’s classes in Orbit Class',
     todayEarned: 'Earned today', allTime: '{v} earned in Rewards so far', earn_words: 'Words', earn_game: 'Games', earn_mission: 'Missions',
-    ranks: 'Wealth ranks', ranksSee: 'See every rank', missionsDone: '{n} done', badgesSee: 'What each badge takes', growTitle: 'How to get rich', growText: 'Earn a little here every day, then invest it in Securities for the long run and let time and compounding work. Play’s bets and lottery lose on average: fun, not a plan.',
+    ranks: 'Wealth ranks', ranksSee: 'See every rank', missionsDone: '{n} done', badgesSee: 'What each badge takes',
     openHelp: 'Read more', openSecurities: 'Open Securities', openApp: 'Open {app}',
     wordsTitle: 'Words', wordsSub: 'Levels {levels} · {due} due', pickLevel: 'Pick the levels to practise', todayWords: 'Words today', roundSize: 'Round', wordsN: '{n} words', voiceTitle: 'Word voice', voiceAuto: 'Recordings (Microsoft Jenny)', voiceHint: 'Recordings play for every word; or read them in one of this device’s voices.', startRound: 'Start the round',
     levels: 'Levels', levelsSub: 'The high-school English reference list, about 1,000 words a level. Pick any.', level: 'Level {n}', dueN: '{n} due',
@@ -129,8 +142,21 @@ export const STRINGS = {
     badge_allGames: 'All-rounder', badgeHow_allGames: 'Play all eight classic games', badge_games20: 'Game master', badgeHow_games20: 'Play 20 different games',
     badge_missions50: 'On a mission', badgeHow_missions50: 'Claim 50 mission rewards',
     badge_earned10k: 'Ten grand', badgeHow_earned10k: 'Earn NT$10,000 in Rewards',
-    badge_wealthy: 'Wealthy', badgeHow_wealthy: 'Reach a Quadra balance of NT$1,000,000',
-    noticeReady: '🎁 {v} ready to claim', noticeStreak: '🔥 Your {n}-day streak ends tonight', noticeStreakSoon: '🔥 Nothing played yet today', noticeStreakBody: 'A few words or one game keeps it going'
+    badge_wealthy: 'Wealthy', badgeHow_wealthy: 'Reach a Quadra balance of NT$500,000',
+    noticeReady: '🎁 {v} ready to claim', noticeStreak: '🔥 Your {n}-day streak ends tonight', noticeStreakSoon: '🔥 Nothing played yet today', noticeStreakBody: 'A few words or one game keeps it going',
+    todayCan: 'Up to {v} today', todayGot: '{v} earned', todayFull: 'Today’s effort pay is all in. Back tomorrow; meanwhile, Play’s featured parlays or Securities.',
+    shopTitle: 'Extras', shopSub: 'Keep the streak alive, make practice pay more',
+    shop_freeze: 'Streak protection', shop_boost: 'Word pay ×2 for 30 minutes',
+    freezeSub: 'A missed day won’t break it; used by itself', freezeHeld: '{n} held · used by itself on a missed day', freezeFull: '3 held (the most)',
+    boostSub: 'Word pay ×2, and {v} more cap today', boostOn: '⚡ Boosted · {n} min left', boostPitch: '⚡ Word pay ×2 for 30 minutes',
+    shopAsk_freeze: '{v} from your Quadra balance. On a day you don’t practise, it keeps your streak going by itself (hold up to 3).', shopAsk_boost: '{v} from your Quadra balance. Every word pays double for the next 30 minutes, and today’s word cap goes up.',
+    shopBuy: 'Buy · {v}', shopCancel: 'Not now', shopDone_freeze: '🛡️ Protection added to your account', shopDone_boost: '⚡ Boost on for 30 minutes', shopFunds: 'Not enough in your Quadra balance',
+    plusRewards: 'Plus in Rewards: a streak protection every month, word cap +{v}', plusRewardsOn: 'Your Plus perks: a streak protection every month, word cap +{v}',
+    freezeUsed: '🛡️ {n} protection used: your {streak}-day streak goes on',
+    chTitle: 'Game challenges', chPitch: 'Stake NT$50–500, beat yourself for 1.8×', chHow: 'Open after 5 rounds of a game; the target is your recent median', chRecord: '{n} played · {w} won · {v} won in all',
+    spendLine: 'Put it to use:', spendPlay: 'Play’s featured parlays ›', spendStock: 'Securities ›',
+    chWarm: '{n} more rounds to open challenges', chTarget: '🏁 Challenge: beat {target}', chWin: 'Stake NT$, win {x}×', chOn: 'Challenge on: beat {target} to win {v}', chWon: '🏁 Challenge won! {score} beat {target}: {v} is yours', chLost: '🏁 {score}, just short of {target}. Another go?',
+    chAskTitle: '{game} challenge', chAsk: 'Stake {v}: beat {target} this round and take {prize}. Leaving or restarting the round ends it.', chAskOk: 'Stake {v}', chNote: '{game} challenge'
   }
 };
 
