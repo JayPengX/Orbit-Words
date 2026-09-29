@@ -488,9 +488,11 @@ h1 { font-size: 17px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.
 .arc-canvas { width: 100%; max-width: 420px; height: auto; border-radius: 18px; display: block; touch-action: none; user-select: none; -webkit-user-select: none; }
 .arc-start { margin-top: 4px; }
 .arcade.over .arc-stage, .arcade.over .arc-col > :not(.arc-canvas) { pointer-events: none; }
-.arc-pad { display: grid; grid-template-columns: repeat(3, 58px); grid-template-rows: repeat(3, 50px); gap: 6px; grid-template-areas: '. up .' 'left action right' '. down .'; }
-.arc-pad-btn { border: 0; border-radius: 14px; background: var(--q-sunken); color: var(--q-text); font-size: 18px; touch-action: pan-x pan-y; user-select: none; -webkit-user-select: none; }
-.arc-pad-btn:active { background: var(--accent-wash); }
+.arc-pad { display: grid; grid-template-columns: repeat(3, 72px); grid-template-rows: repeat(3, 56px); gap: 7px; grid-template-areas: '. up .' 'left action right' '. down .'; }
+.arc-pad-btn { display: grid; place-items: center; border: 1px solid var(--q-border, rgba(127, 127, 127, 0.25)); border-radius: 18px; background: var(--q-surface, var(--q-sunken)); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.12); color: var(--q-text); font-size: 16px; font-weight: 700; touch-action: none; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+.arc-pad-btn svg { width: 32px; height: 32px; }
+.arc-pad-btn:active { background: var(--accent-wash); transform: translateY(1px); box-shadow: none; }
+@media (max-height: 700px) { .arc-pad { grid-template-columns: repeat(3, 66px); grid-template-rows: repeat(3, 50px); } }
 .arc-pad-btn.up { grid-area: up; } .arc-pad-btn.down { grid-area: down; } .arc-pad-btn.left { grid-area: left; } .arc-pad-btn.right { grid-area: right; } .arc-pad-btn.action { grid-area: action; }
 .arc-holes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: min(360px, 100%); }
 .arc-hole { aspect-ratio: 1; border: 0; border-radius: 50%; background: radial-gradient(circle at 50% 70%, #3f2a14, #6b4423 70%); font-size: 44px; box-shadow: inset 0 -8px 0 rgba(0, 0, 0, 0.25); touch-action: pan-x pan-y; transition: transform 0.1s; }

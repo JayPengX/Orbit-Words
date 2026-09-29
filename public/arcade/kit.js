@@ -28,8 +28,21 @@ export function startButton(api, text, onStart) {
 
 // On-screen arrows (for phones): fn('up' | 'down' | 'left' | 'right').
 export function dpad(api, fn, { action = null } = {}) {
-  const btn = (dir, label) => api.el('button', { class: `arc-pad-btn ${dir}`, type: 'button', 'aria-label': dir, text: label, onpointerdown: e => (e.preventDefault(), fn(dir)) });
-  return api.el('div', { class: 'arc-pad' }, [btn('up', '▲'), btn('left', '◀'), action ? api.el('button', { class: 'arc-pad-btn action', type: 'button', text: action.label, onpointerdown: e => (e.preventDefault(), action.fn()) }) : api.el('span'), btn('right', '▶'), btn('down', '▼')]);
+  // Thick chevrons drawn as SVG (the ▲ ◀ characters render hairline-thin on iPhones).
+  const ROT = { up: 0, right: 90, down: 180, left: 270 };
+  const arrow = dir => {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.innerHTML = `<path d="M5 15.5 12 8.5l7 7" transform="rotate(${ROT[dir]} 12 12)" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>`;
+    return svg;
+  };
+  const btn = dir => {
+    const b = api.el('button', { class: `arc-pad-btn ${dir}`, type: 'button', 'aria-label': dir, onpointerdown: e => (e.preventDefault(), fn(dir)) });
+    b.append(arrow(dir));
+    return b;
+  };
+  return api.el('div', { class: 'arc-pad' }, [btn('up'), btn('left'), action ? api.el('button', { class: 'arc-pad-btn action', type: 'button', text: action.label, onpointerdown: e => (e.preventDefault(), action.fn()) }) : api.el('span'), btn('right'), btn('down')]);
 }
 
 // A canvas game: a loop at the screen's frame rate once started (a tap, or
