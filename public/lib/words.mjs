@@ -15,6 +15,32 @@
 // building it from letters, and mastered ones by dictation (hear it, spell it).
 
 export const LEVELS = [1, 2, 3, 4, 5, 6];
+// The word packs sold in the shop (data/packs.json): themed lists that share
+// progress with the main list's words and add the rest, their level the
+// pack's id.
+export const PACK_IDS = ['toeic', 'ielts', 'biz'];
+// How hard a level is (a pack counts as level 5).
+export const levelRank = level => (typeof level === 'number' ? level : 5);
+// A word is in the chosen levels by its level, or by a pack it's in.
+export const inLevels = (w, levels) => levels.includes(w.level) || Boolean(w.packs?.some(p => levels.includes(p)));
+// The main list with the packs added: { pack: [[word, pos, zh], …] }.
+export function addPacks(words, packs) {
+  const out = words.map(w => ({ ...w }));
+  const byKey = new Map(out.map(w => [w.key, w]));
+  for (const id of PACK_IDS) {
+    for (const [word, pos, zh] of packs?.[id] || []) {
+      const key = keyOf(word);
+      const had = byKey.get(key);
+      if (had) had.packs = [...new Set([...(had.packs || []), id])];
+      else {
+        const w = { i: out.length, word, key, pos, level: id, zh, ph: '', packs: [id] };
+        out.push(w);
+        byKey.set(key, w);
+      }
+    }
+  }
+  return out;
+}
 export const BOX_DAYS = [0, 0, 1, 2, 5, 14];
 // A new word right the first time: already known.
 export const KNOWN_BOX = 3;
@@ -73,7 +99,7 @@ export function smartType(p, random = Math.random, word = null) {
   const b = p?.b || 0;
   const long = word ? /\s/.test(word.word) || word.word.length > 11 : false;
   // New: by meaning; a harder word (level 4 up) the other way round.
-  if (b === 0) return word?.level >= 4 && random() < 0.6 ? 'word' : 'meaning';
+  if (b === 0) return word && levelRank(word.level) >= 4 && random() < 0.6 ? 'word' : 'meaning';
   if (b === 1) return p?.n > 1 && random() < 0.5 ? 'word' : 'meaning';
   if (b === 2) return random() < 0.6 ? 'word' : 'listen';
   if (b === 3) return long ? 'listen' : random() < 0.6 ? 'letters' : 'listen';
@@ -84,13 +110,13 @@ export function smartType(p, random = Math.random, word = null) {
 // new words in list order, about 60% review when there's enough of it.
 export function pickRound(words, progress, { levels = LEVELS, size = 10, now = Date.now(), random = Math.random, newShare = 0.4 } = {}) {
   const today = dayNum(now);
-  const inLevels = words.filter(w => levels.includes(w.level));
-  const due = inLevels
+  const chosen = words.filter(w => inLevels(w, levels));
+  const due = chosen
     .filter(w => progress[w.key]?.b && progress[w.key].d <= today)
     .sort((a, b) => progress[a.key].d - progress[b.key].d || progress[a.key].b - progress[b.key].b || random() - 0.5);
   // New words from every chosen level alike, the hardest first (a fixed mixed
   // order within a level, not alphabetical), a little shuffled within the next few.
-  const byLevel = [...new Set(inLevels.map(w => w.level))].sort((a, b) => b - a).map(l => inLevels.filter(w => w.level === l && !progress[w.key]?.b).sort((a, b) => hash(a.key) - hash(b.key)));
+  const byLevel = [...new Set(chosen.map(w => w.level))].sort((a, b) => levelRank(b) - levelRank(a)).map(l => chosen.filter(w => w.level === l && !progress[w.key]?.b).sort((a, b) => hash(a.key) - hash(b.key)));
   const fresh = [];
   for (let i = 0; fresh.length < 60 && byLevel.some(list => i < list.length); i++) for (const list of byLevel) if (i < list.length) fresh.push(list[i]);
   const window = fresh.slice(0, 60).sort(() => random() - 0.5);
@@ -192,10 +218,10 @@ export function payFor({ correct, type, firstMastery }, rates) {
 export function stats(words, progress, now = Date.now()) {
   const today = dayNum(now);
   const out = { all: { total: 0, seen: 0, learning: 0, mastered: 0, due: 0 } };
-  for (const l of LEVELS) out[l] = { total: 0, seen: 0, learning: 0, mastered: 0, due: 0 };
+  for (const l of [...LEVELS, ...PACK_IDS]) out[l] = { total: 0, seen: 0, learning: 0, mastered: 0, due: 0 };
   for (const w of words) {
     const p = progress[w.key];
-    for (const s of [out[w.level], out.all]) {
+    for (const s of new Set([out[w.level], ...(w.packs || []).map(id => out[id]), out.all])) {
       s.total++;
       if (p?.b) {
         s.seen++;

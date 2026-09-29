@@ -6,13 +6,15 @@
 //              goes on ('vocab:fz:<day>' marks the day it covered)
 //   boost      ×2 word-practice pay for 30 minutes, and a higher word cap
 //              that day
-//   Plus       a protection card every Plus month, a higher word cap
+//   pack       a word pack, bought once ('vocab:shop:pack:<id>', so never twice)
+//   Plus       a protection card every Plus month, a higher word cap, packs at half price
 import { ECONOMY, taipeiDay, plusMonths, plusMember } from './quadra.mjs';
 
 export const SHOP = {
   freeze: { price: 300, hold: 3 },
   boost: { price: 150, minutes: 30, capBonus: 200 },
-  plus: { wordsCap: 50, freezesAMonth: 1 }
+  plus: { wordsCap: 50, freezesAMonth: 1, packShare: 0.5 },
+  packs: { toeic: 990, ielts: 1_490, biz: 1_990 }
 };
 const MIN = 60_000;
 const mine = (wallet, prefix) => (wallet?.entries || []).filter(e => e.app === 'vocab' && typeof e.id === 'string' && e.id.startsWith(prefix));
@@ -49,3 +51,11 @@ export function capsFor(wallet, now = Date.now()) {
   const words = ECONOMY.vocab.dailyCap + (plusMember(wallet, now) ? SHOP.plus.wordsCap : 0) + (boostedToday(wallet, now) ? SHOP.boost.capBonus : 0);
   return { words, game: ECONOMY.gamesDailyCap, mission: ECONOMY.missionsDailyCap, total: words + ECONOMY.gamesDailyCap + ECONOMY.missionsDailyCap };
 }
+
+// ---- Word packs --------------------------------------------------------------------------
+export const packId = id => `vocab:shop:pack:${id}`;
+export const packOwned = (wallet, id) => (wallet?.entries || []).some(e => e.id === packId(id) && e.app === 'vocab');
+export const ownedPacks = wallet => Object.keys(SHOP.packs).filter(id => packOwned(wallet, id));
+// Its price today: half for Plus members.
+export const packPrice = (wallet, id, now = Date.now()) => Math.round(SHOP.packs[id] * (plusMember(wallet, now) ? SHOP.plus.packShare : 1));
+export const packEntry = (wallet, id, now = Date.now(), note = id) => ({ id: packId(id), t: now, app: 'vocab', kind: 'shop', amount: -packPrice(wallet, id, now), note });

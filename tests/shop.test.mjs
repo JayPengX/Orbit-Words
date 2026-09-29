@@ -42,3 +42,36 @@ test('the ×2 boost: 30 minutes, stacked, and a higher word cap that day', () =>
   const member = { entries: [{ id: `eco:plus:${taipeiDay(now).slice(0, 7)}`, t: now, app: 'eco', kind: 'plus', amount: -290 }] };
   assert.equal(capsFor(member, now).words, ECONOMY.vocab.dailyCap + SHOP.plus.wordsCap);
 });
+
+test('word packs: bought once, half price for Plus, and they join the word list', async () => {
+  const { packEntry, packOwned, ownedPacks, packPrice } = await import('../public/lib/shop.mjs');
+  const { loadWords, addPacks, pickRound, stats, inLevels, PACK_IDS } = await import('../public/lib/words.mjs');
+  const w = { entries: [] };
+  assert.equal(packPrice(w, 'toeic', now), SHOP.packs.toeic);
+  const member = { entries: [{ id: `eco:plus:${taipeiDay(now).slice(0, 7)}`, t: now, app: 'eco', kind: 'plus', amount: -290 }] };
+  assert.equal(packPrice(member, 'biz', now), SHOP.packs.biz / 2);
+  const bought = { entries: [packEntry(w, 'toeic', now)] };
+  assert.ok(packOwned(bought, 'toeic') && !packOwned(bought, 'ielts'));
+  assert.deepEqual(ownedPacks(bought), ['toeic']);
+  assert.equal(packEntry(w, 'toeic', now).id, packEntry(w, 'toeic', now + 1).id);
+  const main = loadWords([['budget', 'n.', 3, 'n. 預算', ''], ['apple', 'n.', 1, 'n. 蘋果', '']]);
+  const words = addPacks(main, { toeic: [['budget', 'n.', '預算'], ['itinerary', 'n.', '行程表']] });
+  assert.equal(words.length, 3);
+  assert.deepEqual(words.find(x => x.key === 'budget').packs, ['toeic']);
+  assert.equal(words.find(x => x.key === 'itinerary').level, 'toeic');
+  assert.ok(inLevels(words[0], ['toeic']) && !inLevels(words[1], ['toeic']));
+  const round = pickRound(words, {}, { levels: ['toeic'], size: 10, now });
+  assert.deepEqual(round.map(x => x.key).sort(), ['budget', 'itinerary']);
+  const st = stats(words, {}, now);
+  assert.equal(st.toeic.total, 2);
+  assert.equal(st.all.total, 3);
+  assert.equal(st[3].total, 1);
+  assert.deepEqual(Object.keys(SHOP.packs), PACK_IDS);
+  // Every pack word has a meaning, and the packs are a good size.
+  const fs = await import('node:fs');
+  const packs = JSON.parse(fs.readFileSync(new URL('../public/data/packs.json', import.meta.url)));
+  for (const id of PACK_IDS) {
+    assert.ok(packs[id].length >= 120, id);
+    for (const r of packs[id]) assert.ok(r.length === 3 && r[0] && r[1] && r[2], JSON.stringify(r));
+  }
+});

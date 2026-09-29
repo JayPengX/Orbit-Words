@@ -77,6 +77,10 @@ export const STRINGS = {
     plusRewards: 'Plus 會員在 Rewards：每月一張保護卡、單字上限 +{v}', plusRewardsOn: 'Plus 會員權益：每月一張保護卡、單字上限 +{v}',
     freezeUsed: '🛡️ 用了 {n} 張保護卡，連續 {streak} 天保住了',
     spendLine: '錢拿去用：', spendPlay: 'Play 精選串關 ›', spendStock: 'Securities ›',
+    packsTitle: '單字包', packsSub: '主題單字，一次購買永久使用；Plus 會員半價',
+    pack_toeic: '多益 TOEIC', pack_ielts: '雅思 IELTS', pack_biz: '商務英文',
+    packHint_toeic: '辦公室、商務往來、旅行', packHint_ielts: '學術寫作、圖表、社會議題', packHint_biz: '財務、管理、行銷、談判',
+    packWords: '{n} 個字，真人發音', packOnce: '一次買斷', packAsk: '從 Quadra 餘額扣 {v}，{n} 個字永久加入你的單字。和主單字表重複的字共用進度，答對一樣有獎勵。', packDone: '📘 {name} 已加入單字'
   },
   en: {
     gamesSearch: 'Search games', howToPlay: 'How to play', howGotIt: 'Got it', cat_all: 'All', cat_fav: '★ Favourites', cat_words: 'Words', cat_logic: 'Logic', cat_puzzle: 'Puzzles', cat_action: 'Action', cat_reflex: 'Reflex', cat_board: 'Board', cat_cards: 'Cards', cat_brain: 'Memory', cat_numbers: 'Numbers', longTag: 'Long', gamesRecent: 'Played lately', gamesNew: 'New games', gamesFavs: 'Favourites', gamesSeeAll: 'All {n}', newTag: 'New', gamesNoMatch: 'No game matches.', gamesNoFav: 'Tap ☆ on a game’s card to add it here.', gamesCount: '{n} games', gameBack: 'All games', favAdd: 'Add to favourites', favRemove: 'Remove from favourites', gameLoading: 'Loading…', gameLoadFail: 'Couldn’t load it: check the connection and try again.', gamesToday: '{v} / {cap}', gamesAlso: 'Play next',
@@ -151,6 +155,10 @@ export const STRINGS = {
     plusRewards: 'Plus in Rewards: a streak protection every month, word cap +{v}', plusRewardsOn: 'Your Plus perks: a streak protection every month, word cap +{v}',
     freezeUsed: '🛡️ {n} protection used: your {streak}-day streak goes on',
     spendLine: 'Put it to use:', spendPlay: 'Play’s featured parlays ›', spendStock: 'Securities ›',
+    packsTitle: 'Word packs', packsSub: 'Themed words, bought once and yours to keep; half price with Plus',
+    pack_toeic: 'TOEIC', pack_ielts: 'IELTS', pack_biz: 'Business English',
+    packHint_toeic: 'The office, business and travel', packHint_ielts: 'Academic writing, charts, society', packHint_biz: 'Finance, management, marketing, negotiation',
+    packWords: '{n} words, recorded', packOnce: 'Yours to keep', packAsk: '{v} from your Quadra balance: {n} words join your list for good. Words the main list shares keep one progress, and right answers pay as usual.', packDone: '📘 {name} added to your words'
   }
 };
 export function detectLocale() {

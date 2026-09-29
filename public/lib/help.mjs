@@ -35,7 +35,7 @@ export const HELP = {
       ]],
       ['plus', 'Quadra Plus 會員', [
         '一個會員、所有 Quadra App：月繳 NT$290（第一次加入的那個月免費），或年繳 NT$2,900，等於每月 NT$242、省下兩個月。從 Quadra 餘額扣款，在帳戶裡加入或管理；會員的帳戶按鈕有金色星星。',
-        'Securities：手續費 5 折、換匯點差減半、融資利率少 1%、台幣活存 2%（一般 0.8%）。Play：串關加成加倍、提前兌現只扣 2%（一般 5%）。Rewards：每月一張連續紀錄保護卡、單字每日上限多 NT$50。',
+        'Securities：手續費 5 折、換匯點差減半、融資利率少 1%、台幣活存 2%（一般 0.8%）。Play：串關加成加倍、提前兌現只扣 2%（一般 5%）。Rewards：每月一張連續紀錄保護卡、單字每日上限多 NT$50、單字包半價。',
         '月繳隨時可以取消，已付的月份照常享有權益；年繳到期自動續約，也可以在「管理會員」取消續約。'
       ]],
       ['money', '錢怎麼算', [
@@ -64,7 +64,7 @@ export const HELP = {
       ]],
       ['plus', 'Quadra Plus', [
         'One membership for every Quadra app: NT$290 a month (the first month you ever join is free), or NT$2,900 a year, NT$242 a month with two months free. It comes from the Quadra balance; join or manage it in the account, and a member’s account button has a gold star.',
-        'Securities: half commission, half the FX spread, loans 1 point cheaper, 2% on NT$ cash (0.8% otherwise). Play: the parlay boost doubled, and cash out keeps 2% instead of 5%. Rewards: a streak protection every month, and NT$50 more word pay a day.',
+        'Securities: half commission, half the FX spread, loans 1 point cheaper, 2% on NT$ cash (0.8% otherwise). Play: the parlay boost doubled, and cash out keeps 2% instead of 5%. Rewards: a streak protection every month, NT$50 more word pay a day, and word packs at half price.',
         'Monthly stops whenever you like, keeping the perks for months paid; yearly renews each year, and renewal can be turned off under Manage membership.'
       ]],
       ['money', 'Money', [
@@ -261,7 +261,7 @@ export const HELP = {
       ]],
       ['tabs', '每個分頁', [
         '「首頁」：今天可賺與已賺、今日挑戰、加值（保護卡、單字加倍、Plus）、今日單字、每日任務、每週目標、徽章和財富等級。',
-        '「單字」：選級別和學習方式，開始一輪。',
+        '「單字」：選級別或單字包和學習方式，開始一輪。',
         '「遊戲」：單字遊戲、長局、謎題、動作、棋盤、腦力，可以搜尋和加入最愛；每天有一款今日挑戰。',
         '「說明」：每個 Quadra App 的說明（就是這裡）。'
       ]],
@@ -282,7 +282,8 @@ export const HELP = {
       ]],
       ['extras', '加值', [
         '連續紀錄保護卡（NT$300，最多持有 3 張）：哪天沒練習也沒玩遊戲，它會自動用掉一張，連續紀錄照樣算下去。Plus 會員每月送一張。',
-        '單字加倍（NT$150）：接下來 30 分鐘每題單字獎勵 ×2，當天單字上限也多 NT$200；在加倍中再買，會接在後面再延 30 分鐘。'
+        '單字加倍（NT$150）：接下來 30 分鐘每題單字獎勵 ×2，當天單字上限也多 NT$200；在加倍中再買，會接在後面再延 30 分鐘。',
+        '單字包（「單字」分頁）：多益 TOEIC NT$990、雅思 IELTS NT$1,490、商務英文 NT$1,990，一次買斷，每個字都有真人發音。買了就和級別一樣可以勾選；和主單字表重複的字共用進度，答對一樣有獎勵。Plus 會員半價。'
       ]],
       ['money', '錢怎麼算', [
         '今天最多可賺 NT$400：單字 NT$200（每答對一題 NT$2，第一次精熟一個字再加 NT$15；字卡不算錢）、遊戲 NT$120（短局最多 NT$60、長局最多 NT$120）、任務與每週目標 NT$80。Plus 會員單字多 NT$50；買了單字加倍的那天單字多 NT$200。',
@@ -295,7 +296,7 @@ export const HELP = {
       ]],
       ['tabs', 'The tabs', [
         'Home: what today can pay and has paid, today’s challenge, extras (streak protection, word pay ×2, Plus), the word of the day, daily missions, weekly goals, badges and your wealth rank.',
-        'Words: pick levels and a way to learn, and start a round.',
+        'Words: pick levels or word packs and a way to learn, and start a round.',
         'Games: word games, long games, puzzles, action, board and brain games, with search and favourites; one game a day is today’s challenge.',
         'Help: every Quadra app’s guide (this page).'
       ]],
@@ -316,7 +317,8 @@ export const HELP = {
       ]],
       ['extras', 'Extras', [
         'Streak protection (NT$300, hold up to 3): on a day with no practice and no game, one is used by itself and the streak goes on. Plus members get one every month.',
-        'Word pay ×2 (NT$150): every word pays double for the next 30 minutes, and that day’s word cap is NT$200 higher; one bought during another runs 30 minutes after it.'
+        'Word pay ×2 (NT$150): every word pays double for the next 30 minutes, and that day’s word cap is NT$200 higher; one bought during another runs 30 minutes after it.',
+        'Word packs (in Words): TOEIC NT$990, IELTS NT$1,490, Business English NT$1,990, bought once, every word recorded. Once yours, pick a pack like a level; words the main list shares keep one progress, and right answers pay as usual. Half price with Plus.'
       ]],
       ['money', 'Money', [
         'Up to NT$400 a day: words NT$200 (NT$2 a right answer, NT$15 more for a first mastery; flash cards don’t pay), games NT$120 (up to NT$60 a short round, NT$120 a long one), missions and weekly goals NT$80. Plus members get NT$50 more for words; a day with a word boost, NT$200 more.',

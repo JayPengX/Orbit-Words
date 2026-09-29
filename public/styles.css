@@ -1018,3 +1018,6 @@ details.ranks[open] > summary { display: none; }
 .boost-on { margin: 10px 0 2px; padding: 8px 12px; border-radius: 10px; background: var(--accent-wash); color: var(--accent); font-size: 13px; font-weight: 700; }
 .spend-line { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin: 18px 2px 6px; }
 .link-btn { background: none; border: 0; padding: 4px 0; color: var(--accent); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.level-card.pack.locked { border-style: solid; background: var(--q-surface); }
+.level-card.pack.locked .level-foot { align-items: baseline; }
+.pack-price { font-weight: 800; color: var(--accent); }

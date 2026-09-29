@@ -5,8 +5,8 @@
 import {
   quadraSession, accountButton, installGate, watchUpdates, recordAffinity, affinityPatch, setting, settingPatch, taipeiDay, poolBalance, money, randomId, notify, schedulePush, APPS, ECONOMY, ask, plusCard, plusMember
 } from './lib/quadra.mjs';
-import { SHOP, shopEntry, freezes, boostUntil, capsFor } from './lib/shop.mjs';
-import { LEVELS, MODES, loadWords, pickRound, smartType, markKnown, makeQuestion, grade, payFor, sameWord, spellDiff, stats, stateOf, packProgress, unpackProgress, mergeProgress, migrateWords, shortMeaning, wordOfDay } from './lib/words.mjs';
+import { SHOP, shopEntry, freezes, boostUntil, capsFor, ownedPacks, packPrice, packEntry, packOwned } from './lib/shop.mjs';
+import { LEVELS, PACK_IDS, addPacks, levelRank, inLevels, MODES, loadWords, pickRound, smartType, markKnown, makeQuestion, grade, payFor, sameWord, spellDiff, stats, stateOf, packProgress, unpackProgress, mergeProgress, migrateWords, shortMeaning, wordOfDay } from './lib/words.mjs';
 import {
   earnedToday, missions, claimEntry, rankOf, RANKS, streakDays, earnedAllTime, streakAtRisk, dailyId, dailyStreak, weeklyGoals, claimWeekly, badges, freezeDue
 } from './lib/earn.mjs';
@@ -251,10 +251,22 @@ function absorb(decoded) {
 // ---- Words ----------------------------------------------------------------------------------
 
 async function loadWordList() {
-  const res = await fetch(`./data/words.json?v=${VERSION}`);
-  state.words = loadWords(await res.json());
+  const [main, packs] = await Promise.all([
+    fetch(`./data/words.json?v=${VERSION}`).then(r => r.json()),
+    fetch(`./data/packs.json?v=${VERSION}`).then(r => r.json()).catch(() => ({}))
+  ]);
+  state.words = addPacks(loadWords(main), packs);
   state.byKey = new Map(state.words.map(w => [w.key, w]));
 }
+// The words this pass can study: the main list and the packs it owns.
+function myWords() {
+  const owned = ownedPacks(withOutbox());
+  return (state.words || []).filter(w => typeof w.level === 'number' || owned.includes(w.level));
+}
+// The levels chosen, packs only once owned.
+const myLevels = () => state.levels.filter(l => LEVELS.includes(l) || packOwned(withOutbox(), l));
+// A level's name: 第 3 級, or a pack's name.
+const levelName = l => (typeof l === 'number' ? t('level', { n: l }) : t(`pack_${l}`));
 
 // Pronunciation: every word has a recording in Microsoft's neural voice
 // (data/audio, en-US Jenny); slow is the same clip at three quarters speed.
@@ -321,9 +333,9 @@ function renderWords() {
   const box = $('panel-words');
   if (!state.words) return put(box, el('div', { class: 'center-spin' }, [el('div', { class: 'spinner' })]));
   if (state.round) return renderRound(box);
-  const st = stats(state.words, state.progress);
+  const st = stats(myWords(), state.progress);
   const today = earned();
-  const selected = LEVELS.filter(l => state.levels.includes(l));
+  const selected = [...LEVELS, ...PACK_IDS].filter(l => myLevels().includes(l));
   const due = selected.reduce((s, l) => s + st[l].due, 0);
   const levelCards = el(
     'div',
@@ -351,7 +363,7 @@ function renderWords() {
     box,
     el('div', { class: 'q-card pad start-card' }, [
       el('div', { class: 'start-top' }, [
-        el('div', {}, [el('h2', { text: t('wordsTitle') }), el('p', { class: 'muted', text: selected.length ? t('wordsSub', { due, levels: selected.join('、') }) : t('pickLevel') })]),
+        el('div', {}, [el('h2', { text: t('wordsTitle') }), el('p', { class: 'muted', text: selected.length ? t('wordsSub', { due, levels: selected.map(l => (typeof l === 'number' ? l : t(`pack_${l}`))).join('、') }) : t('pickLevel') })]),
         el('div', { class: 'earn-mini' }, [el('small', { class: 'muted', text: t('todayWords') }), el('strong', { class: 'num', text: `${nt(today.words)} / ${nt(caps().words)}` })])
       ]),
       bar(today.words, caps().words, 'accent'),
@@ -363,6 +375,7 @@ function renderWords() {
       el('button', { class: 'q-btn primary block big-start', type: 'button', disabled: !selected.length, text: t('startRound'), onclick: startRound })
     ]),
     section(t('levels'), levelCards, { sub: t('levelsSub') }),
+    section(t('packsTitle'), packCards(st), { sub: t('packsSub') }),
     section(t('modes'), modes),
     section(t('progress'), progressCard(st)),
     section(t('voiceTitle'), voicePicker(), { sub: t('voiceHint') })
@@ -400,9 +413,49 @@ function progressCard(st) {
 }
 const stat = (label, value) => el('div', { class: 'stat' }, [el('strong', { class: 'num', text: value }), el('small', { text: label })]);
 
+// The word packs: owned ones chosen like a level, the others to buy.
+function packCards(st) {
+  const w = withOutbox();
+  return el(
+    'div',
+    { class: 'level-grid packs' },
+    PACK_IDS.map(id => {
+      if (packOwned(w, id)) {
+        const on = state.levels.includes(id);
+        return el('button', { class: `level-card pack${on ? ' on' : ''}`, type: 'button', 'aria-pressed': String(on), onclick: () => toggleLevel(id) }, [
+          el('div', { class: 'level-top' }, [el('strong', { text: t(`pack_${id}`) }), el('small', { text: t(`packHint_${id}`) })]),
+          bar(st[id].mastered, st[id].total),
+          el('div', { class: 'level-foot' }, [el('span', { class: 'num', text: `${st[id].mastered.toLocaleString()} / ${st[id].total.toLocaleString()}` }), st[id].due ? el('span', { class: 'due', text: t('dueN', { n: st[id].due }) }) : null])
+        ]);
+      }
+      const n = state.words.filter(x => x.level === id || x.packs?.includes(id)).length;
+      const price = packPrice(w, id);
+      return el('button', { class: 'level-card pack locked', type: 'button', onclick: () => buyPack(id) }, [
+        el('div', { class: 'level-top' }, [el('strong', { text: t(`pack_${id}`) }), el('small', { text: t(`packHint_${id}`) })]),
+        el('small', { class: 'muted', text: t('packWords', { n }) }),
+        el('div', { class: 'level-foot' }, [el('span', { class: 'pack-price num', text: nt(price) }), price < SHOP.packs[id] ? el('s', { class: 'muted num', text: nt(SHOP.packs[id]) }) : el('span', { class: 'muted', text: t('packOnce') })])
+      ]);
+    })
+  );
+}
+async function buyPack(id) {
+  const w = withOutbox();
+  if (packOwned(w, id)) return;
+  const price = packPrice(w, id);
+  if (poolBalance(w) < price) return toast(t('shopFunds'));
+  const ok = await ask({ lang: locale, icon: '📘', title: t(`pack_${id}`), body: t('packAsk', { v: nt(price), n: state.words.filter(x => x.level === id || x.packs?.includes(id)).length }), ok: t('shopBuy', { v: nt(price) }), cancel: t('shopCancel') });
+  if (!ok) return;
+  payEntry(packEntry(w, id, Date.now(), t(`pack_${id}`)));
+  state.levelsTouched = true;
+  if (!state.levels.includes(id)) state.levels = [...state.levels, id];
+  dirty = true;
+  toast(t('packDone', { name: t(`pack_${id}`) }), 'good');
+  refresh();
+}
+
 function toggleLevel(l) {
   state.levelsTouched = true;
-  state.levels = state.levels.includes(l) ? state.levels.filter(x => x !== l) : [...state.levels, l].sort();
+  state.levels = state.levels.includes(l) ? state.levels.filter(x => x !== l) : [...state.levels, l].sort((a, b) => levelRank(a) - levelRank(b) || String(a).localeCompare(String(b)));
   dirty = true;
   sync({ soon: true });
   renderWords();
@@ -411,11 +464,11 @@ function toggleLevel(l) {
 // ---- A round ---------------------------------------------------------------------------
 
 function startRound() {
-  const list = pickRound(state.words, state.progress, { levels: state.levels, size: state.size || 10 });
+  const list = pickRound(myWords(), state.progress, { levels: myLevels(), size: state.size || 10 });
   if (!list.length) return toast(t('nothingLeft'));
   state.round = { list, i: 0, results: [], earned: 0, q: null, answered: false, started: Date.now() };
   nextQuestion();
-  recordAffinity('vocab', ['vocab:words', ...state.levels.map(l => `vocab:level${l}`)], 0.5);
+  recordAffinity('vocab', ['vocab:words', ...myLevels().map(l => `vocab:level${l}`)], 0.5);
 }
 function nextQuestion() {
   const r = state.round;
@@ -497,7 +550,7 @@ function renderRound(box) {
 function wordHead(word, { meaning = false, reveal = true } = {}) {
   return el('div', { class: 'word-head' }, [
     el('div', { class: 'word-line' }, [el('strong', { class: 'word', text: word.word }), speakButton(word)]),
-    el('small', { class: 'muted', text: [word.ph ? `/${word.ph}/` : '', word.pos, t('level', { n: word.level })].filter(Boolean).join(' · ') }),
+    el('small', { class: 'muted', text: [word.ph ? `/${word.ph}/` : '', word.pos, levelName(word.level)].filter(Boolean).join(' · ') }),
     meaning && reveal ? el('p', { class: 'meaning', text: word.zh }) : null
   ]);
 }
@@ -640,7 +693,7 @@ function renderHome() {
   const streak = streakDays(state.wallet);
   const e = earned();
   const ms = missions(state.wallet);
-  const st = state.words ? stats(state.words, state.progress) : null;
+  const st = state.words ? stats(myWords(), state.progress) : null;
   const cap = caps();
   const held = freezes(withOutbox()).held;
   const rankCard = el('div', { class: 'rank-card' }, [
@@ -677,7 +730,7 @@ function renderHome() {
   ].filter(Boolean));
   // Next steps: what's most worth doing now.
   const steps = [];
-  const due = st ? LEVELS.filter(l => state.levels.includes(l)).reduce((s, l) => s + st[l].due, 0) : 0;
+  const due = st ? myLevels().reduce((s, l) => s + (st[l]?.due || 0), 0) : 0;
   if (room('words') > 0) steps.push({ icon: '📚', title: due ? t('stepReview', { n: due }) : t('stepLearn'), sub: t('stepWordsSub', { v: nt(room('words')) }), go: () => showTab('words') });
   const undone = ms.find(m => m.done && !m.claimed);
   if (undone) steps.push({ icon: '🎁', title: t('stepClaim'), sub: t(`mission_${undone.id}`), go: () => claim(undone.id) });
@@ -910,8 +963,8 @@ const gameContext = {
   room: () => room('game'),
   cap: () => caps().game,
   words: () => {
-    const seen = (state.words || []).filter(w => state.progress[w.key]?.b);
-    const pool = seen.length >= 30 ? seen : (state.words || []).filter(w => state.levels.includes(w.level));
+    const seen = myWords().filter(w => state.progress[w.key]?.b);
+    const pool = seen.length >= 30 ? seen : myWords().filter(w => inLevels(w, myLevels()));
     return pool.map(w => ({ key: w.key, word: w.word, meaning: shortMeaning(w.zh).split('、')[0], level: w.level, pos: w.pos }));
   },
   bests,
