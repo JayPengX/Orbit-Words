@@ -5,7 +5,7 @@
 import {
   quadraSession, accountButton, installGate, watchUpdates, recordAffinity, affinityPatch, setting, settingPatch, taipeiDay, poolBalance, money, randomId, notify, schedulePush, APPS, ECONOMY, ask, plusCard, plusMember
 } from './lib/quadra.mjs';
-import { SHOP, shopEntry, freezes, boostUntil, capsFor, challengeRecord, stakeEntry, prizeEntry, challengePrize } from './lib/shop.mjs';
+import { SHOP, shopEntry, freezes, boostUntil, capsFor } from './lib/shop.mjs';
 import { LEVELS, MODES, loadWords, pickRound, smartType, markKnown, makeQuestion, grade, payFor, sameWord, spellDiff, stats, stateOf, packProgress, unpackProgress, mergeProgress, migrateWords, shortMeaning, wordOfDay } from './lib/words.mjs';
 import {
   earnedToday, missions, claimEntry, rankOf, RANKS, streakDays, earnedAllTime, streakAtRisk, dailyId, dailyStreak, weeklyGoals, claimWeekly, badges, freezeDue
@@ -141,30 +141,6 @@ function recordBest(game, v) {
   bestsDirty = true;
   return Boolean(had);
 }
-// The challenge bars (each game's highest median so far): in the wallet's
-// settings (bars:vocab), and on this device until the pass has it.
-const BARS_KEY = 'quadra.rewards.bars';
-let barsDirty = false;
-function localBars() {
-  try {
-    return JSON.parse(localStorage.getItem(BARS_KEY) || '{}') || {};
-  } catch {
-    return {};
-  }
-}
-function bars() {
-  const out = { ...setting(state.wallet, 'bars:vocab', {}) };
-  for (const [g, v] of Object.entries(localBars())) if (Number.isFinite(v) && !(out[g] >= v)) out[g] = v;
-  return out;
-}
-function raiseBar(game, v) {
-  if (!(v > (bars()[game] || 0))) return;
-  try {
-    localStorage.setItem(BARS_KEY, JSON.stringify({ ...localBars(), [game]: v }));
-  } catch {}
-  barsDirty = true;
-}
-
 // Today's challenge: the game, whether it's played, the streak and its bonus.
 function daily() {
   const day = taipeiDay();
@@ -233,9 +209,8 @@ async function push() {
   if (!q.active || !state.loaded) return;
   closeBatchIfIdle();
   const out = outbox.read().filter(e => !walletHas(e.id));
-  const settings = { ...actPatch(), ...affinityPatch('vocab').settings, ...(bestsDirty ? settingPatch('bests:vocab', bests()).settings : {}), ...(barsDirty ? settingPatch('bars:vocab', bars()).settings : {}) };
+  const settings = { ...actPatch(), ...affinityPatch('vocab').settings, ...(bestsDirty ? settingPatch('bests:vocab', bests()).settings : {}) };
   bestsDirty = false;
-  barsDirty = false;
   if (!dirty && !out.length && !Object.keys(settings).length) return;
   const payload = dirty && !state.unreadable ? await encodePayload() : undefined;
   dirty = false;
@@ -246,7 +221,6 @@ async function push() {
   } catch (error) {
     if (payload) dirty = true;
     if (settings['bests:vocab']) bestsDirty = true;
-    if (settings['bars:vocab']) barsDirty = true;
     throw error;
   }
   quietRefresh();
@@ -726,7 +700,6 @@ function renderHome() {
     rankCard,
     dailyCard,
     section(t('shopTitle'), shopCard(), { sub: t('shopSub') }),
-    challengeCard(),
     wordOfDayCard(),
     section(t('nextSteps'), stepRow),
     section(t('missions'), missionList, { sub: t('missionsSub', { v: nt(cap.mission) }) }),
@@ -775,16 +748,6 @@ function shopCard() {
     el('div', { class: 'shop-plus' }, [plusCard(q, { compact: true }), el('small', { class: 'muted', text: member ? t('plusRewardsOn', { v: nt(SHOP.plus.wordsCap) }) : t('plusRewards', { v: nt(SHOP.plus.wordsCap) }) })])
   ]);
 }
-// Game challenges: a line into the games tab, with your record once you've played one.
-function challengeCard() {
-  const rec = challengeRecord(withOutbox());
-  return el('button', { class: 'q-card pad challenge-card', type: 'button', onclick: () => showTab('games') }, [
-    el('span', { class: 'challenge-icon', 'aria-hidden': 'true', text: '🏁' }),
-    el('span', { class: 'daily-text' }, [el('small', { text: t('chTitle') }), el('strong', { text: t('chPitch') }), el('small', { class: 'muted', text: rec.n ? t('chRecord', { n: rec.n, w: rec.wins, v: nt(rec.won) }) : t('chHow') })]),
-    el('span', { class: 'daily-go', text: '›' })
-  ]);
-}
-
 // Protection cards used by themselves: the days missed since the streak's last day.
 function useFreezes() {
   if (!state.wallet || !state.loaded) return;
@@ -946,21 +909,6 @@ const gameContext = {
   nt,
   room: () => room('game'),
   cap: () => caps().game,
-  bars,
-  raiseBar,
-  // A challenge's stake, taken now (null if it's turned down or can't be paid).
-  async stake(game, stake, target) {
-    if (poolBalance(withOutbox()) < stake) return (toast(t('shopFunds')), null);
-    const name = gameInfo(game, t, locale).name;
-    const ok = await ask({ lang: locale, icon: '🏁', title: t('chAskTitle', { game: name }), body: t('chAsk', { target, v: nt(stake), prize: nt(challengePrize(stake)) }), ok: t('chAskOk', { v: nt(stake) }), cancel: t('shopCancel') });
-    if (!ok) return null;
-    const key = randomId();
-    payEntry(stakeEntry(key, stake, game, Date.now(), t('chNote', { game: name })));
-    return key;
-  },
-  prize(key, stake, game) {
-    payEntry(prizeEntry(key, stake, Date.now(), t('chNote', { game: gameInfo(game, t, locale).name })));
-  },
   words: () => {
     const seen = (state.words || []).filter(w => state.progress[w.key]?.b);
     const pool = seen.length >= 30 ? seen : (state.words || []).filter(w => state.levels.includes(w.level));

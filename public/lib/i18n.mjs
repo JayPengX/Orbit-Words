@@ -76,10 +76,7 @@ export const STRINGS = {
     shopBuy: '購買 {v}', shopCancel: '先不要', shopDone_freeze: '🛡️ 保護卡已放進你的帳戶', shopDone_boost: '⚡ 加倍開始，30 分鐘', shopFunds: 'Quadra 餘額不足',
     plusRewards: 'Plus 會員在 Rewards：每月一張保護卡、單字上限 +{v}', plusRewardsOn: 'Plus 會員權益：每月一張保護卡、單字上限 +{v}',
     freezeUsed: '🛡️ 用了 {n} 張保護卡，連續 {streak} 天保住了',
-    chTitle: '遊戲挑戰賽', chPitch: '押 NT$50–500，贏自己拿 1.8 倍', chHow: '每款遊戲玩滿 5 局後開放，目標是你最近的中位分數', chRecord: '挑戰 {n} 次 · 贏 {w} 次 · 共贏 {v}',
     spendLine: '錢拿去用：', spendPlay: 'Play 精選串關 ›', spendStock: 'Securities ›',
-    chWarm: '再玩 {n} 局就能開挑戰賽', chTarget: '🏁 挑戰：超過 {target} 分', chWin: '押 NT$，贏拿 {x} 倍', chOn: '挑戰中：超過 {target} 分贏 {v}', chWon: '🏁 挑戰成功！{score} 分超過 {target}，贏得 {v}', chLost: '🏁 {score} 分，差一點（目標 {target}）。再挑戰一次？',
-    chAskTitle: '{game} 挑戰賽', chAsk: '押 {v}，這局超過 {target} 分就拿 {prize}。離開或重來這局都算結束。', chAskOk: '押 {v} 開始', chNote: '挑戰 {game}'
   },
   en: {
     gamesSearch: 'Search games', howToPlay: 'How to play', howGotIt: 'Got it', cat_all: 'All', cat_fav: '★ Favourites', cat_words: 'Words', cat_logic: 'Logic', cat_puzzle: 'Puzzles', cat_action: 'Action', cat_reflex: 'Reflex', cat_board: 'Board', cat_cards: 'Cards', cat_brain: 'Memory', cat_numbers: 'Numbers', longTag: 'Long', gamesRecent: 'Played lately', gamesNew: 'New games', gamesFavs: 'Favourites', gamesSeeAll: 'All {n}', newTag: 'New', gamesNoMatch: 'No game matches.', gamesNoFav: 'Tap ☆ on a game’s card to add it here.', gamesCount: '{n} games', gameBack: 'All games', favAdd: 'Add to favourites', favRemove: 'Remove from favourites', gameLoading: 'Loading…', gameLoadFail: 'Couldn’t load it: check the connection and try again.', gamesToday: '{v} / {cap}', gamesAlso: 'Play next',
@@ -153,13 +150,9 @@ export const STRINGS = {
     shopBuy: 'Buy · {v}', shopCancel: 'Not now', shopDone_freeze: '🛡️ Protection added to your account', shopDone_boost: '⚡ Boost on for 30 minutes', shopFunds: 'Not enough in your Quadra balance',
     plusRewards: 'Plus in Rewards: a streak protection every month, word cap +{v}', plusRewardsOn: 'Your Plus perks: a streak protection every month, word cap +{v}',
     freezeUsed: '🛡️ {n} protection used: your {streak}-day streak goes on',
-    chTitle: 'Game challenges', chPitch: 'Stake NT$50–500, beat yourself for 1.8×', chHow: 'Open after 5 rounds of a game; the target is your recent median', chRecord: '{n} played · {w} won · {v} won in all',
     spendLine: 'Put it to use:', spendPlay: 'Play’s featured parlays ›', spendStock: 'Securities ›',
-    chWarm: '{n} more rounds to open challenges', chTarget: '🏁 Challenge: beat {target}', chWin: 'Stake NT$, win {x}×', chOn: 'Challenge on: beat {target} to win {v}', chWon: '🏁 Challenge won! {score} beat {target}: {v} is yours', chLost: '🏁 {score}, just short of {target}. Another go?',
-    chAskTitle: '{game} challenge', chAsk: 'Stake {v}: beat {target} this round and take {prize}. Leaving or restarting the round ends it.', chAskOk: 'Stake {v}', chNote: '{game} challenge'
   }
 };
-
 export function detectLocale() {
   try {
     const saved = localStorage.getItem('quadra.lang');

@@ -11,7 +11,6 @@ import {
 } from './lib/games.mjs';
 import { ARCADE_BY_ID, CATEGORIES, arcadePay, HOW, NEW_GAMES } from './lib/arcade.mjs';
 import { money } from './lib/quadra.mjs';
-import { CHALLENGE, challengeTarget, challengeWon, challengePrize } from './lib/shop.mjs';
 
 const state = { t: null, arcadeFrame: 0 };
 let ctx = null;
@@ -35,31 +34,6 @@ const fmtPay = pts => money(pts * PAY_SCALE, { cents: pts * PAY_SCALE < 10 });
 const FAV_KEY = 'quadra.rewards.favs';
 const RECENT_KEY = 'quadra.rewards.recent';
 const HOW_SEEN_KEY = 'quadra.rewards.howSeen';
-// Each game's recent round scores (for the challenge target), on this device.
-const RUNS_KEY = 'quadra.rewards.runs';
-const readRuns = () => {
-  try {
-    const v = JSON.parse(localStorage.getItem(RUNS_KEY) || '{}');
-    return v && typeof v === 'object' ? v : {};
-  } catch {
-    return {};
-  }
-};
-const runsOf = g => (Array.isArray(readRuns()[g]) ? readRuns()[g].filter(Number.isFinite) : []);
-function recordRun(g, v) {
-  const all = readRuns();
-  all[g] = [...runsOf(g), Math.round(v * 10) / 10].slice(-CHALLENGE.keep);
-  try {
-    localStorage.setItem(RUNS_KEY, JSON.stringify(all));
-  } catch {}
-  // The highest median so far (kept in the pass): the target never drops
-  // below 90% of it.
-  const m = challengeTarget(all[g]);
-  if (m != null) ctx.raiseBar(g, m);
-}
-const targetFor = g => challengeTarget(runsOf(g), 0.9 * (ctx.bars()[g] || 0));
-// The challenge being played: { game, stake, target, key }.
-let challenge = null;
 const readList = key => {
   try {
     const v = JSON.parse(localStorage.getItem(key) || '[]');
@@ -114,7 +88,6 @@ export function mountGames(container, context) {
     const stageKind = el('small', { class: 'muted' });
     const stageEarned = el('small', { class: 'gh-stage-earned num' });
     const how = el('div', { class: 'gh-how', hidden: '' });
-    const chal = el('div', { class: 'gh-chal' });
     const howBtn = el('button', { class: 'gh-how-btn', type: 'button', 'aria-label': t('howToPlay'), 'aria-expanded': 'false', text: '?', onclick: () => showHow(how.hidden) });
     const stage = el('div', { class: 'gh-stage', hidden: '' }, [
       el('div', { class: 'gh-stage-bar' }, [
@@ -124,11 +97,10 @@ export function mountGames(container, context) {
         howBtn
       ]),
       how,
-      chal,
       slot
     ]);
     const card = el('div', { class: 'games' }, [hub, stage]);
-    shell = { card, chal, capFill, capText, hub, stage, stageName, stageKind, stageEarned, slot, chips, recent, grid, count, daily, bests, search, how, howBtn };
+    shell = { card, capFill, capText, hub, stage, stageName, stageKind, stageEarned, slot, chips, recent, grid, count, daily, bests, search, how, howBtn };
     container.replaceChildren(card);
   };
 
@@ -249,7 +221,6 @@ export function mountGames(container, context) {
       const i = info(game);
       shell.stageName.textContent = `${i.icon} ${i.name}`;
       shell.stageKind.textContent = i.kind;
-      paintChallenge();
     }
     // Today's challenge.
     const d = ctx.daily();
@@ -289,38 +260,9 @@ export function mountGames(container, context) {
     }
   }
 
-  // The challenge strip over a game: warming up, the stakes to pick, or the
-  // challenge being played.
-  function paintChallenge() {
-    const t = state.t;
-    const c = shell.chal;
-    if (challenge?.game === game) {
-      c.className = 'gh-chal on';
-      return c.replaceChildren(el('span', { text: '🏁' }), el('span', { text: t('chOn', { target: challenge.target, v: fmtMoney(challengePrize(challenge.stake), { sign: false }) }) }));
-    }
-    const target = targetFor(game);
-    c.className = 'gh-chal';
-    if (target == null) {
-      const n = CHALLENGE.warmup - runsOf(game).length;
-      return c.replaceChildren(el('span', { text: '🏁' }), el('small', { class: 'muted', text: t('chWarm', { n }) }));
-    }
-    c.replaceChildren(
-      el('span', { class: 'gh-chal-text' }, [el('strong', { text: t('chTarget', { target }) }), el('small', { class: 'muted', text: t('chWin', { x: CHALLENGE.win }) })]),
-      el('div', { class: 'gh-chal-stakes' }, CHALLENGE.stakes.map(v => el('button', { class: 'q-btn small', type: 'button', onclick: () => startChallenge(v, target) }, [el('span', { class: 'num', text: v.toLocaleString() })])))
-    );
-  }
-  async function startChallenge(stake, target) {
-    const g = game;
-    const key = await ctx.stake(g, stake, target);
-    if (!key || game !== g) return;
-    challenge = { game: g, stake, target, key };
-    open(g, { keep: true });
-  }
-
   let opening = 0;
-  async function open(g, { keep = false } = {}) {
+  async function open(g) {
     stopGame();
-    if (!keep) challenge = null;
     game = g;
     live = true;
     writeList(RECENT_KEY, [g, ...readList(RECENT_KEY).filter(x => x !== g)].slice(0, 12));
@@ -347,7 +289,6 @@ export function mountGames(container, context) {
   }
   function close() {
     stopGame();
-    challenge = null;
     opening++;
     game = null;
     view = null;
@@ -452,20 +393,10 @@ function nextGames(game) {
     }))
   ]);
 }
-function finishRound(game, amount, box, summary, ms, score = null, raw = amount) {
+function finishRound(game, amount, box, summary, ms, score = null) {
   const t = state.t;
   stopGame();
   const { paid, bonus, best } = ctx.pay(game, amount);
-  // A challenge: settled against its target; the round then counts toward the next one.
-  let chal = null;
-  if (challenge?.game === game) {
-    const won = challengeWon(raw, challenge.target);
-    if (won) ctx.prize(challenge.key, challenge.stake, game);
-    chal = el('p', { class: `gh-chal-result ${won ? 'won' : 'lost'}`, text: won ? t('chWon', { v: fmtMoney(challengePrize(challenge.stake), { sign: false }), score: Math.round(raw * 10) / 10, target: challenge.target }) : t('chLost', { score: Math.round(raw * 10) / 10, target: challenge.target }) });
-    challenge = null;
-  }
-  // A round that scored nothing (left at once) doesn't count toward the target.
-  if (raw > 0) recordRun(game, raw);
   const minutes = Math.floor(ms / 60_000);
   const seconds = Math.round((ms % 60_000) / 1000);
   const work = wageMinutes(paid);
@@ -478,7 +409,6 @@ function finishRound(game, amount, box, summary, ms, score = null, raw = amount)
     ...[
       fold,
       el('p', { class: 'game-result' }, [document.createTextNode(summary), el('strong', { class: paid > 0 ? 'paid' : '', text: ` ${t('gamePaid', { v: fmtMoney(paid) })}` })]),
-      chal,
       score && (score.bonus || score.penalty) ? el('p', { class: 'note', text: t('scoreLine', { bonus: fmtMoney(score.bonus, { sign: false }), penalty: fmtMoney(score.penalty, { sign: false }) }) }) : null,
       bonus > 0 ? el('p', { class: 'daily-paid', text: t('dailyPaid', { v: fmtMoney(bonus, { sign: false }) }) }) : null,
       best ? el('p', { class: 'best-new', text: t('bestNew') }) : null,
@@ -1459,7 +1389,7 @@ function arcadeView(id, make) {
       ended = true;
       api.set({ score, info: t('arcadeOver') });
       root?.classList.add('over');
-      finishRound(id, arcadePay(id, score), box, summary ?? t('arcadeSummary', { n: Math.round(score * 10) / 10 }), Date.now() - started, null, score);
+      finishRound(id, arcadePay(id, score), box, summary ?? t('arcadeSummary', { n: Math.round(score * 10) / 10 }), Date.now() - started);
     },
     get ended() {
       return ended;

@@ -1,4 +1,4 @@
-// What Rewards sells, and the challenges' rules. Every purchase is an entry
+// What Rewards sells. Every purchase is an entry
 // in the pass's wallet (app 'vocab', kind 'shop', a fixed id), so it is its
 // own receipt: what's held is counted from the entries.
 //
@@ -48,35 +48,4 @@ export const boostedToday = (wallet, now = Date.now()) => mine(wallet, 'vocab:sh
 export function capsFor(wallet, now = Date.now()) {
   const words = ECONOMY.vocab.dailyCap + (plusMember(wallet, now) ? SHOP.plus.wordsCap : 0) + (boostedToday(wallet, now) ? SHOP.boost.capBonus : 0);
   return { words, game: ECONOMY.gamesDailyCap, mission: ECONOMY.missionsDailyCap, total: words + ECONOMY.gamesDailyCap + ECONOMY.missionsDailyCap };
-}
-
-// ---- Challenges --------------------------------------------------------------------------
-//
-// A game played for a stake: beat the target and win the stake × win. The
-// target is your median of the last `keep` rounds of that game (so you beat
-// it about half the time), and never lower than the highest it has been
-// (`bar`, kept in the pass), so easy rounds on purpose can't lower it.
-// A round that only ties the target doesn't beat it.
-export const CHALLENGE = { stakes: [50, 200, 500], win: 1.8, warmup: 5, keep: 15 };
-export function median(list) {
-  const s = [...list].sort((a, b) => a - b);
-  const m = s.length >> 1;
-  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
-}
-// The target for a game (null until warmed up).
-export function challengeTarget(recent = [], bar = 0) {
-  if (recent.length < CHALLENGE.warmup) return null;
-  const m = median(recent.slice(-CHALLENGE.keep));
-  return Math.round(Math.max(m, bar || 0) * 10) / 10;
-}
-export const challengeWon = (score, target) => target != null && score > target;
-export const challengePrize = stake => Math.round(stake * CHALLENGE.win);
-export const stakeEntry = (key, stake, game, now = Date.now(), note = game) => ({ id: `vocab:c:${key}`, t: now, app: 'vocab', kind: 'stake', amount: -stake, note });
-export const prizeEntry = (key, stake, now = Date.now(), note = '') => ({ id: `vocab:c:${key}:w`, t: now, app: 'vocab', kind: 'payout', amount: challengePrize(stake), note });
-// Stakes and prizes, all time: { staked, won, n, wins }.
-export function challengeRecord(wallet) {
-  const list = mine(wallet, 'vocab:c:');
-  const stakes = list.filter(e => e.kind === 'stake');
-  const prizes = list.filter(e => e.kind === 'payout');
-  return { staked: -stakes.reduce((s, e) => s + e.amount, 0), won: prizes.reduce((s, e) => s + e.amount, 0), n: stakes.length, wins: prizes.length };
 }
