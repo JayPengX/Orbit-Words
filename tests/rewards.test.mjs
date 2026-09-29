@@ -73,8 +73,8 @@ test('questions: four distinct choices with the answer among them', () => {
 });
 
 test('pay: right answers and first mastery, nothing for cards', () => {
-  assert.equal(payFor({ correct: true, type: 'meaning' }, ECONOMY.vocab), 3);
-  assert.equal(payFor({ correct: true, type: 'spell', firstMastery: true }, ECONOMY.vocab), 28);
+  assert.equal(payFor({ correct: true, type: 'meaning' }, ECONOMY.vocab), 2);
+  assert.equal(payFor({ correct: true, type: 'spell', firstMastery: true }, ECONOMY.vocab), 17);
   assert.equal(payFor({ correct: true, type: 'card' }, ECONOMY.vocab), 0);
 });
 
@@ -115,19 +115,19 @@ test('earnings per kind today, missions and claims', () => {
   assert.ok(ms.words20.done && ms.game1.done && ms.invest.done);
   assert.ok(!ms.master3.done && !ms.match.done && !ms.tour.done);
   const entry = claimEntry(wallet, 'words20', now);
-  assert.equal(entry.amount, 60);
+  assert.equal(entry.amount, 25);
   assert.equal(entry.id, `vocab:m:${day}:words20`);
   assert.equal(claimEntry({ ...wallet, entries: [...wallet.entries, entry] }, 'words20', now), null);
   assert.equal(claimEntry(wallet, 'master3', now), null);
   assert.equal(streakDays(wallet, now), 1);
-  assert.equal(CAPS.words + CAPS.game + CAPS.mission, 1300);
+  assert.equal(CAPS.words + CAPS.game + CAPS.mission, 400);
 });
 
 test('wealth ranks', () => {
-  assert.equal(rankOf(110_000).rank.id, 'start');
-  assert.equal(rankOf(150_000).rank.id, 'saver');
+  assert.equal(rankOf(30_000).rank.id, 'start');
+  assert.equal(rankOf(50_000).rank.id, 'saver');
   assert.equal(rankOf(2e8).next, null);
-  assert.equal(rankOf(225_000).progress, 0.5);
+  assert.equal(rankOf(75_000).progress, 0.5);
 });
 
 test('2048 moves and merges', () => {
@@ -229,7 +229,7 @@ test('daily challenge, weekly goals, badges and bests', async () => {
   const wk = { entries: [...entries, ...Array.from({ length: 10 }, (_, i) => ({ id: `vocab:g:${i}`, t: now - i, app: 'vocab', kind: 'game', amount: 150 }))] };
   const goals = weeklyGoals(wk, now);
   assert.equal(goals.find(g => g.id === 'games10').done, true);
-  assert.equal(goals.find(g => g.id === 'earn1500').done, true);
+  assert.equal(goals.find(g => g.id === 'earn1000').done, true);
   assert.equal(goals.find(g => g.id === 'days5').progress, 1);
   const claim = claimWeekly(wk, 'games10', now);
   assert.equal(claim.kind, 'mission');

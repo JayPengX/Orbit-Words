@@ -38,14 +38,14 @@ export function earnedAllTime(wallet) {
 // None of them is about betting. Progress comes from each app's activity
 // counts in the wallet (activityPatch) and when each app was last opened.
 export const MISSIONS = [
-  { id: 'words20', app: 'vocab', pay: 60, goal: 20, count: a => a.vocab?.answer || 0 },
-  { id: 'master3', app: 'vocab', pay: 60, goal: 3, count: a => a.vocab?.master || 0 },
-  { id: 'game1', app: 'vocab', pay: 40, goal: 1, count: a => a.vocab?.game || 0 },
-  { id: 'invest', app: 'stock', pay: 60, goal: 1, count: a => (a.stock?.trade || 0) + (a.stock?.watch || 0) },
-  { id: 'match', app: 'match', pay: 40, goal: 1, count: a => (a.match?.open || 0) + (a.match?.follow || 0) },
+  { id: 'words20', app: 'vocab', pay: 25, goal: 20, count: a => a.vocab?.answer || 0 },
+  { id: 'master3', app: 'vocab', pay: 20, goal: 3, count: a => a.vocab?.master || 0 },
+  { id: 'game1', app: 'vocab', pay: 15, goal: 1, count: a => a.vocab?.game || 0 },
+  { id: 'invest', app: 'stock', pay: 20, goal: 1, count: a => (a.stock?.trade || 0) + (a.stock?.watch || 0) },
+  { id: 'match', app: 'match', pay: 15, goal: 1, count: a => (a.match?.open || 0) + (a.match?.follow || 0) },
   // Orbit Class, Quadra's class schedule: checking the day's classes.
-  { id: 'orbit', app: 'orbit', pay: 50, goal: 1, count: a => (a.orbit?.open || 0) + (a.orbit?.edit || 0) },
-  { id: 'tour', app: 'eco', pay: 40, goal: 3, count: (a, apps, day) => ['stock', 'match', 'vocab'].filter(x => apps?.[x]?.last && taipeiDay(apps[x].last) === day).length }
+  { id: 'orbit', app: 'orbit', pay: 15, goal: 1, count: a => (a.orbit?.open || 0) + (a.orbit?.edit || 0) },
+  { id: 'tour', app: 'eco', pay: 15, goal: 3, count: (a, apps, day) => ['stock', 'match', 'vocab'].filter(x => apps?.[x]?.last && taipeiDay(apps[x].last) === day).length }
 ];
 export const missionId = (day, id) => `vocab:m:${day}:${id}`;
 
@@ -71,13 +71,13 @@ export function claimEntry(wallet, id, now = Date.now()) {
 // ---- Wealth ranks: where the pool stands, and the next step ------------------------
 export const RANKS = [
   { id: 'start', min: 0, icon: '🌱' },
-  { id: 'saver', min: 150_000, icon: '🪙' },
-  { id: 'steady', min: 300_000, icon: '💼' },
-  { id: 'comfort', min: 600_000, icon: '🏡' },
-  { id: 'wealthy', min: 1_000_000, icon: '💎' },
-  { id: 'rich', min: 5_000_000, icon: '🏦' },
-  { id: 'multi', min: 10_000_000, icon: '👑' },
-  { id: 'tycoon', min: 100_000_000, icon: '🚀' }
+  { id: 'saver', min: 50_000, icon: '🪙' },
+  { id: 'steady', min: 100_000, icon: '💼' },
+  { id: 'comfort', min: 250_000, icon: '🏡' },
+  { id: 'wealthy', min: 500_000, icon: '💎' },
+  { id: 'rich', min: 1_000_000, icon: '🏦' },
+  { id: 'multi', min: 5_000_000, icon: '👑' },
+  { id: 'tycoon', min: 20_000_000, icon: '🚀' }
 ];
 export function rankOf(balance) {
   let i = 0;
@@ -153,10 +153,10 @@ export function weekStart(now = Date.now()) {
 }
 const earnKinds = new Set(['words', 'reward', 'game']);
 export const WEEKLY = [
-  { id: 'days5', pay: 100, goal: 5, count: list => new Set(list.filter(e => earnKinds.has(e.kind)).map(e => taipeiDay(e.t))).size },
-  { id: 'earn1500', pay: 100, goal: 1500, count: list => Math.floor(list.filter(e => earnKinds.has(e.kind)).reduce((s, e) => s + e.amount, 0)) },
-  { id: 'missions10', pay: 100, goal: 10, count: list => list.filter(e => e.kind === 'mission' && e.id.startsWith('vocab:m:')).length },
-  { id: 'games10', pay: 80, goal: 10, count: list => list.filter(e => e.kind === 'game' && !e.id.startsWith('vocab:d:')).length }
+  { id: 'days5', pay: 60, goal: 5, count: list => new Set(list.filter(e => earnKinds.has(e.kind)).map(e => taipeiDay(e.t))).size },
+  { id: 'earn1000', pay: 60, goal: 1000, count: list => Math.floor(list.filter(e => earnKinds.has(e.kind)).reduce((s, e) => s + e.amount, 0)) },
+  { id: 'missions10', pay: 50, goal: 10, count: list => list.filter(e => e.kind === 'mission' && e.id.startsWith('vocab:m:')).length },
+  { id: 'games10', pay: 40, goal: 10, count: list => list.filter(e => e.kind === 'game' && !e.id.startsWith('vocab:d:')).length }
 ];
 export const weeklyId = (week, id) => `vocab:wk:${week}:${id}`;
 export function weeklyGoals(wallet, now = Date.now()) {

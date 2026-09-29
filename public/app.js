@@ -724,7 +724,7 @@ function weeklyCard() {
         : g.done
           ? el('button', { class: 'q-btn primary small', type: 'button', text: t('claim', { v: nt(g.pay) }), onclick: () => claimGoal(g.id) })
           : null;
-      const shown = g.id === 'earn1500' ? `${nt(g.progress)} / ${nt(g.goal)}` : `${g.progress}/${g.goal}`;
+      const shown = g.id === 'earn1000' ? `${nt(g.progress)} / ${nt(g.goal)}` : `${g.progress}/${g.goal}`;
       return el('div', { class: `mission${g.claimed ? ' done' : ''}` }, [
         el('span', { class: 'mission-icon', text: WEEKLY_ICON[g.id] }),
         el('div', { class: 'mission-text' }, [el('strong', { text: t(`weekly_${g.id}`) }), el('div', { class: 'mission-bar' }, [bar(g.progress, g.goal, 'accent'), el('small', { class: 'num muted', text: `${shown} · ${nt(g.pay)}` })])]),
@@ -733,7 +733,7 @@ function weeklyCard() {
     })
   );
 }
-const WEEKLY_ICON = { days5: '📆', earn1500: '💵', missions10: '🎯', games10: '🕹️' };
+const WEEKLY_ICON = { days5: '📆', earn1000: '💵', missions10: '🎯', games10: '🕹️' };
 function claimGoal(id) {
   const entry = claimWeekly(withOutbox(), id);
   if (!entry || outbox.read().some(x => x.id === entry.id)) return toast(t('capReached'));

@@ -288,7 +288,7 @@ export const HELP = {
       ]],
       ['missions', '每日任務與每週目標', [
         '每天幾個小任務（背 20 題、精熟 3 個字、玩一局遊戲、在 Securities 交易或加入觀察、在 Fixtures 看一場比賽、在 Orbit Class 看課表、打開三個 App），完成後按「領取」。',
-        '每週目標（週一到週日）：5 天有練習、賺 NT$1,500、完成 10 個任務、玩 10 局遊戲。開啟通知後，可以領取時和連續天數快斷時會提醒你。'
+        '每週目標（週一到週日）：5 天有練習、賺 NT$1,000、完成 10 個任務、玩 10 局遊戲。開啟通知後，可以領取時和連續天數快斷時會提醒你。'
       ]],
       ['money', '錢怎麼算', [
         '單字：每答對一題 NT$3，第一次精熟一個字再加 NT$25，一天最多 NT$600（字卡不算錢）。遊戲：短局最多 NT$60、長局最多 NT$120，一天最多 NT$400。任務與每週目標：一天最多 NT$300。',
@@ -318,7 +318,7 @@ export const HELP = {
       ]],
       ['missions', 'Missions and weekly goals', [
         'A few small things a day (20 word answers, 3 words mastered, a game, a trade or watch in Securities, a match in Fixtures, your classes in Orbit Class, three apps opened); claim each when done.',
-        'Weekly goals (Monday to Sunday): practise on 5 days, earn NT$1,500, finish 10 missions, play 10 games. With notices on, you’re told when there’s something to claim and when a streak is about to end.'
+        'Weekly goals (Monday to Sunday): practise on 5 days, earn NT$1,000, finish 10 missions, play 10 games. With notices on, you’re told when there’s something to claim and when a streak is about to end.'
       ]],
       ['money', 'Money', [
         'Words: NT$3 a right answer, NT$25 more for a first mastery, NT$600 a day at most (flash cards don’t pay). Games: up to NT$60 a short round, NT$120 a long one, NT$400 a day. Missions and weekly goals: NT$300 a day.',

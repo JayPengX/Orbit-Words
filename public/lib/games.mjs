@@ -376,7 +376,7 @@ export function sudokuPuzzle(random = Math.random, givens = SUDOKU.givens) {
 // One game a day (the same for everyone), its first paid round adding a
 // bonus that grows with the days in a row played; paid as a game, so inside
 // the games' daily cap.
-export const DAILY = { base: 10, perDay: 5, maxDays: 6 };
+export const DAILY = { base: 5, perDay: 3, maxDays: 5 };
 export function dailyGame(day) {
   let h = 0;
   for (const ch of day) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
