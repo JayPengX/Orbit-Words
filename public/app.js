@@ -1202,10 +1202,7 @@ async function boot() {
   $('loading').hidden = true;
   useFreezes();
   checkNotices();
-  const hash = location.hash.slice(1);
-  const help = parseHelpHash(hash);
-  showTab(TABS.includes(hash) ? hash : 'home');
-  if (help) openHelp(help.app, help.topic);
+  openFromHash(true);
   // The pass gets the (possibly migrated) progress and anything left to send.
   if (first?.payload && !first.payload.startsWith('z3:')) dirty = true;
   await sync();
@@ -1213,9 +1210,21 @@ async function boot() {
 }
 if (!gated) boot();
 setTimeout(() => ($('loading').hidden = true), 8000);
-window.addEventListener('hashchange', () => {
-  const help = parseHelpHash(location.hash);
-  if (help) openHelp(help.app, help.topic);
-});
+// Where the address points: a tab (#missions), the level and avatars
+// (#level), or a guide (#help=…). At start, and whenever it changes while the
+// app is open (a link, a notice's tap), not only for help.
+function openFromHash(start = false) {
+  const hash = location.hash.slice(1);
+  const help = parseHelpHash(hash);
+  if (help) {
+    if (start) showTab('home');
+    return openHelp(help.app, help.topic);
+  }
+  const tab = hash === 'level' ? 'missions' : TABS.includes(hash) ? hash : start ? 'home' : null;
+  if (!tab) return;
+  if (tab !== state.tab || start) showTab(tab);
+  if (hash === 'level') setTimeout(() => $('level-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+}
+window.addEventListener('hashchange', () => state.loaded && openFromHash());
 
 if ('serviceWorker' in navigator && window.isSecureContext) navigator.serviceWorker.register('./sw.js').catch(() => {});
