@@ -1,7 +1,6 @@
-// Rewards' mini games on screen: the list with today's earnings against the
-// cap, and the game being played. The pay rules are in lib/games.mjs; a
-// finished round is paid through the app (ctx.pay), as much as today's room
-// allows.
+// Rewards' mini games on screen: the list with today's points, and the
+// game being played. The point rules are in lib/games.mjs; a finished
+// round is counted through the app (ctx.pay). Points (XP), never money.
 import {
   STREAK, ADAPT, adapt, scorer, bestRound, PAY_SCALE,
   DERBY, pitchPlan, ballAt, swingResult, FREE_THROW, shotPlan, markerAt, shotResult,
@@ -10,7 +9,7 @@ import {
   SIMON, simonPay, simonSequence, SUDOKU, sudokuPuzzle, ALL_GAMES, gameInfo
 } from './lib/games.mjs';
 import { ARCADE_BY_ID, arcadePay, HOW, NEW_GAMES, CATEGORIES } from './lib/arcade.mjs';
-import { money } from './lib/quadra.mjs';
+import { xpText } from './lib/earn.mjs';
 
 const state = { t: null, arcadeFrame: 0 };
 let ctx = null;
@@ -27,9 +26,10 @@ function el(tag, props = {}, children = []) {
   for (const child of [].concat(children)) if (child != null && child !== false) node.append(child);
   return node;
 }
-const fmtMoney = (v, { sign = true } = {}) => money(v, { sign });
-// Pay points as NT$ (points × PAY_SCALE), with cents when under NT$10.
-const fmtPay = pts => money(pts * PAY_SCALE, { cents: pts * PAY_SCALE < 10 });
+// Points on screen, XP (the names are older than the points).
+const fmtMoney = (v, { sign = true } = {}) => xpText(v, { sign });
+// A game's raw points as XP (points × PAY_SCALE).
+const fmtPay = pts => xpText(pts * PAY_SCALE);
 
 const FAV_KEY = 'quadra.rewards.favs';
 const RECENT_KEY = 'quadra.rewards.recent';
@@ -63,7 +63,6 @@ export function mountGames(container, context) {
   const info = g => gameInfo(g, state.t, lang());
   const build = () => {
     const t = state.t;
-    const capFill = el('i');
     const capText = el('strong', { class: 'num' });
     const search = el('input', { class: 'gh-search', type: 'search', placeholder: t('gamesSearch'), 'aria-label': t('gamesSearch'), enterkeyhint: 'search' });
     search.addEventListener('input', () => ((ui.q = search.value.trim().toLowerCase()), paintList()));
@@ -74,7 +73,7 @@ export function mountGames(container, context) {
     const daily = el('button', { class: 'gh-daily', type: 'button' });
     const bests = el('div', { class: 'q-card list bests' });
     const hub = el('div', { class: 'gh-hub' }, [
-      el('div', { class: 'gh-cap' }, [el('div', { class: 'gh-cap-top' }, [el('span', { text: t('gamesTitle') }), capText]), el('div', { class: 'meter accent' }, [capFill])]),
+      el('div', { class: 'gh-cap' }, [el('div', { class: 'gh-cap-top' }, [el('span', { text: t('gamesTitle') }), capText])]),
       daily,
       el('div', { class: 'gh-find' }, [el('span', { class: 'gh-search-icon', 'aria-hidden': 'true', text: '🔍' }), search]),
       chips,
@@ -100,7 +99,7 @@ export function mountGames(container, context) {
       slot
     ]);
     const card = el('div', { class: 'games' }, [hub, stage]);
-    shell = { card, capFill, capText, hub, stage, stageName, stageKind, stageEarned, slot, chips, recent, grid, count, daily, bests, search, how, howBtn };
+    shell = { card, capText, hub, stage, stageName, stageKind, stageEarned, slot, chips, recent, grid, count, daily, bests, search, how, howBtn };
     container.replaceChildren(card);
   };
 
@@ -207,11 +206,9 @@ export function mountGames(container, context) {
   const render = () => {
     if (!shell || !shell.card.isConnected) (build(), paintList());
     const t = state.t;
-    const left = ctx.room();
-    const cap = ctx.cap();
-    shell.capFill.style.width = `${Math.min(100, ((cap - left) / cap) * 100)}%`;
-    shell.capText.textContent = left > 0 ? t('gamesToday', { v: fmtMoney(cap - left, { sign: false }), cap: fmtMoney(cap, { sign: false }) }) : t('gamesCapped');
-    shell.stageEarned.textContent = fmtMoney(cap - left, { sign: false });
+    const today = ctx.today();
+    shell.capText.textContent = t('gamesToday', { v: fmtMoney(today, { sign: false }) });
+    shell.stageEarned.textContent = fmtMoney(today, { sign: false });
     const isOpen = Boolean(game);
     shell.hub.hidden = isOpen;
     shell.stage.hidden = !isOpen;
@@ -334,7 +331,7 @@ function animate(draw) {
   state.arcadeFrame = requestAnimationFrame(frame);
 }
 
-// The strip above a game: progress, the round's money so far, the streak,
+// The strip above a game: progress, the round's points so far, the streak,
 // the difficulty, and a moment's note of a bonus or a penalty.
 function gameHud() {
   const t = state.t;
@@ -370,7 +367,7 @@ function gameHud() {
 
 function streakRule(game) {
   const r = STREAK[game];
-  const v = x => fmtMoney(x * PAY_SCALE, { sign: false, cents: x * PAY_SCALE < 10 });
+  const v = x => fmtMoney(x * PAY_SCALE, { sign: false });
   if (r.ladder) return state.t('streakRuleLadder', { a: v(r.ladder[0]), b: v(r.ladder[1]), penalty: v(r.penalty) });
   return r.penalty ? state.t('streakRule', { every: r.every, bonus: v(r.bonus), penalty: v(r.penalty) }) : state.t('streakRuleSafe', { every: r.every, bonus: v(r.bonus) });
 }
@@ -407,7 +404,6 @@ function finishRound(game, amount, box, summary, ms, score = null) {
       score && (score.bonus || score.penalty) ? el('p', { class: 'note', text: t('scoreLine', { bonus: fmtMoney(score.bonus, { sign: false }), penalty: fmtMoney(score.penalty, { sign: false }) }) }) : null,
       bonus > 0 ? el('p', { class: 'daily-paid', text: t('dailyPaid', { v: fmtMoney(bonus, { sign: false }) }) }) : null,
       best ? el('p', { class: 'best-new', text: t('bestNew') }) : null,
-      amount > paid ? el('p', { class: 'note', text: t('gameCapNote') }) : null,
       el('button', { class: 'q-btn primary game-big-button', type: 'button', text: t('gameAgain'), onclick: () => reopen(game) }),
       nextGames(game)
     ].filter(Boolean)
@@ -859,7 +855,7 @@ function freeThrowView() {
     const result = shotResult(marker, plan);
     results.push(result);
     level = adapt(level, result);
-    // The money shows once the ball lands.
+    // The points show once the ball lands.
     later(() => (result === 'miss' ? hud.flash(score.bad(), false) : hud.flash(score.good(FREE_THROW.pay[result]), true), update()), 900);
     phase = 'flight';
     const err = marker - 0.5;

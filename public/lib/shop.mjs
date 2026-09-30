@@ -4,17 +4,18 @@
 //
 //   freeze     連續紀錄保護卡: used by itself on a missed day, so the streak
 //              goes on ('vocab:fz:<day>' marks the day it covered)
-//   boost      ×2 word-practice pay for 30 minutes, and a higher word cap
-//              that day
+//   boost      ×2 word-practice points for 30 minutes
 //   pack       a word pack, bought once ('vocab:shop:pack:<id>', so never twice)
-//   Plus       a protection card every Plus month, a higher word cap, every
-//              pack while a member (bought packs stay after it ends)
-import { ECONOMY, taipeiDay, plusMember, plusMonths } from './quadra.mjs';
+//   Plus       a protection card every Plus month, and packs at the kit's
+//              PLUS.vocab.packShare of the price (the Worker's REWARDS_SHOP
+//              takes no less)
+// Rewards pays points, never money (v7): the shop is the only money it moves.
+import { taipeiDay, plusMember, plusMonths, PLUS } from './quadra.mjs';
 
 export const SHOP = {
   freeze: { price: 300, hold: 3 },
-  boost: { price: 150, minutes: 30, capBonus: 200 },
-  plus: { wordsCap: 50, freezesAMonth: 1 },
+  boost: { price: 150, minutes: 30 },
+  plus: { freezesAMonth: 1 },
   packs: { toeic: 990, ielts: 1_490, biz: 1_990 }
 };
 const MIN = 60_000;
@@ -45,22 +46,13 @@ export function boostUntil(wallet, now = Date.now()) {
 }
 export const boostedToday = (wallet, now = Date.now()) => mine(wallet, 'vocab:shop:boost:').some(e => taipeiDay(e.t) === taipeiDay(now));
 
-// ---- Today's caps -----------------------------------------------------------------------
-// The kit's caps, the word cap raised for Plus members and on a day a boost
-// was bought.
-export function capsFor(wallet, now = Date.now()) {
-  const words = ECONOMY.vocab.dailyCap + (plusMember(wallet, now) ? SHOP.plus.wordsCap : 0) + (boostedToday(wallet, now) ? SHOP.boost.capBonus : 0);
-  return { words, game: ECONOMY.gamesDailyCap, mission: ECONOMY.missionsDailyCap, total: words + ECONOMY.gamesDailyCap + ECONOMY.missionsDailyCap };
-}
-
 // ---- Word packs --------------------------------------------------------------------------
 export const packId = id => `vocab:shop:pack:${id}`;
 export const packOwned = (wallet, id) => (wallet?.entries || []).some(e => e.id === packId(id) && e.app === 'vocab');
 export const ownedPacks = wallet => Object.keys(SHOP.packs).filter(id => packOwned(wallet, id));
-// Studied now: bought, or every pack while a Plus member (progress stays
-// with the words, so a pack bought later carries on where it was).
-export const packIncluded = (wallet, id, now = Date.now()) => !packOwned(wallet, id) && plusMember(wallet, now) && id in SHOP.packs;
-export const packOpen = (wallet, id, now = Date.now()) => packOwned(wallet, id) || packIncluded(wallet, id, now);
-export const openPacks = (wallet, now = Date.now()) => Object.keys(SHOP.packs).filter(id => packOpen(wallet, id, now));
-export const packPrice = (wallet, id) => SHOP.packs[id];
+// Studied once bought (progress stays with the words). Before v7 a Plus
+// member had every pack while a member; now a member pays packShare of it.
+export const packOpen = (wallet, id) => packOwned(wallet, id);
+export const openPacks = wallet => Object.keys(SHOP.packs).filter(id => packOpen(wallet, id));
+export const packPrice = (wallet, id, now = Date.now()) => (plusMember(wallet, now) ? Math.round(SHOP.packs[id] * PLUS.vocab.packShare) : SHOP.packs[id]);
 export const packEntry = (wallet, id, now = Date.now(), note = id) => ({ id: packId(id), t: now, app: 'vocab', kind: 'shop', amount: -packPrice(wallet, id, now), note });

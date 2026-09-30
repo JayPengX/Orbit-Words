@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { SHOP, shopEntry, freezes, boostUntil, capsFor } from '../public/lib/shop.mjs';
-import { streakDays, freezeDue, roomToday, longestStreak } from '../public/lib/earn.mjs';
-import { ECONOMY, taipeiDay } from '../public/lib/quadra.mjs';
+import { SHOP, shopEntry, freezes, boostUntil } from '../public/lib/shop.mjs';
+import { streakDays, freezeDue, longestStreak } from '../public/lib/earn.mjs';
+import { taipeiDay, PLUS } from '../public/lib/quadra.mjs';
 
 const DAY = 86_400_000;
 const now = Date.parse('2026-09-28T04:00:00Z');
-const played = n => ({ id: `vocab:g:${n}`, t: now - n * DAY, app: 'vocab', kind: 'game', amount: 10 });
+const played = n => ({ id: `vocab:g:${n}`, t: now - n * DAY, app: 'vocab', kind: 'game', amount: 0, xp: 10 });
 
 test('protection cards: bought, granted a Plus month, used on a missed day', () => {
   // Played 5 to 2 days ago, missed yesterday: one card saves the streak.
@@ -32,28 +32,28 @@ test('protection cards: bought, granted a Plus month, used on a missed day', () 
   assert.equal(shopEntry('freeze', 'x', now).amount, -SHOP.freeze.price);
 });
 
-test('the ×2 boost: 30 minutes, stacked, and a higher word cap that day', () => {
+test('the ×2 boost: 30 minutes, stacked', () => {
   const w = { entries: [shopEntry('boost', 'a', now - 10 * 60_000), shopEntry('boost', 'b', now - 5 * 60_000)] };
   assert.equal(boostUntil(w, now), now - 10 * 60_000 + 60 * 60_000);
   assert.equal(boostUntil(w, now + 2 * 3_600_000), 0);
-  assert.equal(capsFor(w, now).words, ECONOMY.vocab.dailyCap + SHOP.boost.capBonus);
-  assert.equal(capsFor({ entries: [] }, now).words, ECONOMY.vocab.dailyCap);
-  assert.equal(roomToday(w, 'words', 0, now), ECONOMY.vocab.dailyCap + SHOP.boost.capBonus);
-  const member = { entries: [{ id: `eco:plus:${taipeiDay(now).slice(0, 7)}`, t: now, app: 'eco', kind: 'plus', amount: -290 }] };
-  assert.equal(capsFor(member, now).words, ECONOMY.vocab.dailyCap + SHOP.plus.wordsCap);
+  assert.equal(shopEntry('boost', 'x', now).amount, -SHOP.boost.price);
 });
 
-test('word packs: bought once, all of them while Plus, and they join the word list', async () => {
-  const { packEntry, packOwned, ownedPacks, packPrice, packOpen, packIncluded, openPacks } = await import('../public/lib/shop.mjs');
+test('word packs: bought once, half price for Plus, and they join the word list', async () => {
+  const { packEntry, packOwned, ownedPacks, packPrice, packOpen, openPacks } = await import('../public/lib/shop.mjs');
   const { loadWords, addPacks, pickRound, stats, inLevels, PACK_IDS } = await import('../public/lib/words.mjs');
   const w = { entries: [] };
   assert.equal(packPrice(w, 'toeic', now), SHOP.packs.toeic);
-  const member = { entries: [{ id: `eco:plus:${taipeiDay(now).slice(0, 7)}`, t: now, app: 'eco', kind: 'plus', amount: -290 }] };
-  // A Plus member studies every pack, without buying; it closes when Plus ends.
-  assert.ok(packOpen(member, 'biz', now) && packIncluded(member, 'biz', now) && !packOwned(member, 'biz'));
-  assert.deepEqual(openPacks(member, now), Object.keys(SHOP.packs));
-  assert.equal(packOpen(member, 'biz', now + 40 * 86_400_000), false);
-  assert.equal(packOpen(w, 'biz', now), false);
+  const member = { entries: [{ id: `eco:plus:${taipeiDay(now).slice(0, 7)}`, t: now, app: 'eco', kind: 'plus', amount: -990 }] };
+  // A Plus member pays PLUS.vocab.packShare of the price (the Worker takes
+  // no less), and studies a pack only once bought.
+  assert.equal(packPrice(member, 'biz', now), Math.round(SHOP.packs.biz * PLUS.vocab.packShare));
+  assert.equal(packEntry(member, 'biz', now).amount, -995);
+  // The Worker's lowest pack prices (eco.js REWARDS_SHOP): a member's price.
+  assert.deepEqual(Object.keys(SHOP.packs).map(id => packPrice(member, id, now)), [495, 745, 995]);
+  assert.equal(packOpen(member, 'biz'), false);
+  assert.deepEqual(openPacks(member), []);
+  assert.equal(packOpen(w, 'biz'), false);
   const bought = { entries: [packEntry(w, 'toeic', now)] };
   assert.ok(packOwned(bought, 'toeic') && !packOwned(bought, 'ielts'));
   assert.deepEqual(ownedPacks(bought), ['toeic']);
@@ -80,7 +80,7 @@ test('word packs: bought once, all of them while Plus, and they join the word li
   }
 });
 
-test('missions about Play and plans give a free bet, outside the cash cap, once a day', async () => {
+test('missions about Play and plans give points, no free bet, once a day', async () => {
   const { missions, claimEntry } = await import('../public/lib/earn.mjs');
   const { freeBets } = await import('../public/lib/quadra.mjs');
   const day = taipeiDay(now);
@@ -88,9 +88,11 @@ test('missions about Play and plans give a free bet, outside the cash cap, once 
   const ms = Object.fromEntries(missions(w, now).map(m => [m.id, m]));
   assert.ok(ms.parlay3.done && ms.scratch.done && !ms.plan.done);
   const e = claimEntry(w, 'parlay3', now);
-  assert.deepEqual([e.id, e.kind, e.amount, e.note], [`vocab:fb:${day}:parlay3`, 'freebet', 0, '30']);
+  assert.deepEqual([e.id, e.kind, e.amount, e.xp], [`vocab:m:${day}:parlay3`, 'mission', 0, 30]);
   const after = { ...w, entries: [e] };
   assert.equal(claimEntry(after, 'parlay3', now), null);
-  assert.ok(missions(after, now).find(m => m.id === 'parlay3').claimed);
-  assert.deepEqual(freeBets(after, now).map(x => x.value), [30]);
+  assert.deepEqual(freeBets(after, now), []);
+  // One claimed as a free bet before v7, the same day, stays claimed.
+  const before = { ...w, entries: [{ id: `vocab:fb:${day}:parlay3`, t: now, app: 'vocab', kind: 'freebet', amount: 0, note: '30' }] };
+  assert.equal(claimEntry(before, 'parlay3', now), null);
 });

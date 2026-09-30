@@ -34,8 +34,8 @@ export const HELP = {
         '帳戶裡可以「登出其他所有裝置」（這台保持登入），或「更換通行碼」（新的只顯示一次，舊的立刻失效）。忘記通行碼時，在還登入的裝置更換一組就好。'
       ]],
       ['plus', 'Quadra Plus 會員', [
-        '一個會員、所有 Quadra App：月繳 NT$390（第一次加入的那個月免費），或年繳 NT$3,900，等於每月 NT$325、省下兩個月。從 Quadra 餘額扣款，在帳戶裡加入或管理；會員的帳戶按鈕有金色星星。',
-        'Play：每天一張 NT$1,000 以內的投注獎金 +10%（多的部分在明細裡是「✦ Plus 獎金加成」）、每週一送 NT$100 免費投注、串關加成加倍、提前兌現只扣 2%（一般 5%）。Securities：手續費 2.8 折、換匯點差減半、融資利率少 1%、台幣活存 2%（一般 0.8%）。Rewards：所有單字包會員期間免費、單字每日上限多 NT$50、每月一張連續紀錄保護卡。會員卡上會顯示本月回饋了多少。',
+        '一個會員、所有 Quadra App：月繳 NT$990（第一次加入的那個月免費），或年繳 NT$9,900，等於每月 NT$825、省下兩個月。從 Quadra 餘額扣款，在帳戶裡加入或管理；會員的帳戶按鈕有金色星星。',
+        'Play：每天一張 NT$500 以內的投注獎金 +10%（多的部分在明細裡是「✦ Plus 獎金加成」）、每週一送 NT$100 免費投注、提前兌現只扣 2%（一般 5%）。Securities：手續費 2.8 折、換匯點差減半、融資利率少 1%、台幣活存 2%（一般 0.8%）。Rewards：單字包 5 折（買了永久保留）、每月一張連續紀錄保護卡。會員卡上會顯示本月回饋了多少。',
         '月繳隨時可以取消，已付的月份照常享有權益；年繳到期自動續約，也可以在「管理會員」取消續約。'
       ]],
       ['vip', 'VIP 投注回饋與新手禮', [
@@ -43,9 +43,9 @@ export const HELP = {
         '新手禮：在 Play 第一次用自己的錢下注後，送一張 NT$200 免費投注（7 天內有效）；在 Securities 的第一筆交易免手續費（稅和規費照收）。'
       ]],
       ['money', '錢怎麼算', [
-        '所有 App 共用一個新台幣錢包。新帳號開戶金 NT$30,000；每個月 1 日發津貼，依你的資產（現金加上 Securities 持股）：NT$4 萬以下 NT$6,000、10 萬以下 3,000、25 萬以下 1,500，再多是 500。那個月第一次打開任何 App 時入帳，沒打開的月份下次補發。',
+        '所有 App 共用一個新台幣錢包。新帳號開戶金 NT$30,000；每個月 1 日發津貼，依你的資產（現金加上 Securities 持股）：NT$4 萬以下 NT$8,000、10 萬以下 4,000、25 萬以下 1,500，再多是 500。開戶金和津貼是 Quadra 唯一會給的錢。那個月第一次打開任何 App 時入帳，沒打開的月份下次補發。',
         '餘額可以是負的（透支），每月計息 1%；到 Securities 賣出持股或用融資就能補足。',
-        'Securities 投資、Play 下注和買彩券、Rewards 靠努力賺（單字、遊戲、任務）；Fixtures 和 Orbit Class 不用錢。錢只存在 Quadra Pass，不能在帳號之間轉。'
+        'Securities 投資、Play 下注和買彩券、Rewards 的單字、遊戲和任務給積分（XP）不給錢，只有加值商店會花錢；Fixtures 和 Orbit Class 不用錢。錢只存在 Quadra Pass，不能在帳號之間轉。'
       ]]
     ],
     en: [
@@ -67,8 +67,8 @@ export const HELP = {
         'The account can sign out every other device (this one stays in) or change the pass (the new one is shown once, the old one stops at once). Forgot it? Change it from a device that’s still signed in.'
       ]],
       ['plus', 'Quadra Plus', [
-        'One membership for every Quadra app: NT$390 a month (the first month you ever join is free), or NT$3,900 a year, NT$325 a month with two months free. It comes from the Quadra balance; join or manage it in the account, and a member’s account button has a gold star.',
-        'Play: +10% on the winnings of one slip a day up to NT$1,000 (the extra shows as “✦ Plus boost” in your statement), a NT$100 free bet every Monday, the parlay boost doubled, and cash out keeps 2% instead of 5%. Securities: commission at 28% of the usual rate, half the FX spread, loans 1 point cheaper, 2% on NT$ cash (0.8% otherwise). Rewards: every word pack while you’re a member, NT$50 more word pay a day, and a streak protection every month. The Plus card shows what it gave back this month.',
+        'One membership for every Quadra app: NT$990 a month (the first month you ever join is free), or NT$9,900 a year, NT$825 a month with two months free. It comes from the Quadra balance; join or manage it in the account, and a member’s account button has a gold star.',
+        'Play: +10% on the winnings of one slip a day up to NT$500 (the extra shows as “✦ Plus boost” in your statement), a NT$100 free bet every Monday, and cash out keeps 2% instead of 5%. Securities: commission at 28% of the usual rate, half the FX spread, loans 1 point cheaper, 2% on NT$ cash (0.8% otherwise). Rewards: word packs at half price (yours to keep) and a streak protection every month. The Plus card shows what it gave back this month.',
         'Monthly stops whenever you like, keeping the perks for months paid; yearly renews each year, and renewal can be turned off under Manage membership.'
       ]],
       ['vip', 'VIP cashback and welcome offers', [
@@ -76,9 +76,9 @@ export const HELP = {
         'Welcome offers: your first bet in Play with your own money brings a NT$200 free bet (7 days), and your first trade in Securities pays no commission (taxes and fees as usual).'
       ]],
       ['money', 'Money', [
-        'Every app shares one NT$ wallet. A new pass opens with NT$30,000; the 1st of every month brings an allowance by what you’re worth (cash plus Securities holdings): NT$6,000 under NT$40,000, 3,000 under 100,000, 1,500 under 250,000, 500 above. It’s paid the first time that month you open any app; a month you miss is paid when you’re back.',
+        'Every app shares one NT$ wallet. A new pass opens with NT$30,000; the 1st of every month brings an allowance by what you’re worth (cash plus Securities holdings): NT$8,000 under NT$40,000, 4,000 under 100,000, 1,500 under 250,000, 500 above. The opening money and the allowance are the only money Quadra gives. It’s paid the first time that month you open any app; a month you miss is paid when you’re back.',
         'The balance can go below zero (an overdraft) at 1% a month; selling holdings or borrowing in Securities covers it.',
-        'Securities invests, Play bets and sells lottery tickets, Rewards pays for effort (words, games, missions); Fixtures and Orbit Class don’t use money. Money lives on the Quadra Pass only and can’t move between passes.'
+        'Securities invests, Play bets and sells lottery tickets, Rewards gives points (XP) for words, games and missions, never money (only its shop spends); Fixtures and Orbit Class don’t use money. Money lives on the Quadra Pass only and can’t move between passes.'
       ]]
     ]
   },
@@ -176,10 +176,10 @@ export const HELP = {
         '大樂透、威力彩、今彩539、3星彩、4星彩、38／39／49樂合彩、BINGO BINGO、雙贏彩、大福彩，和 6 種刮刮樂。每張遊戲卡都能「快選 1 注」，打開可以自選或快選 5 注。中獎自動入帳並通知你。'
       ]],
       ['boost', '串關加成與提前兌現', [
-        '串關加成：3 場以上的串關全過時多給獎金，3 場 +5%、4 場 +8%、5 場 +12%、6 場 +15%、7 場以上 +20%；Plus 會員加倍，最高 +40%。',
+        '串關加成：3 場以上的串關全過時多給獎金，3 場 +5%、4 場 +8%、5 場 +12%、6 場 +15%、7 場以上 +20%。',
         '提前兌現：比賽還沒結束也能先把投注單換成現金，金額依目前賠率計算，扣 5%（Plus 扣 2%）。',
         '首頁的「精選串關」幫你挑好大聯賽的熱門組合，一鍵加到投注單。',
-        '免費投注：Rewards 任務送的，在投注單上點一下就用在這張單（串關或單一選項），不扣本金，贏了拿獎金（不含本金），7 天內有效；不能提前兌現。'
+        '免費投注：Plus 會員每週的免費投注和新手禮，在投注單上點一下就用在這張單（串關或單一選項），不扣本金，贏了拿獎金（不含本金），7 天內有效；不能提前兌現。'
       ]],
       ['money', '錢怎麼算', [
         '下注和買彩券從錢包扣款，中獎自動入帳並通知你。彩券中獎超過 NT$5,000 照規定扣 20% 所得稅和 0.4% 印花稅。'
@@ -204,10 +204,10 @@ export const HELP = {
         'Lotto 6/49, Super Lotto, Daily Cash 539, 3 and 4 Digits, the 38, 39 and 49 M games, BINGO BINGO, Lotto 12/24 and more, and 6 scratch cards. Every card has a one-tap quick pick; open one to pick numbers or quick pick 5. Winnings are paid automatically, with a notice.'
       ]],
       ['boost', 'Parlay boost and cash out', [
-        'Parlay boost: a winning parlay of 3 or more legs pays extra: +5% for 3, +8% for 4, +12% for 5, +15% for 6, +20% for 7 or more; doubled for Plus members, up to +40%.',
+        'Parlay boost: a winning parlay of 3 or more legs pays extra: +5% for 3, +8% for 4, +12% for 5, +15% for 6, +20% for 7 or more.',
         'Cash out: turn a slip into cash before the games end, priced at the current odds less 5% (2% with Plus).',
         'Featured parlays on the home screen put together big-league picks, added to the slip in one tap.',
-        'Free bets: from Rewards missions; tap one on the slip to use it on that slip (a parlay or one pick). Nothing comes off your balance, a win pays the winnings (not the stake), and it lasts 7 days; no cash out.'
+        'Free bets: Plus’s weekly one and the welcome offer; tap one on the slip to use it on that slip (a parlay or one pick). Nothing comes off your balance, a win pays the winnings (not the stake), and it lasts 7 days; no cash out.'
       ]],
       ['money', 'Money', [
         'Bets and tickets come out of the wallet, and winnings go straight back in, with a notice. Lottery prizes over NT$5,000 have 20% tax and 0.4% stamp duty taken, as the rules say.'
@@ -267,10 +267,10 @@ export const HELP = {
   vocab: {
     zh: [
       ['what', 'Quadra Rewards 是什麼', [
-        'Quadra 靠努力賺錢的地方：背單字、玩遊戲、完成每日任務，錢直接進錢包。所有 App 的說明也都在這裡。'
+        'Quadra 獎勵努力的地方：背單字、玩遊戲、完成每日任務，拿積分（XP）、連續紀錄和徽章。積分不是錢，Rewards 不發錢。所有 App 的說明也都在這裡。'
       ]],
       ['tabs', '每個分頁', [
-        '「首頁」：今天可賺與已賺、今日挑戰、接下來的任務、加值（保護卡、單字加倍、Plus）和今日單字。',
+        '「首頁」：今天的積分、今日挑戰、接下來的任務、加值（保護卡、單字加倍、Plus）和今日單字。',
         '「單字」：選級別或單字包和學習方式，開始一輪。',
         '「遊戲」：單字遊戲、長局、謎題、動作、棋盤、腦力，可以搜尋和加入最愛；每天有一款今日挑戰。',
         '「任務」：每日任務、每週目標、徽章和財富等級；完成待領取的數量會標在分頁上。',
@@ -283,30 +283,31 @@ export const HELP = {
       ]],
       ['games', '遊戲', [
         '103 款遊戲，分成單字、邏輯、益智、動作、反應、棋類、牌類、記憶和數字九類。遊戲頁一排排瀏覽，點「全部」看整類，也能搜尋或加入最愛；一局結束會推薦接著玩的遊戲。',
-        '短局一到兩分鐘；「長局」（數獨、接龍、新接龍、蜘蛛接龍、大盤踩地雷、跳棋）和找單字要十分鐘以上，玩得越好賺越多。',
+        '短局一到兩分鐘；「長局」（數獨、接龍、新接龍、蜘蛛接龍、大盤踩地雷、跳棋）和找單字要十分鐘以上，玩得越好積分越多。',
         '遊戲開始後佔滿整個畫面，不會捲動；右上角的「?」隨時看玩法。',
-        '今日挑戰：當天第一局有入帳就加獎金（NT$5 起，連續幾天多一點，最多 NT$20）。每款遊戲的最佳紀錄跨裝置保留。'
+        '今日挑戰：當天第一局有得分就加積分（5 XP 起，連續幾天多一點，最多 20 XP）。每款遊戲的最佳紀錄跨裝置保留。'
       ]],
       ['missions', '每日任務與每週目標', [
-        '每天幾個小任務（背 20 題、精熟 3 個字、玩一局遊戲、在 Securities 交易或加入觀察、在 Fixtures 看一場比賽、在 Orbit Class 看課表、打開三個 App），完成後按「領取」。在 Play 串 3 場以上、買一張刮刮樂、在 Securities 設定新的定期定額，這三個任務送的是 Play 的免費投注（NT$20–30，7 天內有效）：用在一張單上，不扣本金，贏了拿獎金。',
-        '每週目標（週一到週日）：5 天有練習、賺 NT$1,000、完成 10 個任務、玩 10 局遊戲。開啟通知後，可以領取時和連續天數快斷時會提醒你。'
+        '每天幾個小任務（背 20 題、精熟 3 個字、玩一局遊戲、在 Securities 交易或加入觀察、在 Fixtures 看一場比賽、在 Orbit Class 看課表、打開三個 App），在 Play 串 3 場以上、買一張刮刮樂、在 Securities 設定新的定期定額，完成後按「領取」拿積分。',
+        '每週目標（週一到週日）：5 天有練習、單字和遊戲拿 1,000 XP、完成 10 個任務、玩 10 局遊戲。開啟通知後，可以領取時和連續天數快斷時會提醒你。'
       ]],
       ['extras', '加值', [
         '連續紀錄保護卡（NT$300，最多持有 3 張）：哪天沒練習也沒玩遊戲，它會自動用掉一張，連續紀錄照樣算下去。Plus 會員每月送一張。',
-        '單字加倍（NT$150）：接下來 30 分鐘每題單字獎勵 ×2，當天單字上限也多 NT$200；在加倍中再買，會接在後面再延 30 分鐘。',
-        '單字包（「單字」分頁）：多益 TOEIC NT$990、雅思 IELTS NT$1,490、商務英文 NT$1,990，一次買斷，每個字都有真人發音。買了就和級別一樣可以勾選；和主單字表重複的字共用進度，答對一樣有獎勵。Plus 會員期間全部免費使用（買斷的永久保留）。'
+        '單字加倍（NT$150）：接下來 30 分鐘每題單字積分 ×2；在加倍中再買，會接在後面再延 30 分鐘。',
+        '單字包（「單字」分頁）：多益 TOEIC NT$990、雅思 IELTS NT$1,490、商務英文 NT$1,990，一次買斷，每個字都有真人發音。買了就和級別一樣可以勾選；和主單字表重複的字共用進度，答對一樣有積分。Plus 會員 5 折。'
       ]],
-      ['money', '錢怎麼算', [
-        '今天最多可賺 NT$330：單字 NT$150（每答對一題 NT$2，第一次精熟一個字再加 NT$15；字卡不算錢）、遊戲 NT$120（短局最多 NT$60、長局最多 NT$120）、任務與每週目標 NT$60。Plus 會員單字多 NT$50；買了單字加倍的那天單字多 NT$200。',
+      ['money', '積分怎麼算', [
+        '單字每答對一題 2 XP，第一次精熟一個字再加 15 XP（字卡不算）；遊戲一分鐘大約 10 XP，玩得好更多；任務 10–30 XP、每週目標 30–45 XP。積分沒有上限，會算進每週目標和徽章；它不是錢，不能花。',
+        '錢只有開戶金和每月津貼（在 Quadra Pass 的說明裡）；在 Rewards 花錢的只有加值商店。',
         '財富等級依錢包總額分成八級，從「起步」（NT$5 萬以下）到「億萬」（NT$2,000 萬以上）。'
       ]]
     ],
     en: [
       ['what', 'What Quadra Rewards is', [
-        'Where effort earns money in Quadra: words, games and daily missions pay straight into the wallet. Every app’s help lives here too.'
+        'Where Quadra rewards effort: words, games and daily missions earn points (XP), streaks and badges. Points aren’t money: Rewards pays none. Every app’s help lives here too.'
       ]],
       ['tabs', 'The tabs', [
-        'Home: what today can pay and has paid, today’s challenge, the next missions, extras (streak protection, word pay ×2, Plus) and the word of the day.',
+        'Home: today’s points, today’s challenge, the next missions, extras (streak protection, word points ×2, Plus) and the word of the day.',
         'Words: pick levels or word packs and a way to learn, and start a round.',
         'Games: word games, long games, puzzles, action, board and brain games, with search and favourites; one game a day is today’s challenge.',
         'Missions: daily missions, weekly goals, badges and your wealth rank; the tab shows how many are ready to claim.',
@@ -319,21 +320,22 @@ export const HELP = {
       ]],
       ['games', 'Games', [
         '103 games in nine kinds: words, logic, puzzles, action, reflex, board, cards, memory and numbers. Browse them row by row, open a whole kind with See all, search, or keep favourites; a finished round suggests what to play next.',
-        'Short games take a minute or two; the long ones (sudoku, solitaire, FreeCell, Spider, big minesweeper, checkers) and word search ten minutes or more. Play well and they pay more.',
+        'Short games take a minute or two; the long ones (sudoku, solitaire, FreeCell, Spider, big minesweeper, checkers) and word search ten minutes or more. Play well and they give more points.',
         'A game in play has the whole screen and nothing scrolls; the ? at the top shows how to play.',
-        'Today’s challenge: its first paid round adds a bonus (from NT$5, a little more each day in a row, up to NT$20). Each game’s best is kept on every device.'
+        'Today’s challenge: its first round that scores adds a bonus (from 5 XP, a little more each day in a row, up to 20 XP). Each game’s best is kept on every device.'
       ]],
       ['missions', 'Missions and weekly goals', [
-        'A few small things a day (20 word answers, 3 words mastered, a game, a trade or watch in Securities, a match in Fixtures, your classes in Orbit Class, three apps opened); claim each when done. A parlay of 3 or more in Play, a scratch card, or a new monthly plan in Securities each give a free bet in Play instead (NT$20–30, 7 days): staked on one slip, nothing off your balance, and a win pays the winnings.',
-        'Weekly goals (Monday to Sunday): practise on 5 days, earn NT$1,000, finish 10 missions, play 10 games. With notices on, you’re told when there’s something to claim and when a streak is about to end.'
+        'A few small things a day (20 word answers, 3 words mastered, a game, a trade or watch in Securities, a match in Fixtures, your classes in Orbit Class, three apps opened, a parlay of 3 or more in Play, a scratch card, a new monthly plan in Securities); claim each for its points when done.',
+        'Weekly goals (Monday to Sunday): practise on 5 days, 1,000 XP from words and games, finish 10 missions, play 10 games. With notices on, you’re told when there’s something to claim and when a streak is about to end.'
       ]],
       ['extras', 'Extras', [
         'Streak protection (NT$300, hold up to 3): on a day with no practice and no game, one is used by itself and the streak goes on. Plus members get one every month.',
-        'Word pay ×2 (NT$150): every word pays double for the next 30 minutes, and that day’s word cap is NT$200 higher; one bought during another runs 30 minutes after it.',
-        'Word packs (in Words): TOEIC NT$990, IELTS NT$1,490, Business English NT$1,990, bought once, every word recorded. Once yours, pick a pack like a level; words the main list shares keep one progress, and right answers pay as usual. Free while you’re a Plus member (a bought pack stays yours).'
+        'Word points ×2 (NT$150): every word earns double points for the next 30 minutes; one bought during another runs 30 minutes after it.',
+        'Word packs (in Words): TOEIC NT$990, IELTS NT$1,490, Business English NT$1,990, bought once, every word recorded. Once yours, pick a pack like a level; words the main list shares keep one progress, and right answers earn points as usual. Half price for Plus members.'
       ]],
-      ['money', 'Money', [
-        'Up to NT$330 a day: words NT$150 (NT$2 a right answer, NT$15 more for a first mastery; flash cards don’t pay), games NT$120 (up to NT$60 a short round, NT$120 a long one), missions and weekly goals NT$60. Plus members get NT$50 more for words; a day with a word boost, NT$200 more.',
+      ['money', 'Points', [
+        'Words: 2 XP a right answer, 15 XP more for a first mastery (flash cards give none); games about 10 XP a minute, more when you play well; missions 10–30 XP, weekly goals 30–45 XP. Points have no daily limit and count towards weekly goals and badges; they aren’t money and can’t be spent.',
+        'Money comes only from the opening money and the monthly allowance (see Quadra Pass); in Rewards only the shop spends it.',
         'Eight wealth ranks by the wallet’s total, from Starter (under NT$50,000) to Tycoon (NT$20 million and up).'
       ]]
     ]

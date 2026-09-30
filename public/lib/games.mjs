@@ -1,7 +1,7 @@
-// Rewards' mini games: small games that pay for effort, never luck. Every
-// round takes about a minute and pays about ECONOMY.gamesPerMinute for
-// typical play (better players up to about 3-4 times), all of them together
-// at most ECONOMY.gamesDailyCap a Taiwan day (earn.mjs).
+// Rewards' mini games: small games that give points (XP) for effort, never
+// luck. Every round takes about a minute and gives about
+// ECONOMY.gamesPerMinute for typical play (better players up to about 3-4
+// times). Points only: Rewards pays no money (earn.mjs).
 //
 //   derby      home run derby: swing as the pitch reaches the plate
 //   freethrow  free throws: stop the arrow in the green
@@ -29,9 +29,7 @@ export function gameInfo(id, t, lang = 'zh') {
   if (a) return { id, icon: a.icon, name: lang === 'en' ? a.en : a.zh, kind: lang === 'en' ? a.kindEn : a.kindZh, cat: a.cat, long: a.long, arcade: true };
   return { id, icon: ICON[id] || '🎮', name: t(`game_${id}`), kind: t(`gameKind_${id}`), cat: CLASSIC_CAT[id] || 'puzzle', arcade: false };
 }
-// Taiwan's minimum hourly wage in 2026 (NT$).
-export const MIN_WAGE = 196;
-// Pay points are scaled to NT$ so a typical minute pays ECONOMY.gamesPerMinute.
+// A game's raw points are scaled so a typical minute gives ECONOMY.gamesPerMinute XP.
 export const PAY_SCALE = ECONOMY.gamesPerMinute / 25;
 
 // Streaks: `every` right in a row adds `bonus`; a `ladder` adds ladder[0]

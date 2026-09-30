@@ -1,6 +1,8 @@
 # Quadra Rewards
 
-Where Quadra pays for effort and explains itself (formerly Quadra Words).
+Where Quadra rewards effort with points (XP) and explains itself (formerly
+Quadra Words). It pays no money: since v7 the opening money and the
+allowance are the only money Quadra gives.
 
 **https://jaypengx.github.io/Quadra-Rewards/**
 
@@ -8,8 +10,8 @@ Where Quadra pays for effort and explains itself (formerly Quadra Words).
 
 - **Home**: your wealth rank (from the Quadra Pass wallet's total), the word
   of the day, next steps, today's game challenge, daily missions across the
-  apps, weekly goals, today's earnings against each cap, badges, and how to
-  grow the money.
+  apps, weekly goals, today's points by kind, badges, and how to grow the
+  money.
 - **Words**: the 大考中心 high-school English reference list, levels 1 to 6
   (6,170 words, every one recorded in Microsoft's Jenny voice). Rounds of
   10, 20 or 30 mix reviews due and new words, and a missed word comes back
@@ -31,17 +33,17 @@ Where Quadra pays for effort and explains itself (formerly Quadra Words).
   fruit catch, whack-a-mole, pong, aim), board games against Quadra
   (tic-tac-toe, connect four, reversi, gomoku, nim) and brain games (quick
   maths, reaction time, Schulte table, odd colour, number and grid memory,
-  Stroop, quick count, bigger or smaller). Each pays its score at its own
-  rate up to its own most a round (`arcadePay`). The games list has a
+  Stroop, quick count, bigger or smaller). Each gives points for its score at its
+  own rate up to its own most a round (`arcadePay`). The games list has a
   search, categories, favourites (★) and what you played lately. A daily challenge (one game a day,
-  `dailyGame`) adds a bonus to its first paid round that grows with the days
-  in a row (NT$5 to NT$20, paid as a game, so inside the games' cap), and
+  `dailyGame`) adds a bonus to its first round that scores, growing with the
+  days in a row (5 to 20 XP, counted as a game), and
   each game's best round is kept in the wallet setting `bests:vocab`.
 - **Notices** (the kit's `notify`): a mission or weekly goal newly ready to
   claim, and a streak that ends tonight (after 20:00 Taiwan time).
 - **Long games** (`lib/long.mjs`, category 長局): 9×9 sudoku, Klondike
   solitaire, a 10×14 minesweeper and checkers against Quadra, ten minutes
-  and more a game, paid up to NT$120; and **word search** (your words, found
+  and more a game, up to 120 XP; and **word search** (your words, found
   by their meanings). A game in play takes the whole screen: the page
   underneath is locked and canvases size to the space left, so nothing
   scrolls under a thumb; a round's result slides up over the game.
@@ -54,24 +56,33 @@ Where Quadra pays for effort and explains itself (formerly Quadra Words).
   or by other apps' links, `#help=<app>` or `#help=<app>:<topic>` (`helpUrl`
   in the kit).
 
-## Money
+## Points, and the only money here
 
-Everything pays into the pass's shared wallet as entries (app `vocab`,
-fixed ids, so nothing is paid twice), capped per Taiwan day
-(`ECONOMY` in the kit):
+Every point is an entry in the pass's wallet (app `vocab`, fixed ids, so
+nothing counts twice) with `amount: 0` and its points in `xp`; the Worker
+drops any Rewards entry with a positive amount (`eco.js cleanEntry`).
+Entries from before v7 paid NT$ in `amount`; `xpOf` counts those as points.
+No daily limit (`ECONOMY` in the kit):
 
-| | pays | daily cap |
-|---|---|---|
-| Words | NT$2 a right answer, NT$15 more a first mastery | NT$150 (Plus 200; +200 the day a boost is bought) |
-| Games | about NT$10 a minute of typical play | NT$120 |
-| Missions | NT$10–20 each, claimed (weekly goals NT$30–45) | NT$60 |
+| | points |
+|---|---|
+| Words | 2 XP a right answer, 15 XP more a first mastery (×2 during a bought boost) |
+| Games | about 10 XP a minute of typical play |
+| Missions | 10–30 XP each, claimed (weekly goals 30–45 XP) |
 
-Weekly goals (Monday to Sunday, ids `vocab:wk:<Monday>:<goal>`) are paid as
-missions, inside the missions' cap. Badges are read from the record (wallet
-entries, words mastered, bests), so nothing extra is stored.
+Weekly goals (Monday to Sunday, ids `vocab:wk:<Monday>:<goal>`) are claimed
+as missions. Badges are read from the record (wallet entries, words
+mastered, bests), so nothing extra is stored.
+
+The shop (`lib/shop.mjs`) is the only money Rewards moves, and only out of
+the pool: streak protection NT$300, word points ×2 for 30 minutes NT$150,
+word packs TOEIC 990 / IELTS 1,490 / Business 1,990 (half price for Quadra
+Plus members, who also get a protection card a month).
 
 Missions (Orbit Class included: checking the day's classes) read each app's activity counts in the wallet (`act:<app>`) and
-when each app was last opened; none is about betting.
+when each app was last opened. Three are about Play and Securities (a
+parlay of 3+, a scratch card, a monthly plan); they give points, not free
+bets (v7).
 
 ## How it works
 
@@ -94,9 +105,9 @@ public/
   lib/voice.mjs      ranking the device's voices (a fallback, or chosen)
   lib/long.mjs       the long games' rules
   lib/words.mjs      boxes, rounds, questions, saved progress
-  lib/earn.mjs       earnings, missions, wealth ranks
-  lib/games.mjs      game rules and pay
-  lib/arcade.mjs     the arcade games' list, rules and pay
+  lib/earn.mjs       points, missions, wealth ranks
+  lib/games.mjs      game rules and points
+  lib/arcade.mjs     the arcade games' list, rules and points
   arcade/*.js        each arcade game's screen (arcade/kit.js: shared parts)
   lib/help.mjs       the help centre's text
   lib/i18n.mjs       Traditional Chinese and English

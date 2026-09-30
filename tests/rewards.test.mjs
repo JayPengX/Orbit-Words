@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { loadWords, grade, pickRound, makeQuestion, sameWord, spellDiff, stats, packProgress, unpackProgress, migrateWords, mergeProgress, payFor, dayNum, MASTERED } from '../public/lib/words.mjs';
-import { earnedToday, missions, claimEntry, rankOf, streakDays, CAPS } from '../public/lib/earn.mjs';
+import { xpToday, xpAllTime, xpText, missions, claimEntry, rankOf, streakDays } from '../public/lib/earn.mjs';
 import { move, canMove, mergePoints, pairResult, scoreRound, bestRound } from '../public/lib/games.mjs';
 import { HELP, HELP_ORDER, parseHelpHash } from '../public/lib/help.mjs';
 import { STRINGS } from '../public/lib/i18n.mjs';
@@ -72,7 +72,7 @@ test('questions: four distinct choices with the answer among them', () => {
   assert.deepEqual(spellDiff('studnet', 'student').map(d => d.ok), [true, true, true, true, false, false, true]);
 });
 
-test('pay: right answers and first mastery, nothing for cards', () => {
+test('points: right answers and first mastery, nothing for cards', () => {
   assert.equal(payFor({ correct: true, type: 'meaning' }, ECONOMY.vocab), 2);
   assert.equal(payFor({ correct: true, type: 'spell', firstMastery: true }, ECONOMY.vocab), 17);
   assert.equal(payFor({ correct: true, type: 'card' }, ECONOMY.vocab), 0);
@@ -95,32 +95,37 @@ test('progress round-trips, merges newest per word, and Quadra Words migrates', 
   assert.equal(stats(words, old).all.mastered, 1);
 });
 
-test('earnings per kind today, missions and claims', () => {
+test('points per kind today (old paid entries count as points), missions and claims', () => {
   const now = Date.parse('2026-09-28T04:00:00Z');
   const day = taipeiDay(now);
   const wallet = {
     entries: [
       { id: 'vocab:w:1', t: now - 1000, app: 'vocab', kind: 'words', amount: 90 },
       { id: 'vocab:old', t: now - 2000, app: 'vocab', kind: 'reward', amount: 10 },
-      { id: 'vocab:g:1', t: now - 3000, app: 'vocab', kind: 'game', amount: 20 },
+      { id: 'vocab:g:1', t: now - 3000, app: 'vocab', kind: 'game', amount: 0, xp: 20 },
+      { id: 'vocab:shop:boost:a', t: now - 4000, app: 'vocab', kind: 'shop', amount: -150 },
       { id: 'vocab:g:0', t: now - 3 * 86_400_000, app: 'vocab', kind: 'game', amount: 20 },
       { id: 'odds:x', t: now, app: 'odds', kind: 'bet', amount: -100 }
     ],
     settings: { 'act:vocab': { value: { day, n: { answer: 25, master: 1, game: 1 } }, t: now }, 'act:stock': { value: { day, n: { trade: 1 } }, t: now } },
     apps: { stock: { last: now }, match: { last: now - 3 * 86_400_000 }, vocab: { last: now } }
   };
-  const e = earnedToday(wallet, now);
-  assert.deepEqual([e.words, e.game, e.mission], [100, 20, 0]);
+  const e = xpToday(wallet, now);
+  assert.deepEqual([e.words, e.game, e.mission, e.total], [100, 20, 0, 120]);
+  assert.equal(xpAllTime(wallet), 140);
   const ms = Object.fromEntries(missions(wallet, now).map(m => [m.id, m]));
   assert.ok(ms.words20.done && ms.game1.done && ms.invest.done);
   assert.ok(!ms.master3.done && !ms.match.done && !ms.tour.done);
   const entry = claimEntry(wallet, 'words20', now);
-  assert.equal(entry.amount, 20);
+  // Points, never money.
+  assert.deepEqual([entry.amount, entry.xp, entry.kind], [0, 20, 'mission']);
   assert.equal(entry.id, `vocab:m:${day}:words20`);
   assert.equal(claimEntry({ ...wallet, entries: [...wallet.entries, entry] }, 'words20', now), null);
   assert.equal(claimEntry(wallet, 'master3', now), null);
   assert.equal(streakDays(wallet, now), 1);
-  assert.equal(CAPS.words + CAPS.game + CAPS.mission, 330);
+  // Every mission gives points; none gives money or a free bet.
+  for (const m of missions(wallet, now)) assert.ok(m.xp > 0 && !m.pay && !m.freebet, m.id);
+  assert.deepEqual([xpText(1234), xpText(2.4, { sign: true }), xpText(0)], ['1,234 XP', '+2.4 XP', '0 XP']);
 });
 
 test('wealth ranks', () => {
@@ -161,7 +166,7 @@ test('help covers every app in both languages, and every string exists in both',
   assert.deepEqual(Object.keys(STRINGS.en).sort(), Object.keys(STRINGS.zh).sort());
 });
 
-test('new games: every one pays a modest round, inside the daily cap', async () => {
+test('new games: every one gives a modest round of points', async () => {
   const { GAMES, bestRound, STREAK, ICON } = await import('../public/lib/games.mjs');
   assert.equal(GAMES.length, 7);
   for (const g of GAMES) {
@@ -220,20 +225,19 @@ test('daily challenge, weekly goals, badges and bests', async () => {
   assert.equal(weekStart(Date.parse('2026-10-04T15:00:00Z')), '2026-09-28');
   const day = n => now - n * 86_400_000;
   const entries = [];
-  for (let n = 1; n <= 7; n++) entries.push({ id: dailyId(taipeiDay(day(n))), t: day(n), app: 'vocab', kind: 'game', amount: 10 });
+  for (let n = 1; n <= 7; n++) entries.push({ id: dailyId(taipeiDay(day(n))), t: day(n), app: 'vocab', kind: 'game', amount: 0, xp: 10 });
   const wallet = { entries };
   assert.equal(dailyStreak(wallet, now), 7);
   assert.equal(longestStreak(wallet), 7);
   assert.equal(streakAtRisk(wallet, now), 0);
   assert.equal(streakAtRisk(wallet, Date.parse('2026-09-28T13:00:00Z')), 7);
-  const wk = { entries: [...entries, ...Array.from({ length: 10 }, (_, i) => ({ id: `vocab:g:${i}`, t: now - i, app: 'vocab', kind: 'game', amount: 150 }))] };
+  const wk = { entries: [...entries, ...Array.from({ length: 10 }, (_, i) => ({ id: `vocab:g:${i}`, t: now - i, app: 'vocab', kind: 'game', amount: 0, xp: 150 }))] };
   const goals = weeklyGoals(wk, now);
   assert.equal(goals.find(g => g.id === 'games10').done, true);
   assert.equal(goals.find(g => g.id === 'earn1000').done, true);
   assert.equal(goals.find(g => g.id === 'days5').progress, 1);
   const claim = claimWeekly(wk, 'games10', now);
-  assert.equal(claim.kind, 'mission');
-  assert.ok(claim.amount <= CAPS.mission);
+  assert.deepEqual([claim.kind, claim.amount, claim.xp], ['mission', 0, 30]);
   assert.equal(claimWeekly({ entries: [...wk.entries, claim] }, 'games10', now), null);
   const b = badges({ wallet: wk, mastered: 120, bests: {}, games: GAMES });
   assert.ok(b.find(x => x.id === 'firstGame').earned);

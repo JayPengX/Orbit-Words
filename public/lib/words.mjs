@@ -204,8 +204,9 @@ export function spellDiff(typed, word) {
   return [...b].map((ch, i) => ({ ch, ok: a[i] === ch.toLowerCase() }));
 }
 
-// What an answer pays, in NT$ (see ECONOMY.vocab): a right answer to a real
-// question, and a word mastered for the first time. Flash cards pay nothing.
+// What an answer earns, in points (XP, see ECONOMY.vocab): a right answer to
+// a real question, and a word mastered for the first time. Flash cards earn
+// nothing.
 export function payFor({ correct, type, firstMastery }, rates) {
   let v = 0;
   if (correct && type !== 'card') v += rates.perCorrect;

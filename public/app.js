@@ -1,14 +1,15 @@
-// Quadra Rewards: where Quadra pays for effort and explains itself. Words
+// Quadra Rewards: where Quadra rewards effort and explains itself. Words
 // (the high-school list, levels 1 to 6, six ways to learn), mini games and
-// daily missions pay into the Quadra Pass's shared wallet; the wealth ranks
-// show where the pool stands; the help centre explains every app.
+// daily missions give points (XP), never money (v7); the shop spends from
+// the Quadra Pass's shared wallet; the wealth ranks show where the pool
+// stands; the help centre explains every app.
 import {
-  quadraSession, tabBar, topActions, installGate, watchUpdates, recordAffinity, setting, settingPatch, taipeiDay, poolBalance, money, randomId, notify, schedulePush, APPS, ECONOMY, ask, plusCard, plusMember, affinityPatch
+  quadraSession, tabBar, topActions, installGate, watchUpdates, recordAffinity, setting, settingPatch, taipeiDay, poolBalance, money, randomId, notify, schedulePush, APPS, ECONOMY, PLUS, ask, plusCard, plusMember, affinityPatch
 } from './lib/quadra.mjs';
-import { SHOP, shopEntry, freezes, boostUntil, capsFor, openPacks, packPrice, packEntry, packOpen, packIncluded } from './lib/shop.mjs';
+import { SHOP, shopEntry, freezes, boostUntil, openPacks, packPrice, packEntry, packOpen } from './lib/shop.mjs';
 import { LEVELS, PACK_IDS, addPacks, levelRank, inLevels, MODES, loadWords, pickRound, smartType, markKnown, makeQuestion, grade, payFor, sameWord, spellDiff, stats, stateOf, packProgress, unpackProgress, mergeProgress, migrateWords, shortMeaning, wordOfDay } from './lib/words.mjs';
 import {
-  earnedToday, missions, claimEntry, rankOf, RANKS, streakDays, earnedAllTime, streakAtRisk, dailyId, dailyStreak, weeklyGoals, claimWeekly, badges, freezeDue
+  xpToday, xpOf, xpText, missions, claimEntry, rankOf, RANKS, streakDays, xpAllTime, streakAtRisk, dailyId, dailyStreak, weeklyGoals, claimWeekly, badges, freezeDue
 } from './lib/earn.mjs';
 import { GAMES, gameInfo, dailyGame, dailyBonus, mergeBests } from './lib/games.mjs';
 import { HELP_ORDER, helpFor, parseHelpHash } from './lib/help.mjs';
@@ -54,6 +55,7 @@ function el(tag, props = {}, children = []) {
 }
 const put = (node, ...kids) => node.replaceChildren(...kids.filter(k => k != null && k !== false));
 const nt = v => money(v);
+const xp = v => xpText(v);
 const section = (title, content, { sub = '', action = null } = {}) =>
   el('section', { class: 'q-section' }, [el('div', { class: 'q-section-head' }, [el('h2', { text: title }), action]), sub ? el('p', { class: 'section-sub', text: sub }) : null, content]);
 function toast(text, kind = '') {
@@ -90,11 +92,12 @@ async function decodePayload(payload) {
 }
 const encodePayload = async () => `z3:${await gzipB64(JSON.stringify(packProgress({ progress: state.progress, levels: state.levels, mode: state.mode })))}`;
 
-// ---- Money earned here: entries waiting to go to the pass ------------------------------
+// ---- Points earned here: entries waiting to go to the pass ------------------------------
 //
 // A batch of answers, a game round or a claimed mission becomes an entry
-// with a fixed id at once, kept on this device (quadra.rewards.out) until
-// the pass has it, so nothing is lost offline or paid twice.
+// with a fixed id at once (amount 0, its points in `xp`), kept on this
+// device (quadra.rewards.out) until the pass has it, so nothing is lost
+// offline or counted twice. A shop purchase waits here the same way.
 const OUT_KEY = 'quadra.rewards.out';
 const outbox = {
   read() {
@@ -110,9 +113,12 @@ const outbox = {
     } catch {}
   }
 };
+// Before v7 these entries paid NT$, which the Worker no longer takes: any
+// still waiting become points, and a mission's free bet is gone.
+outbox.write(outbox.read().filter(e => !String(e.id).startsWith('vocab:fb:')).map(e => (e.amount > 0 ? { ...e, amount: 0, xp: e.amount } : e)));
 const earned = () => {
-  const e = earnedToday(state.wallet);
-  for (const x of outbox.read()) if (taipeiDay(x.t) === taipeiDay() && !walletHas(x.id)) e[x.kind === 'reward' ? 'words' : x.kind] += x.amount;
+  const e = xpToday(state.wallet);
+  for (const x of outbox.read()) if (taipeiDay(x.t) === taipeiDay() && !walletHas(x.id) && xpOf(x)) e[x.kind === 'reward' ? 'words' : x.kind] += xpOf(x);
   e.total = e.words + e.game + e.mission;
   return e;
 };
@@ -149,8 +155,6 @@ function daily() {
   const done = w.entries.some(e => e.id === dailyId(day));
   return { day, game: dailyGame(day), done, streak, bonus: dailyBonus(streak) };
 }
-const caps = () => capsFor(withOutbox());
-const room = kind => Math.max(0, caps()[kind] - earned()[kind]);
 const boosted = () => boostUntil(withOutbox()) > Date.now();
 
 // Activity counts for the missions (act:vocab), added up here.
@@ -169,22 +173,20 @@ function actPatch() {
   return any ? settingPatch('act:vocab', { day, n }).settings : {};
 }
 
-// The open batch of word pay.
+// The open batch of word points.
 let batch = null;
-function addWordPay(amount) {
-  if (amount <= 0) return 0;
+function addWordPoints(points) {
+  if (points <= 0) return 0;
   // The ×2 boost bought in the shop.
-  if (boosted()) amount *= 2;
-  const paid = Math.min(amount, room('words') - (batch?.amount || 0));
-  if (paid <= 0) return 0;
-  batch ||= { id: `vocab:w:${randomId()}`, t: Date.now(), app: 'vocab', kind: 'words', amount: 0, n: 0 };
-  batch.amount += paid;
+  if (boosted()) points *= 2;
+  batch ||= { id: `vocab:w:${randomId()}`, t: Date.now(), app: 'vocab', kind: 'words', amount: 0, xp: 0, n: 0 };
+  batch.xp += points;
   batch.n++;
   if (batch.n >= 10) closeBatch();
-  return paid;
+  return points;
 }
 function closeBatch() {
-  if (!batch?.amount) return (batch = null);
+  if (!batch?.xp) return (batch = null);
   const { n, ...entry } = batch;
   outbox.write([...outbox.read(), { ...entry, note: locale === 'en' ? `${n} answers` : `${n} 題` }]);
   batch = null;
@@ -365,9 +367,8 @@ function renderWords() {
     el('div', { class: 'q-card pad start-card' }, [
       el('div', { class: 'start-top' }, [
         el('div', {}, [el('h2', { text: t('wordsTitle') }), el('p', { class: 'muted', text: selected.length ? t('wordsSub', { due, levels: selected.map(l => (typeof l === 'number' ? l : t(`pack_${l}`))).join('、') }) : t('pickLevel') })]),
-        el('div', { class: 'earn-mini' }, [el('small', { class: 'muted', text: t('todayWords') }), el('strong', { class: 'num', text: `${nt(today.words)} / ${nt(caps().words)}` })])
+        el('div', { class: 'earn-mini' }, [el('small', { class: 'muted', text: t('todayWords') }), el('strong', { class: 'num', text: xp(today.words) })])
       ]),
-      bar(today.words, caps().words, 'accent'),
       boostLine(),
       el('div', { class: 'size-row' }, [
         el('span', { class: 'muted', text: t('roundSize') }),
@@ -424,7 +425,7 @@ function packCards(st) {
       if (packOpen(w, id)) {
         const on = state.levels.includes(id);
         return el('button', { class: `level-card pack${on ? ' on' : ''}`, type: 'button', 'aria-pressed': String(on), onclick: () => toggleLevel(id) }, [
-          el('div', { class: 'level-top' }, [el('strong', { text: t(`pack_${id}`) }), el('small', { text: packIncluded(w, id) ? t('packPlus') : t(`packHint_${id}`) })]),
+          el('div', { class: 'level-top' }, [el('strong', { text: t(`pack_${id}`) }), el('small', { text: t(`packHint_${id}`) })]),
           bar(st[id].mastered, st[id].total),
           el('div', { class: 'level-foot' }, [el('span', { class: 'num', text: `${st[id].mastered.toLocaleString()} / ${st[id].total.toLocaleString()}` }), st[id].due ? el('span', { class: 'due', text: t('dueN', { n: st[id].due }) }) : null])
         ]);
@@ -435,7 +436,7 @@ function packCards(st) {
         el('div', { class: 'level-top' }, [el('strong', { text: t(`pack_${id}`) }), el('small', { text: t(`packHint_${id}`) })]),
         el('small', { class: 'muted', text: t('packWords', { n }) }),
         el('div', { class: 'level-foot' }, [el('span', { class: 'pack-price num', text: nt(price) }), el('span', { class: 'muted', text: t('packOnce') })]),
-        el('small', { class: 'pack-plus', text: t('packPlusFree') })
+        plusMember(w) ? null : el('small', { class: 'pack-plus', text: t('packPlusHalf', { v: nt(Math.round(SHOP.packs[id] * PLUS.vocab.packShare)) }) })
       ]);
     })
   );
@@ -496,7 +497,7 @@ function answer(correct, typed = '') {
   const res = grade(state.progress[word.key], correct, { type: r.q.type });
   state.progress = { ...state.progress, [word.key]: res.p };
   dirty = true;
-  const pay = addWordPay(payFor({ correct, type: r.q.type, firstMastery: res.firstMastery }, ECONOMY.vocab));
+  const pay = addWordPoints(payFor({ correct, type: r.q.type, firstMastery: res.firstMastery }, ECONOMY.vocab));
   if (r.q.type !== 'card') act.answer++;
   if (res.firstMastery) act.master++;
   r.earned += pay;
@@ -543,7 +544,7 @@ function renderRound(box) {
   const head = el('div', { class: 'round-head' }, [
     quit,
     el('div', { class: 'round-bar' }, [el('i', { style: `width:${(r.i / r.list.length) * 100}%` })]),
-    el('strong', { class: 'num round-earn', text: `+${nt(r.earned)}` })
+    el('strong', { class: 'num round-earn', text: xpText(r.earned, { sign: true }) })
   ]);
   put(box, head, questionView(r));
   box.querySelector('input')?.focus({ preventScroll: true });
@@ -643,7 +644,7 @@ function feedback(res) {
   const next = el('button', { class: 'q-btn primary block', type: 'button', text: state.round.i + 1 >= state.round.list.length ? t('seeResult') : t('next'), onclick: advance });
   setTimeout(() => next.focus({ preventScroll: true }), 0);
   return el('div', { class: `q-card pad feedback ${res.correct ? 'good' : 'bad'}` }, [
-    el('div', { class: 'fb-top' }, [el('strong', { text: status }), res.pay ? el('span', { class: 'fb-pay num', text: `+${nt(res.pay)}` }) : null]),
+    el('div', { class: 'fb-top' }, [el('strong', { text: status }), res.pay ? el('span', { class: 'fb-pay num', text: xpText(res.pay, { sign: true }) }) : null]),
     // The word's on screen already for a meaning question: its meaning only.
     res.type === 'card' ? null : res.type === 'meaning' ? el('p', { class: 'meaning', text: word.zh }) : wordHead(word, { meaning: true }),
     el('small', { class: 'muted', text: t(`state_${res.after}`) }),
@@ -658,8 +659,7 @@ function roundSummary(r) {
   return el('div', {}, [
     el('div', { class: 'q-card pad summary' }, [
       el('p', { class: 'summary-big num', text: `${right} / ${r.results.length}` }),
-      el('p', { class: 'muted', text: t('summaryLine', { v: nt(r.earned), m: mastered }) }),
-      room('words') <= 0 ? el('p', { class: 'note', text: t('capReached') }) : null,
+      el('p', { class: 'muted', text: t('summaryLine', { v: xp(r.earned), m: mastered }) }),
       el('div', { class: 'two-btn' }, [el('button', { class: 'q-btn', type: 'button', text: t('backToWords'), onclick: () => ((state.round = null), renderWords()) }), el('button', { class: 'q-btn primary', type: 'button', text: t('again'), onclick: startRound })])
     ]),
     el(
@@ -695,7 +695,6 @@ function renderHome() {
   const streak = streakDays(state.wallet);
   const e = earned();
   const ms = missions(state.wallet);
-  const cap = caps();
   const held = freezes(withOutbox()).held;
   const rankCard = el('div', { class: 'rank-card' }, [
     el('div', { class: 'rank-top' }, [
@@ -707,9 +706,8 @@ function renderHome() {
     r.next ? bar(r.progress, 1, 'light') : null,
     el('p', { class: 'rank-next', text: r.next ? t('toNext', { v: nt(r.toNext), rank: t(`rank_${r.next.id}`) }) : t('topRank') }),
     el('div', { class: 'rank-today' }, [
-      el('div', { class: 'rank-today-head' }, [el('small', { text: t('todayCan', { v: nt(cap.total) }) }), el('strong', { class: 'num', text: t('todayGot', { v: nt(e.total) }) })]),
-      el('div', { class: 'rank-today-row' }, ['words', 'game', 'mission'].map(k => el('div', { class: 'rank-today-part' }, [el('small', { text: t(`earn_${k}`) }), bar(e[k], cap[k], 'light'), el('small', { class: 'num', text: `${nt(e[k])} / ${nt(cap[k])}` })]))),
-      e.total >= cap.total ? el('p', { class: 'rank-full', text: t('todayFull') }) : null
+      el('div', { class: 'rank-today-head' }, [el('small', { text: t('todayXp') }), el('strong', { class: 'num', text: xp(e.total) })]),
+      el('div', { class: 'rank-today-row' }, ['words', 'game', 'mission'].map(k => el('div', { class: 'rank-today-part' }, [el('small', { text: t(`earn_${k}`) }), el('small', { class: 'num', text: xp(e[k]) })])))
     ])
   ]);
   // The missions most worth doing now (ready to claim first); all of them,
@@ -719,7 +717,7 @@ function renderHome() {
   // Straight into today's game (the games tab under it, for after).
   const dailyCard = el('button', { class: `q-card pad daily-card${d.done ? ' done' : ''}`, type: 'button', onclick: () => (showTab('games'), games?.open(d.game)) }, [
     el('span', { class: 'daily-icon', 'aria-hidden': 'true', text: gameInfo(d.game, t, locale).icon }),
-    el('span', { class: 'daily-text' }, [el('small', { text: t('dailyTitle') }), el('strong', { text: gameInfo(d.game, t, locale).name }), el('small', { class: 'muted', text: d.done ? t('dailyDone', { n: d.streak }) : t(d.streak ? 'dailyLine' : 'dailyLineNew', { v: nt(d.bonus), n: d.streak }) })]),
+    el('span', { class: 'daily-text' }, [el('small', { text: t('dailyTitle') }), el('strong', { text: gameInfo(d.game, t, locale).name }), el('small', { class: 'muted', text: d.done ? t('dailyDone', { n: d.streak }) : t(d.streak ? 'dailyLine' : 'dailyLineNew', { v: xp(d.bonus), n: d.streak }) })]),
     el('span', { class: 'daily-go', text: d.done ? '✓' : '▶' })
   ]);
   put(
@@ -743,11 +741,11 @@ function missionRow(m) {
   const action = m.claimed
     ? el('span', { class: 'claimed', text: t('claimed') })
     : m.done
-      ? el('button', { class: 'q-btn primary small', type: 'button', text: m.freebet ? t('claimFree') : t('claim', { v: nt(m.pay) }), onclick: () => claim(m.id) })
+      ? el('button', { class: 'q-btn primary small', type: 'button', text: t('claim', { v: xp(m.xp) }), onclick: () => claim(m.id) })
       : el('button', { class: 'q-btn small', type: 'button', text: t('go'), onclick: () => goMission(m) });
   return el('div', { class: `mission${m.claimed ? ' done' : ''}` }, [
     el('span', { class: 'mission-icon', text: MISSION_ICON[m.id] }),
-    el('div', { class: 'mission-text' }, [el('strong', { text: t(`mission_${m.id}`) }), el('div', { class: 'mission-bar' }, [bar(m.progress, m.goal, 'accent'), el('small', { class: 'num muted', text: `${m.progress}/${m.goal} · ${m.freebet ? t('freeBetPay', { v: nt(m.freebet) }) : nt(m.pay)}` })])]),
+    el('div', { class: 'mission-text' }, [el('strong', { text: t(`mission_${m.id}`) }), el('div', { class: 'mission-bar' }, [bar(m.progress, m.goal, 'accent'), el('small', { class: 'num muted', text: `${m.progress}/${m.goal} · ${xp(m.xp)}` })])]),
     action
   ]);
 }
@@ -767,7 +765,7 @@ function renderMissions() {
     box,
     section(t('missions'), list),
     section(t('weekly'), weeklyCard()),
-    section(t('badgesTitle'), badgesCard(st), { sub: t('allTime', { v: nt(earnedAllTime(state.wallet)) }) }),
+    section(t('badgesTitle'), badgesCard(st), { sub: t('allTime', { v: xp(xpAllTime(withOutbox())) }) }),
     section(t('ranks'), ranksCard(rankOf(poolBalance(state.wallet)).index))
   );
 }
@@ -787,7 +785,7 @@ function boostLeft() {
   const end = boostUntil(withOutbox());
   return end ? Math.max(1, Math.ceil((end - Date.now()) / 60_000)) : 0;
 }
-// Under the word cap: the boost running, or one to buy.
+// Under today's word points: the boost running, or one to buy.
 function boostLine() {
   const left = boostLeft();
   return left
@@ -802,8 +800,8 @@ function shopCard() {
   const price = (item, disabled = false) => el('button', { class: 'q-btn small', type: 'button', disabled, onclick: () => buy(item) }, [el('span', { class: 'num', text: nt(SHOP[item].price) })]);
   return el('div', { class: 'q-card list shop' }, [
     row('🛡️', t('shop_freeze'), f.held ? t('freezeHeld', { n: f.held }) : t('freezeSub'), f.held >= SHOP.freeze.hold ? el('span', { class: 'claimed', text: t('freezeFull') }) : price('freeze')),
-    row('⚡', t('shop_boost'), left ? t('boostOn', { n: left }) : t('boostSub', { v: nt(SHOP.boost.capBonus) }), price('boost')),
-    el('div', { class: 'shop-plus' }, [plusCard(q, { compact: true }), el('small', { class: 'muted', text: member ? t('plusRewardsOn', { v: nt(SHOP.plus.wordsCap) }) : t('plusRewards', { v: nt(SHOP.plus.wordsCap) }) })])
+    row('⚡', t('shop_boost'), left ? t('boostOn', { n: left }) : t('boostSub'), price('boost')),
+    el('div', { class: 'shop-plus' }, [plusCard(q, { compact: true }), el('small', { class: 'muted', text: member ? t('plusRewardsOn') : t('plusRewards') })])
   ]);
 }
 // Protection cards used by themselves: the days missed since the streak's last day.
@@ -828,7 +826,7 @@ function wordOfDayCard() {
   ]);
 }
 
-// This week's goals, claimed like missions (inside the missions' daily cap).
+// This week's goals, claimed like missions.
 function weeklyCard() {
   const goals = weeklyGoals(withOutbox());
   return el(
@@ -838,12 +836,12 @@ function weeklyCard() {
       const action = g.claimed
         ? el('span', { class: 'claimed', text: t('claimed') })
         : g.done
-          ? el('button', { class: 'q-btn primary small', type: 'button', text: t('claim', { v: nt(g.pay) }), onclick: () => claimGoal(g.id) })
+          ? el('button', { class: 'q-btn primary small', type: 'button', text: t('claim', { v: xp(g.xp) }), onclick: () => claimGoal(g.id) })
           : null;
-      const shown = g.id === 'earn1000' ? `${nt(g.progress)} / ${nt(g.goal)}` : `${g.progress}/${g.goal}`;
+      const shown = g.id === 'earn1000' ? `${g.progress.toLocaleString('en-US')} / ${xp(g.goal)}` : `${g.progress}/${g.goal}`;
       return el('div', { class: `mission${g.claimed ? ' done' : ''}` }, [
         el('span', { class: 'mission-icon', text: WEEKLY_ICON[g.id] }),
-        el('div', { class: 'mission-text' }, [el('strong', { text: t(`weekly_${g.id}`) }), el('div', { class: 'mission-bar' }, [bar(g.progress, g.goal, 'accent'), el('small', { class: 'num muted', text: `${shown} · ${nt(g.pay)}` })])]),
+        el('div', { class: 'mission-text' }, [el('strong', { text: t(`weekly_${g.id}`) }), el('div', { class: 'mission-bar' }, [bar(g.progress, g.goal, 'accent'), el('small', { class: 'num muted', text: `${shown} · ${xp(g.xp)}` })])]),
         action
       ]);
     })
@@ -852,9 +850,9 @@ function weeklyCard() {
 const WEEKLY_ICON = { days5: '📆', earn1000: '💵', missions10: '🎯', games10: '🕹️' };
 function claimGoal(id) {
   const entry = claimWeekly(withOutbox(), id);
-  if (!entry || outbox.read().some(x => x.id === entry.id)) return toast(t('capReached'));
+  if (!entry || outbox.read().some(x => x.id === entry.id)) return;
   payEntry(entry);
-  toast(t('claimedToast', { v: nt(entry.amount) }), 'good');
+  toast(t('claimedToast', { v: xp(entry.xp) }), 'good');
   refresh();
 }
 
@@ -897,9 +895,9 @@ function goMission(m) {
 }
 function claim(id) {
   const entry = claimEntry(state.wallet, id);
-  if (!entry || outbox.read().some(x => x.id === entry.id)) return toast(t('capReached'));
+  if (!entry || outbox.read().some(x => x.id === entry.id)) return;
   payEntry(entry);
-  toast(entry.kind === 'freebet' ? t('claimedFree', { v: nt(Number(entry.note)) }) : t('claimedToast', { v: nt(entry.amount) }), 'good');
+  toast(t('claimedToast', { v: xp(entry.xp) }), 'good');
   refresh();
 }
 
@@ -970,17 +968,16 @@ function refresh() {
   if (state.tab === 'missions') renderMissions();
   tabNav.badge('missions', readyToClaim());
   const s = $('status');
-  if (s) s.textContent = state.wallet ? t('statusLine', { v: nt(earned().total) }) : '';
+  if (s) s.textContent = state.wallet ? t('statusLine', { v: xp(earned().total) }) : '';
 }
 
-// What the games need from the app: text, money, today's room, the words,
-// and paying a round.
+// What the games need from the app: text, points, the words, and counting
+// a round's points.
 const gameContext = {
   t,
   locale,
-  nt,
-  room: () => room('game'),
-  cap: () => caps().game,
+  xp,
+  today: () => earned().game,
   words: () => {
     const seen = myWords().filter(w => state.progress[w.key]?.b);
     const pool = seen.length >= 30 ? seen : myWords().filter(w => inLevels(w, myLevels()));
@@ -990,19 +987,19 @@ const gameContext = {
   daily,
   pay(game, amount) {
     const d = daily();
-    const paid = Math.max(0, Math.min(Math.round(amount), room('game')));
+    const points = Math.max(0, Math.round(amount));
     act.game++;
     recordAffinity('vocab', ['vocab:games', `vocab:game:${game}`], 1);
-    const best = recordBest(game, Math.round(amount));
-    if (paid > 0) outbox.write([...outbox.read(), { id: `vocab:g:${randomId()}`, t: Date.now(), app: 'vocab', kind: 'game', amount: paid, note: game }]);
-    // Today's challenge: its first paid round adds the bonus (inside the cap).
+    const best = recordBest(game, points);
+    if (points > 0) outbox.write([...outbox.read(), { id: `vocab:g:${randomId()}`, t: Date.now(), app: 'vocab', kind: 'game', amount: 0, xp: points, note: game }]);
+    // Today's challenge: its first round that scores adds the bonus.
     let bonus = 0;
-    if (game === d.game && !d.done && paid > 0) {
-      bonus = Math.min(d.bonus, room('game'));
-      if (bonus > 0) outbox.write([...outbox.read(), { id: dailyId(d.day), t: Date.now(), app: 'vocab', kind: 'game', amount: bonus, note: `daily:${game}` }]);
+    if (game === d.game && !d.done && points > 0) {
+      bonus = d.bonus;
+      outbox.write([...outbox.read(), { id: dailyId(d.day), t: Date.now(), app: 'vocab', kind: 'game', amount: 0, xp: bonus, note: `daily:${game}` }]);
     }
     sync();
-    return { paid: paid + bonus, bonus, best };
+    return { paid: points + bonus, bonus, best };
   }
 };
 
@@ -1027,13 +1024,13 @@ function checkNotices() {
   if (!state.wallet || !state.loaded) return;
   const w = withOutbox();
   const ready = [
-    ...missions(w).filter(m => m.done && !m.claimed).map(m => [`m:${taipeiDay()}:${m.id}`, t(`mission_${m.id}`), m.freebet || m.pay]),
-    ...weeklyGoals(w).filter(g => g.done && !g.claimed).map(g => [`wk:${g.week}:${g.id}`, t(`weekly_${g.id}`), g.pay])
+    ...missions(w).filter(m => m.done && !m.claimed).map(m => [`m:${taipeiDay()}:${m.id}`, t(`mission_${m.id}`), m.xp]),
+    ...weeklyGoals(w).filter(g => g.done && !g.claimed).map(g => [`wk:${g.week}:${g.id}`, t(`weekly_${g.id}`), g.xp])
   ];
   // What was ready when the app opened is on the home screen already.
   const fresh = readySeen ? ready.filter(([id]) => !readySeen.has(id)) : [];
   readySeen = new Set([...(readySeen || []), ...ready.map(([id]) => id)]);
-  for (const [id, title, pay] of fresh) notify(q, { title: t('noticeReady', { v: nt(pay) }), body: title, tag: id, hash: 'home', kind: 'ready' });
+  for (const [id, title, pay] of fresh) notify(q, { title: t('noticeReady', { v: xp(pay) }), body: title, tag: id, hash: 'home', kind: 'ready' });
   const risk = streakAtRisk(w);
   if (risk) notify(q, { title: t('noticeStreak', { n: risk }), body: t('noticeStreakBody'), tag: `streak:${taipeiDay()}`, hash: 'games', kind: 'streak' });
 }
