@@ -115,12 +115,12 @@ test('earnings per kind today, missions and claims', () => {
   assert.ok(ms.words20.done && ms.game1.done && ms.invest.done);
   assert.ok(!ms.master3.done && !ms.match.done && !ms.tour.done);
   const entry = claimEntry(wallet, 'words20', now);
-  assert.equal(entry.amount, 25);
+  assert.equal(entry.amount, 20);
   assert.equal(entry.id, `vocab:m:${day}:words20`);
   assert.equal(claimEntry({ ...wallet, entries: [...wallet.entries, entry] }, 'words20', now), null);
   assert.equal(claimEntry(wallet, 'master3', now), null);
   assert.equal(streakDays(wallet, now), 1);
-  assert.equal(CAPS.words + CAPS.game + CAPS.mission, 400);
+  assert.equal(CAPS.words + CAPS.game + CAPS.mission, 330);
 });
 
 test('wealth ranks', () => {

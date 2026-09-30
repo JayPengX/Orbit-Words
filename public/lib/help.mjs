@@ -39,7 +39,7 @@ export const HELP = {
         '月繳隨時可以取消，已付的月份照常享有權益；年繳到期自動續約，也可以在「管理會員」取消續約。'
       ]],
       ['money', '錢怎麼算', [
-        '所有 App 共用一個新台幣錢包。新帳號開戶金 NT$30,000；每個月 1 日發津貼，依你的資產（現金加上 Securities 持股）：NT$4 萬以下 NT$6,000、10 萬以下 4,000、25 萬以下 2,000，再多是 1,000。那個月第一次打開任何 App 時入帳，沒打開的月份下次補發。',
+        '所有 App 共用一個新台幣錢包。新帳號開戶金 NT$30,000；每個月 1 日發津貼，依你的資產（現金加上 Securities 持股）：NT$4 萬以下 NT$6,000、10 萬以下 3,000、25 萬以下 1,500，再多是 500。那個月第一次打開任何 App 時入帳，沒打開的月份下次補發。',
         '餘額可以是負的（透支），每月計息 1%；到 Securities 賣出持股或用融資就能補足。',
         'Securities 投資、Play 下注和買彩券、Rewards 靠努力賺（單字、遊戲、任務）；Fixtures 和 Orbit Class 不用錢。錢只存在 Quadra Pass，不能在帳號之間轉。'
       ]]
@@ -68,7 +68,7 @@ export const HELP = {
         'Monthly stops whenever you like, keeping the perks for months paid; yearly renews each year, and renewal can be turned off under Manage membership.'
       ]],
       ['money', 'Money', [
-        'Every app shares one NT$ wallet. A new pass opens with NT$30,000; the 1st of every month brings an allowance by what you’re worth (cash plus Securities holdings): NT$6,000 under NT$40,000, 4,000 under 100,000, 2,000 under 250,000, 1,000 above. It’s paid the first time that month you open any app; a month you miss is paid when you’re back.',
+        'Every app shares one NT$ wallet. A new pass opens with NT$30,000; the 1st of every month brings an allowance by what you’re worth (cash plus Securities holdings): NT$6,000 under NT$40,000, 3,000 under 100,000, 1,500 under 250,000, 500 above. It’s paid the first time that month you open any app; a month you miss is paid when you’re back.',
         'The balance can go below zero (an overdraft) at 1% a month; selling holdings or borrowing in Securities covers it.',
         'Securities invests, Play bets and sells lottery tickets, Rewards pays for effort (words, games, missions); Fixtures and Orbit Class don’t use money. Money lives on the Quadra Pass only and can’t move between passes.'
       ]]
@@ -289,7 +289,7 @@ export const HELP = {
         '單字包（「單字」分頁）：多益 TOEIC NT$990、雅思 IELTS NT$1,490、商務英文 NT$1,990，一次買斷，每個字都有真人發音。買了就和級別一樣可以勾選；和主單字表重複的字共用進度，答對一樣有獎勵。Plus 會員半價。'
       ]],
       ['money', '錢怎麼算', [
-        '今天最多可賺 NT$400：單字 NT$200（每答對一題 NT$2，第一次精熟一個字再加 NT$15；字卡不算錢）、遊戲 NT$120（短局最多 NT$60、長局最多 NT$120）、任務與每週目標 NT$80。Plus 會員單字多 NT$50；買了單字加倍的那天單字多 NT$200。',
+        '今天最多可賺 NT$330：單字 NT$150（每答對一題 NT$2，第一次精熟一個字再加 NT$15；字卡不算錢）、遊戲 NT$120（短局最多 NT$60、長局最多 NT$120）、任務與每週目標 NT$60。Plus 會員單字多 NT$50；買了單字加倍的那天單字多 NT$200。',
         '財富等級依錢包總額分成八級，從「起步」（NT$5 萬以下）到「億萬」（NT$2,000 萬以上）。'
       ]]
     ],
@@ -325,7 +325,7 @@ export const HELP = {
         'Word packs (in Words): TOEIC NT$990, IELTS NT$1,490, Business English NT$1,990, bought once, every word recorded. Once yours, pick a pack like a level; words the main list shares keep one progress, and right answers pay as usual. Half price with Plus.'
       ]],
       ['money', 'Money', [
-        'Up to NT$400 a day: words NT$200 (NT$2 a right answer, NT$15 more for a first mastery; flash cards don’t pay), games NT$120 (up to NT$60 a short round, NT$120 a long one), missions and weekly goals NT$80. Plus members get NT$50 more for words; a day with a word boost, NT$200 more.',
+        'Up to NT$330 a day: words NT$150 (NT$2 a right answer, NT$15 more for a first mastery; flash cards don’t pay), games NT$120 (up to NT$60 a short round, NT$120 a long one), missions and weekly goals NT$60. Plus members get NT$50 more for words; a day with a word boost, NT$200 more.',
         'Eight wealth ranks by the wallet’s total, from Starter (under NT$50,000) to Tycoon (NT$20 million and up).'
       ]]
     ]

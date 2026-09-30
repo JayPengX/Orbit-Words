@@ -35,7 +35,7 @@ Where Quadra pays for effort and explains itself (formerly Quadra Words).
   rate up to its own most a round (`arcadePay`). The games list has a
   search, categories, favourites (★) and what you played lately. A daily challenge (one game a day,
   `dailyGame`) adds a bonus to its first paid round that grows with the days
-  in a row (NT$10 to NT$40, paid as a game, so inside the games' cap), and
+  in a row (NT$5 to NT$20, paid as a game, so inside the games' cap), and
   each game's best round is kept in the wallet setting `bests:vocab`.
 - **Notices** (the kit's `notify`): a mission or weekly goal newly ready to
   claim, and a streak that ends tonight (after 20:00 Taiwan time).
@@ -62,9 +62,9 @@ fixed ids, so nothing is paid twice), capped per Taiwan day
 
 | | pays | daily cap |
 |---|---|---|
-| Words | NT$3 a right answer, NT$25 a first mastery | NT$600 |
-| Games | about NT$15 a minute of typical play | NT$400 |
-| Missions | NT$40–60 each, claimed | NT$300 |
+| Words | NT$2 a right answer, NT$15 more a first mastery | NT$150 (Plus 200; +200 the day a boost is bought) |
+| Games | about NT$10 a minute of typical play | NT$120 |
+| Missions | NT$10–20 each, claimed (weekly goals NT$30–45) | NT$60 |
 
 Weekly goals (Monday to Sunday, ids `vocab:wk:<Monday>:<goal>`) are paid as
 missions, inside the missions' cap. Badges are read from the record (wallet
