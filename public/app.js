@@ -4,12 +4,12 @@
 // the Quadra Pass's shared wallet; the wealth ranks show where the pool
 // stands; the help centre explains every app.
 import {
-  quadraSession, tabBar, topActions, installGate, watchUpdates, recordAffinity, setting, settingPatch, taipeiDay, poolBalance, money, randomId, notify, schedulePush, APPS, ECONOMY, PLUS, ask, plusCard, plusMember, affinityPatch
+  quadraSession, tabBar, topActions, installGate, watchUpdates, recordAffinity, setting, settingPatch, taipeiDay, poolBalance, money, randomId, notify, schedulePush, APPS, ECONOMY, PLUS, ask, plusCard, plusMember, affinityPatch, xpLevel, xpBalance
 } from './lib/quadra.mjs';
-import { SHOP, shopEntry, freezes, boostUntil, openPacks, packPrice, packEntry, packOpen } from './lib/shop.mjs';
+import { SHOP, shopEntry, redeemEntry, freezes, boostUntil, openPacks, packPrice, packEntry, packOpen } from './lib/shop.mjs';
 import { LEVELS, PACK_IDS, addPacks, levelRank, inLevels, MODES, loadWords, pickRound, smartType, markKnown, makeQuestion, grade, payFor, sameWord, spellDiff, stats, stateOf, packProgress, unpackProgress, mergeProgress, migrateWords, shortMeaning, wordOfDay } from './lib/words.mjs';
 import {
-  xpToday, xpOf, xpText, missions, claimEntry, rankOf, RANKS, streakDays, xpAllTime, streakAtRisk, dailyId, dailyStreak, weeklyGoals, claimWeekly, badges, freezeDue
+  xpToday, xpOf, xpText, xpRate, missions, claimEntry, rankOf, RANKS, streakDays, xpAllTime, streakAtRisk, dailyId, dailyStreak, weeklyGoals, claimWeekly, badges, freezeDue
 } from './lib/earn.mjs';
 import { GAMES, gameInfo, dailyGame, dailyBonus, mergeBests } from './lib/games.mjs';
 import { HELP_ORDER, helpFor, parseHelpHash } from './lib/help.mjs';
@@ -177,8 +177,9 @@ function actPatch() {
 let batch = null;
 function addWordPoints(points) {
   if (points <= 0) return 0;
-  // The ×2 boost bought in the shop.
+  // The ×2 boost bought in the shop, and Plus's ×1.5.
   if (boosted()) points *= 2;
+  points *= xpRate(withOutbox());
   batch ||= { id: `vocab:w:${randomId()}`, t: Date.now(), app: 'vocab', kind: 'words', amount: 0, xp: 0, n: 0 };
   batch.xp += points;
   batch.n++;
@@ -188,7 +189,7 @@ function addWordPoints(points) {
 function closeBatch() {
   if (!batch?.xp) return (batch = null);
   const { n, ...entry } = batch;
-  outbox.write([...outbox.read(), { ...entry, note: locale === 'en' ? `${n} answers` : `${n} 題` }]);
+  outbox.write([...outbox.read(), { ...entry, xp: Math.round(entry.xp), note: locale === 'en' ? `${n} answers` : `${n} 題` }]);
   batch = null;
 }
 // A finished game round or a mission: one entry now.
@@ -432,23 +433,31 @@ function packCards(st) {
       }
       const n = state.words.filter(x => x.level === id || x.packs?.includes(id)).length;
       const price = packPrice(w, id);
-      return el('button', { class: 'level-card pack locked', type: 'button', onclick: () => buyPack(id) }, [
+      // Two ways to pay: money, or points (dimmed until there are enough).
+      return el('div', { class: 'level-card pack locked' }, [
         el('div', { class: 'level-top' }, [el('strong', { text: t(`pack_${id}`) }), el('small', { text: t(`packHint_${id}`) })]),
-        el('small', { class: 'muted', text: t('packWords', { n }) }),
-        el('div', { class: 'level-foot' }, [el('span', { class: 'pack-price num', text: nt(price) }), el('span', { class: 'muted', text: t('packOnce') })]),
+        el('small', { class: 'muted', text: `${t('packWords', { n })} · ${t('packOnce')}` }),
+        el('div', { class: 'shop-pay' }, [
+          el('button', { class: 'q-btn small', type: 'button', onclick: () => buyPack(id) }, [el('span', { class: 'num', text: nt(price) })]),
+          el('button', { class: `q-btn small ghost${xpBalance(w) >= SHOP.packsXp[id] ? '' : ' dim'}`, type: 'button', onclick: () => buyPack(id, { points: true }) }, [el('span', { class: 'num', text: xp(SHOP.packsXp[id]) })])
+        ]),
         plusMember(w) ? null : el('small', { class: 'pack-plus', text: t('packPlusHalf', { v: nt(Math.round(SHOP.packs[id] * PLUS.vocab.packShare)) }) })
       ]);
     })
   );
 }
-async function buyPack(id) {
+// A pack for money or (points) for points.
+async function buyPack(id, { points = false } = {}) {
   const w = withOutbox();
   if (packOpen(w, id)) return;
-  const price = packPrice(w, id);
-  if (poolBalance(w) < price) return toast(t('shopFunds'));
-  const ok = await ask({ lang: locale, icon: '📘', title: t(`pack_${id}`), body: t('packAsk', { v: nt(price), n: state.words.filter(x => x.level === id || x.packs?.includes(id)).length }), ok: t('shopBuy', { v: nt(price) }), cancel: t('shopCancel') });
+  const cost = points ? SHOP.packsXp[id] : packPrice(w, id);
+  if (points ? xpBalance(w) < cost : poolBalance(w) < cost) return toast(t(points ? 'shopPoints' : 'shopFunds'));
+  const shown = points ? xp(cost) : nt(cost);
+  const ok = await ask({ lang: locale, icon: '📘', title: t(`pack_${id}`), body: t('packAsk', { v: shown, n: state.words.filter(x => x.level === id || x.packs?.includes(id)).length }), ok: points ? t('shopUseXp', { v: shown }) : t('shopBuy', { v: shown }), cancel: t('shopCancel') });
   if (!ok) return;
-  payEntry(packEntry(w, id, Date.now(), t(`pack_${id}`)));
+  const entry = points ? redeemEntry(w, 'pack', id) : packEntry(w, id, Date.now(), t(`pack_${id}`));
+  if (!entry) return toast(t('shopPoints'));
+  payEntry(entry);
   state.levelsTouched = true;
   if (!state.levels.includes(id)) state.levels = [...state.levels, id];
   dirty = true;
@@ -696,6 +705,7 @@ function renderHome() {
   const e = earned();
   const ms = missions(state.wallet);
   const held = freezes(withOutbox()).held;
+  const lv = xpLevel(xpAllTime(withOutbox()), locale);
   const rankCard = el('div', { class: 'rank-card' }, [
     el('div', { class: 'rank-top' }, [
       el('span', { class: 'rank-icon', text: r.rank.icon }),
@@ -706,6 +716,10 @@ function renderHome() {
     r.next ? bar(r.progress, 1, 'light') : null,
     el('p', { class: 'rank-next', text: r.next ? t('toNext', { v: nt(r.toNext), rank: t(`rank_${r.next.id}`) }) : t('topRank') }),
     el('div', { class: 'rank-today' }, [
+      // The level (from every point earned) and the points left to spend.
+      el('div', { class: 'rank-today-head' }, [el('strong', { text: t('levelLine', { n: lv.level, title: lv.title }) }), el('small', { class: 'num', text: t('xpToSpend', { v: xp(xpBalance(withOutbox())) }) })]),
+      bar(lv.progress, 1, 'light'),
+      el('small', { class: 'rank-level-next', text: t('levelNext', { v: xp(lv.toNext), n: lv.level + 1 }) }),
       el('div', { class: 'rank-today-head' }, [el('small', { text: t('todayXp') }), el('strong', { class: 'num', text: xp(e.total) })]),
       el('div', { class: 'rank-today-row' }, ['words', 'game', 'mission'].map(k => el('div', { class: 'rank-today-part' }, [el('small', { text: t(`earn_${k}`) }), el('small', { class: 'num', text: xp(e[k]) })])))
     ])
@@ -772,12 +786,17 @@ function renderMissions() {
 
 // ---- The shop: streak protection, the ×2 boost, and Quadra Plus ------------------------------
 
-async function buy(item) {
-  const price = SHOP[item].price;
-  if (poolBalance(withOutbox()) < price) return toast(t('shopFunds'));
-  const ok = await ask({ lang: locale, icon: item === 'freeze' ? '🛡️' : '⚡', title: t(`shop_${item}`), body: t(`shopAsk_${item}`, { v: nt(price) }), ok: t('shopBuy', { v: nt(price) }), cancel: t('shopCancel') });
+// With money, or (xp) with points.
+async function buy(item, { points = false } = {}) {
+  const w = withOutbox();
+  const price = points ? SHOP[item].xp : SHOP[item].price;
+  if (points ? xpBalance(w) < price : poolBalance(w) < price) return toast(t(points ? 'shopPoints' : 'shopFunds'));
+  const cost = points ? xp(price) : nt(price);
+  const ok = await ask({ lang: locale, icon: item === 'freeze' ? '🛡️' : '⚡', title: t(`shop_${item}`), body: t(`shopAsk_${item}`, { v: cost }), ok: points ? t('shopUseXp', { v: cost }) : t('shopBuy', { v: cost }), cancel: t('shopCancel') });
   if (!ok) return;
-  payEntry(shopEntry(item, randomId(), Date.now(), t(`shop_${item}`)));
+  const entry = points ? redeemEntry(w, item, randomId()) : shopEntry(item, randomId(), Date.now(), t(`shop_${item}`));
+  if (!entry) return toast(t('shopPoints'));
+  payEntry(entry);
   toast(t(`shopDone_${item}`), 'good');
   refresh();
 }
@@ -790,14 +809,20 @@ function boostLine() {
   const left = boostLeft();
   return left
     ? el('p', { class: 'boost-on', text: t('boostOn', { n: left }) })
-    : el('button', { class: 'boost-buy', type: 'button', onclick: () => buy('boost') }, [el('span', { text: t('boostPitch') }), el('strong', { class: 'num', text: nt(SHOP.boost.price) })]);
+    : el('button', { class: 'boost-buy', type: 'button', onclick: () => buy('boost', { points: xpBalance(withOutbox()) >= SHOP.boost.xp }) }, [el('span', { text: t('boostPitch') }), el('strong', { class: 'num', text: xpBalance(withOutbox()) >= SHOP.boost.xp ? xp(SHOP.boost.xp) : nt(SHOP.boost.price) })]);
 }
 function shopCard() {
   const f = freezes(withOutbox());
   const left = boostLeft();
   const member = plusMember(state.wallet);
   const row = (icon, title, sub, action) => el('div', { class: 'shop-row' }, [el('span', { class: 'shop-icon', 'aria-hidden': 'true', text: icon }), el('div', { class: 'shop-text' }, [el('strong', { text: title }), el('small', { text: sub })]), action]);
-  const price = (item, disabled = false) => el('button', { class: 'q-btn small', type: 'button', disabled, onclick: () => buy(item) }, [el('span', { class: 'num', text: nt(SHOP[item].price) })]);
+  // Two ways to pay: money, or points (dimmed until there are enough).
+  const have = xpBalance(withOutbox());
+  const price = item =>
+    el('div', { class: 'shop-pay' }, [
+      el('button', { class: 'q-btn small', type: 'button', onclick: () => buy(item) }, [el('span', { class: 'num', text: nt(SHOP[item].price) })]),
+      el('button', { class: `q-btn small ghost${have >= SHOP[item].xp ? '' : ' dim'}`, type: 'button', onclick: () => buy(item, { points: true }) }, [el('span', { class: 'num', text: xp(SHOP[item].xp) })])
+    ]);
   return el('div', { class: 'q-card list shop' }, [
     row('🛡️', t('shop_freeze'), f.held ? t('freezeHeld', { n: f.held }) : t('freezeSub'), f.held >= SHOP.freeze.hold ? el('span', { class: 'claimed', text: t('freezeFull') }) : price('freeze')),
     row('⚡', t('shop_boost'), left ? t('boostOn', { n: left }) : t('boostSub'), price('boost')),
@@ -987,10 +1012,11 @@ const gameContext = {
   daily,
   pay(game, amount) {
     const d = daily();
-    const points = Math.max(0, Math.round(amount));
+    // A round's points, ×1.5 for Plus (the best is the round's own score).
+    const points = Math.max(0, Math.round(amount * xpRate(withOutbox())));
     act.game++;
     recordAffinity('vocab', ['vocab:games', `vocab:game:${game}`], 1);
-    const best = recordBest(game, points);
+    const best = recordBest(game, Math.round(amount));
     if (points > 0) outbox.write([...outbox.read(), { id: `vocab:g:${randomId()}`, t: Date.now(), app: 'vocab', kind: 'game', amount: 0, xp: points, note: game }]);
     // Today's challenge: its first round that scores adds the bonus.
     let bonus = 0;

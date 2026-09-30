@@ -34,8 +34,8 @@ export const HELP = {
         '帳戶裡可以「登出其他所有裝置」（這台保持登入），或「更換通行碼」（新的只顯示一次，舊的立刻失效）。忘記通行碼時，在還登入的裝置更換一組就好。'
       ]],
       ['plus', 'Quadra Plus 會員', [
-        '一個會員、所有 Quadra App：月繳 NT$990（第一次加入的那個月免費），或年繳 NT$9,900，等於每月 NT$825、省下兩個月。從 Quadra 餘額扣款，在帳戶裡加入或管理；會員的帳戶按鈕有金色星星。',
-        'Play：每天一張 NT$500 以內的投注獎金 +10%（多的部分在明細裡是「✦ Plus 獎金加成」）、每週一送 NT$100 免費投注、提前兌現只扣 2%（一般 5%）。Securities：手續費 2.8 折、換匯點差減半、融資利率少 1%、台幣活存 2%（一般 0.8%）。Rewards：單字包 5 折（買了永久保留）、每月一張連續紀錄保護卡。會員卡上會顯示本月回饋了多少。',
+        '一個會員、所有 Quadra App：月繳 NT$490（第一次加入的那個月免費），或年繳 NT$4,900，等於每月約 NT$408、省下兩個月。從 Quadra 餘額扣款，在帳戶裡加入或管理；會員的帳戶按鈕有金色星星。',
+        'Play：每週一送 NT$200 免費投注（每月約 NT$867）、提前兌現只扣 2%（一般 5%）。Securities：手續費 2.8 折、換匯點差減半、融資利率少 1%、台幣活存 2%（一般 0.8%）。Rewards：積分 ×1.5、每月 2 張連續紀錄保護卡（商店價 NT$600）、單字包 5 折（買了永久保留）。會員卡上會顯示本月回饋了多少。',
         '月繳隨時可以取消，已付的月份照常享有權益；年繳到期自動續約，也可以在「管理會員」取消續約。'
       ]],
       ['vip', 'VIP 投注回饋與新手禮', [
@@ -67,8 +67,8 @@ export const HELP = {
         'The account can sign out every other device (this one stays in) or change the pass (the new one is shown once, the old one stops at once). Forgot it? Change it from a device that’s still signed in.'
       ]],
       ['plus', 'Quadra Plus', [
-        'One membership for every Quadra app: NT$990 a month (the first month you ever join is free), or NT$9,900 a year, NT$825 a month with two months free. It comes from the Quadra balance; join or manage it in the account, and a member’s account button has a gold star.',
-        'Play: +10% on the winnings of one slip a day up to NT$500 (the extra shows as “✦ Plus boost” in your statement), a NT$100 free bet every Monday, and cash out keeps 2% instead of 5%. Securities: commission at 28% of the usual rate, half the FX spread, loans 1 point cheaper, 2% on NT$ cash (0.8% otherwise). Rewards: word packs at half price (yours to keep) and a streak protection every month. The Plus card shows what it gave back this month.',
+        'One membership for every Quadra app: NT$490 a month (the first month you ever join is free), or NT$4,900 a year, about NT$408 a month with two months free. It comes from the Quadra balance; join or manage it in the account, and a member’s account button has a gold star.',
+        'Play: a NT$200 free bet every Monday (about NT$867 a month), and cash out keeps 2% instead of 5%. Securities: commission at 28% of the usual rate, half the FX spread, loans 1 point cheaper, 2% on NT$ cash (0.8% otherwise). Rewards: points ×1.5, 2 streak protections a month (NT$600 in the shop) and word packs at half price (yours to keep). The Plus card shows what it gave back this month.',
         'Monthly stops whenever you like, keeping the perks for months paid; yearly renews each year, and renewal can be turned off under Manage membership.'
       ]],
       ['vip', 'VIP cashback and welcome offers', [
@@ -267,7 +267,7 @@ export const HELP = {
   vocab: {
     zh: [
       ['what', 'Quadra Rewards 是什麼', [
-        'Quadra 獎勵努力的地方：背單字、玩遊戲、完成每日任務，拿積分（XP）、連續紀錄和徽章。積分不是錢，Rewards 不發錢。所有 App 的說明也都在這裡。'
+        'Quadra 獎勵努力的地方：背單字、玩遊戲、完成每日任務，拿積分（XP）、連續紀錄和徽章。積分會提升你的 Quadra 等級和稱號（每個 App 的帳戶都看得到），也能在這裡兌換保護卡、單字加倍和單字包；積分不是錢，Rewards 不發錢。所有 App 的說明也都在這裡。'
       ]],
       ['tabs', '每個分頁', [
         '「首頁」：今天的積分、今日挑戰、接下來的任務、加值（保護卡、單字加倍、Plus）和今日單字。',
@@ -292,19 +292,20 @@ export const HELP = {
         '每週目標（週一到週日）：5 天有練習、單字和遊戲拿 1,000 XP、完成 10 個任務、玩 10 局遊戲。開啟通知後，可以領取時和連續天數快斷時會提醒你。'
       ]],
       ['extras', '加值', [
-        '連續紀錄保護卡（NT$300，最多持有 3 張）：哪天沒練習也沒玩遊戲，它會自動用掉一張，連續紀錄照樣算下去。Plus 會員每月送一張。',
-        '單字加倍（NT$150）：接下來 30 分鐘每題單字積分 ×2；在加倍中再買，會接在後面再延 30 分鐘。',
-        '單字包（「單字」分頁）：多益 TOEIC NT$990、雅思 IELTS NT$1,490、商務英文 NT$1,990，一次買斷，每個字都有真人發音。買了就和級別一樣可以勾選；和主單字表重複的字共用進度，答對一樣有積分。Plus 會員 5 折。'
+        '連續紀錄保護卡（NT$300 或 600 XP，最多持有 3 張）：哪天沒練習也沒玩遊戲，它會自動用掉一張，連續紀錄照樣算下去。Plus 會員每月送兩張。',
+        '單字加倍（NT$150 或 300 XP）：接下來 30 分鐘每題單字積分 ×2；在加倍中再買，會接在後面再延 30 分鐘。',
+        '單字包（「單字」分頁）：多益 TOEIC NT$990、雅思 IELTS NT$1,490、商務英文 NT$1,990（或 8,000 / 12,000 / 16,000 XP），一次買斷，每個字都有真人發音。買了就和級別一樣可以勾選；和主單字表重複的字共用進度，答對一樣有積分。Plus 會員 5 折。'
       ]],
       ['money', '積分怎麼算', [
-        '單字每答對一題 2 XP，第一次精熟一個字再加 15 XP（字卡不算）；遊戲一分鐘大約 10 XP，玩得好更多；任務 10–30 XP、每週目標 30–45 XP。積分沒有上限，會算進每週目標和徽章；它不是錢，不能花。',
+        '單字每答對一題 2 XP，第一次精熟一個字再加 15 XP（字卡不算）；遊戲一分鐘大約 10 XP，玩得好更多；任務 10–30 XP、每週目標 30–45 XP；Plus 會員全部 ×1.5。積分沒有上限。',
+        '等級：累計積分決定等級（Lv 2 要 100 XP、Lv 5 要 1,000、Lv 10 要 4,500、Lv 20 要 19,000），每幾級換一個稱號：新手、學徒、好手、高手、達人、大師、傳奇、神話。兌換東西花的是「可用積分」，不會降級。',
         '錢只有開戶金和每月津貼（在 Quadra Pass 的說明裡）；在 Rewards 花錢的只有加值商店。',
         '財富等級依錢包總額分成八級，從「起步」（NT$5 萬以下）到「億萬」（NT$2,000 萬以上）。'
       ]]
     ],
     en: [
       ['what', 'What Quadra Rewards is', [
-        'Where Quadra rewards effort: words, games and daily missions earn points (XP), streaks and badges. Points aren’t money: Rewards pays none. Every app’s help lives here too.'
+        'Where Quadra rewards effort: words, games and daily missions earn points (XP), streaks and badges. Points raise your Quadra level and title (shown in every app’s account) and buy streak cards, word boosts and word packs here; they aren’t money, and Rewards pays none. Every app’s help lives here too.'
       ]],
       ['tabs', 'The tabs', [
         'Home: today’s points, today’s challenge, the next missions, extras (streak protection, word points ×2, Plus) and the word of the day.',
@@ -329,12 +330,13 @@ export const HELP = {
         'Weekly goals (Monday to Sunday): practise on 5 days, 1,000 XP from words and games, finish 10 missions, play 10 games. With notices on, you’re told when there’s something to claim and when a streak is about to end.'
       ]],
       ['extras', 'Extras', [
-        'Streak protection (NT$300, hold up to 3): on a day with no practice and no game, one is used by itself and the streak goes on. Plus members get one every month.',
-        'Word points ×2 (NT$150): every word earns double points for the next 30 minutes; one bought during another runs 30 minutes after it.',
-        'Word packs (in Words): TOEIC NT$990, IELTS NT$1,490, Business English NT$1,990, bought once, every word recorded. Once yours, pick a pack like a level; words the main list shares keep one progress, and right answers earn points as usual. Half price for Plus members.'
+        'Streak protection (NT$300 or 600 XP, hold up to 3): on a day with no practice and no game, one is used by itself and the streak goes on. Plus members get two every month.',
+        'Word points ×2 (NT$150 or 300 XP): every word earns double points for the next 30 minutes; one bought during another runs 30 minutes after it.',
+        'Word packs (in Words): TOEIC NT$990, IELTS NT$1,490, Business English NT$1,990 (or 8,000 / 12,000 / 16,000 XP), bought once, every word recorded. Once yours, pick a pack like a level; words the main list shares keep one progress, and right answers earn points as usual. Half price for Plus members.'
       ]],
       ['money', 'Points', [
-        'Words: 2 XP a right answer, 15 XP more for a first mastery (flash cards give none); games about 10 XP a minute, more when you play well; missions 10–30 XP, weekly goals 30–45 XP. Points have no daily limit and count towards weekly goals and badges; they aren’t money and can’t be spent.',
+        'Words: 2 XP a right answer, 15 XP more for a first mastery (flash cards give none); games about 10 XP a minute, more when you play well; missions 10–30 XP, weekly goals 30–45 XP; ×1.5 for Plus members. No daily limit.',
+        'Levels: every point you earn counts (level 2 at 100 XP, 5 at 1,000, 10 at 4,500, 20 at 19,000), with a new title every few levels: Rookie, Apprentice, Skilled, Expert, Master, Grandmaster, Legend, Mythic. Buying things spends your points to spend, never your level.',
         'Money comes only from the opening money and the monthly allowance (see Quadra Pass); in Rewards only the shop spends it.',
         'Eight wealth ranks by the wallet’s total, from Starter (under NT$50,000) to Tycoon (NT$20 million and up).'
       ]]

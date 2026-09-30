@@ -27,7 +27,7 @@ test('protection cards: bought, granted a Plus month, used on a missed day', () 
   assert.deepEqual(freezeDue(two, now), []);
   // A Plus month grants one (a yearly plan's later months don't count yet).
   const plus = { entries: [2, 3].map(played).concat(['2026-09', '2026-10', '2026-11'].map(m => ({ id: `eco:plus:${m}`, t: now, app: 'eco', kind: 'plus', amount: 0 }))) };
-  assert.equal(freezes(plus, now).granted, 1);
+  assert.equal(freezes(plus, now).granted, PLUS.vocab.cards);
   assert.equal(freezeDue(plus, now).length, 1);
   assert.equal(shopEntry('freeze', 'x', now).amount, -SHOP.freeze.price);
 });
@@ -95,4 +95,29 @@ test('missions about Play and plans give points, no free bet, once a day', async
   // One claimed as a free bet before v7, the same day, stays claimed.
   const before = { ...w, entries: [{ id: `vocab:fb:${day}:parlay3`, t: now, app: 'vocab', kind: 'freebet', amount: 0, note: '30' }] };
   assert.equal(claimEntry(before, 'parlay3', now), null);
+});
+
+test('points buy a card, a boost or a pack, only with enough to spend; Plus earns ×1.5', async () => {
+  const { redeemEntry, packOwned } = await import('../public/lib/shop.mjs');
+  const { claimEntry, xpRate } = await import('../public/lib/earn.mjs');
+  const { xpBalance } = await import('../public/lib/quadra.mjs');
+  const rich = { entries: [{ id: 'vocab:g:1', t: now - DAY, app: 'vocab', kind: 'game', amount: 0, xp: 9_000 }] };
+  const card = redeemEntry(rich, 'freeze', 'a', now);
+  assert.deepEqual([card.id, card.kind, card.amount, card.note], ['vocab:xs:freeze:a', 'redeem', 0, String(SHOP.freeze.xp)]);
+  const after = { entries: [...rich.entries, card] };
+  assert.equal(freezes(after, now).bought, 1);
+  assert.equal(xpBalance(after), 9_000 - SHOP.freeze.xp);
+  const boost = redeemEntry(after, 'boost', 'b', now);
+  assert.equal(boostUntil({ entries: [...after.entries, boost] }, now), now + SHOP.boost.minutes * 60_000);
+  const pack = redeemEntry(after, 'pack', 'toeic', now);
+  assert.equal(pack.id, 'vocab:xs:pack:toeic');
+  assert.ok(packOwned({ entries: [pack] }, 'toeic'));
+  // Not enough left: no entry.
+  assert.equal(redeemEntry(after, 'pack', 'biz', now), null);
+  assert.equal(redeemEntry({ entries: [] }, 'freeze', 'c', now), null);
+  // A Plus member's mission gives ×1.5.
+  const day = taipeiDay(now);
+  const member = { entries: [{ id: `eco:plus:${day.slice(0, 7)}`, t: now, app: 'eco', kind: 'plus', amount: -490 }], settings: { 'act:vocab': { value: { day, n: { answer: 20 } }, t: now } } };
+  assert.equal(xpRate(member, now), 1.5);
+  assert.equal(claimEntry(member, 'words20', now).xp, 30);
 });

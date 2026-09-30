@@ -10,12 +10,15 @@
 //   game      a finished game round ('vocab:g:…')
 //   mission   a claimed mission or weekly goal ('vocab:m:<day>:<mission>')
 // Before v7 the same entries paid NT$ (their amount): those count as points too.
-import { taipeiDay, todayActivity, poolBalance } from './quadra.mjs';
+// Points earned make the level (the kit's xpLevel); points spent in the shop
+// (shop.mjs redeemEntry) come off what's left to spend (xpBalance).
+import { taipeiDay, todayActivity, poolBalance, xpOf, xpEarned, plusMember, PLUS } from './quadra.mjs';
 import { freezes, freezeEntry, frozenDays } from './shop.mjs';
 
+export { xpOf };
 const KIND_OF = { words: 'words', reward: 'words', game: 'game', mission: 'mission' };
-// An entry's points: its `xp`, or what it paid before v7.
-export const xpOf = e => (e?.app === 'vocab' && KIND_OF[e.kind] ? (e.xp > 0 ? e.xp : e.amount > 0 ? e.amount : 0) : 0);
+// Points ×PLUS.vocab.xpBoost for a Quadra Plus member.
+export const xpRate = (wallet, now = Date.now()) => (plusMember(wallet, now) ? PLUS.vocab.xpBoost : 1);
 // Points as text: "120 XP" (one decimal under 10, for a game's small steps).
 export function xpText(v, { sign = false } = {}) {
   const n = Math.abs(v) < 10 ? Math.round(v * 10) / 10 : Math.round(v);
@@ -37,7 +40,7 @@ export function xpToday(wallet, now = Date.now()) {
 }
 
 // Every point Rewards has ever given.
-export const xpAllTime = wallet => (wallet?.entries || []).reduce((sum, e) => sum + xpOf(e), 0);
+export const xpAllTime = xpEarned;
 
 // ---- Missions: a few things a day across the apps, points when claimed ----------------
 //
@@ -74,7 +77,7 @@ export function missions(wallet, now = Date.now()) {
 export function claimEntry(wallet, id, now = Date.now()) {
   const m = missions(wallet, now).find(x => x.id === id);
   if (!m || !m.done || m.claimed) return null;
-  return { id: missionId(taipeiDay(now), id), t: now, app: 'vocab', kind: 'mission', amount: 0, xp: m.xp, note: id };
+  return { id: missionId(taipeiDay(now), id), t: now, app: 'vocab', kind: 'mission', amount: 0, xp: Math.round(m.xp * xpRate(wallet, now)), note: id };
 }
 
 // ---- Wealth ranks: where the pool stands, and the next step ------------------------
@@ -200,7 +203,7 @@ export function weeklyGoals(wallet, now = Date.now()) {
 export function claimWeekly(wallet, id, now = Date.now()) {
   const g = weeklyGoals(wallet, now).find(x => x.id === id);
   if (!g || !g.done || g.claimed) return null;
-  return { id: weeklyId(g.week, id), t: now, app: 'vocab', kind: 'mission', amount: 0, xp: g.xp, note: `week:${id}` };
+  return { id: weeklyId(g.week, id), t: now, app: 'vocab', kind: 'mission', amount: 0, xp: Math.round(g.xp * xpRate(wallet, now)), note: `week:${id}` };
 }
 
 // ---- Badges: milestones, earned once and kept (they're read from the record) ----------------

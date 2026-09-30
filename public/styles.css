@@ -947,3 +947,10 @@ details.ranks[open] > summary { display: none; }
 .pack-plus { font-size: 0.75rem; font-weight: 700; color: #a8843f; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme='light']) .pack-plus { color: #d9b877; } }
 :root[data-theme='dark'] .pack-plus { color: #d9b877; }
+
+/* Two ways to pay (money, points) and the level on home. */
+.shop-pay { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.shop-row .shop-pay { flex-direction: column; align-items: stretch; }
+.level-card .shop-pay { justify-content: flex-start; margin-top: 8px; }
+.q-btn.dim { opacity: 0.45; }
+.rank-level-next { display: block; margin: 4px 0 10px; opacity: 0.85; }

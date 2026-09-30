@@ -77,7 +77,15 @@ mastered, bests), so nothing extra is stored.
 The shop (`lib/shop.mjs`) is the only money Rewards moves, and only out of
 the pool: streak protection NT$300, word points ×2 for 30 minutes NT$150,
 word packs TOEIC 990 / IELTS 1,490 / Business 1,990 (half price for Quadra
-Plus members, who also get a protection card a month).
+Plus members, who also get two protection cards a month and points ×1.5).
+Each can be bought with points instead (600 / 300 XP; packs 8,000 / 12,000 /
+16,000 XP): `redeemEntry`, `vocab:xs:<item>:<key>`, kind `redeem`, amount
+0, the points in the note; the Worker checks the price (`REWARDS_XP`).
+
+**Levels:** every point earned counts towards the Quadra level (the kit's
+`xpLevel`: level L from 50·L·(L−1) XP; a title every few levels, Rookie to
+Mythic), shown on Rewards' home and in every app's account sheet. Spending
+points lowers what's left to spend (`xpBalance`), never the level.
 
 Missions (Orbit Class included: checking the day's classes) read each app's activity counts in the wallet (`act:<app>`) and
 when each app was last opened. Three are about Play and Securities (a

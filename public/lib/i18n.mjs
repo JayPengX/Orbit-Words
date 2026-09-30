@@ -2,6 +2,7 @@
 // the browser's language, or the language picked in any Quadra app).
 export const STRINGS = {
   zh: {
+    levelLine: 'Lv {n} · {title}', levelNext: '再 {v} 升到 Lv {n}', xpToSpend: '可用 {v}', shopUseXp: '用 {v} 兌換', shopPoints: '積分不足', packXp: '或 {v}',
     gamesSearch: '搜尋遊戲', howToPlay: '怎麼玩', howGotIt: '知道了', cat_all: '全部', cat_fav: '★ 最愛', cat_words: '單字', cat_logic: '邏輯', cat_puzzle: '益智', cat_action: '動作', cat_reflex: '反應', cat_board: '棋類', cat_cards: '牌類', cat_brain: '記憶', cat_numbers: '數字', longTag: '長局', gamesRecent: '最近玩過', gamesNew: '新遊戲', gamesFavs: '我的最愛', gamesSeeAll: '全部 {n} 款', newTag: '新', gamesNoMatch: '找不到符合的遊戲。', gamesNoFav: '點 ☆ 加入最愛', gamesCount: '{n} 款遊戲', gameBack: '遊戲列表', favAdd: '加入最愛', favRemove: '移出最愛', gameLoading: '載入中…', gameLoadFail: '載入失敗，請再試一次', gamesToday: '{v}', gamesAlso: '接著玩',
     arcadeScore: '分數 {n}', arcadeTapStart: '點一下開始', arcadeOver: '結束！', arcadeSummary: '得分 {n}。',
     tab_home: '首頁', tab_words: '單字', tab_games: '遊戲', tab_missions: '任務', helpTitle: '說明', missionsAll: '全部任務', close: '關閉',
@@ -73,7 +74,7 @@ export const STRINGS = {
     boostSub: '單字積分 ×2', boostOn: '⚡ 加倍中 · {n} 分鐘', boostPitch: '⚡ 單字積分 ×2 · 30 分鐘',
     shopAsk_freeze: '漏掉一天時自動保住連續紀錄。', shopAsk_boost: '30 分鐘內單字積分加倍。',
     shopBuy: '購買 {v}', shopCancel: '先不要', shopDone_freeze: '🛡️ 已加入保護卡', shopDone_boost: '⚡ 加倍開始', shopFunds: 'Quadra 餘額不足',
-    plusRewards: 'Plus：單字包 5 折 · 每月一張保護卡', plusRewardsOn: 'Plus：單字包 5 折 · 每月一張保護卡',
+    plusRewards: 'Plus：積分 ×1.5 · 每月 2 張保護卡 · 單字包 5 折', plusRewardsOn: 'Plus：積分 ×1.5 · 每月 2 張保護卡 · 單字包 5 折',
     freezeUsed: '🛡️ 連續 {streak} 天已保住',
     spendLine: '花在：', spendPlay: 'Play ›', spendStock: 'Securities ›',
     packsTitle: '單字包',
@@ -82,6 +83,7 @@ export const STRINGS = {
     packWords: '{n} 字 · 真人發音', packOnce: '一次買斷', packPlusHalf: '✦ Plus 會員 {v}', packAsk: '{n} 個字永久加入你的單字。', packDone: '📘 已加入 {name}'
   },
   en: {
+    levelLine: 'Lv {n} · {title}', levelNext: '{v} to Lv {n}', xpToSpend: '{v} to spend', shopUseXp: 'Use {v}', shopPoints: 'Not enough points', packXp: 'or {v}',
     gamesSearch: 'Search games', howToPlay: 'How to play', howGotIt: 'Got it', cat_all: 'All', cat_fav: '★ Favourites', cat_words: 'Words', cat_logic: 'Logic', cat_puzzle: 'Puzzles', cat_action: 'Action', cat_reflex: 'Reflex', cat_board: 'Board', cat_cards: 'Cards', cat_brain: 'Memory', cat_numbers: 'Numbers', longTag: 'Long', gamesRecent: 'Played lately', gamesNew: 'New games', gamesFavs: 'Favourites', gamesSeeAll: 'All {n}', newTag: 'New', gamesNoMatch: 'No game matches.', gamesNoFav: 'Tap ☆ to add one', gamesCount: '{n} games', gameBack: 'All games', favAdd: 'Add to favourites', favRemove: 'Remove from favourites', gameLoading: 'Loading…', gameLoadFail: 'Couldn’t load. Try again.', gamesToday: '{v}', gamesAlso: 'Play next',
     arcadeScore: 'Score {n}', arcadeTapStart: 'Tap to start', arcadeOver: 'Over!', arcadeSummary: 'Scored {n}.',
     tab_home: 'Home', tab_words: 'Words', tab_games: 'Games', tab_missions: 'Missions', helpTitle: 'Help', missionsAll: 'All missions', close: 'Close',
@@ -150,7 +152,7 @@ export const STRINGS = {
     boostSub: 'Word points ×2', boostOn: '⚡ Boosted · {n} min', boostPitch: '⚡ Word points ×2 · 30 min',
     shopAsk_freeze: 'Keeps your streak on a missed day.', shopAsk_boost: 'Double word points for 30 minutes.',
     shopBuy: 'Buy · {v}', shopCancel: 'Not now', shopDone_freeze: '🛡️ Protection added', shopDone_boost: '⚡ Boost on', shopFunds: 'Not enough in your Quadra balance',
-    plusRewards: 'Plus: word packs half price · a protection card a month', plusRewardsOn: 'Plus: word packs half price · a protection card a month',
+    plusRewards: 'Plus: points ×1.5 · 2 protection cards a month · packs half price', plusRewardsOn: 'Plus: points ×1.5 · 2 protection cards a month · packs half price',
     freezeUsed: '🛡️ {streak}-day streak kept',
     spendLine: 'Spend in:', spendPlay: 'Play ›', spendStock: 'Securities ›',
     packsTitle: 'Word packs',
