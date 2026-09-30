@@ -7,7 +7,7 @@ import {
   quadraSession, tabBar, topActions, installGate, watchUpdates, recordAffinity, setting, settingPatch, taipeiDay, poolBalance, money, randomId, notify, schedulePush, APPS, ECONOMY, PLUS, ask, tell, plusCard, plusMember, openPlus, affinityPatch, xpLevel, xpBalance, xpForLevel, AVATARS, avatarOwned, avatarBought, levelCards
 } from './lib/quadra.mjs';
 import { SHOP, shopEntry, redeemEntry, freezes, boostUntil, openPacks, packPrice, packEntry, packOpen } from './lib/shop.mjs';
-import { LEVELS, PACK_IDS, addPacks, levelRank, inLevels, MODES, loadWords, pickRound, smartType, markKnown, makeQuestion, grade, payFor, sameWord, spellDiff, stats, stateOf, packProgress, unpackProgress, mergeProgress, migrateWords, shortMeaning, wordOfDay } from './lib/words.mjs';
+import { KNOWN_BOX, LEVELS, PACK_IDS, addPacks, levelRank, inLevels, MODES, loadWords, pickRound, smartType, markKnown, makeQuestion, grade, payFor, sameWord, spellDiff, stats, stateOf, packProgress, unpackProgress, mergeProgress, migrateWords, shortMeaning, wordOfDay } from './lib/words.mjs';
 import {
   xpToday, xpOf, xpText, xpRate, missions, claimEntry, rankOf, RANKS, streakDays, xpAllTime, streakAtRisk, dailyId, dailyStreak, weeklyGoals, claimWeekly, badges, freezeDue
 } from './lib/earn.mjs';
@@ -487,6 +487,9 @@ function toggleLevel(l) {
 
 // ---- A round ---------------------------------------------------------------------------
 
+// Known words confirmed within a round (see answer).
+const CONFIRM_MAX = 5;
+
 function startRound() {
   const list = pickRound(myWords(), state.progress, { levels: myLevels(), size: state.size || 10 });
   if (!list.length) return toast(t('nothingLeft'));
@@ -497,7 +500,9 @@ function startRound() {
 function nextQuestion() {
   const r = state.round;
   const word = r.list[r.i];
-  const type = r.retry?.has(word.key) ? 'meaning' : state.mode === 'smart' ? smartType(state.progress[word.key], Math.random, word) : state.mode;
+  // A known word being confirmed: the other way round (by ear when it's long).
+  const long = /\s/.test(word.word) || word.word.length > 11;
+  const type = r.confirmAt?.get(word.key) === r.i ? (long ? 'listen' : 'word') : r.retry?.has(word.key) ? 'meaning' : state.mode === 'smart' ? smartType(state.progress[word.key], Math.random, word) : state.mode;
   r.q = makeQuestion(word, type, state.words);
   r.answered = false;
   r.typed = '';
@@ -525,6 +530,17 @@ function answer(correct, typed = '') {
   r.results.push({ word, correct, type: r.q.type, before, after: stateOf(res.p), pay, typed, mastered: res.firstMastery });
   // A missed word comes back once at the end of the round, to fix it while
   // it's fresh (asked by its meaning).
+  // A new word right at first sight, asked the easy way (it's now known,
+  // box 3): once more at the end of the round the other way round, and
+  // right then masters it today instead of in five days (at most
+  // CONFIRM_MAX a round).
+  if (correct && before === 'new' && res.p.b === KNOWN_BOX && r.q.type !== 'card' && !r.confirm?.has(word.key) && (r.confirm?.size || 0) < CONFIRM_MAX) {
+    r.confirm = r.confirm || new Set();
+    r.confirmAt = r.confirmAt || new Map();
+    r.confirm.add(word.key);
+    r.list = [...r.list, word];
+    r.confirmAt.set(word.key, r.list.length - 1);
+  }
   if (!correct && !r.retry?.has(word.key)) {
     r.retry = r.retry || new Set();
     r.retry.add(word.key);

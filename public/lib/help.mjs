@@ -279,7 +279,7 @@ export const HELP = {
       ['words', '背單字', [
         '大考中心高中英文參考詞彙第 1 到 6 級，共 6,170 字，每個字都有真人發音錄音（Microsoft Jenny）。每一輪 10、20 或 30 個字，混合該複習的字和新字；答錯的字會在這一輪最後再問一次。',
         '「智慧」模式依熟練度出題：新字先認意思，接著看中文選英文、聽音選字、字母排序，最後聽寫。',
-        '答對升一格、答錯回第一格，第 4 格算「精熟」，該複習時再出現（1、2、5、14 天後）。第一次見到就答對的字代表你本來就會，直接跳到第 3 格，再答對一次就精熟。'
+        '答對升一格、答錯回第一格，第 4 格算「精熟」，該複習時再出現（1、2、5、14 天後）。第一次見到就答對的字代表你本來就會，直接跳到第 3 格；這一輪最後會換個方向再問一次（看中文選英文，長的字用聽的），答對就當天精熟（一輪最多 5 個）。'
       ]],
       ['games', '遊戲', [
         '103 款遊戲，分成單字、邏輯、益智、動作、反應、棋類、牌類、記憶和數字九類。遊戲頁一排排瀏覽，點「全部」看整類，也能搜尋或加入最愛；一局結束會推薦接著玩的遊戲。',
@@ -318,7 +318,7 @@ export const HELP = {
       ['words', 'Words', [
         'The high-school English reference list, levels 1 to 6: 6,170 words, each with a recording (Microsoft’s Jenny voice). A round is 10, 20 or 30 words, reviews and new ones mixed; a missed word comes back once at the end of the round.',
         'Smart mode asks by how well you know a word: its meaning first, then meaning → word, by ear, unscrambling, and dictation last.',
-        'Right moves a word up a box, wrong back to box 1; box 4 is mastered, and each word returns when due (1, 2, 5, 14 days). A new word right the first time is one you know: it jumps to box 3, and one more right answer masters it.'
+        'Right moves a word up a box, wrong back to box 1; box 4 is mastered, and each word returns when due (1, 2, 5, 14 days). A new word right the first time is one you know: it jumps to box 3 and comes back once at the end of the round the other way round (meaning → word, or by ear for a long one); right again, it’s mastered that day (up to 5 a round).'
       ]],
       ['games', 'Games', [
         '103 games in nine kinds: words, logic, puzzles, action, reflex, board, cards, memory and numbers. Browse them row by row, open a whole kind with See all, search, or keep favourites; a finished round suggests what to play next.',
