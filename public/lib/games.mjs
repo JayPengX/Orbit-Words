@@ -35,8 +35,10 @@ export const PAY_SCALE = ECONOMY.gamesPerMinute / 25;
 // Streaks: `every` right in a row adds `bonus`; a `ladder` adds ladder[0]
 // for the 2nd in a row, ladder[1] for each after; `penalty` per mistake.
 export const STREAK = {
-  derby: { ladder: [3, 6], penalty: 1 },
-  freethrow: { ladder: [3, 6], penalty: 1 },
+  // The derby and free throws play like the arcade games: a miss costs
+  // nothing, it just ends the run.
+  derby: { ladder: [3, 6], penalty: 0 },
+  freethrow: { ladder: [3, 6], penalty: 0 },
   pairs: { every: 3, bonus: 3, penalty: 1 },
   merge: { every: 4, bonus: 1, penalty: 0 },
   speed: { every: 5, bonus: 2, penalty: 1 },
@@ -45,10 +47,12 @@ export const STREAK = {
   sudoku: { every: 3, bonus: 3, penalty: 1 }
 };
 
-export const ADAPT = { start: 0.15, up: 0.1, upBest: 0.14, down: 0.16 };
+// Gentle: it starts easy, climbs a little with each hit and never past `max`
+// (the old top speed was too hard to enjoy).
+export const ADAPT = { start: 0, up: 0.06, upBest: 0.08, down: 0.12, max: 0.75 };
 export function adapt(level, result) {
   const step = result === 'miss' ? -ADAPT.down : result === 'hr' || result === 'swish' ? ADAPT.upBest : ADAPT.up;
-  return Math.min(1, Math.max(0, level + step));
+  return Math.min(ADAPT.max, Math.max(0, level + step));
 }
 
 // A round's running score: good(pay) for a success (returns its streak

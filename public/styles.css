@@ -991,3 +991,8 @@ button.xp-card { width: 100%; text-align: left; font: inherit; color: inherit; c
 .av-glyph { font-size: 28px; line-height: 1.1; }
 .av-tile small { font-size: 11.5px; color: var(--q-muted); white-space: nowrap; }
 .av-tile.on small { color: var(--accent); font-weight: 700; }
+/* A game tile: room between the icon and its name, and a shadow that stays under the icon. */
+.gh-tile .gh-icon { margin-bottom: 10px; box-shadow: 0 6px 12px -10px var(--cat-a); }
+.gh-tile { gap: 2px; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme='light']) .gh-tile .gh-icon { box-shadow: none; } }
+:root[data-theme='dark'] .gh-tile .gh-icon { box-shadow: none; }

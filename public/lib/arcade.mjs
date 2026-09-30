@@ -687,6 +687,8 @@ export const oddSize = level => Math.min(8, 2 + Math.floor(level / 3));
 // How to play each game, in a few lines: [中文, English]. Shown the first
 // time a game is opened and behind the ? in its bar.
 export const HOW = {
+  derby: ["點畫面（或空白鍵）揮棒，球到本壘上的黃圈時揮最準。全壘打和安打都得分，連續打中加分更多；揮空不扣分，只是連續中斷。共 18 球，打得越好球越快一點。", "Tap (or Space) to swing; the best moment is when the ball reaches the ring over the plate. Home runs and hits score, and hits in a row score more; a miss costs nothing, it only ends the run. 18 pitches, a little faster as you hit."],
+  freethrow: ["點畫面（或空白鍵）出手，讓箭頭停在綠色：深綠空心、淺綠進球都得分，連續投進加分更多；沒進不扣分，只是連續中斷。共 18 球，投得越準越快一點。", "Tap (or Space) to shoot and stop the arrow in the green: dark green is a swish, light green a make, and makes in a row score more; a miss costs nothing, it only ends the run. 18 shots, a little faster as you score."],
   invaders: ["拖動或按方向鍵移動火箭，會自動發射。打下一架 1 分，清完一波加 5 分、下一波更快。被炸到或敵人降到底就結束。", "Drag or use the arrows; the rocket fires by itself. Each invader scores 1, a cleared wave 5 and a faster one comes. A hit, or invaders reaching you, ends it."],
   frogger: ["點青蛙的前後左右（或方向鍵）跳一格。馬路上別被車撞，河裡要踩在木頭上。每前進到新的一排 1 分，到對岸 5 分。", "Tap beside the frog (or use the arrows) to hop. Dodge cars; in the river, ride the logs. A new row scores 1, the far bank 5."],
   jetpack: ["按住往上飛，放開往下掉，躲開電網、吃金幣。每飛 10 公尺 1 分，一枚金幣 1 分。", "Hold to fly up, let go to fall; dodge the zappers and grab coins. Every 10 m scores 1, and each coin 1."],
@@ -756,8 +758,6 @@ export const HOW = {
   merge: ['滑動讓所有方塊往同一邊移動，兩個相同數字碰在一起就合併。合出越大的數字分數越高，格子滿了就結束。', 'Swipe to slide every tile; two equal numbers that meet merge. Bigger tiles score more; it ends when the board is full.'],
   sudoku: ['4×4 數獨：每一列、每一行、每個 2×2 小格都要剛好有 1 到 4。點格子再點數字填入。', '4×4 sudoku: every row, column and 2×2 box holds 1 to 4 once. Tap a cell, then a number.'],
   simon: ['看顏色亮起的順序，然後照同樣順序點。每一輪多一個，記得越長賺越多。', 'Watch the colours light up, then tap them in the same order. Each round adds one.'],
-  derby: ['投手投球後，在球飛到本壘板（打擊區）的那一刻點擊揮棒。越準打得越遠，全壘打最多錢。', 'Tap to swing as the pitch reaches the plate. The better the timing, the further it flies; home runs pay most.'],
-  freethrow: ['箭頭會左右擺動，點一下讓它停在綠色區域就投進。停在正中間是空心球。', 'Tap to stop the swinging arrow in the green to score; dead centre is a swish.'],
   mines: ['點格子打開；數字代表旁邊 8 格裡有幾顆雷。用數字推理哪裡安全，切到「🚩 插旗」標記雷。第一下一定安全，打開所有安全格就贏。', 'Tap to open a cell; a number says how many of the 8 around it are mines. Reason out the safe ones; switch to 🚩 to flag mines. The first tap is always safe; open every safe cell to win.'],
   lights: ['點一盞燈，它和上下左右的燈都會切換開關。目標：把所有燈都關掉。按的次數越少越好。', 'Tapping a light switches it and the ones above, below and beside it. Turn every light off, in as few taps as you can.'],
   slide: ['點空格旁邊的數字，把它滑進空格。排成 1 2 3 / 4 5 6 / 7 8 空格 就完成。', 'Tap a tile next to the gap to slide it in. Put them in order 1-8 with the gap last.'],

@@ -401,7 +401,7 @@ function finishRound(game, amount, box, summary, ms, score = null) {
     ...[
       fold,
       el('p', { class: 'game-result' }, [document.createTextNode(summary), el('strong', { class: paid > 0 ? 'paid' : '', text: ` ${t('gamePaid', { v: fmtMoney(paid) })}` })]),
-      score && (score.bonus || score.penalty) ? el('p', { class: 'note', text: t('scoreLine', { bonus: fmtMoney(score.bonus, { sign: false }), penalty: fmtMoney(score.penalty, { sign: false }) }) }) : null,
+      score?.penalty ? el('p', { class: 'note', text: t('scoreLine', { bonus: fmtMoney(score.bonus, { sign: false }), penalty: fmtMoney(score.penalty, { sign: false }) }) }) : score?.bonus ? el('p', { class: 'note', text: t('comboLine', { bonus: fmtMoney(score.bonus, { sign: false }) }) }) : null,
       bonus > 0 ? el('p', { class: 'daily-paid', text: t('dailyPaid', { v: fmtMoney(bonus, { sign: false }) }) }) : null,
       best ? el('p', { class: 'best-new', text: t('bestNew') }) : null,
       el('button', { class: 'q-btn primary game-big-button', type: 'button', text: t('gameAgain'), onclick: () => reopen(game) }),
@@ -489,7 +489,7 @@ function derbyView() {
   // Difficulty follows the batter: up after a hit, down after a miss.
   let level = ADAPT.start;
   let last = performance.now();
-  const update = () => hud.set({ done: results.length, of: DERBY.pitches, earned: score.total, run: score.run, level });
+  const update = () => hud.set({ done: results.length, of: DERBY.pitches, earned: score.total, run: score.run });
   // The ball along its path: p is ballAt's 0-1, the plate at DERBY.plate.
   const ballPos = p => {
     const k = p / DERBY.plate;
@@ -675,7 +675,6 @@ function derbyView() {
   update();
   animate(draw);
   return el('div', { class: 'game', tabindex: '0', onkeydown: e => e.key === ' ' && (e.preventDefault(), swing()) }, [
-    el('p', { class: 'note', text: `${t('derbyRules', { n: DERBY.pitches, hr: fmtPay(DERBY.pay.hr), hit: fmtPay(DERBY.pay.hit) })} ${streakRule('derby')}` }),
     hud.node,
     canvas,
     box
@@ -706,7 +705,7 @@ function freeThrowView() {
   // Difficulty follows the shooter: up after a make, down after a miss.
   let level = ADAPT.start;
   let last = performance.now();
-  const update = () => hud.set({ done: results.length, of: FREE_THROW.shots, earned: score.total, run: score.run, level });
+  const update = () => hud.set({ done: results.length, of: FREE_THROW.shots, earned: score.total, run: score.run });
   const drawCourt = now => {
     const wall = ctx.createLinearGradient(0, 0, 0, 150);
     wall.addColorStop(0, '#1b2331');
@@ -877,7 +876,6 @@ function freeThrowView() {
   update();
   animate(draw);
   return el('div', { class: 'game', tabindex: '0', onkeydown: e => e.key === ' ' && (e.preventDefault(), shoot()) }, [
-    el('p', { class: 'note', text: `${t('ftRules', { n: FREE_THROW.shots, swish: fmtPay(FREE_THROW.pay.swish), make: fmtPay(FREE_THROW.pay.make) })} ${streakRule('freethrow')}` }),
     hud.node,
     canvas,
     box
