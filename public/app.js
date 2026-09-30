@@ -5,7 +5,7 @@
 import {
   quadraSession, tabBar, topActions, installGate, watchUpdates, recordAffinity, setting, settingPatch, taipeiDay, poolBalance, money, randomId, notify, schedulePush, APPS, ECONOMY, ask, plusCard, plusMember, affinityPatch
 } from './lib/quadra.mjs';
-import { SHOP, shopEntry, freezes, boostUntil, capsFor, ownedPacks, packPrice, packEntry, packOwned } from './lib/shop.mjs';
+import { SHOP, shopEntry, freezes, boostUntil, capsFor, openPacks, packPrice, packEntry, packOpen, packIncluded } from './lib/shop.mjs';
 import { LEVELS, PACK_IDS, addPacks, levelRank, inLevels, MODES, loadWords, pickRound, smartType, markKnown, makeQuestion, grade, payFor, sameWord, spellDiff, stats, stateOf, packProgress, unpackProgress, mergeProgress, migrateWords, shortMeaning, wordOfDay } from './lib/words.mjs';
 import {
   earnedToday, missions, claimEntry, rankOf, RANKS, streakDays, earnedAllTime, streakAtRisk, dailyId, dailyStreak, weeklyGoals, claimWeekly, badges, freezeDue
@@ -258,13 +258,14 @@ async function loadWordList() {
   state.words = addPacks(loadWords(main), packs);
   state.byKey = new Map(state.words.map(w => [w.key, w]));
 }
-// The words this pass can study: the main list and the packs it owns.
+// The words this pass can study: the main list and the packs it owns (or
+// has with Quadra Plus).
 function myWords() {
-  const owned = ownedPacks(withOutbox());
+  const owned = openPacks(withOutbox());
   return (state.words || []).filter(w => typeof w.level === 'number' || owned.includes(w.level));
 }
 // The levels chosen, packs only once owned.
-const myLevels = () => state.levels.filter(l => LEVELS.includes(l) || packOwned(withOutbox(), l));
+const myLevels = () => state.levels.filter(l => LEVELS.includes(l) || packOpen(withOutbox(), l));
 // A level's name: 第 3 級, or a pack's name.
 const levelName = l => (typeof l === 'number' ? t('level', { n: l }) : t(`pack_${l}`));
 
@@ -420,10 +421,10 @@ function packCards(st) {
     'div',
     { class: 'level-grid packs' },
     PACK_IDS.map(id => {
-      if (packOwned(w, id)) {
+      if (packOpen(w, id)) {
         const on = state.levels.includes(id);
         return el('button', { class: `level-card pack${on ? ' on' : ''}`, type: 'button', 'aria-pressed': String(on), onclick: () => toggleLevel(id) }, [
-          el('div', { class: 'level-top' }, [el('strong', { text: t(`pack_${id}`) }), el('small', { text: t(`packHint_${id}`) })]),
+          el('div', { class: 'level-top' }, [el('strong', { text: t(`pack_${id}`) }), el('small', { text: packIncluded(w, id) ? t('packPlus') : t(`packHint_${id}`) })]),
           bar(st[id].mastered, st[id].total),
           el('div', { class: 'level-foot' }, [el('span', { class: 'num', text: `${st[id].mastered.toLocaleString()} / ${st[id].total.toLocaleString()}` }), st[id].due ? el('span', { class: 'due', text: t('dueN', { n: st[id].due }) }) : null])
         ]);
@@ -433,14 +434,15 @@ function packCards(st) {
       return el('button', { class: 'level-card pack locked', type: 'button', onclick: () => buyPack(id) }, [
         el('div', { class: 'level-top' }, [el('strong', { text: t(`pack_${id}`) }), el('small', { text: t(`packHint_${id}`) })]),
         el('small', { class: 'muted', text: t('packWords', { n }) }),
-        el('div', { class: 'level-foot' }, [el('span', { class: 'pack-price num', text: nt(price) }), price < SHOP.packs[id] ? el('s', { class: 'muted num', text: nt(SHOP.packs[id]) }) : el('span', { class: 'muted', text: t('packOnce') })])
+        el('div', { class: 'level-foot' }, [el('span', { class: 'pack-price num', text: nt(price) }), el('span', { class: 'muted', text: t('packOnce') })]),
+        el('small', { class: 'pack-plus', text: t('packPlusFree') })
       ]);
     })
   );
 }
 async function buyPack(id) {
   const w = withOutbox();
-  if (packOwned(w, id)) return;
+  if (packOpen(w, id)) return;
   const price = packPrice(w, id);
   if (poolBalance(w) < price) return toast(t('shopFunds'));
   const ok = await ask({ lang: locale, icon: '📘', title: t(`pack_${id}`), body: t('packAsk', { v: nt(price), n: state.words.filter(x => x.level === id || x.packs?.includes(id)).length }), ok: t('shopBuy', { v: nt(price) }), cancel: t('shopCancel') });

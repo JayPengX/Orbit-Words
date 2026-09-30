@@ -944,3 +944,6 @@ details.ranks[open] > summary { display: none; }
 .level-card.pack.locked { border-style: solid; background: var(--q-surface); }
 .level-card.pack.locked .level-foot { align-items: baseline; }
 .pack-price { font-weight: 800; color: var(--accent); }
+.pack-plus { font-size: 0.75rem; font-weight: 700; color: #a8843f; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme='light']) .pack-plus { color: #d9b877; } }
+:root[data-theme='dark'] .pack-plus { color: #d9b877; }

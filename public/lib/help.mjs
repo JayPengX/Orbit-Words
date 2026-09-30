@@ -34,9 +34,13 @@ export const HELP = {
         '帳戶裡可以「登出其他所有裝置」（這台保持登入），或「更換通行碼」（新的只顯示一次，舊的立刻失效）。忘記通行碼時，在還登入的裝置更換一組就好。'
       ]],
       ['plus', 'Quadra Plus 會員', [
-        '一個會員、所有 Quadra App：月繳 NT$290（第一次加入的那個月免費），或年繳 NT$2,900，等於每月 NT$242、省下兩個月。從 Quadra 餘額扣款，在帳戶裡加入或管理；會員的帳戶按鈕有金色星星。',
-        'Securities：手續費 5 折、換匯點差減半、融資利率少 1%、台幣活存 2%（一般 0.8%）。Play：串關加成加倍、提前兌現只扣 2%（一般 5%）。Rewards：每月一張連續紀錄保護卡、單字每日上限多 NT$50、單字包半價。',
+        '一個會員、所有 Quadra App：月繳 NT$390（第一次加入的那個月免費），或年繳 NT$3,900，等於每月 NT$325、省下兩個月。從 Quadra 餘額扣款，在帳戶裡加入或管理；會員的帳戶按鈕有金色星星。',
+        'Play：每天一張 NT$1,000 以內的投注獎金 +10%（多的部分在明細裡是「✦ Plus 獎金加成」）、每週一送 NT$100 免費投注、串關加成加倍、提前兌現只扣 2%（一般 5%）。Securities：手續費 2.8 折、換匯點差減半、融資利率少 1%、台幣活存 2%（一般 0.8%）。Rewards：所有單字包會員期間免費、單字每日上限多 NT$50、每月一張連續紀錄保護卡。會員卡上會顯示本月回饋了多少。',
         '月繳隨時可以取消，已付的月份照常享有權益；年繳到期自動續約，也可以在「管理會員」取消續約。'
+      ]],
+      ['vip', 'VIP 投注回饋與新手禮', [
+        'VIP 不用加入也不用付費：每個月在 Play 的投注（運彩、彩券、刮刮樂，退款不算）決定當月等級，下個月第一次打開 App 時回饋當月投注額的一部分：🥉 銅卡 NT$10,000 起 0.5%、🥈 銀卡 NT$50,000 起 0.8%、🥇 金卡 NT$150,000 起 1.2%、◆ 黑卡 NT$500,000 起 1.5%。Play 首頁的餘額卡上看得到本月等級和離下一級還差多少。',
+        '新手禮：在 Play 第一次用自己的錢下注後，送一張 NT$200 免費投注（7 天內有效）；在 Securities 的第一筆交易免手續費（稅和規費照收）。'
       ]],
       ['money', '錢怎麼算', [
         '所有 App 共用一個新台幣錢包。新帳號開戶金 NT$30,000；每個月 1 日發津貼，依你的資產（現金加上 Securities 持股）：NT$4 萬以下 NT$6,000、10 萬以下 3,000、25 萬以下 1,500，再多是 500。那個月第一次打開任何 App 時入帳，沒打開的月份下次補發。',
@@ -63,9 +67,13 @@ export const HELP = {
         'The account can sign out every other device (this one stays in) or change the pass (the new one is shown once, the old one stops at once). Forgot it? Change it from a device that’s still signed in.'
       ]],
       ['plus', 'Quadra Plus', [
-        'One membership for every Quadra app: NT$290 a month (the first month you ever join is free), or NT$2,900 a year, NT$242 a month with two months free. It comes from the Quadra balance; join or manage it in the account, and a member’s account button has a gold star.',
-        'Securities: half commission, half the FX spread, loans 1 point cheaper, 2% on NT$ cash (0.8% otherwise). Play: the parlay boost doubled, and cash out keeps 2% instead of 5%. Rewards: a streak protection every month, NT$50 more word pay a day, and word packs at half price.',
+        'One membership for every Quadra app: NT$390 a month (the first month you ever join is free), or NT$3,900 a year, NT$325 a month with two months free. It comes from the Quadra balance; join or manage it in the account, and a member’s account button has a gold star.',
+        'Play: +10% on the winnings of one slip a day up to NT$1,000 (the extra shows as “✦ Plus boost” in your statement), a NT$100 free bet every Monday, the parlay boost doubled, and cash out keeps 2% instead of 5%. Securities: commission at 28% of the usual rate, half the FX spread, loans 1 point cheaper, 2% on NT$ cash (0.8% otherwise). Rewards: every word pack while you’re a member, NT$50 more word pay a day, and a streak protection every month. The Plus card shows what it gave back this month.',
         'Monthly stops whenever you like, keeping the perks for months paid; yearly renews each year, and renewal can be turned off under Manage membership.'
+      ]],
+      ['vip', 'VIP cashback and welcome offers', [
+        'VIP is free and needs no sign-up: what you stake in Play in a month (bets, lottery and scratch cards; refunds don’t count) sets that month’s tier, and a share of it comes back the first time you open an app the next month: 🥉 Bronze from NT$10,000 0.5%, 🥈 Silver from NT$50,000 0.8%, 🥇 Gold from NT$150,000 1.2%, ◆ Black from NT$500,000 1.5%. Play’s balance card shows this month’s tier and what’s left to the next.',
+        'Welcome offers: your first bet in Play with your own money brings a NT$200 free bet (7 days), and your first trade in Securities pays no commission (taxes and fees as usual).'
       ]],
       ['money', 'Money', [
         'Every app shares one NT$ wallet. A new pass opens with NT$30,000; the 1st of every month brings an allowance by what you’re worth (cash plus Securities holdings): NT$6,000 under NT$40,000, 3,000 under 100,000, 1,500 under 250,000, 500 above. It’s paid the first time that month you open any app; a month you miss is paid when you’re back.',
@@ -104,7 +112,7 @@ export const HELP = {
       ['fees', '費用', [
         '台股手續費 0.1425%（最低 NT$20），賣出另收 0.3% 證交稅；美股、日股等海外市場照複委託常見網路費率。股利照各國規定預扣稅。',
         '換匯用市場中間價加減銀行價差；週末外匯休市時價差加倍。融資按天計息。',
-        'Quadra Plus 會員手續費 5 折、點差減半、融資利率少 1%、台幣活存 2%。'
+        'Quadra Plus 會員手續費 2.8 折、點差減半、融資利率少 1%、台幣活存 2%。'
       ]],
       ['money', '錢怎麼算', [
         'Securities 的新台幣就是 Quadra 餘額：買進時從錢包出去，賣出時回來。手續費和稅照各市場真實規定（台股最低 NT$20，海外是複委託常見網路費率）；股利照各國規定預扣稅，除息日取得權利，幾週後現金入帳。',
@@ -140,7 +148,7 @@ export const HELP = {
       ['fees', 'Fees', [
         'Taiwan trades pay 0.1425% commission (NT$20 at least) and a sale 0.3% tax; US, Japanese and other markets a Taiwan broker’s usual online rate. Dividends have each country’s withholding.',
         'Exchange is the mid-market rate plus or minus the bank’s spread, doubled at weekends while FX markets are shut. Margin loans charge interest daily.',
-        'Quadra Plus members pay half commission and half the spread, borrow 1 point cheaper and earn 2% on NT$ cash.'
+        'Quadra Plus members pay 28% of the usual commission and half the spread, borrow 1 point cheaper and earn 2% on NT$ cash.'
       ]],
       ['money', 'Money', [
         'Securities’ NT$ is the Quadra balance: buying takes from the wallet, selling brings it back. Fees and taxes follow each market’s real rules (Taiwan at least NT$20; abroad a Taiwan broker’s usual online rate); dividends have each country’s withholding, earned on the ex-date, paid weeks later.',
@@ -280,13 +288,13 @@ export const HELP = {
         '今日挑戰：當天第一局有入帳就加獎金（NT$5 起，連續幾天多一點，最多 NT$20）。每款遊戲的最佳紀錄跨裝置保留。'
       ]],
       ['missions', '每日任務與每週目標', [
-        '每天幾個小任務（背 20 題、精熟 3 個字、玩一局遊戲、在 Securities 交易或加入觀察、在 Fixtures 看一場比賽、在 Orbit Class 看課表、打開三個 App），完成後按「領取」。在 Play 串 3 場以上、買一張刮刮樂、在 Securities 設定定期定額，這三個任務送的是 Play 的免費投注（NT$30–50，7 天內有效）：用在一張單上，不扣本金，贏了拿獎金。',
+        '每天幾個小任務（背 20 題、精熟 3 個字、玩一局遊戲、在 Securities 交易或加入觀察、在 Fixtures 看一場比賽、在 Orbit Class 看課表、打開三個 App），完成後按「領取」。在 Play 串 3 場以上、買一張刮刮樂、在 Securities 設定新的定期定額，這三個任務送的是 Play 的免費投注（NT$20–30，7 天內有效）：用在一張單上，不扣本金，贏了拿獎金。',
         '每週目標（週一到週日）：5 天有練習、賺 NT$1,000、完成 10 個任務、玩 10 局遊戲。開啟通知後，可以領取時和連續天數快斷時會提醒你。'
       ]],
       ['extras', '加值', [
         '連續紀錄保護卡（NT$300，最多持有 3 張）：哪天沒練習也沒玩遊戲，它會自動用掉一張，連續紀錄照樣算下去。Plus 會員每月送一張。',
         '單字加倍（NT$150）：接下來 30 分鐘每題單字獎勵 ×2，當天單字上限也多 NT$200；在加倍中再買，會接在後面再延 30 分鐘。',
-        '單字包（「單字」分頁）：多益 TOEIC NT$990、雅思 IELTS NT$1,490、商務英文 NT$1,990，一次買斷，每個字都有真人發音。買了就和級別一樣可以勾選；和主單字表重複的字共用進度，答對一樣有獎勵。Plus 會員半價。'
+        '單字包（「單字」分頁）：多益 TOEIC NT$990、雅思 IELTS NT$1,490、商務英文 NT$1,990，一次買斷，每個字都有真人發音。買了就和級別一樣可以勾選；和主單字表重複的字共用進度，答對一樣有獎勵。Plus 會員期間全部免費使用（買斷的永久保留）。'
       ]],
       ['money', '錢怎麼算', [
         '今天最多可賺 NT$330：單字 NT$150（每答對一題 NT$2，第一次精熟一個字再加 NT$15；字卡不算錢）、遊戲 NT$120（短局最多 NT$60、長局最多 NT$120）、任務與每週目標 NT$60。Plus 會員單字多 NT$50；買了單字加倍的那天單字多 NT$200。',
@@ -316,13 +324,13 @@ export const HELP = {
         'Today’s challenge: its first paid round adds a bonus (from NT$5, a little more each day in a row, up to NT$20). Each game’s best is kept on every device.'
       ]],
       ['missions', 'Missions and weekly goals', [
-        'A few small things a day (20 word answers, 3 words mastered, a game, a trade or watch in Securities, a match in Fixtures, your classes in Orbit Class, three apps opened); claim each when done. A parlay of 3 or more in Play, a scratch card, or a monthly plan in Securities each give a free bet in Play instead (NT$30–50, 7 days): staked on one slip, nothing off your balance, and a win pays the winnings.',
+        'A few small things a day (20 word answers, 3 words mastered, a game, a trade or watch in Securities, a match in Fixtures, your classes in Orbit Class, three apps opened); claim each when done. A parlay of 3 or more in Play, a scratch card, or a new monthly plan in Securities each give a free bet in Play instead (NT$20–30, 7 days): staked on one slip, nothing off your balance, and a win pays the winnings.',
         'Weekly goals (Monday to Sunday): practise on 5 days, earn NT$1,000, finish 10 missions, play 10 games. With notices on, you’re told when there’s something to claim and when a streak is about to end.'
       ]],
       ['extras', 'Extras', [
         'Streak protection (NT$300, hold up to 3): on a day with no practice and no game, one is used by itself and the streak goes on. Plus members get one every month.',
         'Word pay ×2 (NT$150): every word pays double for the next 30 minutes, and that day’s word cap is NT$200 higher; one bought during another runs 30 minutes after it.',
-        'Word packs (in Words): TOEIC NT$990, IELTS NT$1,490, Business English NT$1,990, bought once, every word recorded. Once yours, pick a pack like a level; words the main list shares keep one progress, and right answers pay as usual. Half price with Plus.'
+        'Word packs (in Words): TOEIC NT$990, IELTS NT$1,490, Business English NT$1,990, bought once, every word recorded. Once yours, pick a pack like a level; words the main list shares keep one progress, and right answers pay as usual. Free while you’re a Plus member (a bought pack stays yours).'
       ]],
       ['money', 'Money', [
         'Up to NT$330 a day: words NT$150 (NT$2 a right answer, NT$15 more for a first mastery; flash cards don’t pay), games NT$120 (up to NT$60 a short round, NT$120 a long one), missions and weekly goals NT$60. Plus members get NT$50 more for words; a day with a word boost, NT$200 more.',

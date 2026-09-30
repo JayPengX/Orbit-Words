@@ -49,9 +49,9 @@ export const MISSIONS = [
   // Orbit Class, Quadra's class schedule: checking the day's classes.
   { id: 'orbit', app: 'orbit', pay: 10, goal: 1, count: a => (a.orbit?.open || 0) + (a.orbit?.edit || 0) },
   { id: 'tour', app: 'eco', pay: 10, goal: 3, count: (a, apps, day) => ['stock', 'match', 'vocab'].filter(x => apps?.[x]?.last && taipeiDay(apps[x].last) === day).length },
-  { id: 'parlay3', app: 'odds', freebet: 50, goal: 1, count: a => a.odds?.parlay || 0 },
-  { id: 'scratch', app: 'odds', freebet: 30, goal: 1, count: a => a.odds?.scratch || 0 },
-  { id: 'plan', app: 'stock', freebet: 50, goal: 1, count: a => a.stock?.plan || 0 }
+  { id: 'parlay3', app: 'odds', freebet: 30, goal: 1, count: a => a.odds?.parlay || 0 },
+  { id: 'scratch', app: 'odds', freebet: 20, goal: 1, count: a => a.odds?.scratch || 0 },
+  { id: 'plan', app: 'stock', freebet: 30, goal: 1, count: a => a.stock?.plan || 0 }
 ];
 export const missionId = (day, id) => `vocab:m:${day}:${id}`;
 export const freeBetId = (day, id) => `vocab:fb:${day}:${id}`;

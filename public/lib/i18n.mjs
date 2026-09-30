@@ -73,13 +73,13 @@ export const STRINGS = {
     boostSub: '獎勵 ×2 · 上限 +{v}', boostOn: '⚡ 加倍中 · {n} 分鐘', boostPitch: '⚡ 單字獎勵 ×2 · 30 分鐘',
     shopAsk_freeze: '漏掉一天時自動保住連續紀錄。', shopAsk_boost: '30 分鐘內單字獎勵加倍。',
     shopBuy: '購買 {v}', shopCancel: '先不要', shopDone_freeze: '🛡️ 已加入保護卡', shopDone_boost: '⚡ 加倍開始', shopFunds: 'Quadra 餘額不足',
-    plusRewards: 'Plus：每月保護卡 · 上限 +{v} · 單字包半價', plusRewardsOn: 'Plus：每月保護卡 · 上限 +{v} · 單字包半價',
+    plusRewards: 'Plus：單字包全免費 · 上限 +{v} · 每月保護卡', plusRewardsOn: 'Plus：單字包全免費 · 上限 +{v} · 每月保護卡',
     freezeUsed: '🛡️ 連續 {streak} 天已保住',
     spendLine: '花在：', spendPlay: 'Play ›', spendStock: 'Securities ›',
     packsTitle: '單字包',
     pack_toeic: '多益 TOEIC', pack_ielts: '雅思 IELTS', pack_biz: '商務英文',
     packHint_toeic: '辦公室、商務往來、旅行', packHint_ielts: '學術寫作、圖表、社會議題', packHint_biz: '財務、管理、行銷、談判',
-    packWords: '{n} 字 · 真人發音', packOnce: '一次買斷', packAsk: '{n} 個字永久加入你的單字。', packDone: '📘 已加入 {name}'
+    packWords: '{n} 字 · 真人發音', packOnce: '一次買斷', packPlus: '✦ Plus 會員免費', packPlusFree: '✦ Plus 會員免費使用', packAsk: '{n} 個字永久加入你的單字。', packDone: '📘 已加入 {name}'
   },
   en: {
     gamesSearch: 'Search games', howToPlay: 'How to play', howGotIt: 'Got it', cat_all: 'All', cat_fav: '★ Favourites', cat_words: 'Words', cat_logic: 'Logic', cat_puzzle: 'Puzzles', cat_action: 'Action', cat_reflex: 'Reflex', cat_board: 'Board', cat_cards: 'Cards', cat_brain: 'Memory', cat_numbers: 'Numbers', longTag: 'Long', gamesRecent: 'Played lately', gamesNew: 'New games', gamesFavs: 'Favourites', gamesSeeAll: 'All {n}', newTag: 'New', gamesNoMatch: 'No game matches.', gamesNoFav: 'Tap ☆ to add one', gamesCount: '{n} games', gameBack: 'All games', favAdd: 'Add to favourites', favRemove: 'Remove from favourites', gameLoading: 'Loading…', gameLoadFail: 'Couldn’t load. Try again.', gamesToday: '{v} / {cap}', gamesAlso: 'Play next',
@@ -150,13 +150,13 @@ export const STRINGS = {
     boostSub: 'Pay ×2 · cap +{v}', boostOn: '⚡ Boosted · {n} min', boostPitch: '⚡ Word pay ×2 · 30 min',
     shopAsk_freeze: 'Keeps your streak on a missed day.', shopAsk_boost: 'Double word pay for 30 minutes.',
     shopBuy: 'Buy · {v}', shopCancel: 'Not now', shopDone_freeze: '🛡️ Protection added', shopDone_boost: '⚡ Boost on', shopFunds: 'Not enough in your Quadra balance',
-    plusRewards: 'Plus: monthly protection · cap +{v} · packs half price', plusRewardsOn: 'Plus: monthly protection · cap +{v} · packs half price',
+    plusRewards: 'Plus: every word pack · cap +{v} · monthly protection', plusRewardsOn: 'Plus: every word pack · cap +{v} · monthly protection',
     freezeUsed: '🛡️ {streak}-day streak kept',
     spendLine: 'Spend in:', spendPlay: 'Play ›', spendStock: 'Securities ›',
     packsTitle: 'Word packs',
     pack_toeic: 'TOEIC', pack_ielts: 'IELTS', pack_biz: 'Business English',
     packHint_toeic: 'The office, business and travel', packHint_ielts: 'Academic writing, charts, society', packHint_biz: 'Finance, management, marketing, negotiation',
-    packWords: '{n} words · recorded', packOnce: 'Yours to keep', packAsk: '{n} words, yours to keep.', packDone: '📘 {name} added'
+    packWords: '{n} words · recorded', packOnce: 'Yours to keep', packPlus: '✦ Included with Plus', packPlusFree: '✦ Free with Quadra Plus', packAsk: '{n} words, yours to keep.', packDone: '📘 {name} added'
   }
 };
 export function detectLocale() {
