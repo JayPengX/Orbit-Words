@@ -437,14 +437,20 @@ function packCards(st) {
       return el('div', { class: 'level-card pack locked' }, [
         el('div', { class: 'level-top' }, [el('strong', { text: t(`pack_${id}`) }), el('small', { text: t(`packHint_${id}`) })]),
         el('small', { class: 'muted', text: `${t('packWords', { n })} · ${t('packOnce')}` }),
-        el('div', { class: 'shop-pay' }, [
-          el('button', { class: 'q-btn small', type: 'button', onclick: () => buyPack(id) }, [el('span', { class: 'num', text: nt(price) })]),
-          el('button', { class: `q-btn small ghost${xpBalance(w) >= SHOP.packsXp[id] ? '' : ' dim'}`, type: 'button', onclick: () => buyPack(id, { points: true }) }, [el('span', { class: 'num', text: xp(SHOP.packsXp[id]) })])
-        ]),
+        payButtons(price, SHOP.packsXp[id], () => buyPack(id), () => buyPack(id, { points: true })),
         plusMember(w) ? null : el('small', { class: 'pack-plus', text: t('packPlusHalf', { v: nt(Math.round(SHOP.packs[id] * PLUS.vocab.packShare)) }) })
       ]);
     })
   );
+}
+// Two ways to pay, side by side: money, and points (faded until there are
+// enough to spend).
+function payButtons(money, points, byMoney, byPoints) {
+  const enough = xpBalance(withOutbox()) >= points;
+  return el('div', { class: 'shop-pay' }, [
+    el('button', { class: 'pay-btn', type: 'button', onclick: byMoney }, [el('span', { class: 'num', text: nt(money) })]),
+    el('button', { class: `pay-btn xp${enough ? '' : ' short'}`, type: 'button', onclick: byPoints }, [el('span', { class: 'num', text: xp(points) })])
+  ]);
 }
 // A pack for money or (points) for points.
 async function buyPack(id, { points = false } = {}) {
@@ -714,15 +720,17 @@ function renderHome() {
     ]),
     el('p', { class: 'rank-balance num', text: nt(balance) }),
     r.next ? bar(r.progress, 1, 'light') : null,
-    el('p', { class: 'rank-next', text: r.next ? t('toNext', { v: nt(r.toNext), rank: t(`rank_${r.next.id}`) }) : t('topRank') }),
-    el('div', { class: 'rank-today' }, [
-      // The level (from every point earned) and the points left to spend.
-      el('div', { class: 'rank-today-head' }, [el('strong', { text: t('levelLine', { n: lv.level, title: lv.title }) }), el('small', { class: 'num', text: t('xpToSpend', { v: xp(xpBalance(withOutbox())) }) })]),
-      bar(lv.progress, 1, 'light'),
-      el('small', { class: 'rank-level-next', text: t('levelNext', { v: xp(lv.toNext), n: lv.level + 1 }) }),
-      el('div', { class: 'rank-today-head' }, [el('small', { text: t('todayXp') }), el('strong', { class: 'num', text: xp(e.total) })]),
-      el('div', { class: 'rank-today-row' }, ['words', 'game', 'mission'].map(k => el('div', { class: 'rank-today-part' }, [el('small', { text: t(`earn_${k}`) }), el('small', { class: 'num', text: xp(e[k]) })])))
-    ])
+    el('p', { class: 'rank-next', text: r.next ? t('toNext', { v: nt(r.toNext), rank: t(`rank_${r.next.id}`) }) : t('topRank') })
+  ]);
+  // The level (every point earned), today's points and what's left to spend.
+  const levelCard = el('div', { class: 'q-card pad xp-card' }, [
+    el('div', { class: 'xp-top' }, [
+      el('span', { class: 'xp-badge num', text: String(lv.level) }),
+      el('div', { class: 'xp-name' }, [el('small', { text: t('levelWord') }), el('strong', { text: lv.title })]),
+      el('div', { class: 'xp-today' }, [el('small', { text: t('todayXp') }), el('strong', { class: 'num', text: xpText(e.total, { sign: true }) })])
+    ]),
+    bar(lv.progress, 1, 'accent'),
+    el('div', { class: 'xp-foot' }, [el('small', { class: 'muted', text: t('levelNext', { v: xp(lv.toNext), n: lv.level + 1 }) }), el('small', { class: 'num', text: t('xpToSpend', { v: xp(xpBalance(withOutbox())) }) })])
   ]);
   // The missions most worth doing now (ready to claim first); all of them,
   // the weekly goals, badges and ranks are on 任務.
@@ -737,6 +745,7 @@ function renderHome() {
   put(
     box,
     rankCard,
+    levelCard,
     dailyCard,
     next.length ? section(t('missions'), el('div', { class: 'q-card list' }, next.map(missionRow)), { action: el('button', { type: 'button', text: `${t('missionsAll')} ›`, onclick: () => showTab('missions') }) }) : null,
     section(t('shopTitle'), shopCard()),
@@ -815,14 +824,9 @@ function shopCard() {
   const f = freezes(withOutbox());
   const left = boostLeft();
   const member = plusMember(state.wallet);
-  const row = (icon, title, sub, action) => el('div', { class: 'shop-row' }, [el('span', { class: 'shop-icon', 'aria-hidden': 'true', text: icon }), el('div', { class: 'shop-text' }, [el('strong', { text: title }), el('small', { text: sub })]), action]);
-  // Two ways to pay: money, or points (dimmed until there are enough).
-  const have = xpBalance(withOutbox());
-  const price = item =>
-    el('div', { class: 'shop-pay' }, [
-      el('button', { class: 'q-btn small', type: 'button', onclick: () => buy(item) }, [el('span', { class: 'num', text: nt(SHOP[item].price) })]),
-      el('button', { class: `q-btn small ghost${have >= SHOP[item].xp ? '' : ' dim'}`, type: 'button', onclick: () => buy(item, { points: true }) }, [el('span', { class: 'num', text: xp(SHOP[item].xp) })])
-    ]);
+  // An item, and under its name the two ways to pay (or why not).
+  const row = (icon, title, sub, action) => el('div', { class: 'shop-row' }, [el('span', { class: 'shop-icon', 'aria-hidden': 'true', text: icon }), el('div', { class: 'shop-text' }, [el('strong', { text: title }), el('small', { text: sub }), action])]);
+  const price = item => payButtons(SHOP[item].price, SHOP[item].xp, () => buy(item), () => buy(item, { points: true }));
   return el('div', { class: 'q-card list shop' }, [
     row('🛡️', t('shop_freeze'), f.held ? t('freezeHeld', { n: f.held }) : t('freezeSub'), f.held >= SHOP.freeze.hold ? el('span', { class: 'claimed', text: t('freezeFull') }) : price('freeze')),
     row('⚡', t('shop_boost'), left ? t('boostOn', { n: left }) : t('boostSub'), price('boost')),

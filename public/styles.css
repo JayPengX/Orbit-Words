@@ -948,9 +948,28 @@ details.ranks[open] > summary { display: none; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme='light']) .pack-plus { color: #d9b877; } }
 :root[data-theme='dark'] .pack-plus { color: #d9b877; }
 
-/* Two ways to pay (money, points) and the level on home. */
-.shop-pay { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
-.shop-row .shop-pay { flex-direction: column; align-items: stretch; }
-.level-card .shop-pay { justify-content: flex-start; margin-top: 8px; }
-.q-btn.dim { opacity: 0.45; }
-.rank-level-next { display: block; margin: 4px 0 10px; opacity: 0.85; }
+/* Two ways to pay (money, points), side by side under an item's name. */
+.shop-pay { display: flex; gap: 8px; margin-top: 8px; }
+.pay-btn { min-width: 0; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--q-border); background: var(--q-surface); color: inherit; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.pay-btn.xp { border-color: color-mix(in srgb, var(--accent) 35%, transparent); background: color-mix(in srgb, var(--accent) 10%, var(--q-surface)); color: var(--accent); }
+.pay-btn.xp.short { opacity: 0.5; }
+.pay-btn:active { transform: scale(0.97); }
+.shop-row { grid-template-columns: auto minmax(0, 1fr); }
+.shop-row .shop-text > .claimed { display: inline-block; margin-top: 8px; }
+
+/* The level card on home: the level in a badge, the title, today's points. */
+.xp-card { display: grid; gap: 10px; }
+.xp-top { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; }
+.xp-badge { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; background: color-mix(in srgb, var(--accent) 14%, var(--q-surface)); color: var(--accent); font-size: 18px; font-weight: 800; }
+.xp-name small, .xp-today small { display: block; color: var(--q-muted); font-size: 12px; }
+.xp-name strong { font-size: 17px; }
+.xp-today { text-align: right; }
+.xp-today strong { color: var(--accent); font-size: 16px; }
+.xp-foot { display: flex; justify-content: space-between; gap: 8px; font-size: 12.5px; }
+/* In a pack's half-width card the two prices stack, full width. */
+.level-card .shop-pay { flex-direction: column; align-items: stretch; }
+.level-card .pay-btn { width: 100%; }
+.level-card.pack small { white-space: normal; overflow-wrap: anywhere; }
+.xp-card { margin-top: 12px; }
+.level-grid.packs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.level-card.pack { min-width: 0; }
