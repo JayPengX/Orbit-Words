@@ -2,7 +2,8 @@
 // the browser's language, or the language picked in any Quadra app).
 export const STRINGS = {
   zh: {
-    levelTitle: '等級與頭像', levelSub: '累計積分升等級；用積分換頭像，每個 Quadra App 的帳戶按鈕都會戴上。', levelNextGifts: '接下來的等級獎勵', avatarsTitle: '頭像 · 可用 {v}', avatarOn: '戴著', avatarWear: '戴上', avatarAtLevel: 'Lv {n} 解鎖', avatarBuyTitle: '換這個頭像？', avatarBuyBody: '換了就永久是你的，隨時可以換戴。', avatarWorn: '頭像已換上', avatarOff: '已拿下頭像', levelUp: '升到 Lv {n} · {title}', levelUpNext: '再 {v} 升下一級', giftAvatar: '新頭像', giftAvatarLine: '到「任務 › 等級與頭像」戴上', giftCard: '一張連續紀錄保護卡', giftCardLine: '漏掉一天時自動使用',
+    streakNow: '🔥 連續 {n} 天 · 積分 +{v}%', streakNone: '🔥 今天練習或玩一局，開始連續紀錄', streakNext: '{n} 天：{gift}', streakTitle: '連續紀錄 · 現在 {n} 天 · 最長 {best} 天', daysN: '{n} 天', streakGot: '已拿到', streakToGo: '再 {n} 天', streakMaxAt: '{n} 天起', streakMilestone: '連續 {n} 天！',
+    levelTitle: '等級與頭像', levelSub: '累計積分升等級；用積分換頭像，每個 Quadra App 的帳戶按鈕都會戴上。', levelNextGifts: '接下來的等級獎勵', avatarsTitle: '頭像 · 可用 {v}', avatarOn: '戴著', avatarWear: '戴上', avatarAtLevel: 'Lv {n} 解鎖', avatarAtStreak: '連續 {n} 天解鎖', avatarBuyTitle: '換這個頭像？', avatarBuyBody: '換了就永久是你的，隨時可以換戴。', avatarWorn: '頭像已換上', avatarOff: '已拿下頭像', levelUp: '升到 Lv {n} · {title}', levelUpNext: '再 {v} 升下一級', giftAvatar: '新頭像', giftAvatarLine: '到「任務 › 等級與頭像」戴上', giftCard: '一張連續紀錄保護卡', giftCardLine: '漏掉一天時自動使用',
     badge_plus3: 'Plus 會員', badgeHow_plus3: '當 Quadra Plus 會員 3 個月', badge_plus6: 'Plus 常客', badgeHow_plus6: '當 Quadra Plus 會員 6 個月', badge_plus12: 'Plus 一週年', badgeHow_plus12: '當 Quadra Plus 會員 12 個月',
     levelLine: 'Lv {n} · {title}', levelWord: '等級', levelNext: '再 {v} 升到 Lv {n}', xpToSpend: '可用 {v}', shopUseXp: '用 {v} 兌換', shopPoints: '積分不足', packXp: '或 {v}',
     gamesSearch: '搜尋遊戲', howToPlay: '怎麼玩', howGotIt: '知道了', cat_all: '全部', cat_fav: '★ 最愛', cat_words: '單字', cat_logic: '邏輯', cat_puzzle: '益智', cat_action: '動作', cat_reflex: '反應', cat_board: '棋類', cat_cards: '牌類', cat_brain: '記憶', cat_numbers: '數字', longTag: '長局', gamesRecent: '最近玩過', gamesNew: '新遊戲', gamesFavs: '我的最愛', gamesSeeAll: '全部 {n} 款', newTag: '新', gamesNoMatch: '找不到符合的遊戲。', gamesNoFav: '點 ☆ 加入最愛', gamesCount: '{n} 款遊戲', gameBack: '遊戲列表', favAdd: '加入最愛', favRemove: '移出最愛', gameLoading: '載入中…', gameLoadFail: '載入失敗，請再試一次', gamesToday: '{v}', gamesAlso: '接著玩',
@@ -13,7 +14,7 @@ export const STRINGS = {
     yourRank: '財富等級', streak: '🔥 連續 {n} 天', toNext: '還差 {v} 到「{rank}」', topRank: '已經是最高等級',
     rank_start: '起步', rank_saver: '小資族', rank_steady: '穩健', rank_comfort: '小康', rank_wealthy: '富裕', rank_rich: '有錢人', rank_multi: '千萬富翁', rank_tycoon: '億萬大亨',
     missions: '每日任務', missionsSub: '完成後領取，一天最多 {v}。', claim: '領取 {v}', claimed: '已領取', go: '去做', claimedToast: '已領取 {v}',
-    mission_words20: '練習 20 題單字', mission_master3: '精熟 3 個單字', mission_game1: '玩完一局小遊戲', mission_invest: '在 Securities 交易或觀察', mission_match: '在 Fixtures 看比賽或追蹤', mission_tour: '打開 Securities、Fixtures、Rewards', mission_orbit: '看 Orbit Class 課表',
+    mission_words20: '回答 20 題單字（字卡不算）', mission_master3: '精熟 3 個單字', mission_game1: '玩完一局小遊戲', mission_invest: '在 Securities 下一筆買或賣的委託', mission_match: '在 Fixtures 點開一場比賽', mission_tour: '今天打開 Securities、Fixtures 和 Rewards', mission_orbit: '打開 Orbit Class 看課表',
     allTime: '累計 {v}', earn_words: '單字', earn_game: '遊戲', earn_mission: '任務',
     ranks: '財富等級', ranksSee: '看全部等級', missionsDone: '已完成 {n} 項', badgesSee: '看徽章說明',
     openHelp: '看說明', openApp: '打開 {app}',
@@ -67,7 +68,7 @@ export const STRINGS = {
     badge_missions50: '任務達人', badgeHow_missions50: '領過 50 次任務',
     badge_earned10k: '萬分達人', badgeHow_earned10k: '在 Rewards 累計拿 10,000 XP',
     badge_wealthy: '富裕', badgeHow_wealthy: 'Quadra 餘額達到 NT$500,000',
-    mission_parlay3: '在 Play 下一張 3 串以上', mission_scratch: '在 Play 買一張刮刮樂', mission_plan: '在 Securities 設定定期定額', 
+    mission_parlay3: '在 Play 下一張 3 關以上的串關（免費投注也算）', mission_scratch: '在 Play 買一張刮刮樂', mission_quotes: '在 Securities 打開 3 檔股票', 
     noticeReady: '🎁 {v} 可以領了', noticeStreak: '🔥 連續 {n} 天快斷了', noticeStreakSoon: '🔥 今天還沒練習', noticeStreakBody: '背幾個字就能保住',
     todayXp: '今日積分', 
     shopTitle: '加值',
@@ -85,7 +86,8 @@ export const STRINGS = {
     packWords: '{n} 字 · 真人發音', packOnce: '一次買斷', packPlusHalf: '✦ Plus 會員 {v}', packAsk: '{n} 個字永久加入你的單字。', packDone: '📘 已加入 {name}'
   },
   en: {
-    levelTitle: 'Level and avatars', levelSub: 'Every point raises your level; points buy avatars, worn on your account button in every Quadra app.', levelNextGifts: 'Coming up', avatarsTitle: 'Avatars · {v} to spend', avatarOn: 'Wearing', avatarWear: 'Wear', avatarAtLevel: 'Unlocks at Lv {n}', avatarBuyTitle: 'Get this avatar?', avatarBuyBody: 'It’s yours for good; wear it whenever you like.', avatarWorn: 'Avatar on', avatarOff: 'Avatar off', levelUp: 'Level {n} · {title}', levelUpNext: '{v} to the next level', giftAvatar: 'A new avatar', giftAvatarLine: 'Wear it under Missions › Level and avatars', giftCard: 'A streak protection card', giftCardLine: 'Used by itself on a missed day',
+    streakNow: '🔥 {n}-day streak · points +{v}%', streakNone: '🔥 Practise or play today to start a streak', streakNext: '{n} days: {gift}', streakTitle: 'Streak · {n} days now · best {best}', daysN: '{n} days', streakGot: 'Got it', streakToGo: '{n} to go', streakMaxAt: 'from {n} days', streakMilestone: '{n} days in a row!',
+    levelTitle: 'Level and avatars', levelSub: 'Every point raises your level; points buy avatars, worn on your account button in every Quadra app.', levelNextGifts: 'Coming up', avatarsTitle: 'Avatars · {v} to spend', avatarOn: 'Wearing', avatarWear: 'Wear', avatarAtLevel: 'Unlocks at Lv {n}', avatarAtStreak: 'Unlocks with a {n}-day streak', avatarBuyTitle: 'Get this avatar?', avatarBuyBody: 'It’s yours for good; wear it whenever you like.', avatarWorn: 'Avatar on', avatarOff: 'Avatar off', levelUp: 'Level {n} · {title}', levelUpNext: '{v} to the next level', giftAvatar: 'A new avatar', giftAvatarLine: 'Wear it under Missions › Level and avatars', giftCard: 'A streak protection card', giftCardLine: 'Used by itself on a missed day',
     badge_plus3: 'Plus member', badgeHow_plus3: 'Be a Quadra Plus member for 3 months', badge_plus6: 'Plus regular', badgeHow_plus6: 'Be a Quadra Plus member for 6 months', badge_plus12: 'Plus year one', badgeHow_plus12: 'Be a Quadra Plus member for 12 months',
     levelLine: 'Lv {n} · {title}', levelWord: 'Level', levelNext: '{v} to Lv {n}', xpToSpend: '{v} to spend', shopUseXp: 'Use {v}', shopPoints: 'Not enough points', packXp: 'or {v}',
     gamesSearch: 'Search games', howToPlay: 'How to play', howGotIt: 'Got it', cat_all: 'All', cat_fav: '★ Favourites', cat_words: 'Words', cat_logic: 'Logic', cat_puzzle: 'Puzzles', cat_action: 'Action', cat_reflex: 'Reflex', cat_board: 'Board', cat_cards: 'Cards', cat_brain: 'Memory', cat_numbers: 'Numbers', longTag: 'Long', gamesRecent: 'Played lately', gamesNew: 'New games', gamesFavs: 'Favourites', gamesSeeAll: 'All {n}', newTag: 'New', gamesNoMatch: 'No game matches.', gamesNoFav: 'Tap ☆ to add one', gamesCount: '{n} games', gameBack: 'All games', favAdd: 'Add to favourites', favRemove: 'Remove from favourites', gameLoading: 'Loading…', gameLoadFail: 'Couldn’t load. Try again.', gamesToday: '{v}', gamesAlso: 'Play next',
@@ -95,7 +97,7 @@ export const STRINGS = {
     yourRank: 'Wealth rank', streak: '🔥 {n} days in a row', toNext: '{v} to go to {rank}', topRank: 'The top rank',
     rank_start: 'Starter', rank_saver: 'Saver', rank_steady: 'Steady', rank_comfort: 'Comfortable', rank_wealthy: 'Wealthy', rank_rich: 'Rich', rank_multi: 'Multi-millionaire', rank_tycoon: 'Tycoon',
     missions: 'Daily missions', missionsSub: 'Claim each when done, {v} a day at most.', claim: 'Claim {v}', claimed: 'Claimed', go: 'Go', claimedToast: 'Claimed {v}',
-    mission_words20: 'Answer 20 word questions', mission_master3: 'Master 3 words', mission_game1: 'Finish a mini game', mission_invest: 'Trade or watch in Securities', mission_match: 'Watch or follow in Fixtures', mission_tour: 'Open Securities, Fixtures, Rewards', mission_orbit: 'Check Orbit Class',
+    mission_words20: 'Answer 20 word questions (not flash cards)', mission_master3: 'Master 3 words', mission_game1: 'Finish a mini game', mission_invest: 'Place a buy or sell order in Securities', mission_match: 'Open a match in Fixtures', mission_tour: 'Open Securities, Fixtures and Rewards today', mission_orbit: 'Open Orbit Class to see your classes',
     allTime: '{v} all time', earn_words: 'Words', earn_game: 'Games', earn_mission: 'Missions',
     ranks: 'Wealth ranks', ranksSee: 'See every rank', missionsDone: '{n} done', badgesSee: 'What each badge takes',
     openHelp: 'Read more', openApp: 'Open {app}',
@@ -147,7 +149,7 @@ export const STRINGS = {
     badge_missions50: 'On a mission', badgeHow_missions50: 'Claim 50 missions',
     badge_earned10k: 'Ten thousand', badgeHow_earned10k: 'Earn 10,000 XP in Rewards',
     badge_wealthy: 'Wealthy', badgeHow_wealthy: 'Reach a Quadra balance of NT$500,000',
-    mission_parlay3: 'Place a 3+ pick parlay in Play', mission_scratch: 'Buy a scratch card in Play', mission_plan: 'Set up a monthly plan', 
+    mission_parlay3: 'Place a parlay of 3+ picks in Play (a free bet counts)', mission_scratch: 'Buy a scratch card in Play', mission_quotes: 'Open 3 stocks in Securities', 
     noticeReady: '🎁 {v} ready to claim', noticeStreak: '🔥 Your {n}-day streak ends tonight', noticeStreakSoon: '🔥 Nothing played yet today', noticeStreakBody: 'A few words keeps it going',
     todayXp: 'Points today', 
     shopTitle: 'Extras',

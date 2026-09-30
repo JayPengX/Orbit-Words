@@ -288,7 +288,8 @@ export const HELP = {
         '今日挑戰：當天第一局有得分就加積分（5 XP 起，連續幾天多一點，最多 20 XP）。每款遊戲的最佳紀錄跨裝置保留。'
       ]],
       ['missions', '每日任務與每週目標', [
-        '每天幾個小任務（背 20 題、精熟 3 個字、玩一局遊戲、在 Securities 交易或加入觀察、在 Fixtures 看一場比賽、在 Orbit Class 看課表、打開三個 App），在 Play 串 3 場以上、買一張刮刮樂、在 Securities 設定新的定期定額，完成後按「領取」拿積分。',
+        '每天的任務：回答 20 題單字（字卡不算）、精熟 3 個單字、玩完一局小遊戲、在 Securities 下一筆買或賣的委託、在 Securities 打開 3 檔不同的股票、在 Fixtures 點開一場比賽、打開 Orbit Class 看課表、今天打開 Securities、Fixtures 和 Rewards、在 Play 下一張 3 關以上的串關（免費投注也算）、在 Play 買一張刮刮樂。完成後按「領取」拿積分。',
+        '連續紀錄：每天練習單字（字卡、答錯也算）或玩完一局遊戲，連續天數就 +1；漏掉的那天有保護卡會自動補上。連續越久積分越多：每天 +2%，15 天起 +30%。連續 7、30、100 天各送一個專屬頭像（🐯、🦅、🏆）和一張保護卡（看的是最長紀錄，斷了也不會收回）。',
         '每週目標（週一到週日）：5 天有練習、單字和遊戲拿 1,000 XP、完成 10 個任務、玩 10 局遊戲。開啟通知後，可以領取時和連續天數快斷時會提醒你。'
       ]],
       ['extras', '加值', [
@@ -327,7 +328,8 @@ export const HELP = {
         'Today’s challenge: its first round that scores adds a bonus (from 5 XP, a little more each day in a row, up to 20 XP). Each game’s best is kept on every device.'
       ]],
       ['missions', 'Missions and weekly goals', [
-        'A few small things a day (20 word answers, 3 words mastered, a game, a trade or watch in Securities, a match in Fixtures, your classes in Orbit Class, three apps opened, a parlay of 3 or more in Play, a scratch card, a new monthly plan in Securities); claim each for its points when done.',
+        'Daily missions: answer 20 word questions (not flash cards), master 3 words, finish a mini game, place a buy or sell order in Securities, open 3 different stocks in Securities, open a match in Fixtures, open Orbit Class to see your classes, open Securities, Fixtures and Rewards today, place a parlay of 3+ picks in Play (a free bet counts), buy a scratch card in Play. Claim each for its points when done.',
+        'Your streak: each day you practise words (flash cards and misses count) or finish a game adds a day; a missed day is covered by a protection card if you hold one. The longer it runs, the more points: +2% a day, +30% from 15 days. 7, 30 and 100 days each bring an avatar of their own (🐯, 🦅, 🏆) and a protection card (by your longest streak, so they stay if it breaks).',
         'Weekly goals (Monday to Sunday): practise on 5 days, 1,000 XP from words and games, finish 10 missions, play 10 games. With notices on, you’re told when there’s something to claim and when a streak is about to end.'
       ]],
       ['extras', 'Extras', [

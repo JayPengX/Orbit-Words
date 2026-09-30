@@ -4,7 +4,7 @@
 // the Quadra Pass's shared wallet; the wealth ranks show where the pool
 // stands; the help centre explains every app.
 import {
-  quadraSession, tabBar, topActions, installGate, watchUpdates, recordAffinity, setting, settingPatch, taipeiDay, poolBalance, money, randomId, notify, schedulePush, APPS, ECONOMY, PLUS, ask, tell, plusCard, plusMember, openPlus, affinityPatch, xpLevel, xpBalance, xpForLevel, AVATARS, avatarOwned, avatarBought, levelCards
+  quadraSession, tabBar, topActions, installGate, watchUpdates, recordAffinity, setting, settingPatch, taipeiDay, poolBalance, money, randomId, notify, schedulePush, APPS, ECONOMY, PLUS, ask, tell, plusCard, plusMember, openPlus, affinityPatch, xpLevel, xpBalance, xpForLevel, AVATARS, avatarOwned, avatarBought, levelCards, STREAK, streakBonus, longestStreakOf
 } from './lib/quadra.mjs';
 import { SHOP, shopEntry, redeemEntry, freezes, boostUntil, openPacks, packPrice, packEntry, packOpen } from './lib/shop.mjs';
 import { KNOWN_BOX, LEVELS, PACK_IDS, addPacks, levelRank, inLevels, MODES, loadWords, pickRound, smartType, markKnown, makeQuestion, grade, payFor, sameWord, spellDiff, stats, stateOf, packProgress, unpackProgress, mergeProgress, migrateWords, shortMeaning, wordOfDay } from './lib/words.mjs';
@@ -178,9 +178,11 @@ let pendingSettings = {};
 
 // The open batch of word points.
 let batch = null;
+// Every answer goes in the batch (flash cards and misses too: practice keeps
+// the streak); only the points it earns count as points.
 function addWordPoints(points) {
-  if (points <= 0) return 0;
-  // The ×2 boost bought in the shop, and Plus's ×1.5.
+  points = Math.max(0, points);
+  // The ×2 boost bought in the shop, Plus's ×1.5 and the streak's bonus.
   if (boosted()) points *= 2;
   points *= xpRate(withOutbox());
   batch ||= { id: `vocab:w:${randomId()}`, t: Date.now(), app: 'vocab', kind: 'words', amount: 0, xp: 0, n: 0 };
@@ -190,7 +192,7 @@ function addWordPoints(points) {
   return points;
 }
 function closeBatch() {
-  if (!batch?.xp) return (batch = null);
+  if (!batch?.n) return (batch = null);
   const { n, ...entry } = batch;
   outbox.write([...outbox.read(), { ...entry, xp: Math.round(entry.xp), note: locale === 'en' ? `${n} answers` : `${n} 題` }]);
   batch = null;
@@ -752,7 +754,8 @@ function renderHome() {
       el('div', { class: 'xp-today' }, [el('small', { text: t('todayXp') }), el('strong', { class: 'num', text: xpText(e.total, { sign: true }) })])
     ]),
     bar(lv.progress, 1, 'accent'),
-    el('div', { class: 'xp-foot' }, [el('small', { class: 'muted', text: t('levelNext', { v: xp(lv.toNext), n: lv.level + 1 }) }), el('small', { class: 'num', text: t('xpToSpend', { v: xp(xpBalance(withOutbox())) }) })])
+    el('div', { class: 'xp-foot' }, [el('small', { class: 'muted', text: t('levelNext', { v: xp(lv.toNext), n: lv.level + 1 }) }), el('small', { class: 'num', text: t('xpToSpend', { v: xp(xpBalance(withOutbox())) }) })]),
+    streakLine()
   ]);
   // The missions most worth doing now (ready to claim first); all of them,
   // the weekly goals, badges and ranks are on 任務.
@@ -908,6 +911,30 @@ function claimGoal(id) {
   refresh();
 }
 
+// ---- The streak: what it's worth now, and what's next ----------------------------------------
+function streakLine() {
+  const w = withOutbox();
+  const n = streakDays(w);
+  const next = STREAK.milestones.find(m => m > longestStreakOf(w));
+  const gift = next ? AVATARS.find(a => a.streak === next) : null;
+  return el('div', { class: `streak-line${n ? ' on' : ''}` }, [
+    el('span', { class: 'num', text: n ? t('streakNow', { n, v: Math.round(streakBonus(n) * 100) }) : t('streakNone') }),
+    gift ? el('small', { class: 'muted', text: t('streakNext', { n: next, gift: `${gift.glyph} 🛡️` }) }) : null
+  ]);
+}
+// The milestones (7, 30, 100 days), reached by the longest streak ever.
+function streakRoad() {
+  const best = longestStreakOf(withOutbox());
+  return el(
+    'div',
+    { class: 'lv-road' },
+    [...STREAK.milestones.map(m => {
+      const a = AVATARS.find(x => x.streak === m);
+      return el('div', { class: `lv-step${best >= m ? ' got' : ''}` }, [el('span', { class: 'lv-gift', 'aria-hidden': 'true', text: `${a.glyph}🛡️` }), el('strong', { class: 'num', text: t('daysN', { n: m }) }), el('small', { class: 'muted', text: best >= m ? t('streakGot') : t('streakToGo', { n: m - streakDays(withOutbox()) }) })]);
+    }), el('div', { class: 'lv-step' }, [el('span', { class: 'lv-gift', 'aria-hidden': 'true', text: '🔥' }), el('strong', { class: 'num', text: `+${Math.round(STREAK.max * 100)}%` }), el('small', { class: 'muted', text: t('streakMaxAt', { n: Math.round(STREAK.max / STREAK.perDay) }) })])]
+  );
+}
+
 // ---- Level and avatars: what points are for ------------------------------------------------
 //
 // The next level rewards (an avatar at its levels, a streak card every ten
@@ -940,11 +967,13 @@ function levelSection() {
   const tile = a => {
     const owned = avatarOwned(w, a.id);
     const on = owned && worn === a.id;
-    const label = on ? t('avatarOn') : owned ? t('avatarWear') : a.plus ? 'Plus' : a.level ? `Lv ${a.level}` : xp(a.xp);
+    const label = on ? t('avatarOn') : owned ? t('avatarWear') : a.plus ? 'Plus' : a.streak ? `🔥 ${t('daysN', { n: a.streak })}` : a.level ? `Lv ${a.level}` : xp(a.xp);
     const cls = `av-tile${on ? ' on' : ''}${owned ? '' : ' locked'}${!owned && a.xp && have >= a.xp ? ' can' : ''}`;
     return el('button', { class: cls, type: 'button', 'aria-pressed': String(on), onclick: () => pickAvatar(a) }, [el('span', { class: 'av-glyph', 'aria-hidden': 'true', text: a.glyph }), el('small', { class: 'num', text: label })]);
   };
   return el('div', { class: 'q-card pad lv-card' }, [
+    el('small', { class: 'lv-h', text: t('streakTitle', { n: streakDays(w), best: longestStreakOf(w) }) }),
+    streakRoad(),
     el('small', { class: 'lv-h', text: t('levelNextGifts') }),
     next.length ? road : el('p', { class: 'muted', text: t('topRank') }),
     el('small', { class: 'lv-h', text: t('avatarsTitle', { v: xp(have) }) }),
@@ -955,6 +984,7 @@ async function pickAvatar(a) {
   const w = withOutbox();
   if (avatarOwned(w, a.id)) return wearAvatar(a.id === wornId() ? null : a.id);
   if (a.plus) return openPlus(q);
+  if (a.streak) return toast(t('avatarAtStreak', { n: a.streak }));
   if (a.level) return toast(t('avatarAtLevel', { n: a.level }));
   if (avatarBought(w, a.id)) return;
   if (xpBalance(w) < a.xp) return toast(t('shopPoints'));
@@ -973,10 +1003,28 @@ function wearAvatar(id) {
   refresh();
 }
 
+// A streak milestone reached: once, what it brings.
+const STREAK_KEY = 'quadra.rewards.streakm';
+function checkStreakMilestone() {
+  const best = longestStreakOf(withOutbox());
+  const reached = STREAK.milestones.filter(m => best >= m).at(-1) || 0;
+  let seen = 0;
+  try {
+    seen = Number(localStorage.getItem(STREAK_KEY) ?? -1);
+    localStorage.setItem(STREAK_KEY, String(reached));
+  } catch {}
+  // The first time on this device only remembers where you are.
+  if (seen < 0 || reached <= seen) return false;
+  const a = AVATARS.find(x => x.streak === reached);
+  tell({ lang: locale, icon: '🔥', title: t('streakMilestone', { n: reached }), points: [[a.glyph, t('giftAvatar'), t('giftAvatarLine')], ['🛡️', t('giftCard'), t('giftCardLine')]] });
+  return true;
+}
+
 // A new level: once, what it brings (an avatar, a streak card).
 const LEVEL_KEY = 'quadra.rewards.level';
 function checkLevelUp() {
   if (!state.wallet) return;
+  if (checkStreakMilestone()) return;
   const lv = xpLevel(xpAllTime(withOutbox()), locale);
   let seen = 0;
   try {
@@ -1009,7 +1057,7 @@ function badgesCard(st) {
   ]);
 }
 
-const MISSION_ICON = { words20: '📚', master3: '🏅', game1: '🎮', invest: '📈', match: '🏟️', orbit: '🪐', tour: '🧭', parlay3: '🎫', scratch: '🎟️', plan: '🗓️' };
+const MISSION_ICON = { words20: '📚', master3: '🏅', game1: '🎮', invest: '📈', match: '🏟️', orbit: '🪐', tour: '🧭', parlay3: '🎫', scratch: '🎟️', quotes: '🔍' };
 
 function ranksCard(current) {
   return el('details', { class: 'q-card list ranks' }, [
@@ -1131,7 +1179,8 @@ const gameContext = {
     act.game++;
     recordAffinity('vocab', ['vocab:games', `vocab:game:${game}`], 1);
     const best = recordBest(game, Math.round(amount));
-    if (points > 0) outbox.write([...outbox.read(), { id: `vocab:g:${randomId()}`, t: Date.now(), app: 'vocab', kind: 'game', amount: 0, xp: points, note: game }]);
+    // A finished round counts for the streak whatever it scored.
+    outbox.write([...outbox.read(), { id: `vocab:g:${randomId()}`, t: Date.now(), app: 'vocab', kind: 'game', amount: 0, xp: points, note: game }]);
     // Today's challenge: its first round that scores adds the bonus.
     let bonus = 0;
     if (game === d.game && !d.done && points > 0) {

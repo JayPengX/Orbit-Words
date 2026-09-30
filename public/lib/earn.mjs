@@ -12,13 +12,14 @@
 // Before v7 the same entries paid NT$ (their amount): those count as points too.
 // Points earned make the level (the kit's xpLevel); points spent in the shop
 // (shop.mjs redeemEntry) come off what's left to spend (xpBalance).
-import { taipeiDay, todayActivity, poolBalance, xpOf, xpEarned, plusMember, plusTenure, PLUS } from './quadra.mjs';
+import { taipeiDay, todayActivity, poolBalance, xpOf, xpEarned, plusMember, plusTenure, PLUS, activeDaySet, streakBonus } from './quadra.mjs';
 import { freezes, freezeEntry, frozenDays } from './shop.mjs';
 
 export { xpOf };
 const KIND_OF = { words: 'words', reward: 'words', game: 'game', mission: 'mission' };
-// Points ×PLUS.vocab.xpBoost for a Quadra Plus member.
-export const xpRate = (wallet, now = Date.now()) => (plusMember(wallet, now) ? PLUS.vocab.xpBoost : 1);
+// Points ×PLUS.vocab.xpBoost for a Quadra Plus member, and more with the
+// streak (+2% a day of it, up to +30%: the kit's streakBonus).
+export const xpRate = (wallet, now = Date.now()) => (plusMember(wallet, now) ? PLUS.vocab.xpBoost : 1) * (1 + streakBonus(streakDays(wallet, now)));
 // Points as text: "120 XP" (one decimal under 10, for a game's small steps).
 export function xpText(v, { sign = false } = {}) {
   const n = Math.abs(v) < 10 ? Math.round(v * 10) / 10 : Math.round(v);
@@ -50,14 +51,18 @@ export const MISSIONS = [
   { id: 'words20', app: 'vocab', xp: 20, goal: 20, count: a => a.vocab?.answer || 0 },
   { id: 'master3', app: 'vocab', xp: 15, goal: 3, count: a => a.vocab?.master || 0 },
   { id: 'game1', app: 'vocab', xp: 10, goal: 1, count: a => a.vocab?.game || 0 },
-  { id: 'invest', app: 'stock', xp: 15, goal: 1, count: a => (a.stock?.trade || 0) + (a.stock?.watch || 0) },
-  { id: 'match', app: 'match', xp: 10, goal: 1, count: a => (a.match?.open || 0) + (a.match?.follow || 0) },
+  // Securities: a buy or sell order placed (or an overdraft covered).
+  { id: 'invest', app: 'stock', xp: 15, goal: 1, count: a => a.stock?.trade || 0 },
+  // Securities: three different stocks' pages opened (Securities counts each once a day).
+  { id: 'quotes', app: 'stock', xp: 15, goal: 3, count: a => a.stock?.view || 0 },
+  // Fixtures: a match's sheet opened.
+  { id: 'match', app: 'match', xp: 10, goal: 1, count: a => a.match?.open || 0 },
   // Orbit Class, Quadra's class schedule: checking the day's classes.
   { id: 'orbit', app: 'orbit', xp: 10, goal: 1, count: a => (a.orbit?.open || 0) + (a.orbit?.edit || 0) },
   { id: 'tour', app: 'eco', xp: 10, goal: 3, count: (a, apps, day) => ['stock', 'match', 'vocab'].filter(x => apps?.[x]?.last && taipeiDay(apps[x].last) === day).length },
+  // Play: a slip of 3 picks or more (a free bet's too).
   { id: 'parlay3', app: 'odds', xp: 30, goal: 1, count: a => a.odds?.parlay || 0 },
-  { id: 'scratch', app: 'odds', xp: 20, goal: 1, count: a => a.odds?.scratch || 0 },
-  { id: 'plan', app: 'stock', xp: 30, goal: 1, count: a => a.stock?.plan || 0 }
+  { id: 'scratch', app: 'odds', xp: 20, goal: 1, count: a => a.odds?.scratch || 0 }
 ];
 export const missionId = (day, id) => `vocab:m:${day}:${id}`;
 // Before v7 three missions gave a free bet under this id: one claimed that
@@ -101,9 +106,9 @@ export function rankOf(balance) {
 }
 export const walletRank = wallet => rankOf(poolBalance(wallet));
 
-// Days with word practice or a game, and the days a protection card covered.
-const played = e => e.app === 'vocab' && (e.kind === 'words' || e.kind === 'reward' || e.kind === 'game');
-export const activeDays = wallet => new Set([...(wallet?.entries || []).filter(played).map(e => taipeiDay(e.t)), ...frozenDays(wallet)]);
+// Days with word practice or a game (points or not), and the days a
+// protection card covered: the kit's rule, so every app agrees.
+export const activeDays = activeDaySet;
 
 // Days in a row with word practice or a game, from the entries (today counts
 // once something is earned; a day a protection card covered counts too).

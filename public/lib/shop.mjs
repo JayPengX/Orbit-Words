@@ -13,7 +13,7 @@
 // ('vocab:xs:…', kind 'redeem', amount 0, the points in the note; the
 // Worker's REWARDS_XP takes no less). Rewards pays points, never money (v7):
 // the shop is the only money it moves.
-import { taipeiDay, plusMember, plusMonths, PLUS, xpBalance, xpEarned, xpLevel, levelCards, AVATARS } from './quadra.mjs';
+import { taipeiDay, plusMember, plusMonths, PLUS, xpBalance, xpEarned, xpLevel, levelCards, AVATARS, streakCards, longestStreakOf } from './quadra.mjs';
 
 export const SHOP = {
   freeze: { price: 300, hold: 3, xp: 600 },
@@ -41,7 +41,7 @@ export function freezes(wallet, now = Date.now()) {
   const bought = boughtAny(wallet, 'freeze').length;
   // v8: PLUS.vocab.cards a Plus month (one a month before); and one at
   // level 5, 15, 25… (the kit's levelCards).
-  const granted = plusMonthsSoFar(wallet, now) * PLUS.vocab.cards + levelCards(xpLevel(xpEarned(wallet)).level);
+  const granted = plusMonthsSoFar(wallet, now) * PLUS.vocab.cards + levelCards(xpLevel(xpEarned(wallet)).level) + streakCards(longestStreakOf(wallet));
   const used = mine(wallet, 'vocab:fz:').length;
   return { bought, granted, used, held: Math.max(0, bought + granted - used) };
 }

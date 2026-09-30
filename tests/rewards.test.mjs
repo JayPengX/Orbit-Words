@@ -237,7 +237,10 @@ test('daily challenge, weekly goals, badges and bests', async () => {
   assert.equal(goals.find(g => g.id === 'earn1000').done, true);
   assert.equal(goals.find(g => g.id === 'days5').progress, 1);
   const claim = claimWeekly(wk, 'games10', now);
-  assert.deepEqual([claim.kind, claim.amount, claim.xp], ['mission', 0, 30]);
+  // 30 XP, and the 8-day streak's +16%.
+  const { xpRate } = await import('../public/lib/earn.mjs');
+  assert.equal(xpRate(wk, now), 1.16);
+  assert.deepEqual([claim.kind, claim.amount, claim.xp], ['mission', 0, Math.round(30 * 1.16)]);
   assert.equal(claimWeekly({ entries: [...wk.entries, claim] }, 'games10', now), null);
   const b = badges({ wallet: wk, mastered: 120, bests: {}, games: GAMES });
   assert.ok(b.find(x => x.id === 'firstGame').earned);
@@ -253,4 +256,19 @@ test('the word of the day changes daily and is a single word', async () => {
   const b = wordOfDay(words, Date.parse('2026-09-29T04:00:00Z'));
   assert.notEqual(a.key, b.key);
   assert.match(a.word, /^[a-z]+$/);
+});
+
+test('missions count concrete things: an order, three stocks opened, a match opened', () => {
+  const now = Date.parse('2026-10-05T04:00:00Z');
+  const day = taipeiDay(now);
+  const act = (app, n) => ({ [`act:${app}`]: { value: { day, n }, t: now } });
+  const ms = w => Object.fromEntries(missions({ entries: [], settings: w }, now).map(m => [m.id, m]));
+  // Watching or following alone no longer counts.
+  let m = ms({ ...act('stock', { watch: 3 }), ...act('match', { follow: 2 }) });
+  assert.ok(!m.invest.done && !m.match.done && !m.quotes.done);
+  m = ms({ ...act('stock', { trade: 1, view: 2 }), ...act('match', { open: 1 }) });
+  assert.ok(m.invest.done && m.match.done && !m.quotes.done);
+  assert.equal(ms(act('stock', { view: 3 })).quotes.done, true);
+  // Every mission has a text in both languages.
+  for (const x of missions({ entries: [] }, now)) assert.ok(STRINGS.zh[`mission_${x.id}`] && STRINGS.en[`mission_${x.id}`], x.id);
 });

@@ -86,7 +86,7 @@ test('missions about Play and plans give points, no free bet, once a day', async
   const day = taipeiDay(now);
   const w = { entries: [], settings: { 'act:odds': { value: { day, n: { parlay: 1, scratch: 1 } }, t: now } } };
   const ms = Object.fromEntries(missions(w, now).map(m => [m.id, m]));
-  assert.ok(ms.parlay3.done && ms.scratch.done && !ms.plan.done);
+  assert.ok(ms.parlay3.done && ms.scratch.done && !ms.quotes.done && !('plan' in ms));
   const e = claimEntry(w, 'parlay3', now);
   assert.deepEqual([e.id, e.kind, e.amount, e.xp], [`vocab:m:${day}:parlay3`, 'mission', 0, 30]);
   const after = { ...w, entries: [e] };
