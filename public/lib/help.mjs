@@ -35,7 +35,7 @@ export const HELP = {
       ]],
       ['plus', 'Quadra Plus 會員', [
         '一個會員、所有 Quadra App：月繳 NT$490（第一次加入的那個月免費），或年繳 NT$4,900，等於每月約 NT$408、省下兩個月。從 Quadra 餘額扣款，在帳戶裡加入或管理；會員的帳戶按鈕有金色星星。',
-        'Play：每週一送 NT$200 免費投注（每月約 NT$867）、提前兌現只扣 2%（一般 5%）。Securities：手續費 2.8 折、換匯點差減半、融資利率少 1%、台幣活存 2%（一般 0.8%）。Rewards：積分 ×1.5、每月 2 張連續紀錄保護卡（商店價 NT$600）、單字包 5 折（買了永久保留）。會員卡上會顯示本月回饋了多少。',
+        'Play：每週一送 NT$200 免費投注（每月約 NT$867）、提前兌現只扣 2%（一般 5%）。Securities：手續費 2.8 折、換匯點差減半、融資利率少 1%、台幣活存前 NT$100,000 享 2%（一般 0.8%）。Rewards：積分 ×1.5、每月 2 張連續紀錄保護卡（商店價 NT$600）、單字包 5 折（買了永久保留）。會員卡上會顯示本月和加入以來回饋了多少。每週免費投注入帳時會通知你；續訂前三天（第一個免費月也一樣）會提醒扣款金額，想停就到帳戶 › Quadra Plus › 管理會員。',
         '月繳隨時可以取消，已付的月份照常享有權益；年繳到期自動續約，也可以在「管理會員」取消續約。'
       ]],
       ['vip', 'VIP 投注回饋與新手禮', [
@@ -68,7 +68,7 @@ export const HELP = {
       ]],
       ['plus', 'Quadra Plus', [
         'One membership for every Quadra app: NT$490 a month (the first month you ever join is free), or NT$4,900 a year, about NT$408 a month with two months free. It comes from the Quadra balance; join or manage it in the account, and a member’s account button has a gold star.',
-        'Play: a NT$200 free bet every Monday (about NT$867 a month), and cash out keeps 2% instead of 5%. Securities: commission at 28% of the usual rate, half the FX spread, loans 1 point cheaper, 2% on NT$ cash (0.8% otherwise). Rewards: points ×1.5, 2 streak protections a month (NT$600 in the shop) and word packs at half price (yours to keep). The Plus card shows what it gave back this month.',
+        'Play: a NT$200 free bet every Monday (about NT$867 a month), and cash out keeps 2% instead of 5%. Securities: commission at 28% of the usual rate, half the FX spread, loans 1 point cheaper, 2% on the first NT$100,000 of NT$ cash (0.8% otherwise). Rewards: points ×1.5, 2 streak protections a month (NT$600 in the shop) and word packs at half price (yours to keep). The Plus card shows what it gave back this month and since you joined. You’re told when each weekly free bet arrives, and three days before a renewal (the free month too) what it will charge; to stop, go to account › Quadra Plus › Manage membership.',
         'Monthly stops whenever you like, keeping the perks for months paid; yearly renews each year, and renewal can be turned off under Manage membership.'
       ]],
       ['vip', 'VIP cashback and welcome offers', [
@@ -110,9 +110,9 @@ export const HELP = {
         '在「紀錄」試算：幾年前投入一筆錢（或每月定期定額）到某個標的，現在會變多少，中間最大跌幅多少。'
       ]],
       ['fees', '費用', [
-        '台股手續費 0.1425%（最低 NT$20），賣出另收 0.3% 證交稅；美股、日股等海外市場照複委託常見網路費率。股利照各國規定預扣稅。',
+        '台股手續費 0.1425%（最低 NT$20），賣出另收 0.3% 證交稅；美股、日股等海外市場照複委託常見網路費率；共同基金透過基金平台申購，收 1% 申購手續費，贖回不收費。股利照各國規定預扣稅。',
         '換匯用市場中間價加減銀行價差；週末外匯休市時價差加倍。融資按天計息。',
-        'Quadra Plus 會員手續費 2.8 折、點差減半、融資利率少 1%、台幣活存 2%。'
+        'Quadra Plus 會員手續費（含基金申購手續費）2.8 折、點差減半、融資利率少 1%、台幣活存前 NT$100,000 享 2%。'
       ]],
       ['money', '錢怎麼算', [
         'Securities 的新台幣就是 Quadra 餘額：買進時從錢包出去，賣出時回來。手續費和稅照各市場真實規定（台股最低 NT$20，海外是複委託常見網路費率）；股利照各國規定預扣稅，除息日取得權利，幾週後現金入帳。',
@@ -146,9 +146,9 @@ export const HELP = {
         'Under History: what a lump sum (or a monthly plan) put into anything years ago would be worth now, and its worst drop on the way.'
       ]],
       ['fees', 'Fees', [
-        'Taiwan trades pay 0.1425% commission (NT$20 at least) and a sale 0.3% tax; US, Japanese and other markets a Taiwan broker’s usual online rate. Dividends have each country’s withholding.',
+        'Taiwan trades pay 0.1425% commission (NT$20 at least) and a sale 0.3% tax; US, Japanese and other markets a Taiwan broker’s usual online rate; mutual funds go through a fund platform, 1% to buy and nothing to sell. Dividends have each country’s withholding.',
         'Exchange is the mid-market rate plus or minus the bank’s spread, doubled at weekends while FX markets are shut. Margin loans charge interest daily.',
-        'Quadra Plus members pay 28% of the usual commission and half the spread, borrow 1 point cheaper and earn 2% on NT$ cash.'
+        'Quadra Plus members pay 28% of the usual commission (fund fees too) and half the spread, borrow 1 point cheaper and earn 2% on the first NT$100,000 of NT$ cash.'
       ]],
       ['money', 'Money', [
         'Securities’ NT$ is the Quadra balance: buying takes from the wallet, selling brings it back. Fees and taxes follow each market’s real rules (Taiwan at least NT$20; abroad a Taiwan broker’s usual online rate); dividends have each country’s withholding, earned on the ex-date, paid weeks later.',

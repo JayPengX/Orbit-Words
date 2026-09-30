@@ -12,7 +12,7 @@
 // Before v7 the same entries paid NT$ (their amount): those count as points too.
 // Points earned make the level (the kit's xpLevel); points spent in the shop
 // (shop.mjs redeemEntry) come off what's left to spend (xpBalance).
-import { taipeiDay, todayActivity, poolBalance, xpOf, xpEarned, plusMember, PLUS } from './quadra.mjs';
+import { taipeiDay, todayActivity, poolBalance, xpOf, xpEarned, plusMember, plusTenure, PLUS } from './quadra.mjs';
 import { freezes, freezeEntry, frozenDays } from './shop.mjs';
 
 export { xpOf };
@@ -221,6 +221,10 @@ export const BADGES = [
   { id: 'games20', icon: '👾', test: c => Object.keys(c.bests || {}).length >= 20 },
   { id: 'missions50', icon: '🎁', test: c => (c.wallet?.entries || []).filter(e => e.app === 'vocab' && e.kind === 'mission').length >= 50 },
   { id: 'earned10k', icon: '💰', test: c => xpAllTime(c.wallet) >= 10_000 },
-  { id: 'wealthy', icon: '💎', test: c => walletRank(c.wallet).index >= RANKS.findIndex(r => r.id === 'wealthy') }
+  { id: 'wealthy', icon: '💎', test: c => walletRank(c.wallet).index >= RANKS.findIndex(r => r.id === 'wealthy') },
+  // Quadra Plus, month by month (a yearly plan's months as they come).
+  { id: 'plus3', icon: '✦', test: c => plusTenure(c.wallet) >= 3 },
+  { id: 'plus6', icon: '🌟', test: c => plusTenure(c.wallet) >= 6 },
+  { id: 'plus12', icon: '👑', test: c => plusTenure(c.wallet) >= 12 }
 ];
 export const badges = ctx => BADGES.map(b => ({ ...b, earned: Boolean(b.test(ctx)) }));
