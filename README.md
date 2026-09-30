@@ -87,6 +87,14 @@ Each can be bought with points instead (600 / 300 XP; packs 8,000 / 12,000 /
 Mythic), shown on Rewards' home and in every app's account sheet. Spending
 points lowers what's left to spend (`xpBalance`), never the level.
 
+**Level rewards and avatars** (任務 › 等級與頭像, the kit's `AVATARS`):
+levels 5, 10, 15, 20, 30 and 50 unlock an avatar, and levels 5, 15, 25…
+bring a streak card (`levelCards`, counted in `freezes`); points buy the
+others (`vocab:xs:avatar:<id>`, priced by the Worker's `REWARDS_XP.avatar`);
+✦ is Plus's. The one worn is the wallet setting `avatar` and shows on the
+account button in every app. A new level shows once what it brought
+(`checkLevelUp`, `quadra.rewards.level` per device).
+
 Missions (Orbit Class included: checking the day's classes) read each app's activity counts in the wallet (`act:<app>`) and
 when each app was last opened. Three are about Play and Securities (a
 parlay of 3+, a scratch card, a monthly plan); they give points, not free

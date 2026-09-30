@@ -4,7 +4,7 @@
 // the Quadra Pass's shared wallet; the wealth ranks show where the pool
 // stands; the help centre explains every app.
 import {
-  quadraSession, tabBar, topActions, installGate, watchUpdates, recordAffinity, setting, settingPatch, taipeiDay, poolBalance, money, randomId, notify, schedulePush, APPS, ECONOMY, PLUS, ask, plusCard, plusMember, affinityPatch, xpLevel, xpBalance
+  quadraSession, tabBar, topActions, installGate, watchUpdates, recordAffinity, setting, settingPatch, taipeiDay, poolBalance, money, randomId, notify, schedulePush, APPS, ECONOMY, PLUS, ask, tell, plusCard, plusMember, openPlus, affinityPatch, xpLevel, xpBalance, xpForLevel, AVATARS, avatarOwned, avatarBought, levelCards
 } from './lib/quadra.mjs';
 import { SHOP, shopEntry, redeemEntry, freezes, boostUntil, openPacks, packPrice, packEntry, packOpen } from './lib/shop.mjs';
 import { LEVELS, PACK_IDS, addPacks, levelRank, inLevels, MODES, loadWords, pickRound, smartType, markKnown, makeQuestion, grade, payFor, sameWord, spellDiff, stats, stateOf, packProgress, unpackProgress, mergeProgress, migrateWords, shortMeaning, wordOfDay } from './lib/words.mjs';
@@ -173,6 +173,9 @@ function actPatch() {
   return any ? settingPatch('act:vocab', { day, n }).settings : {};
 }
 
+// Settings chosen here (the avatar worn) waiting for the next write.
+let pendingSettings = {};
+
 // The open batch of word points.
 let batch = null;
 function addWordPoints(points) {
@@ -212,7 +215,8 @@ async function push() {
   if (!q.active || !state.loaded) return;
   closeBatchIfIdle();
   const out = outbox.read().filter(e => !walletHas(e.id));
-  const settings = { ...actPatch(), ...affinityPatch('vocab').settings, ...(bestsDirty ? settingPatch('bests:vocab', bests()).settings : {}) };
+  const settings = { ...actPatch(), ...affinityPatch('vocab').settings, ...(bestsDirty ? settingPatch('bests:vocab', bests()).settings : {}), ...pendingSettings };
+  pendingSettings = {};
   bestsDirty = false;
   if (!dirty && !out.length && !Object.keys(settings).length) return;
   const payload = dirty && !state.unreadable ? await encodePayload() : undefined;
@@ -224,6 +228,8 @@ async function push() {
   } catch (error) {
     if (payload) dirty = true;
     if (settings['bests:vocab']) bestsDirty = true;
+    // The avatar chosen goes with the next try (unless changed since).
+    if (settings.avatar && !('avatar' in pendingSettings)) pendingSettings = { ...pendingSettings, avatar: settings.avatar };
     throw error;
   }
   quietRefresh();
@@ -723,7 +729,7 @@ function renderHome() {
     el('p', { class: 'rank-next', text: r.next ? t('toNext', { v: nt(r.toNext), rank: t(`rank_${r.next.id}`) }) : t('topRank') })
   ]);
   // The level (every point earned), today's points and what's left to spend.
-  const levelCard = el('div', { class: 'q-card pad xp-card' }, [
+  const levelCard = el('button', { class: 'q-card pad xp-card', type: 'button', onclick: () => (showTab('missions'), setTimeout(() => $('level-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)) }, [
     el('div', { class: 'xp-top' }, [
       el('span', { class: 'xp-badge num', text: String(lv.level) }),
       el('div', { class: 'xp-name' }, [el('small', { text: t('levelWord') }), el('strong', { text: lv.title })]),
@@ -787,6 +793,7 @@ function renderMissions() {
   put(
     box,
     section(t('missions'), list),
+    el('div', { id: 'level-section' }, [section(t('levelTitle'), levelSection(), { sub: t('levelSub') })]),
     section(t('weekly'), weeklyCard()),
     section(t('badgesTitle'), badgesCard(st), { sub: t('allTime', { v: xp(xpAllTime(withOutbox())) }) }),
     section(t('ranks'), ranksCard(rankOf(poolBalance(state.wallet)).index))
@@ -883,6 +890,92 @@ function claimGoal(id) {
   payEntry(entry);
   toast(t('claimedToast', { v: xp(entry.xp) }), 'good');
   refresh();
+}
+
+// ---- Level and avatars: what points are for ------------------------------------------------
+//
+// The next level rewards (an avatar at its levels, a streak card every ten
+// from 5), then every avatar: worn, wear it, its level, its price in points,
+// or Plus's. The one worn shows on the account button in every Quadra app.
+const wornId = () => ('avatar' in pendingSettings ? pendingSettings.avatar.value?.id : setting(state.wallet, 'avatar', null)?.id) ?? null;
+function levelSection() {
+  const w = withOutbox();
+  const lv = xpLevel(xpAllTime(w), locale);
+  // The next few levels that bring something.
+  const next = [];
+  for (let L = lv.level + 1; next.length < 4 && L <= lv.level + 60; L++) {
+    const avatar = AVATARS.find(a => a.level === L);
+    const card = levelCards(L) > levelCards(L - 1);
+    if (avatar || card) next.push({ L, avatar, card });
+  }
+  const road = el(
+    'div',
+    { class: 'lv-road' },
+    next.map(n =>
+      el('div', { class: 'lv-step' }, [
+        el('span', { class: 'lv-gift', 'aria-hidden': 'true', text: [n.avatar?.glyph, n.card ? '🛡️' : ''].filter(Boolean).join('') }),
+        el('strong', { class: 'num', text: `Lv ${n.L}` }),
+        el('small', { class: 'muted', text: xp(Math.max(0, xpForLevel(n.L) - xpAllTime(w))) })
+      ])
+    )
+  );
+  const have = xpBalance(w);
+  const worn = wornId();
+  const tile = a => {
+    const owned = avatarOwned(w, a.id);
+    const on = owned && worn === a.id;
+    const label = on ? t('avatarOn') : owned ? t('avatarWear') : a.plus ? 'Plus' : a.level ? `Lv ${a.level}` : xp(a.xp);
+    const cls = `av-tile${on ? ' on' : ''}${owned ? '' : ' locked'}${!owned && a.xp && have >= a.xp ? ' can' : ''}`;
+    return el('button', { class: cls, type: 'button', 'aria-pressed': String(on), onclick: () => pickAvatar(a) }, [el('span', { class: 'av-glyph', 'aria-hidden': 'true', text: a.glyph }), el('small', { class: 'num', text: label })]);
+  };
+  return el('div', { class: 'q-card pad lv-card' }, [
+    el('small', { class: 'lv-h', text: t('levelNextGifts') }),
+    next.length ? road : el('p', { class: 'muted', text: t('topRank') }),
+    el('small', { class: 'lv-h', text: t('avatarsTitle', { v: xp(have) }) }),
+    el('div', { class: 'av-grid' }, AVATARS.map(tile))
+  ]);
+}
+async function pickAvatar(a) {
+  const w = withOutbox();
+  if (avatarOwned(w, a.id)) return wearAvatar(a.id === wornId() ? null : a.id);
+  if (a.plus) return openPlus(q);
+  if (a.level) return toast(t('avatarAtLevel', { n: a.level }));
+  if (avatarBought(w, a.id)) return;
+  if (xpBalance(w) < a.xp) return toast(t('shopPoints'));
+  const ok = await ask({ lang: locale, icon: a.glyph, title: t('avatarBuyTitle'), body: t('avatarBuyBody'), ok: t('shopUseXp', { v: xp(a.xp) }), cancel: t('shopCancel') });
+  if (!ok) return;
+  const entry = redeemEntry(w, 'avatar', a.id);
+  if (!entry) return toast(t('shopPoints'));
+  outbox.write([...outbox.read(), entry]);
+  wearAvatar(a.id);
+}
+// Wear one (or none: the person again); every app shows it once written.
+function wearAvatar(id) {
+  pendingSettings = { ...pendingSettings, ...settingPatch('avatar', id ? { id } : null).settings };
+  sync();
+  toast(id ? t('avatarWorn') : t('avatarOff'), 'good');
+  refresh();
+}
+
+// A new level: once, what it brings (an avatar, a streak card).
+const LEVEL_KEY = 'quadra.rewards.level';
+function checkLevelUp() {
+  if (!state.wallet) return;
+  const lv = xpLevel(xpAllTime(withOutbox()), locale);
+  let seen = 0;
+  try {
+    seen = Number(localStorage.getItem(LEVEL_KEY)) || 0;
+    localStorage.setItem(LEVEL_KEY, String(lv.level));
+  } catch {}
+  // The first time on this device only remembers where you are.
+  if (!seen || lv.level <= seen) return;
+  const gifts = [];
+  for (let L = seen + 1; L <= lv.level; L++) {
+    const a = AVATARS.find(x => x.level === L);
+    if (a) gifts.push([a.glyph, t('giftAvatar'), t('giftAvatarLine')]);
+    if (levelCards(L) > levelCards(L - 1)) gifts.push(['🛡️', t('giftCard'), t('giftCardLine')]);
+  }
+  tell({ lang: locale, icon: '🎉', title: t('levelUp', { n: lv.level, title: lv.title }), body: gifts.length ? '' : t('levelUpNext', { v: xp(lv.toNext) }), points: gifts });
 }
 
 // Badges: milestones read from the record, the earned ones first.
@@ -988,6 +1081,7 @@ function showTab(tab) {
   refresh();
 }
 function refresh() {
+  checkLevelUp();
   if (state.tab === 'home') renderHome();
   if (state.tab === 'words' && !(state.round && !state.round.answered && document.activeElement?.tagName === 'INPUT')) renderWords();
   if (state.tab === 'games') {

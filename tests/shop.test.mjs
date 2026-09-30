@@ -121,3 +121,19 @@ test('points buy a card, a boost or a pack, only with enough to spend; Plus earn
   assert.equal(xpRate(member, now), 1.5);
   assert.equal(claimEntry(member, 'words20', now).xp, 30);
 });
+
+test('levels give streak cards at 5, 15, 25…, and points buy avatars (level ones can’t be bought)', async () => {
+  const { redeemEntry } = await import('../public/lib/shop.mjs');
+  const { avatarOwned } = await import('../public/lib/quadra.mjs');
+  const xp = n => ({ id: `vocab:g:x${n}`, t: now - DAY, app: 'vocab', kind: 'game', amount: 0, xp: n });
+  // 1,000 XP is level 5: one card; 11,000 is level 15: two.
+  assert.equal(freezes({ entries: [xp(1_000)] }, now).granted, 1);
+  assert.equal(freezes({ entries: [xp(11_000)] }, now).granted, 2);
+  assert.equal(freezes({ entries: [xp(999)] }, now).granted, 0);
+  const w = { entries: [xp(1_000)] };
+  const cat = redeemEntry(w, 'avatar', 'cat', now);
+  assert.deepEqual([cat.id, cat.note], ['vocab:xs:avatar:cat', '300']);
+  assert.ok(avatarOwned({ entries: [...w.entries, cat] }, 'cat'));
+  assert.equal(redeemEntry(w, 'avatar', 'panda', now), null);
+  assert.equal(redeemEntry(w, 'avatar', 'gem', now), null);
+});

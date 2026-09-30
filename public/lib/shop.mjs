@@ -13,7 +13,7 @@
 // ('vocab:xs:…', kind 'redeem', amount 0, the points in the note; the
 // Worker's REWARDS_XP takes no less). Rewards pays points, never money (v7):
 // the shop is the only money it moves.
-import { taipeiDay, plusMember, plusMonths, PLUS, xpBalance } from './quadra.mjs';
+import { taipeiDay, plusMember, plusMonths, PLUS, xpBalance, xpEarned, xpLevel, levelCards, AVATARS } from './quadra.mjs';
 
 export const SHOP = {
   freeze: { price: 300, hold: 3, xp: 600 },
@@ -27,7 +27,7 @@ const mine = (wallet, prefix) => (wallet?.entries || []).filter(e => e.app === '
 export const shopEntry = (item, key, now = Date.now(), note = item) => ({ id: `vocab:shop:${item}:${key}`, t: now, app: 'vocab', kind: 'shop', amount: -SHOP[item].price, note });
 // The same, for points: null when there aren't enough to spend.
 export function redeemEntry(wallet, item, key, now = Date.now()) {
-  const cost = item === 'pack' ? SHOP.packsXp[key] : SHOP[item].xp;
+  const cost = item === 'pack' ? SHOP.packsXp[key] : item === 'avatar' ? AVATARS.find(a => a.id === key)?.xp : SHOP[item].xp;
   if (!cost || xpBalance(wallet) < cost) return null;
   return { id: `vocab:xs:${item}:${key}`, t: now, app: 'vocab', kind: 'redeem', amount: 0, note: String(cost) };
 }
@@ -39,8 +39,9 @@ const boughtAny = (wallet, item) => [...mine(wallet, `vocab:shop:${item}:`), ...
 const plusMonthsSoFar = (wallet, now) => [...plusMonths(wallet)].filter(m => m <= taipeiDay(now).slice(0, 7)).length;
 export function freezes(wallet, now = Date.now()) {
   const bought = boughtAny(wallet, 'freeze').length;
-  // v8: PLUS.vocab.cards a Plus month (one a month before).
-  const granted = plusMonthsSoFar(wallet, now) * PLUS.vocab.cards;
+  // v8: PLUS.vocab.cards a Plus month (one a month before); and one at
+  // level 5, 15, 25… (the kit's levelCards).
+  const granted = plusMonthsSoFar(wallet, now) * PLUS.vocab.cards + levelCards(xpLevel(xpEarned(wallet)).level);
   const used = mine(wallet, 'vocab:fz:').length;
   return { bought, granted, used, held: Math.max(0, bought + granted - used) };
 }
