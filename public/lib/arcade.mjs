@@ -10,6 +10,9 @@
 // snake, falling blocks, breakout, pong, tic-tac-toe, connect four, reversi,
 // gomoku, the Schulte table, the Stroop test…).
 
+const PORTED_LIST = [
+];
+
 // [id, icon, category, 中文名, English name, 中文說明, English line, most a round (NT$), NT$ per point]
 const LIST = [
   ['sudoku9', '🔢', 'logic', '數獨', 'Sudoku', '長局 · 經典 9×9', 'Long · classic 9×9', 120, 1],
@@ -110,9 +113,29 @@ const LIST = [
   ['battleship', '🚢', 'board', '海戰棋', 'Battleship', '棋盤 · 對 Quadra', 'Board · vs Quadra', 45, 1.2]
 ];
 
+// Games ported from open-source projects (public/ported/<id>/, each with its
+// licence and source noted there), played in an iframe; they report their
+// score through public/ported/bridge.js. [id, icon, category, 中文名, English
+// name, 中文說明, English line, an excellent score, minutes a full round
+// takes, page, source].
+export const PORTED = [];
+const PORTED_IDS = new Set();
+export function addPorted(rows) {
+  for (const [id, icon, cat, zh, en, kindZh, kindEn, best, minutes, page, source] of rows) {
+    if (PORTED_IDS.has(id)) continue;
+    PORTED_IDS.add(id);
+    PORTED.push({ id, icon, cat, zh, en, kindZh, kindEn, best, minutes, page, source });
+  }
+}
+
 // Long games (ten minutes and more): a badge on the card, and a bigger most a round.
 export const LONG = new Set(['sudoku9', 'solitaire', 'minesbig', 'checkers', 'wordsearch', 'freecell', 'spider']);
-export const ARCADE = LIST.map(([id, icon, cat, zh, en, kindZh, kindEn, max, rate]) => ({ id, icon, cat, zh, en, kindZh, kindEn, max, rate, long: LONG.has(id) }));
+addPorted(PORTED_LIST);
+// A ported game's raw score scaled to 0-100 (100 at its excellent score).
+export const ARCADE = [
+  ...PORTED.map(g => ({ ...g, max: 100, rate: 100 / g.best, long: g.minutes >= 10, ported: g.page })),
+  ...LIST.map(([id, icon, cat, zh, en, kindZh, kindEn, max, rate]) => ({ id, icon, cat, zh, en, kindZh, kindEn, max, rate, long: LONG.has(id) }))
+];
 export const ARCADE_BY_ID = Object.fromEntries(ARCADE.map(g => [g.id, g]));
 export const CATEGORIES = ['words', 'logic', 'puzzle', 'action', 'reflex', 'board', 'cards', 'brain', 'numbers'];
 

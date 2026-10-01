@@ -271,7 +271,8 @@ export function mountGames(container, context) {
     const mine = ++opening;
     shell.howBtn.hidden = !HOW[g];
     showHow(!readList(HOW_SEEN_KEY).includes(g));
-    if (ARCADE_BY_ID[g]) {
+    if (ARCADE_BY_ID[g]?.ported) view = arcadeView(g, portedStage);
+    else if (ARCADE_BY_ID[g]) {
       view = el('p', { class: 'muted gh-loading', text: state.t('gameLoading') });
       render();
       try {
@@ -1345,6 +1346,31 @@ function sudokuView() {
   }, [el('p', { class: 'note', text: `${t('sudokuRules', { n: SUDOKU.puzzles, s: SUDOKU.seconds, v: fmtPay(SUDOKU.pay) })} ${streakRule('sudoku')}` }), hud.node, grid, pad, box]);
 }
 
+// ---- Ported games ----------------------------------------------------------------------
+//
+// A game from an open-source project (public/ported/<id>/), in an iframe the
+// size of the stage. It reports its score through ported/bridge.js
+// ({ quadra: 'score' | 'over', score }); 結束並計分 ends the round at the
+// score so far (for games that go on until you stop).
+function portedStage(api) {
+  const g = ARCADE_BY_ID[api.id];
+  const frame = el('iframe', { class: 'arc-frame', src: `./ported/${g.ported}${g.ported.includes('?') ? '&' : '?'}lang=${api.lang}`, title: api.L(g.zh, g.en), allow: 'autoplay; fullscreen', loading: 'eager' });
+  let score = 0;
+  const onMessage = e => {
+    if (e.source !== frame.contentWindow || e.origin !== location.origin) return;
+    const d = e.data;
+    if (!d || typeof d.score !== 'number' || !Number.isFinite(d.score)) return;
+    score = Math.max(0, d.score);
+    if (d.quadra === 'score') api.set({ score });
+    else if (d.quadra === 'over') api.end(score);
+  };
+  window.addEventListener('message', onMessage);
+  api.cleanup(() => window.removeEventListener('message', onMessage));
+  const quit = el('button', { class: 'q-btn small arc-quit', type: 'button', text: api.L('結束並計分', 'End and score'), onclick: () => api.end(score) });
+  frame.addEventListener('load', () => frame.contentWindow?.focus());
+  return el('div', { class: 'arc-ported' }, [frame, quit]);
+}
+
 // ---- The arcade ------------------------------------------------------------------------
 //
 // An arcade game (./arcade/<id>.js) is a function of `api` that returns its
@@ -1436,6 +1462,7 @@ function arcadeView(id, make) {
     const fw = fit.clientWidth;
     const fh = fit.clientHeight;
     if (!fw || !fh) return;
+    if (stage.classList.contains('arc-ported')) return;
     const canvas = stage.querySelector('canvas.arc-canvas, canvas.game-canvas');
     if (canvas && stage.children.length === 1) {
       const ar = Number(canvas.style.getPropertyValue('--ar')) || canvas.width / canvas.height || 1;

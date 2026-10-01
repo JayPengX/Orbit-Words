@@ -259,6 +259,7 @@ export function roundMinutes(game) {
   if (ARCADE_MINUTES[game]) return ARCADE_MINUTES[game];
   const a = ARCADE_BY_ID[game];
   if (!a) return 3;
+  if (a.minutes) return a.minutes;
   if (a.long) return 12;
   const sec = /(\d+)\s*s\b/.exec(a.kindEn);
   if (sec) return Number(sec[1]) / 60;

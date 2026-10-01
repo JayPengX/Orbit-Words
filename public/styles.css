@@ -1025,3 +1025,9 @@ html.rw-playing .arc-fit { flex: 1 1 auto; min-height: 0; overflow: hidden; }
 html.rw-playing .arc-fit > * { transform-origin: center center; width: 100%; }
 .game-end-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .game-end-row .game-big-button { width: 100%; min-width: 0; margin: 0; }
+/* A ported game: its page in a frame filling the stage. */
+.arc-ported { position: relative; width: 100%; height: min(78dvh, 720px); display: flex; flex-direction: column; gap: 8px; }
+html.rw-playing .arc-fit > .arc-ported { height: 100%; }
+.arc-frame { flex: 1 1 auto; width: 100%; min-height: 0; border: 0; border-radius: 18px; background: #000; display: block; }
+.arc-ported .arc-quit { align-self: center; flex: none; }
+.arcade.over .arc-frame { pointer-events: none; filter: saturate(0.6); }
