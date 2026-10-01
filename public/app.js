@@ -366,9 +366,13 @@ function nextQuestion() {
   const used = {};
   for (const x of r.results) used[x.type] = (used[x.type] || 0) + 1;
   const p = state.progress[word.key];
+  // A new word in a round (not a batch just studied) is checked first: a
+  // cloze with half its letters gone. Right without hesitating, it's known
+  // and out of the way for weeks; only what's missed is learnt.
+  r.check = !r.quiz && !p?.b && !r.retry?.has(word.key) && ['smart', 'cloze', 'spell'].includes(state.mode);
   // A word missed this round comes back the hard way: written, not picked.
-  const type = r.retry?.has(word.key) ? (/\s/.test(word.word) ? 'cloze' : 'spell') : state.mode === 'smart' ? smartType(p, Math.random, word, used) : state.mode;
-  r.q = makeQuestion(word, type, state.words, { p });
+  const type = r.retry?.has(word.key) ? (/\s/.test(word.word) ? 'cloze' : 'spell') : r.check && state.mode === 'smart' ? 'cloze' : state.mode === 'smart' ? smartType(p, Math.random, word, used) : state.mode;
+  r.q = makeQuestion(word, type, state.words, { p: r.check ? { b: 3 } : p });
   r.answered = false;
   r.typed = '';
   r.built = [];
@@ -388,7 +392,7 @@ function answer(correct, typed = '') {
   const word = r.q.word;
   const other = !correct && typed && keyOf(typed) !== word.key ? state.byKey.get(keyOf(typed)) || null : null;
   // How long it took counts: a quick right answer is known better than a slow one.
-  const res = grade(state.progress[word.key], correct, { chose: other?.key, type: r.q.type, ms: Date.now() - r.shownAt, word: word.word });
+  const res = grade(state.progress[word.key], correct, { chose: other?.key, type: r.q.type, ms: Date.now() - r.shownAt, word: word.word, check: r.check });
   state.progress = { ...state.progress, [word.key]: res.p };
   if (other) {
     const o = state.progress[other.key] || { b: 0, d: 0, n: 0, r: 0, t: 0 };

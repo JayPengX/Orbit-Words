@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { loadWords, toStudy, grade, gradeOf, retrievability, boxOf, pickRound, makeQuestion, distractors, lookAlike, meaningAlike, sameMeaning, editDistance, clozeGaps, clozeText, sameWord, spellDiff, stats, hardest, packProgress, unpackProgress, mergeProgress, dayNum, smartType, shortMeaning, wordOfDay, MASTERED } from '../public/lib/words.mjs';
+import { loadWords, toStudy, grade, gradeOf, retrievability, boxOf, pickRound, makeQuestion, distractors, lookAlike, meaningAlike, sameMeaning, editDistance, clozeGaps, clozeText, sameWord, spellDiff, stats, hardest, packProgress, unpackProgress, mergeProgress, dayNum, smartType, shortMeaning, wordOfDay, MASTERED, intervalOf } from '../public/lib/words.mjs';
 
 const read = f => JSON.parse(readFileSync(new URL(`../public/data/${f}`, import.meta.url)));
 const words = loadWords(read('words.json'));
@@ -34,9 +34,9 @@ test('the memory model: recall falls to 90% at the stability; the grade from the
 test('grading: writing proves more than picking, a late recall more than a fresh one, a miss cuts it and makes it harder', () => {
   const first = type => grade(undefined, true, { now, type, ms: 3000 }).p;
   assert.ok(first('spell').s > first('meaning').s);
-  // A right answer is due again when recall would be 90%: its stability in days.
+  // A right answer is due again when recall falls to its mark (90% for a hard word, less for easier ones).
   const p = first('cloze');
-  assert.equal(p.d, dayNum(now) + Math.round(p.s));
+  assert.equal(p.d, dayNum(now) + Math.max(1, Math.round(intervalOf(p.s, p.D))));
   // Recalled on the due day vs. a day after its last answer: the later one gains more.
   const late = grade(p, true, { now: now + Math.round(p.s) * DAY, type: 'cloze', ms: 4000, word: 'apple' }).p;
   const early = grade(p, true, { now: now + DAY, type: 'cloze', ms: 4000, word: 'apple' }).p;
@@ -72,9 +72,34 @@ test('grading: writing proves more than picking, a late recall more than a fresh
   assert.deepEqual(c.c, ['e', 'adapt', 'c', 'b']);
   // Missed before it was learnt isn't a lapse.
   assert.equal(grade(grade(undefined, false, { now }).p, false, { now }).p.l, undefined);
-  // Progress from before the model (a box, no stability) still grades.
-  const old = grade({ b: 3, d: dayNum(now), n: 3, r: 3, t: now - 3 * DAY }, true, { now, type: 'cloze', ms: 3000, word: 'apple' }).p;
-  assert.ok(old.s > 3);
+});
+
+test('efficiency: a word known at its check is out of the way for weeks, easy words come back later, weak words lead a round', () => {
+  // The check: right and quick, mastered at once and not due for weeks; slow, a few days; missed, learnt as usual.
+  const quick = grade(undefined, true, { now, type: 'cloze', ms: 2000, word: 'apple', check: true });
+  assert.ok(quick.p.b >= MASTERED && quick.firstMastery && quick.p.d - dayNum(now) > 40, JSON.stringify(quick.p));
+  const steady = grade(undefined, true, { now, type: 'cloze', ms: 5000, word: 'apple', check: true }).p;
+  assert.ok(steady.b >= MASTERED && steady.d - dayNum(now) >= 21 && steady.d < quick.p.d);
+  const slow = grade(undefined, true, { now, type: 'cloze', ms: 30_000, word: 'apple', check: true }).p;
+  assert.ok(slow.b < MASTERED && slow.d - dayNum(now) >= 3 && slow.d - dayNum(now) <= 10);
+  const missed = grade(undefined, false, { now, type: 'cloze', check: true }).p;
+  assert.deepEqual([missed.b, missed.d], [1, dayNum(now)]);
+  // Without the check (a batch just studied), a right first answer is only the start.
+  assert.ok(grade(undefined, true, { now, type: 'cloze', ms: 5000, word: 'apple' }).p.b < MASTERED);
+  // Easy words wait longer than hard ones at the same stability.
+  assert.ok(Math.abs(intervalOf(10, 8) - 10) < 1e-9);
+  assert.ok(intervalOf(10, 5) > 15 && intervalOf(10, 2) > 22);
+  // Due together, equally likely forgotten: the hard, slipping word comes before the easy one.
+  const today = dayNum(now);
+  const [easy, hard] = words.filter(w => w.level === 5).slice(0, 2);
+  const progress = {
+    [easy.key]: { b: 3, s: 5, D: 2, d: today, n: 4, r: 4, t: now - 6 * DAY },
+    [hard.key]: { b: 3, s: 5, D: 8, l: 2, d: today, n: 6, r: 3, t: now - 6 * DAY }
+  };
+  for (let i = 0; i < 10; i++) {
+    const round = pickRound(words, progress, { levels: [5], size: 1, now, random });
+    assert.equal(round[0].key, hard.key);
+  }
 });
 
 test('smart mode mixes every kind in a round, producing more the better a word is known, never unscrambling a long word', () => {

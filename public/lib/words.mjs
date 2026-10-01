@@ -20,10 +20,17 @@
 //     counts more than recalling it fresh; writing it counts more than
 //     picking it; a quick answer more than a slow one; missing it cuts its
 //     stability and makes it harder for good.
-//   - A round leads with the words most likely forgotten by now, adds the
-//     words they were confused with, keeps confusable words apart, and adds
-//     new words only while the words still being learnt are few enough to
-//     hold (`pickRound`).
+//   - The list is long (some 3,000 words in levels 4 to 6 alone), so time
+//     goes to what isn't known yet. A new word's first question in a round
+//     is a check, a cloze that's hard to guess: right without hesitating, it's
+//     known and out of the way for weeks after one question (`grade`'s
+//     `check`); only what's missed is learnt. Words easy for this person come
+//     back later (at 80% recall, not 90%), and a round leads with the weak
+//     ones: missed, slipping, hard.
+//   - A round leads with the weakest due words (the likeliest forgotten, and
+//     the hard and slipping before the easy), adds the words they were
+//     confused with, keeps confusable words apart, and adds new words only
+//     while the words still being learnt are few enough to hold (`pickRound`).
 //   - New words can be studied first, as cards (`toStudy`): a batch of them,
 //     then a quiz on just that batch.
 //
@@ -70,6 +77,16 @@ export function gradeOf(correct, type, ms, word = '') {
   const quick = choice ? 2_500 : 1_500 + 350 * word.length;
   return ms > slow ? 2 : ms < quick && !choice ? 4 : 3;
 }
+// How long until a word is asked again, by how hard it is for this person:
+// a hard one when recall falls to 90% (its stability), a middling one at 85%,
+// an easy one at 80%. An easy word costs little to forget now and then, and
+// its slot goes to the weak ones. Days, from stability and difficulty.
+const RETAIN = D => (D >= 7 ? 0.9 : D >= 4 ? 0.85 : 0.8);
+export const intervalOf = (s, D = 5) => s * ((RETAIN(D) ** (1 / DECAY) - 1) / FACTOR);
+// A word answered right at its check (first sight in a round, not just
+// studied): known already. Stability by how it went: quick or steady, about
+// three weeks (mastered); slow, a few days.
+const CHECK_S = { 3: 21, 4: 30, 2: 4 };
 // Stability to box: 1 (under 2 days) to 5 (a month or more); box 4 and up
 // is mastered (remembered for more than ten days).
 const BOX_FROM = [0, 2, 4, 10, 30];
@@ -77,10 +94,8 @@ export const MASTERED = 4;
 export const boxOf = s => (s >= BOX_FROM[4] ? 5 : s >= BOX_FROM[3] ? 4 : s >= BOX_FROM[2] ? 3 : s >= BOX_FROM[1] ? 2 : 1);
 const clampD = d => Math.min(10, Math.max(1, d));
 const initD = g => clampD(FSRS[4] - Math.exp(FSRS[5] * (g - 1)) + 1);
-// Progress saved before the model: its stability and difficulty from its box and lapses.
-const OLD_S = [0, 0.5, 1, 3, 7, 21];
-const sOf = p => p.s ?? OLD_S[Math.min(5, p.b || 0)] / (1 + 0.5 * (p.l || 0));
-const dOf = p => p.D ?? clampD(5 + (p.l || 0));
+const sOf = p => p.s || 0.1;
+const dOf = p => p.D || 5;
 
 export function stateOf(p) {
   if (!p || !p.b) return 'new';
@@ -88,9 +103,11 @@ export function stateOf(p) {
 }
 
 // One answer. `type`: how it was asked; `ms`: how long it took; `chose`:
-// the word picked instead, on a wrong answer. Returns the word's new
-// progress and whether this answer mastered it for the first time.
-export function grade(p, correct, { now = Date.now(), chose = null, type = 'meaning', ms = 0, word = '' } = {}) {
+// the word picked instead, on a wrong answer; `check`: a new word's first
+// question in a round (not a batch just studied), where right means known.
+// Returns the word's new progress and whether this answer mastered it for
+// the first time.
+export function grade(p, correct, { now = Date.now(), chose = null, type = 'meaning', ms = 0, word = '', check = false } = {}) {
   const was = p || { b: 0, d: 0, n: 0, r: 0, t: 0 };
   const today = dayNum(now);
   const g = gradeOf(correct, type, ms, word);
@@ -98,7 +115,11 @@ export function grade(p, correct, { now = Date.now(), chose = null, type = 'mean
   const next = { ...was, n: (was.n || 0) + 1, r: (was.r || 0) + (correct ? 1 : 0), t: now };
   let s;
   let D;
-  if (!was.n && !was.b) {
+  if (!was.n && !was.b && check && correct) {
+    // Known already: out of the way at once, easy for this person.
+    s = CHECK_S[g];
+    D = g === 2 ? initD(3) : clampD(initD(g) - 1);
+  } else if (!was.n && !was.b) {
     // First sight: stability by the grade, and a right pick proves less.
     s = FSRS[g - 1] * (correct ? weight : 1);
     D = initD(g);
@@ -125,8 +146,8 @@ export function grade(p, correct, { now = Date.now(), chose = null, type = 'mean
   next.s = Math.round(s * 100) / 100;
   next.D = Math.round(D * 100) / 100;
   next.b = boxOf(next.s);
-  // Missed: due again today; else when it's 90% likely still known.
-  next.d = correct ? today + Math.max(1, Math.round(next.s)) : today;
+  // Missed: due again today; else when recall falls to its mark (RETAIN).
+  next.d = correct ? today + Math.max(1, Math.round(intervalOf(next.s, next.D))) : today;
   if (!correct) {
     // Forgotten after it had been learnt: a lapse.
     if ((was.b || 0) >= 2) next.l = (was.l || 0) + 1;
@@ -176,8 +197,8 @@ export function smartType(p, random = Math.random, word = null, used = {}) {
 
 // ---- A round ---------------------------------------------------------------------------
 //
-// Due words first, the likeliest forgotten first (lowest chance of recall
-// now; a word missed last time is lowest). New words fill the rest while
+// Due words first, the weakest first (lowest chance of recall now, a word
+// missed last time lowest; a hard or slipping word ahead of an easy one). New words fill the rest while
 // the words still being learnt (box 1 and 2) are few enough to hold: none
 // past HOLD, fewer the closer it is, and fewer when much is due. A word due
 // that was mixed up with another brings that one along, so the two are told
@@ -195,8 +216,14 @@ export function pickRound(words, progress, { levels = LEVELS, size = 10, now = D
     const p = progress[w.key];
     return retrievability(Math.max(1, (now - (p.t || 0)) / DAY), sOf(p));
   };
+  // Weakness: the chance it's gone, raised for a word that's hard for this
+  // person or keeps slipping. Easy words that are due wait behind them.
+  const weak = w => {
+    const p = progress[w.key];
+    return 1 - recall(w) + 0.04 * (dOf(p) - 5) + 0.06 * Math.min(3, p.l || 0);
+  };
   const seen = chosen.filter(w => progress[w.key]?.b);
-  const ranked = seen.map(w => [recall(w) + random() * 0.01, w]).sort((a, b) => a[0] - b[0]).map(x => x[1]);
+  const ranked = seen.map(w => [-weak(w) + random() * 0.01, w]).sort((a, b) => a[0] - b[0]).map(x => x[1]);
   const due = ranked.filter(w => progress[w.key].d <= today);
   const learning = seen.filter(w => progress[w.key].b <= 2).length;
   // New words, a little shuffled within the next few.
