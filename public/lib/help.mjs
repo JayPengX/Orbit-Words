@@ -177,7 +177,7 @@ export const HELP = {
       ]],
       ['boost', '串關加成與提前兌現', [
         '串關加成：3 場以上的串關全過時多給獎金，3 場 +5%、4 場 +8%、5 場 +12%、6 場 +15%、7 場以上 +20%。',
-        '提前兌現：比賽還沒結束也能先把投注單換成現金，金額依目前賠率計算，扣 5%（Plus 扣 2%）。',
+        '提前兌現：比賽還沒結束也能先把投注單換成現金。金額是這張單現在的公平價值（依莊家目前估的機率，不含賠率裡的抽成），再扣 5%（Plus 扣 2%）；所以沒什麼變化時兌現會比繼續持有少一點，只有選項真的變得更可能贏時才會比本金多。',
         '首頁的「精選串關」幫你挑好大聯賽的熱門組合，一鍵加到投注單。',
         '免費投注：Plus 會員每週的免費投注和新手禮，在投注單上點一下就用在這張單（串關或單一選項），不扣本金，贏了拿獎金（不含本金），7 天內有效；不能提前兌現。'
       ]],
@@ -205,7 +205,7 @@ export const HELP = {
       ]],
       ['boost', 'Parlay boost and cash out', [
         'Parlay boost: a winning parlay of 3 or more legs pays extra: +5% for 3, +8% for 4, +12% for 5, +15% for 6, +20% for 7 or more.',
-        'Cash out: turn a slip into cash before the games end, priced at the current odds less 5% (2% with Plus).',
+        'Cash out: turn a slip into cash before the games end. It’s priced at the slip’s fair worth now (the house’s current chances, without the margin in the odds) less 5% (2% with Plus): while little has changed it pays a bit less than holding, and more than the stake only when the picks have really got likelier.',
         'Featured parlays on the home screen put together big-league picks, added to the slip in one tap.',
         'Free bets: Plus’s weekly one and the welcome offer; tap one on the slip to use it on that slip (a parlay or one pick). Nothing comes off your balance, a win pays the winnings (not the stake), and it lasts 7 days; no cash out.'
       ]],
@@ -278,8 +278,8 @@ export const HELP = {
       ]],
       ['words', '背單字', [
         '大考中心高中英文參考詞彙第 1 到 6 級，共 6,170 字，每個字都有真人發音錄音（Microsoft Jenny）。每一輪 10、20 或 30 個字，混合該複習的字和新字；答錯的字會在這一輪最後再問一次。',
-        '「智慧」模式依熟練度出題：新字先認意思，接著看中文選英文、聽音選字、字母排序，最後聽寫。',
-        '答對升一格、答錯回第一格，第 4 格算「精熟」，該複習時再出現（1、2、5、14 天後）。第一次見到就答對的字代表你本來就會，直接跳到第 3 格；這一輪最後會換個方向再問一次（看中文選英文，長的字用聽的），答對就當天精熟（一輪最多 5 個）。'
+        '「智慧」模式依熟練度出題，而且一輪會輪流用到全部六種題型：新字用選意思、選英文、字卡、聽音選字或拼字母，學過的字再加上聽寫。',
+        '答對升一格、答錯回第一格，第 4 格算「精熟」。一個字一天最多升一格，所以精熟看的是你好幾天的紀錄，不會在同一輪就精熟。第一次見到就答對的字代表你本來就會，直接跳到第 3 格，隔天再答對就精熟；每一輪會先排這些快精熟的字。之後在 1、5、14 天後再複習。'
       ]],
       ['games', '遊戲', [
         '103 款遊戲，分成單字、邏輯、益智、動作、反應、棋類、牌類、記憶和數字九類。遊戲頁一排排瀏覽，點「全部」看整類，也能搜尋或加入最愛；一局結束會推薦接著玩的遊戲。',
@@ -288,12 +288,13 @@ export const HELP = {
         '今日挑戰：當天第一局有得分就加積分（5 XP 起，連續幾天多一點，最多 20 XP）。每款遊戲的最佳紀錄跨裝置保留。'
       ]],
       ['missions', '每日任務與每週目標', [
-        '每天的任務：回答 20 題單字（字卡不算）、精熟 3 個單字、玩完一局小遊戲、在 Securities 下一筆買或賣的委託、在 Securities 打開 3 檔不同的股票、在 Fixtures 點開一場比賽、打開 Orbit Class 看課表、今天打開 Securities、Fixtures 和 Rewards、在 Play 下一張 3 關以上的串關（免費投注也算）、在 Play 買一張刮刮樂。完成後按「領取」拿積分。',
-        '連續紀錄：每天練習單字（字卡、答錯也算）或玩完一局遊戲，連續天數就 +1；漏掉的那天有保護卡會自動補上。連續越久積分越多：每天 +2%，15 天起 +30%。連續 7、30、100 天各送一個專屬頭像（🐯、🦅、🏆）和一張保護卡（看的是最長紀錄，斷了也不會收回）。',
-        '每週目標（週一到週日）：5 天有練習、單字和遊戲拿 1,000 XP、完成 10 個任務、玩 10 局遊戲。開啟通知後，可以領取時和連續天數快斷時會提醒你。'
+        '每日任務：每天從任務池換 6 個（3 個在 Rewards：回答 20 或 50 題單字、精熟 3 個單字、答對 10 題聽音選字／拼字母／聽寫、一輪全對、玩完 1 或 3 局遊戲、玩今日挑戰；3 個在其他 App：在 Securities 打開 3 檔股票、在 Fixtures 點開 1 或 3 場比賽、打開 Orbit Class 看課表、今天打開 Securities、Fixtures 和 Rewards）。完成後按「領取」拿積分。',
+        '加碼任務每天都有，要花錢：在 Securities 下一筆委託、在 Play 下 3 關以上的串關（免費投注也算）、買刮刮樂、買樂透。積分較多，但不算進連續紀錄，不做也沒關係。',
+        '連續紀錄：一天領取 3 個每日任務（加碼任務不算），連續天數就 +1；只賺一點積分不會算。漏掉的那天有保護卡會自動補上。連續越久積分越多：每天 +2%，15 天起 +30%。連續 7、30、100 天各送一個專屬頭像（🐯、🦅、🏆）和一張保護卡（看的是最長紀錄，斷了也不會收回）。',
+        '每週目標（週一到週日）：5 天保住連續紀錄、單字和遊戲拿 1,000 XP、完成 10 個任務、玩 10 局遊戲；四個都領取就送一張保護卡。開啟通知後，可以領取時和連續紀錄快斷時會提醒你。'
       ]],
       ['extras', '加值', [
-        '連續紀錄保護卡（NT$300 或 600 XP，最多持有 3 張）：哪天沒練習也沒玩遊戲，它會自動用掉一張，連續紀錄照樣算下去。Plus 會員每月送兩張。',
+        '連續紀錄保護卡（NT$300 或 600 XP，最多持有 3 張）：哪天沒保住連續紀錄，它會自動用掉一張，連續紀錄照樣算下去。Plus 會員每月送兩張。',
         '單字加倍（NT$150 或 300 XP）：接下來 30 分鐘每題單字積分 ×2；在加倍中再買，會接在後面再延 30 分鐘。',
         '單字包（「單字」分頁）：多益 TOEIC NT$990、雅思 IELTS NT$1,490、商務英文 NT$1,990（或 8,000 / 12,000 / 16,000 XP），一次買斷，每個字都有真人發音。買了就和級別一樣可以勾選；和主單字表重複的字共用進度，答對一樣有積分。Plus 會員 5 折。'
       ]],
@@ -318,8 +319,8 @@ export const HELP = {
       ]],
       ['words', 'Words', [
         'The high-school English reference list, levels 1 to 6: 6,170 words, each with a recording (Microsoft’s Jenny voice). A round is 10, 20 or 30 words, reviews and new ones mixed; a missed word comes back once at the end of the round.',
-        'Smart mode asks by how well you know a word: its meaning first, then meaning → word, by ear, unscrambling, and dictation last.',
-        'Right moves a word up a box, wrong back to box 1; box 4 is mastered, and each word returns when due (1, 2, 5, 14 days). A new word right the first time is one you know: it jumps to box 3 and comes back once at the end of the round the other way round (meaning → word, or by ear for a long one); right again, it’s mastered that day (up to 5 a round).'
+        'Smart mode asks by how well you know a word, and uses all six kinds of question in a round: a new word by meaning, meaning → word, flash card, by ear or unscrambling; words you’ve learnt get dictation too.',
+        'Right moves a word up a box, wrong back to box 1; box 4 is mastered. A word moves up one box a day at most, so mastering comes from your record over days, never from a single round. A new word right the first time is one you know: it jumps to box 3, and right again tomorrow it’s mastered; rounds ask those first. After that, words return in 1, 5 and 14 days.'
       ]],
       ['games', 'Games', [
         '103 games in nine kinds: words, logic, puzzles, action, reflex, board, cards, memory and numbers. Browse them row by row, open a whole kind with See all, search, or keep favourites; a finished round suggests what to play next.',
@@ -328,12 +329,13 @@ export const HELP = {
         'Today’s challenge: its first round that scores adds a bonus (from 5 XP, a little more each day in a row, up to 20 XP). Each game’s best is kept on every device.'
       ]],
       ['missions', 'Missions and weekly goals', [
-        'Daily missions: answer 20 word questions (not flash cards), master 3 words, finish a mini game, place a buy or sell order in Securities, open 3 different stocks in Securities, open a match in Fixtures, open Orbit Class to see your classes, open Securities, Fixtures and Rewards today, place a parlay of 3+ picks in Play (a free bet counts), buy a scratch card in Play. Claim each for its points when done.',
-        'Your streak: each day you practise words (flash cards and misses count) or finish a game adds a day; a missed day is covered by a protection card if you hold one. The longer it runs, the more points: +2% a day, +30% from 15 days. 7, 30 and 100 days each bring an avatar of their own (🐯, 🦅, 🏆) and a protection card (by your longest streak, so they stay if it breaks).',
-        'Weekly goals (Monday to Sunday): practise on 5 days, 1,000 XP from words and games, finish 10 missions, play 10 games. With notices on, you’re told when there’s something to claim and when a streak is about to end.'
+        'Daily missions: six a day from a pool, three in Rewards (answer 20 or 50 word questions, master 3 words, get 10 right by ear, from letters or by dictation, a round without a miss, finish 1 or 3 games, play today’s challenge) and three in the other apps (open 3 stocks in Securities, open 1 or 3 matches in Fixtures, open Orbit Class, open Securities, Fixtures and Rewards today). Claim each for its points when done.',
+        'Bonus missions are there every day and spend money: an order in Securities, a parlay of 3+ picks in Play (a free bet counts), a scratch card, a lottery ticket. More points, but they don’t count for the streak; skip them if you like.',
+        'Your streak: claim 3 daily missions in a day (bonus ones don’t count) and it grows by a day; a few points alone don’t keep it. A missed day is covered by a protection card if you hold one. The longer it runs, the more points: +2% a day, +30% from 15 days. 7, 30 and 100 days each bring an avatar of their own (🐯, 🦅, 🏆) and a protection card (by your longest streak, so they stay if it breaks).',
+        'Weekly goals (Monday to Sunday): keep your streak on 5 days, 1,000 XP from words and games, finish 10 missions, play 10 games; claim all four for a protection card. With notices on, you’re told when there’s something to claim and when a streak is about to end.'
       ]],
       ['extras', 'Extras', [
-        'Streak protection (NT$300 or 600 XP, hold up to 3): on a day with no practice and no game, one is used by itself and the streak goes on. Plus members get two every month.',
+        'Streak protection (NT$300 or 600 XP, hold up to 3): on a day the streak wasn’t kept, one is used by itself and the streak goes on. Plus members get two every month.',
         'Word points ×2 (NT$150 or 300 XP): every word earns double points for the next 30 minutes; one bought during another runs 30 minutes after it.',
         'Word packs (in Words): TOEIC NT$990, IELTS NT$1,490, Business English NT$1,990 (or 8,000 / 12,000 / 16,000 XP), bought once, every word recorded. Once yours, pick a pack like a level; words the main list shares keep one progress, and right answers earn points as usual. Half price for Plus members.'
       ]],

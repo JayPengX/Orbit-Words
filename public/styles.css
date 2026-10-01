@@ -530,10 +530,9 @@ img { max-width: 100%; }
 .gh-how strong { font-size: 14px; color: var(--accent); }
 .gh-how p { margin: 0; font-size: 14.5px; line-height: 1.6; color: var(--q-text); }
 
-/* Round size and the voice */
+/* Round size */
 .size-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 12px 0 2px; }
 .size-row .segmented button { min-width: 64px; }
-.voice-select { width: 100%; padding: 11px 12px; border-radius: 12px; border: 1px solid var(--q-border); background: var(--q-surface); color: var(--q-text); font: 600 15px var(--q-font); }
 .size-row .segmented { margin: 0; }
 
 /* ---- A game in play: the whole screen, nothing scrolls under a thumb ---- */
@@ -998,6 +997,9 @@ button.xp-card { width: 100%; text-align: left; font: inherit; color: inherit; c
 :root[data-theme='dark'] .gh-tile .gh-icon { box-shadow: none; }
 
 /* The streak on the level card, and its milestones. */
-.streak-line { display: flex; justify-content: space-between; gap: 8px; padding-top: 8px; border-top: 1px solid var(--q-border); font-size: 13px; font-weight: 700; color: var(--q-muted); }
+.streak-line { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 8px; padding-top: 8px; border-top: 1px solid var(--q-border); font-size: 13px; font-weight: 700; color: var(--q-muted); }
 .streak-line.on span { color: #ea580c; }
+.streak-goal { display: grid; gap: 6px; padding: 12px 14px; margin: 0; font-size: 13px; border-bottom: 1px solid var(--q-border); }
+.streak-goal strong { font-size: 14px; }
+.streak-goal.kept strong { color: #16a34a; }
 .lv-step.got { background: color-mix(in srgb, #f97316 14%, var(--q-surface)); }

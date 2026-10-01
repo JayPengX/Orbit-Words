@@ -4,8 +4,8 @@
 // none at all until the list has loaded). The natural neural voices sound
 // far better: Microsoft's online ones (Edge on every system: "Microsoft Aria
 // Online (Natural)", Jenny, Guy…), Apple's premium and enhanced ones (Ava,
-// Samantha…), Google's. They're ranked and the best is kept; the person can
-// pick another in the settings.
+// Samantha…), Google's. They're ranked and the best is kept; that one is used
+// when a recording is missing.
 
 export function voiceScore(v) {
   if (!v || !/^en([-_]|$)/i.test(v.lang || '')) return -1;

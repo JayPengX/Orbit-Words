@@ -1,13 +1,19 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { loadWords, grade, pickRound, makeQuestion, sameWord, spellDiff, stats, packProgress, unpackProgress, migrateWords, mergeProgress, payFor, dayNum, MASTERED } from '../public/lib/words.mjs';
-import { xpToday, xpAllTime, xpText, missions, claimEntry, rankOf, streakDays } from '../public/lib/earn.mjs';
+import { loadWords, grade, pickRound, makeQuestion, sameWord, spellDiff, stats, packProgress, unpackProgress, migrateWords, mergeProgress, payFor, dayNum, MASTERED, smartType } from '../public/lib/words.mjs';
+import { xpToday, xpAllTime, xpText, missions, claimEntry, rankOf, streakDays, dailyMissionIds, MISSIONS, streakToday } from '../public/lib/earn.mjs';
 import { move, canMove, mergePoints, pairResult, scoreRound, bestRound } from '../public/lib/games.mjs';
 import { HELP, HELP_ORDER, parseHelpHash } from '../public/lib/help.mjs';
 import { STRINGS } from '../public/lib/i18n.mjs';
 import { ECONOMY, taipeiDay } from '../public/lib/quadra.mjs';
 
+// Noon in Taiwan on a day (searching from `from`, a step of `dir` days) whose
+// daily missions include `ids`.
+function dayWith(ids, from, dir = 1) {
+  for (let t = Date.parse(`${from}T04:00:00Z`), i = 0; i < 400; i++, t += dir * 86_400_000) if (ids.every(id => dailyMissionIds(taipeiDay(t)).includes(id))) return t;
+  throw new Error('no such day');
+}
 const words = loadWords(JSON.parse(readFileSync(new URL('../public/data/words.json', import.meta.url))));
 let seed = 7;
 const random = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
@@ -18,18 +24,26 @@ test('the word list has levels 1 to 6 with meanings', () => {
   assert.equal(words.filter(w => !w.zh).length, 0);
 });
 
-test('boxes go up on right answers, back to 1 on a miss, cards cap at 1', () => {
+test('boxes go up on right answers, once a day, back to 1 on a miss, cards cap at 1', () => {
   const now = Date.parse('2026-09-28T04:00:00Z');
-  // Right the first time: already known, straight to box 3; one more masters it.
+  const day = 86_400_000;
+  // Right the first time: already known, box 3, due tomorrow. Right again the
+  // same day (any kind of question) doesn't master it; right tomorrow does.
   let p = grade(undefined, true, { now }).p;
   assert.equal(p.b, 3);
-  p = grade(p, true, { now }).p;
-  assert.equal(p.b, 4);
-  assert.equal(p.m, 1);
-  // Missed first, then climbing one box at a time.
+  assert.equal(p.d, dayNum(now) + 1);
+  for (const type of ['word', 'listen', 'spell']) assert.equal(grade(p, true, { type, now: now + 60_000 }).p.b, 3);
+  assert.equal(grade(undefined, true, { type: 'spell', now }).p.b, 3);
+  const r = grade(p, true, { now: now + day });
+  assert.equal(r.p.b, 4);
+  assert.equal(r.firstMastery, true);
+  // Missed first: box 1; a retry right the same day stays in 1, due tomorrow;
+  // then one box a day.
   let s = grade(undefined, false, { now }).p;
   assert.equal(s.b, 1);
-  for (let i = 0; i < 3; i++) s = grade(s, true, { now }).p;
+  s = grade(s, true, { now: now + 60_000 }).p;
+  assert.deepEqual([s.b, s.d], [1, dayNum(now) + 1]);
+  for (let i = 1; i <= 3; i++) s = grade(s, true, { now: now + i * day }).p;
   assert.equal(s.b, 4);
   assert.equal(grade(p, false, { now }).p.b, 1);
   assert.equal(grade(undefined, true, { type: 'card', now }).p.b, 1);
@@ -37,13 +51,28 @@ test('boxes go up on right answers, back to 1 on a miss, cards cap at 1', () => 
   // First mastery pays once only.
   let q;
   let firsts = 0;
-  for (let i = 0; i < 6; i++) {
-    const r = grade(q, true, { now });
-    q = r.p;
-    if (r.firstMastery) firsts++;
-    if (i === 4) q = grade(q, false, { now }).p;
+  for (let i = 0; i < 8; i++) {
+    const g = grade(q, true, { now: now + i * day });
+    q = g.p;
+    if (g.firstMastery) firsts++;
+    if (i === 4) q = grade(q, false, { now: now + i * day + 1000 }).p;
   }
   assert.equal(firsts, 1);
+});
+
+test('smart mode spreads a round over all six kinds of question', () => {
+  const seen = new Set();
+  const used = {};
+  const word = { word: 'apple', level: 1 };
+  for (let i = 0; i < 12; i++) {
+    const k = smartType({ b: [0, 0, 1, 2, 3, 0][i % 6] }, Math.random, word, used);
+    used[k] = (used[k] || 0) + 1;
+    seen.add(k);
+  }
+  assert.deepEqual([...seen].sort(), ['card', 'letters', 'listen', 'meaning', 'spell', 'word']);
+  assert.ok((used.card || 0) <= 2);
+  // A long word is never unscrambled.
+  for (let i = 0; i < 30; i++) assert.notEqual(smartType({ b: 3 }, Math.random, { word: 'responsibility' }, {}), 'letters');
 });
 
 test('a round mixes due reviews and new words in the chosen levels', () => {
@@ -96,7 +125,8 @@ test('progress round-trips, merges newest per word, and Quadra Words migrates', 
 });
 
 test('points per kind today (old paid entries count as points), missions and claims', () => {
-  const now = Date.parse('2026-09-28T04:00:00Z');
+  // Before the streak's missions rule (any game kept a day then).
+  const now = dayWith(['words20', 'game1'], '2026-09-30', -1);
   const day = taipeiDay(now);
   const wallet = {
     entries: [
@@ -115,10 +145,10 @@ test('points per kind today (old paid entries count as points), missions and cla
   assert.equal(xpAllTime(wallet), 140);
   const ms = Object.fromEntries(missions(wallet, now).map(m => [m.id, m]));
   assert.ok(ms.words20.done && ms.game1.done && ms.invest.done);
-  assert.ok(!ms.master3.done && !ms.match.done && !ms.tour.done);
+  for (const id of ['master3', 'match', 'tour']) assert.ok(!ms[id]?.done, id);
   const entry = claimEntry(wallet, 'words20', now);
   // Points, never money.
-  assert.deepEqual([entry.amount, entry.xp, entry.kind], [0, 20, 'mission']);
+  assert.deepEqual([entry.amount, entry.xp, entry.kind], [0, 15, 'mission']);
   assert.equal(entry.id, `vocab:m:${day}:words20`);
   assert.equal(claimEntry({ ...wallet, entries: [...wallet.entries, entry] }, 'words20', now), null);
   assert.equal(claimEntry(wallet, 'master3', now), null);
@@ -235,7 +265,8 @@ test('daily challenge, weekly goals, badges and bests', async () => {
   const goals = weeklyGoals(wk, now);
   assert.equal(goals.find(g => g.id === 'games10').done, true);
   assert.equal(goals.find(g => g.id === 'earn1000').done, true);
-  assert.equal(goals.find(g => g.id === 'days5').progress, 1);
+  // Days kept with missions (none here: games kept the streak then).
+  assert.equal(goals.find(g => g.id === 'days5').progress, 0);
   const claim = claimWeekly(wk, 'games10', now);
   // 30 XP, and the 8-day streak's +16%.
   const { xpRate } = await import('../public/lib/earn.mjs');
@@ -259,16 +290,47 @@ test('the word of the day changes daily and is a single word', async () => {
 });
 
 test('missions count concrete things: an order, three stocks opened, a match opened', () => {
-  const now = Date.parse('2026-10-05T04:00:00Z');
+  const now = dayWith(['match', 'quotes'], '2026-10-05');
   const day = taipeiDay(now);
   const act = (app, n) => ({ [`act:${app}`]: { value: { day, n }, t: now } });
   const ms = w => Object.fromEntries(missions({ entries: [], settings: w }, now).map(m => [m.id, m]));
-  // Watching or following alone no longer counts.
+  // Watching or following doesn't count.
   let m = ms({ ...act('stock', { watch: 3 }), ...act('match', { follow: 2 }) });
   assert.ok(!m.invest.done && !m.match.done && !m.quotes.done);
   m = ms({ ...act('stock', { trade: 1, view: 2 }), ...act('match', { open: 1 }) });
   assert.ok(m.invest.done && m.match.done && !m.quotes.done);
   assert.equal(ms(act('stock', { view: 3 })).quotes.done, true);
-  // Every mission has a text in both languages.
-  for (const x of missions({ entries: [] }, now)) assert.ok(STRINGS.zh[`mission_${x.id}`] && STRINGS.en[`mission_${x.id}`], x.id);
+  // Every mission has a text in both languages, and an icon-free id.
+  for (const x of MISSIONS) assert.ok(STRINGS.zh[`mission_${x.id}`] && STRINGS.en[`mission_${x.id}`], x.id);
+});
+
+test('six daily missions a day (three in Rewards), bonus ones always; three claimed keep the streak', () => {
+  const seen = new Set();
+  for (let i = 0; i < 60; i++) {
+    const day = taipeiDay(Date.parse('2026-10-02T04:00:00Z') + i * 86_400_000);
+    const ids = dailyMissionIds(day);
+    assert.equal(ids.length, 6);
+    assert.equal(ids.filter(id => MISSIONS.find(m => m.id === id).app === 'vocab').length, 3);
+    assert.deepEqual(dailyMissionIds(day), ids);
+    const groups = ids.map(id => MISSIONS.find(m => m.id === id).group).filter(Boolean);
+    assert.equal(new Set(groups).size, groups.length);
+    ids.forEach(id => seen.add(id));
+  }
+  // Every everyday mission comes up; the bonus ones (they spend money) never are daily ones.
+  for (const m of MISSIONS) assert.equal(seen.has(m.id), !m.bonus, m.id);
+  const now = dayWith(['words20', 'game1'], '2026-10-05');
+  const day = taipeiDay(now);
+  const w = { entries: [{ id: `vocab:d:${day}`, t: now, app: 'vocab', kind: 'game', amount: 0, xp: 5 }], settings: { 'act:vocab': { value: { day, n: { answer: 20, game: 1, hard: 10, perfect: 1 } }, t: now }, 'act:odds': { value: { day, n: { parlay: 1, scratch: 1, lottery: 1 } }, t: now } } };
+  const list = missions(w, now);
+  assert.deepEqual(list.filter(m => m.bonus).map(m => m.id), ['invest', 'parlay3', 'scratch', 'lotto']);
+  assert.equal(list.filter(m => !m.bonus).length, 6);
+  // The bonus ones and two daily ones: not kept yet; a third daily one keeps it.
+  for (const id of ['parlay3', 'scratch', 'lotto', 'words20', 'game1']) w.entries.push(claimEntry(w, id, now));
+  assert.deepEqual(streakToday(w, now), { n: 2, goal: 3, kept: false });
+  assert.equal(streakDays(w, now), 0);
+  const third = list.find(m => !m.bonus && m.done && !['words20', 'game1'].includes(m.id));
+  assert.ok(third);
+  w.entries.push(claimEntry(w, third.id, now));
+  assert.equal(streakToday(w, now).kept, true);
+  assert.equal(streakDays(w, now), 1);
 });

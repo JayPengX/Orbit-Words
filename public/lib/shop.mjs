@@ -41,9 +41,19 @@ export function freezes(wallet, now = Date.now()) {
   const bought = boughtAny(wallet, 'freeze').length;
   // v8: PLUS.vocab.cards a Plus month (one a month before); and one at
   // level 5, 15, 25… (the kit's levelCards).
-  const granted = plusMonthsSoFar(wallet, now) * PLUS.vocab.cards + levelCards(xpLevel(xpEarned(wallet)).level) + streakCards(longestStreakOf(wallet));
+  // And one a streak milestone, and one a week with every weekly goal claimed.
+  const granted = plusMonthsSoFar(wallet, now) * PLUS.vocab.cards + levelCards(xpLevel(xpEarned(wallet)).level) + streakCards(longestStreakOf(wallet)) + weeklyCards(wallet);
   const used = mine(wallet, 'vocab:fz:').length;
   return { bought, granted, used, held: Math.max(0, bought + granted - used) };
+}
+// Weeks with all four weekly goals claimed ('vocab:wk:<Monday>:<goal>').
+export function weeklyCards(wallet) {
+  const weeks = {};
+  for (const e of mine(wallet, 'vocab:wk:')) {
+    const [, , week, id] = e.id.split(':');
+    (weeks[week] = weeks[week] || new Set()).add(id);
+  }
+  return Object.values(weeks).filter(ids => ids.size >= 4).length;
 }
 // The days a card covered.
 export const frozenDays = wallet => new Set(mine(wallet, 'vocab:fz:').map(e => e.id.slice(9)));

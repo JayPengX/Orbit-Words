@@ -12,7 +12,7 @@
 // Before v7 the same entries paid NT$ (their amount): those count as points too.
 // Points earned make the level (the kit's xpLevel); points spent in the shop
 // (shop.mjs redeemEntry) come off what's left to spend (xpBalance).
-import { taipeiDay, todayActivity, poolBalance, xpOf, xpEarned, plusMember, plusTenure, PLUS, activeDaySet, streakBonus } from './quadra.mjs';
+import { taipeiDay, todayActivity, poolBalance, xpOf, xpEarned, plusMember, plusTenure, PLUS, activeDaySet, streakBonus, missionDays, STREAK } from './quadra.mjs';
 import { freezes, freezeEntry, frozenDays } from './shop.mjs';
 
 export { xpOf };
@@ -47,36 +47,83 @@ export const xpAllTime = xpEarned;
 //
 // Progress comes from each app's activity counts in the wallet
 // (activityPatch) and when each app was last opened. Each gives `xp`.
+//
+// Every day six daily missions come from the pool (three in Rewards, three
+// in the other apps, the same for everyone that day); claiming STREAK.missions
+// of them keeps the streak (the kit's activeDaySet). The bonus missions spend
+// money (an order, a bet, a ticket): always there, extra points, and never
+// needed for the streak.
 export const MISSIONS = [
-  { id: 'words20', app: 'vocab', xp: 20, goal: 20, count: a => a.vocab?.answer || 0 },
-  { id: 'master3', app: 'vocab', xp: 15, goal: 3, count: a => a.vocab?.master || 0 },
-  { id: 'game1', app: 'vocab', xp: 10, goal: 1, count: a => a.vocab?.game || 0 },
-  // Securities: a buy or sell order placed (or an overdraft covered).
-  { id: 'invest', app: 'stock', xp: 15, goal: 1, count: a => a.stock?.trade || 0 },
-  // Securities: three different stocks' pages opened (Securities counts each once a day).
+  // Rewards
+  { id: 'words20', app: 'vocab', group: 'words', xp: 15, goal: 20, count: a => a.vocab?.answer || 0 },
+  { id: 'words50', app: 'vocab', group: 'words', xp: 30, goal: 50, count: a => a.vocab?.answer || 0 },
+  { id: 'master3', app: 'vocab', xp: 20, goal: 3, count: a => a.vocab?.master || 0 },
+  // Right answers to the harder kinds: by ear, from letters, dictation.
+  { id: 'hard10', app: 'vocab', xp: 20, goal: 10, count: a => a.vocab?.hard || 0 },
+  // A round of 10 words or more without a miss.
+  { id: 'perfect', app: 'vocab', xp: 20, goal: 1, count: a => a.vocab?.perfect || 0 },
+  { id: 'game1', app: 'vocab', group: 'games', xp: 10, goal: 1, count: a => a.vocab?.game || 0 },
+  { id: 'games3', app: 'vocab', group: 'games', xp: 20, goal: 3, count: a => a.vocab?.game || 0 },
+  // Today's challenge played.
+  { id: 'challenge', app: 'vocab', xp: 15, goal: 1, count: (a, apps, day, wallet) => ((wallet?.entries || []).some(e => e.id === dailyId(day)) ? 1 : 0) },
+  // The other apps: using them, nothing to spend and no personal choice
+  // (a watchlist, a team to follow) needed.
+  // Securities: different stocks' pages opened (each counts once a day).
   { id: 'quotes', app: 'stock', xp: 15, goal: 3, count: a => a.stock?.view || 0 },
-  // Fixtures: a match's sheet opened.
-  { id: 'match', app: 'match', xp: 10, goal: 1, count: a => a.match?.open || 0 },
+  // Fixtures: different matches opened.
+  { id: 'match', app: 'match', group: 'match', xp: 10, goal: 1, count: a => a.match?.open || 0 },
+  { id: 'matches3', app: 'match', group: 'match', xp: 15, goal: 3, count: a => a.match?.open || 0 },
   // Orbit Class, Quadra's class schedule: checking the day's classes.
   { id: 'orbit', app: 'orbit', xp: 10, goal: 1, count: a => (a.orbit?.open || 0) + (a.orbit?.edit || 0) },
   { id: 'tour', app: 'eco', xp: 10, goal: 3, count: (a, apps, day) => ['stock', 'match', 'vocab'].filter(x => apps?.[x]?.last && taipeiDay(apps[x].last) === day).length },
-  // Play: a slip of 3 picks or more (a free bet's too).
-  { id: 'parlay3', app: 'odds', xp: 30, goal: 1, count: a => a.odds?.parlay || 0 },
-  { id: 'scratch', app: 'odds', xp: 20, goal: 1, count: a => a.odds?.scratch || 0 }
+  // Bonus: they spend money.
+  { id: 'invest', app: 'stock', xp: 20, goal: 1, bonus: true, count: a => a.stock?.trade || 0 },
+  { id: 'parlay3', app: 'odds', xp: 30, goal: 1, bonus: true, count: a => a.odds?.parlay || 0 },
+  { id: 'scratch', app: 'odds', xp: 20, goal: 1, bonus: true, count: a => a.odds?.scratch || 0 },
+  { id: 'lotto', app: 'odds', xp: 20, goal: 1, bonus: true, count: a => a.odds?.lottery || 0 }
 ];
+// The day's six: three in Rewards, three elsewhere, picked by the date (one
+// of a group at most: not 20 words and 50 the same day).
+export function dailyMissionIds(day) {
+  const pick = (list, n) => {
+    const groups = new Set();
+    return list
+      .map(m => [hash(`${day}:${m.id}`), m])
+      .sort((a, b) => a[0] - b[0])
+      .filter(([, m]) => !m.group || (!groups.has(m.group) && groups.add(m.group)))
+      .slice(0, n)
+      .map(([, m]) => m.id);
+  };
+  const core = MISSIONS.filter(m => !m.bonus);
+  return [...pick(core.filter(m => m.app === 'vocab'), 3), ...pick(core.filter(m => m.app !== 'vocab'), 3)];
+}
+function hash(text) {
+  let h = 2166136261;
+  for (let i = 0; i < text.length; i++) h = Math.imul(h ^ text.charCodeAt(i), 16777619);
+  return h >>> 0;
+}
 export const missionId = (day, id) => `vocab:m:${day}:${id}`;
 // Before v7 three missions gave a free bet under this id: one claimed that
 // way today is still claimed.
 const freeBetId = (day, id) => `vocab:fb:${day}:${id}`;
 
+// Today's missions: the day's six, then the bonus ones (and any other
+// claimed today, as claimed).
 export function missions(wallet, now = Date.now()) {
   const day = taipeiDay(now);
   const act = todayActivity(wallet, now);
   const ids = new Set((wallet?.entries || []).map(e => e.id));
-  return MISSIONS.map(m => {
-    const progress = Math.min(m.goal, m.count(act, wallet?.apps, day));
-    return { ...m, progress, done: progress >= m.goal, claimed: ids.has(missionId(day, m.id)) || ids.has(freeBetId(day, m.id)) };
+  const claimed = id => ids.has(missionId(day, id)) || ids.has(freeBetId(day, id));
+  const today = new Set(dailyMissionIds(day));
+  return MISSIONS.filter(m => m.bonus || today.has(m.id) || claimed(m.id)).map(m => {
+    const progress = Math.min(m.goal, m.count(act, wallet?.apps, day, wallet));
+    return { ...m, bonus: Boolean(m.bonus), progress, done: progress >= m.goal, claimed: claimed(m.id) };
   });
+}
+// Where today stands for the streak: daily missions claimed, of STREAK.missions.
+export function streakToday(wallet, now = Date.now()) {
+  const n = missionDays(wallet)[taipeiDay(now)] || 0;
+  return { n: Math.min(n, STREAK.missions), goal: STREAK.missions, kept: activeDays(wallet).has(taipeiDay(now)) };
 }
 // The entry claiming a mission (null when it isn't done or is claimed).
 export function claimEntry(wallet, id, now = Date.now()) {
@@ -106,12 +153,13 @@ export function rankOf(balance) {
 }
 export const walletRank = wallet => rankOf(poolBalance(wallet));
 
-// Days with word practice or a game (points or not), and the days a
-// protection card covered: the kit's rule, so every app agrees.
+// Days the streak was kept (3 daily missions claimed; before October 2026 any
+// practice or game), and the days a protection card covered: the kit's rule,
+// so every app agrees.
 export const activeDays = activeDaySet;
 
-// Days in a row with word practice or a game, from the entries (today counts
-// once something is earned; a day a protection card covered counts too).
+// Days in a row the streak was kept (today counts once it's kept; a day a
+// protection card covered counts too).
 export function streakDays(wallet, now = Date.now()) {
   const days = activeDays(wallet);
   let n = 0;
@@ -124,7 +172,7 @@ export function streakDays(wallet, now = Date.now()) {
   return n;
 }
 
-// The longest run of days in a row with word practice or a game.
+// The longest run of days in a row kept (or, with `match`, with such entries).
 export function longestStreak(wallet, match = null) {
   const days = [...(match ? new Set((wallet?.entries || []).filter(match).map(e => taipeiDay(e.t))) : activeDays(wallet))].sort();
   let best = 0;
@@ -137,8 +185,8 @@ export function longestStreak(wallet, match = null) {
   }
   return best;
 }
-// A streak that would break tonight: days in a row up to yesterday, nothing
-// yet today, and it's evening in Taiwan.
+// A streak that would break tonight: days in a row up to yesterday, today
+// not kept yet, and it's evening in Taiwan.
 export function streakAtRisk(wallet, now = Date.now()) {
   const today = taipeiDay(now);
   const hour = new Date(now + 8 * 3_600_000).getUTCHours();
@@ -181,6 +229,7 @@ export function dailyStreak(wallet, now = Date.now()) {
 // ---- Weekly goals: a Taiwan week (Monday to Sunday), claimed like missions ------------------
 //
 // Claimed as missions (kind 'mission', ids 'vocab:wk:<Monday>:<goal>').
+// All of a week's goals claimed bring a streak protection card (shop.mjs).
 export function weekStart(now = Date.now()) {
   const day = taipeiDay(now);
   const d = new Date(`${day}T00:00:00Z`);
@@ -189,7 +238,8 @@ export function weekStart(now = Date.now()) {
 }
 const earnKinds = new Set(['words', 'reward', 'game']);
 export const WEEKLY = [
-  { id: 'days5', xp: 45, goal: 5, count: list => new Set(list.filter(e => earnKinds.has(e.kind)).map(e => taipeiDay(e.t))).size },
+  // Days this week the streak was kept with missions (a protection card's don't count).
+  { id: 'days5', xp: 45, goal: 5, count: (list, wallet, week) => Object.entries(missionDays(wallet)).filter(([d, n]) => d >= week && n >= STREAK.missions).length },
   // Points from words and games (the id is older than the points).
   { id: 'earn1000', xp: 45, goal: 1000, count: list => Math.floor(list.filter(e => earnKinds.has(e.kind)).reduce((s, e) => s + xpOf(e), 0)) },
   { id: 'missions10', xp: 40, goal: 10, count: list => list.filter(e => e.kind === 'mission' && e.id.startsWith('vocab:m:')).length },
@@ -201,7 +251,7 @@ export function weeklyGoals(wallet, now = Date.now()) {
   const list = (wallet?.entries || []).filter(e => e.app === 'vocab' && taipeiDay(e.t) >= week && e.t <= now);
   const ids = new Set((wallet?.entries || []).map(e => e.id));
   return WEEKLY.map(g => {
-    const progress = Math.min(g.goal, g.count(list));
+    const progress = Math.min(g.goal, g.count(list, wallet, week));
     return { ...g, week, progress, done: progress >= g.goal, claimed: ids.has(weeklyId(week, g.id)) };
   });
 }

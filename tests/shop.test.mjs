@@ -86,7 +86,7 @@ test('missions about Play and plans give points, no free bet, once a day', async
   const day = taipeiDay(now);
   const w = { entries: [], settings: { 'act:odds': { value: { day, n: { parlay: 1, scratch: 1 } }, t: now } } };
   const ms = Object.fromEntries(missions(w, now).map(m => [m.id, m]));
-  assert.ok(ms.parlay3.done && ms.scratch.done && !ms.quotes.done && !('plan' in ms));
+  assert.ok(ms.parlay3.done && ms.scratch.done && ms.parlay3.bonus && !ms.quotes?.done && !('plan' in ms));
   const e = claimEntry(w, 'parlay3', now);
   assert.deepEqual([e.id, e.kind, e.amount, e.xp], [`vocab:m:${day}:parlay3`, 'mission', 0, 30]);
   const after = { ...w, entries: [e] };
@@ -117,9 +117,9 @@ test('points buy a card, a boost or a pack, only with enough to spend; Plus earn
   assert.equal(redeemEntry({ entries: [] }, 'freeze', 'c', now), null);
   // A Plus member's mission gives ×1.5.
   const day = taipeiDay(now);
-  const member = { entries: [{ id: `eco:plus:${day.slice(0, 7)}`, t: now, app: 'eco', kind: 'plus', amount: -490 }], settings: { 'act:vocab': { value: { day, n: { answer: 20 } }, t: now } } };
+  const member = { entries: [{ id: `eco:plus:${day.slice(0, 7)}`, t: now, app: 'eco', kind: 'plus', amount: -490 }], settings: { 'act:odds': { value: { day, n: { scratch: 1 } }, t: now } } };
   assert.equal(xpRate(member, now), 1.5);
-  assert.equal(claimEntry(member, 'words20', now).xp, 30);
+  assert.equal(claimEntry(member, 'scratch', now).xp, 30);
 });
 
 test('levels give streak cards at 5, 15, 25…, and points buy avatars (level ones can’t be bought)', async () => {
@@ -136,4 +136,13 @@ test('levels give streak cards at 5, 15, 25…, and points buy avatars (level on
   assert.ok(avatarOwned({ entries: [...w.entries, cat] }, 'cat'));
   assert.equal(redeemEntry(w, 'avatar', 'panda', now), null);
   assert.equal(redeemEntry(w, 'avatar', 'gem', now), null);
+});
+
+test('a week with every weekly goal claimed brings a protection card', async () => {
+  const { weeklyCards } = await import('../public/lib/shop.mjs');
+  const wk = (week, ids) => ids.map(id => ({ id: `vocab:wk:${week}:${id}`, t: now, app: 'vocab', kind: 'mission', amount: 0, xp: 30 }));
+  const all = ['days5', 'earn1000', 'missions10', 'games10'];
+  const w = { entries: [...wk('2026-09-21', all), ...wk('2026-09-28', all.slice(0, 3))] };
+  assert.equal(weeklyCards(w), 1);
+  assert.equal(freezes(w, now).granted, 1);
 });

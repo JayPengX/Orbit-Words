@@ -7,13 +7,13 @@ import {
   quadraSession, tabBar, topActions, installGate, watchUpdates, recordAffinity, setting, settingPatch, taipeiDay, poolBalance, money, randomId, notify, schedulePush, APPS, ECONOMY, PLUS, ask, tell, plusCard, plusMember, openPlus, affinityPatch, xpLevel, xpBalance, xpForLevel, AVATARS, avatarOwned, avatarBought, levelCards, STREAK, streakBonus, longestStreakOf
 } from './lib/quadra.mjs';
 import { SHOP, shopEntry, redeemEntry, freezes, boostUntil, openPacks, packPrice, packEntry, packOpen } from './lib/shop.mjs';
-import { KNOWN_BOX, LEVELS, PACK_IDS, addPacks, levelRank, inLevels, MODES, loadWords, pickRound, smartType, markKnown, makeQuestion, grade, payFor, sameWord, spellDiff, stats, stateOf, packProgress, unpackProgress, mergeProgress, migrateWords, shortMeaning, wordOfDay } from './lib/words.mjs';
+import { LEVELS, PACK_IDS, addPacks, levelRank, inLevels, MODES, loadWords, pickRound, smartType, markKnown, makeQuestion, grade, payFor, sameWord, spellDiff, stats, stateOf, packProgress, unpackProgress, mergeProgress, migrateWords, shortMeaning, wordOfDay } from './lib/words.mjs';
 import {
-  xpToday, xpOf, xpText, xpRate, missions, claimEntry, rankOf, RANKS, streakDays, xpAllTime, streakAtRisk, dailyId, dailyStreak, weeklyGoals, claimWeekly, badges, freezeDue
+  xpToday, xpOf, xpText, xpRate, missions, claimEntry, rankOf, RANKS, streakDays, xpAllTime, streakAtRisk, streakToday, dailyId, dailyStreak, weeklyGoals, claimWeekly, badges, freezeDue
 } from './lib/earn.mjs';
 import { GAMES, gameInfo, dailyGame, dailyBonus, mergeBests } from './lib/games.mjs';
 import { HELP_ORDER, helpFor, parseHelpHash } from './lib/help.mjs';
-import { pickVoice, rankVoices } from './lib/voice.mjs';
+import { pickVoice } from './lib/voice.mjs';
 import { detectLocale, makeT } from './lib/i18n.mjs';
 import { mountGames } from './games-ui.js';
 
@@ -158,7 +158,7 @@ function daily() {
 const boosted = () => boostUntil(withOutbox()) > Date.now();
 
 // Activity counts for the missions (act:vocab), added up here.
-const act = { answer: 0, master: 0, game: 0 };
+const act = { answer: 0, master: 0, game: 0, hard: 0, perfect: 0 };
 function actPatch() {
   const day = taipeiDay();
   const had = setting(state.wallet, 'act:vocab', null);
@@ -286,7 +286,7 @@ const levelName = l => (typeof l === 'number' ? t('level', { n: l }) : t(`pack_$
 // sound start from a tap) later words play from code too, and each word is
 // started right in the tap that asks for it (never after a delay, which iOS
 // would silence). Without the clip (offline, a missing file): the device's
-// best English voice (lib/voice.mjs), or the one chosen in the settings.
+// best English voice (lib/voice.mjs).
 const clip = typeof Audio === 'function' ? new Audio() : null;
 if (clip) {
   clip.preload = 'auto';
@@ -302,19 +302,15 @@ if ('speechSynthesis' in window) {
   loadVoices();
   speechSynthesis.addEventListener?.('voiceschanged', loadVoices);
 }
-const VOICE_KEY = 'rewards.voice';
-const chosenVoice = () => {
-  try {
-    return localStorage.getItem(VOICE_KEY) || '';
-  } catch {
-    return '';
-  }
-};
+// The recordings; the device's best English voice only when one is missing.
+try {
+  localStorage.removeItem('rewards.voice');
+} catch {}
 function voiceSpeak(text, slow) {
   if (!('speechSynthesis' in window)) return;
   if (!voices.length) loadVoices();
   const u = new SpeechSynthesisUtterance(text);
-  const v = pickVoice(voices, chosenVoice());
+  const v = pickVoice(voices);
   if (v) u.voice = v;
   u.lang = v?.lang || 'en-US';
   u.rate = slow ? 0.72 : 0.95;
@@ -324,7 +320,7 @@ function voiceSpeak(text, slow) {
 }
 function speak(word, { slow = false } = {}) {
   const text = word.word;
-  if (!clip || chosenVoice()) return voiceSpeak(text, slow);
+  if (!clip) return voiceSpeak(text, slow);
   try {
     clip.pause();
   } catch {}
@@ -388,29 +384,10 @@ function renderWords() {
     section(t('levels'), levelCards),
     section(t('packsTitle'), packCards(st)),
     section(t('modes'), modes),
-    section(t('progress'), progressCard(st)),
-    section(t('voiceTitle'), voicePicker())
+    section(t('progress'), progressCard(st))
   );
 }
 
-// The recordings, or one of this device's English voices (best first).
-function voicePicker() {
-  if (!voices.length) loadVoices();
-  const list = rankVoices(voices).slice(0, 12);
-  const select = el('select', { class: 'voice-select', 'aria-label': t('voiceTitle') }, [
-    el('option', { value: '', text: `🎙️ ${t('voiceAuto')}` }),
-    ...list.map(v => el('option', { value: v.name, text: `${v.name} · ${v.lang}` }))
-  ]);
-  select.value = chosenVoice();
-  select.addEventListener('change', () => {
-    try {
-      if (select.value) localStorage.setItem(VOICE_KEY, select.value);
-      else localStorage.removeItem(VOICE_KEY);
-    } catch {}
-    speak({ word: 'Hello, welcome to Quadra Rewards' });
-  });
-  return el('div', { class: 'q-card pad voice-card' }, [select]);
-}
 const MODE_ICON = { smart: '✨', card: '🗂️', meaning: '🔤', word: '🀄', listen: '🎧', letters: '🧩', spell: '✍️' };
 
 function progressCard(st) {
@@ -489,9 +466,6 @@ function toggleLevel(l) {
 
 // ---- A round ---------------------------------------------------------------------------
 
-// Known words confirmed within a round (see answer).
-const CONFIRM_MAX = 5;
-
 function startRound() {
   const list = pickRound(myWords(), state.progress, { levels: myLevels(), size: state.size || 10 });
   if (!list.length) return toast(t('nothingLeft'));
@@ -502,9 +476,9 @@ function startRound() {
 function nextQuestion() {
   const r = state.round;
   const word = r.list[r.i];
-  // A known word being confirmed: the other way round (by ear when it's long).
-  const long = /\s/.test(word.word) || word.word.length > 11;
-  const type = r.confirmAt?.get(word.key) === r.i ? (long ? 'listen' : 'word') : r.retry?.has(word.key) ? 'meaning' : state.mode === 'smart' ? smartType(state.progress[word.key], Math.random, word) : state.mode;
+  const used = {};
+  for (const x of r.results) used[x.type] = (used[x.type] || 0) + 1;
+  const type = r.retry?.has(word.key) ? 'meaning' : state.mode === 'smart' ? smartType(state.progress[word.key], Math.random, word, used) : state.mode;
   r.q = makeQuestion(word, type, state.words);
   r.answered = false;
   r.typed = '';
@@ -527,22 +501,12 @@ function answer(correct, typed = '') {
   dirty = true;
   const pay = addWordPoints(payFor({ correct, type: r.q.type, firstMastery: res.firstMastery }, ECONOMY.vocab));
   if (r.q.type !== 'card') act.answer++;
+  if (correct && ['listen', 'letters', 'spell'].includes(r.q.type)) act.hard++;
   if (res.firstMastery) act.master++;
   r.earned += pay;
   r.results.push({ word, correct, type: r.q.type, before, after: stateOf(res.p), pay, typed, mastered: res.firstMastery });
   // A missed word comes back once at the end of the round, to fix it while
   // it's fresh (asked by its meaning).
-  // A new word right at first sight, asked the easy way (it's now known,
-  // box 3): once more at the end of the round the other way round, and
-  // right then masters it today instead of in five days (at most
-  // CONFIRM_MAX a round).
-  if (correct && before === 'new' && res.p.b === KNOWN_BOX && r.q.type !== 'card' && !r.confirm?.has(word.key) && (r.confirm?.size || 0) < CONFIRM_MAX) {
-    r.confirm = r.confirm || new Set();
-    r.confirmAt = r.confirmAt || new Map();
-    r.confirm.add(word.key);
-    r.list = [...r.list, word];
-    r.confirmAt.set(word.key, r.list.length - 1);
-  }
   if (!correct && !r.retry?.has(word.key)) {
     r.retry = r.retry || new Set();
     r.retry.add(word.key);
@@ -568,6 +532,9 @@ function advance() {
   const r = state.round;
   if (r.i + 1 >= r.list.length) {
     r.done = true;
+    // A clean round (10 words or more asked, no miss, flash cards aside).
+    const asked = r.results.filter(x => x.type !== 'card' && x.type !== 'known');
+    if (asked.length >= 10 && asked.every(x => x.correct)) act.perfect++;
     closeBatch();
     sync();
     return renderWords();
@@ -759,7 +726,7 @@ function renderHome() {
   ]);
   // The missions most worth doing now (ready to claim first); all of them,
   // the weekly goals, badges and ranks are on 任務.
-  const next = ms.filter(m => !m.claimed).sort((a, b) => b.done - a.done).slice(0, 3);
+  const next = ms.filter(m => !m.claimed).sort((a, b) => b.done - a.done || a.bonus - b.bonus).slice(0, 3);
   const d = daily();
   // Straight into today's game (the games tab under it, for after).
   const dailyCard = el('button', { class: `q-card pad daily-card${d.done ? ' done' : ''}`, type: 'button', onclick: () => (showTab('games'), games?.open(d.game)) }, [
@@ -804,14 +771,20 @@ function renderMissions() {
   if (!state.wallet) return put(box, el('div', { class: 'center-spin' }, [el('div', { class: 'spinner' })]));
   const ms = missions(state.wallet);
   const st = state.words ? stats(myWords(), state.progress) : null;
-  const claimedN = ms.filter(m => m.claimed).length;
-  const list = el('div', { class: 'q-card list' }, [
-    ...[...ms].filter(m => !m.claimed).sort((a, b) => b.done - a.done).map(missionRow),
-    claimedN ? el('details', { class: 'mission-done' }, [el('summary', { text: t('missionsDone', { n: claimedN }) }), ...ms.filter(m => m.claimed).map(missionRow)]) : null
-  ].filter(Boolean));
+  const list = (items, extra = null) => {
+    const claimedN = items.filter(m => m.claimed).length;
+    return el('div', { class: 'q-card list' }, [
+      extra,
+      ...items.filter(m => !m.claimed).sort((a, b) => b.done - a.done).map(missionRow),
+      claimedN ? el('details', { class: 'mission-done' }, [el('summary', { text: t('missionsDone', { n: claimedN }) }), ...items.filter(m => m.claimed).map(missionRow)]) : null
+    ].filter(Boolean));
+  };
+  const daily = list(ms.filter(m => !m.bonus), streakGoalLine());
+  const bonus = list(ms.filter(m => m.bonus));
   put(
     box,
-    section(t('missions'), list),
+    section(t('missions'), daily),
+    section(t('missionsBonus'), bonus, { sub: t('missionsBonusSub') }),
     el('div', { id: 'level-section' }, [section(t('levelTitle'), levelSection(), { sub: t('levelSub') })]),
     section(t('weekly'), weeklyCard()),
     section(t('badgesTitle'), badgesCard(st), { sub: t('allTime', { v: xp(xpAllTime(withOutbox())) }) }),
@@ -884,10 +857,9 @@ function wordOfDayCard() {
 // This week's goals, claimed like missions.
 function weeklyCard() {
   const goals = weeklyGoals(withOutbox());
-  return el(
-    'div',
-    { class: 'q-card list' },
-    goals.map(g => {
+  return el('div', { class: 'q-card list' }, [
+    el('p', { class: 'streak-goal muted' }, [document.createTextNode(t('weeklyCard'))]),
+    ...goals.map(g => {
       const action = g.claimed
         ? el('span', { class: 'claimed', text: t('claimed') })
         : g.done
@@ -900,7 +872,7 @@ function weeklyCard() {
         action
       ]);
     })
-  );
+  ]);
 }
 const WEEKLY_ICON = { days5: '📆', earn1000: '💵', missions10: '🎯', games10: '🕹️' };
 function claimGoal(id) {
@@ -915,11 +887,21 @@ function claimGoal(id) {
 function streakLine() {
   const w = withOutbox();
   const n = streakDays(w);
+  const today = streakToday(w);
   const next = STREAK.milestones.find(m => m > longestStreakOf(w));
   const gift = next ? AVATARS.find(a => a.streak === next) : null;
   return el('div', { class: `streak-line${n ? ' on' : ''}` }, [
     el('span', { class: 'num', text: n ? t('streakNow', { n, v: Math.round(streakBonus(n) * 100) }) : t('streakNone') }),
+    today.kept ? el('small', { class: 'muted', text: t('streakKept') }) : el('small', { class: 'muted', text: t('streakGoal', { n: today.n, goal: today.goal }) }),
     gift ? el('small', { class: 'muted', text: t('streakNext', { n: next, gift: `${gift.glyph} 🛡️` }) }) : null
+  ]);
+}
+// Today and the streak: daily missions claimed, of the 3 that keep it.
+function streakGoalLine() {
+  const s = streakToday(withOutbox());
+  return el('div', { class: `streak-goal${s.kept ? ' kept' : ''}` }, [
+    el('strong', { class: 'num', text: s.kept ? t('streakKept') : t('streakGoal', { n: s.n, goal: s.goal }) }),
+    s.kept ? null : bar(s.n, s.goal, 'accent')
   ]);
 }
 // The milestones (7, 30, 100 days), reached by the longest streak ever.
@@ -1057,7 +1039,7 @@ function badgesCard(st) {
   ]);
 }
 
-const MISSION_ICON = { words20: '📚', master3: '🏅', game1: '🎮', invest: '📈', match: '🏟️', orbit: '🪐', tour: '🧭', parlay3: '🎫', scratch: '🎟️', quotes: '🔍' };
+const MISSION_ICON = { words20: '📚', words50: '📖', master3: '🏅', hard10: '🎧', perfect: '💯', game1: '🎮', games3: '🕹️', challenge: '📅', invest: '📈', quotes: '🔍', match: '🏟️', matches3: '📺', orbit: '🪐', tour: '🧭', parlay3: '🎫', scratch: '🎟️', lotto: '🎱' };
 
 function ranksCard(current) {
   return el('details', { class: 'q-card list ranks' }, [
@@ -1069,10 +1051,11 @@ function ranksCard(current) {
 }
 
 function goMission(m) {
-  if (m.app === 'vocab') return showTab(m.id === 'game1' ? 'games' : 'words');
+  if (m.id === 'challenge') return showTab('games'), games?.open(daily().game);
+  if (m.app === 'vocab') return showTab(['game1', 'games3'].includes(m.id) ? 'games' : 'words');
   if (m.app === 'stock') return q.go('stock');
   if (m.app === 'match') return q.go('match');
-  if (m.app === 'odds') return q.go('odds', m.id === 'scratch' ? 'lottery' : '');
+  if (m.app === 'odds') return q.go('odds', ['scratch', 'lotto'].includes(m.id) ? 'lottery' : '');
   if (m.app === 'orbit') return q.go('orbit');
   // The tour: the first app not opened today.
   const day = taipeiDay();
@@ -1221,7 +1204,7 @@ function checkNotices() {
   readySeen = new Set([...(readySeen || []), ...ready.map(([id]) => id)]);
   for (const [id, title, pay] of fresh) notify(q, { title: t('noticeReady', { v: xp(pay) }), body: title, tag: id, hash: 'home', kind: 'ready' });
   const risk = streakAtRisk(w);
-  if (risk) notify(q, { title: t('noticeStreak', { n: risk }), body: t('noticeStreakBody'), tag: `streak:${taipeiDay()}`, hash: 'games', kind: 'streak' });
+  if (risk) notify(q, { title: t('noticeStreak', { n: risk }), body: t('noticeStreakBody'), tag: `streak:${taipeiDay()}`, hash: 'missions', kind: 'streak' });
 }
 setInterval(checkNotices, 10 * 60_000);
 
@@ -1233,11 +1216,11 @@ function syncPush() {
   if (!w) return;
   const now = Date.now();
   const n = streakDays(w, now);
-  const played = (w.entries || []).some(e => e.app === 'vocab' && ['words', 'reward', 'game'].includes(e.kind) && taipeiDay(e.t) === taipeiDay(now));
+  const played = streakToday(w, now).kept;
   const eight = day => Date.parse(`${taipeiDay(now + day * 86_400_000)}T20:00:00+08:00`);
   const items = [];
-  if (!played && n > 0 && eight(0) > now) items.push({ at: eight(0), title: t('noticeStreak', { n }), body: t('noticeStreakBody'), tag: `streak:${taipeiDay(now)}`, hash: 'games', kind: 'streak' });
-  for (const day of [1, 2]) items.push({ at: eight(day), title: t('noticeStreakSoon'), body: t('noticeStreakBody'), tag: `streak:${taipeiDay(now + day * 86_400_000)}`, hash: 'games', kind: 'streak' });
+  if (!played && n > 0 && eight(0) > now) items.push({ at: eight(0), title: t('noticeStreak', { n }), body: t('noticeStreakBody'), tag: `streak:${taipeiDay(now)}`, hash: 'missions', kind: 'streak' });
+  for (const day of [1, 2]) items.push({ at: eight(day), title: t('noticeStreakSoon'), body: t('noticeStreakBody'), tag: `streak:${taipeiDay(now + day * 86_400_000)}`, hash: 'missions', kind: 'streak' });
   schedulePush(q, items);
 }
 q.on('wallet', () => setTimeout(syncPush, 2000));

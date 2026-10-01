@@ -5,14 +5,15 @@
 // Every word the person has met has a box (a Leitner box): 0 new, 1 to 3
 // learning, 4 and 5 mastered. A right answer moves it up a box and schedules
 // it later (BOX_DAYS), a wrong one sends it back to box 1, due again today.
-// A new word answered right the first time it's seen is one the person
-// already knows: it goes straight to box 3, so one more right answer on
-// review (two days on) masters it. Only answers that test something move a
-// word up: flash cards (grading yourself) take a new word to box 1 at most.
+// A word moves up at most once a day: mastering takes right answers on
+// different days, so it comes from the person's record, never from one
+// round. A new word answered right the first time it's seen is one the
+// person already knows: it goes straight to box 3, due tomorrow, so one more
+// right answer then masters it. Flash cards (grading yourself) take a new
+// word to box 1 at most.
 //
-// A round mixes due reviews with new words, and asks each word the way that
-// suits its box: new words by meaning, then the reverse, then by sound, then
-// building it from letters, and mastered ones by dictation (hear it, spell it).
+// A round mixes due reviews with new words. Smart mode asks each word a way
+// that suits its box, and spreads a round over all six kinds of question.
 
 export const LEVELS = [1, 2, 3, 4, 5, 6];
 // The word packs sold in the shop (data/packs.json): themed lists that share
@@ -41,7 +42,7 @@ export function addPacks(words, packs) {
   }
   return out;
 }
-export const BOX_DAYS = [0, 0, 1, 2, 5, 14];
+export const BOX_DAYS = [0, 0, 1, 1, 5, 14];
 // A new word right the first time: already known.
 export const KNOWN_BOX = 3;
 export const MASTERED = 4;
@@ -69,14 +70,16 @@ export function stateOf(p) {
 export function grade(p, correct, { type = 'meaning', now = Date.now() } = {}) {
   const was = p || { b: 0, d: 0, n: 0, r: 0, t: 0 };
   const today = dayNum(now);
-  let b;
-  if (!correct) b = 1;
-  else if (type === 'card') b = Math.max(1, was.b);
-  // Known already: right the first time. Asked the hard way (the meaning to
-  // the word, by ear, spelled), that's known well enough to count as mastered.
-  else if (!was.b && !was.n) b = ['word', 'listen', 'letters', 'spell'].includes(type) ? MASTERED : KNOWN_BOX;
-  else b = Math.min(5, (was.b || 0) + 1);
-  const next = { ...was, b, d: today + BOX_DAYS[b], n: (was.n || 0) + 1, r: (was.r || 0) + (correct ? 1 : 0), t: now };
+  // Answered already today (a retry, a second round): no step up today.
+  const again = was.n > 0 && dayNum(was.t) === today;
+  let b, d;
+  if (!correct) (b = 1), (d = today);
+  else if (type === 'card') (b = Math.max(1, was.b || 0)), (d = today + Math.max(again ? 1 : 0, BOX_DAYS[b]));
+  // Known already: right the first time. Checked again tomorrow.
+  else if (!was.b && !was.n) (b = KNOWN_BOX), (d = today + 1);
+  else if (again) (b = Math.max(1, was.b || 0)), (d = Math.max(was.d || 0, today + 1));
+  else (b = Math.min(5, (was.b || 0) + 1)), (d = today + BOX_DAYS[b]);
+  const next = { ...was, b, d, n: (was.n || 0) + 1, r: (was.r || 0) + (correct ? 1 : 0), t: now };
   const firstMastery = b >= MASTERED && !was.m;
   if (firstMastery) next.m = 1;
   return { p: next, firstMastery };
@@ -89,30 +92,43 @@ export function markKnown(p, now = Date.now()) {
   return { ...was, b: 5, d: dayNum(now) + 60, t: now, m: 1 };
 }
 
-// The kind of question a word gets in smart mode, by its box: first its
-// meaning (see the word, pick the meaning), then the reverse (see the
-// meaning, pick the word), then by ear, then building it from its letters,
-// then dictation. A phrase or a long word is never unscrambled (too many
-// tiles for a phone): it's asked by ear, or spelled.
-export function smartType(p, random = Math.random, word = null) {
-  const b = p?.b || 0;
-  const long = word ? /\s/.test(word.word) || word.word.length > 11 : false;
-  // New: by meaning; a harder word (level 4 up) the other way round.
-  if (b === 0) return word && levelRank(word.level) >= 4 && random() < 0.6 ? 'word' : 'meaning';
-  if (b === 1) return p?.n > 1 && random() < 0.5 ? 'word' : 'meaning';
-  if (b === 2) return random() < 0.6 ? 'word' : 'listen';
-  if (b === 3) return long ? 'listen' : random() < 0.6 ? 'letters' : 'listen';
-  return long || random() < 0.7 ? 'spell' : 'letters';
+// The kinds of question that suit a word in smart mode, by its box: a new
+// word by its meaning, the other way round, as a flash card, by ear or from
+// its letters; then harder ones as it's learnt, up to dictation. A phrase or
+// a long word is never unscrambled (too many tiles for a phone).
+export const SMART_TYPES = [
+  ['meaning', 'word', 'card', 'listen', 'letters'],
+  ['meaning', 'word', 'card', 'listen', 'letters'],
+  ['word', 'listen', 'letters', 'spell'],
+  ['listen', 'letters', 'spell', 'word'],
+  ['spell', 'letters', 'listen']
+];
+// Flash cards teach but test nothing (no points): one in about eight questions.
+const TYPE_WEIGHT = { card: 4 };
+export const isLong = word => Boolean(word) && (/\s/.test(word.word) || word.word.length > 11);
+// The kind for this word: of the ones that suit it, the one this round has
+// asked least so far (used: { type: count }), so a round has every kind.
+export function smartType(p, random = Math.random, word = null, used = {}) {
+  let kinds = SMART_TYPES[Math.min(4, p?.b || 0)];
+  if (isLong(word)) kinds = kinds.filter(k => k !== 'letters');
+  let best = null;
+  let low = Infinity;
+  for (const k of kinds) {
+    const score = (used[k] || 0) * (TYPE_WEIGHT[k] || 1) + random() * 0.9;
+    if (score < low) (low = score), (best = k);
+  }
+  return best;
 }
 
-// The words for a round: due reviews first (most overdue, lowest box), then
+// The words for a round: due reviews first (one step from mastered first,
+// then the most overdue, lowest box), then
 // new words in list order, about 60% review when there's enough of it.
 export function pickRound(words, progress, { levels = LEVELS, size = 10, now = Date.now(), random = Math.random, newShare = 0.4 } = {}) {
   const today = dayNum(now);
   const chosen = words.filter(w => inLevels(w, levels));
   const due = chosen
     .filter(w => progress[w.key]?.b && progress[w.key].d <= today)
-    .sort((a, b) => progress[a.key].d - progress[b.key].d || progress[a.key].b - progress[b.key].b || random() - 0.5);
+    .sort((a, b) => (progress[b.key].b === KNOWN_BOX) - (progress[a.key].b === KNOWN_BOX) || progress[a.key].d - progress[b.key].d || progress[a.key].b - progress[b.key].b || random() - 0.5);
   // New words from every chosen level alike, the hardest first (a fixed mixed
   // order within a level, not alphabetical), a little shuffled within the next few.
   const byLevel = [...new Set(chosen.map(w => w.level))].sort((a, b) => levelRank(b) - levelRank(a)).map(l => chosen.filter(w => w.level === l && !progress[w.key]?.b).sort((a, b) => hash(a.key) - hash(b.key)));
