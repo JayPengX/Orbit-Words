@@ -10,9 +10,8 @@ from you. It uses no money and pays none.
 ## What's in it
 
 - **單字 Words**: the 大考中心 high-school English reference list, levels 1
-  to 6 (6,170 words), and three packs (TOEIC, IELTS, Business English), every
-  word recorded in Microsoft's Jenny voice. Rounds of 10, 20 or 30 words;
-  today's goal (20 answers), the streak, the level, the words you forget
+  to 6 (6,170 words), every word recorded in Microsoft's Jenny voice. Rounds
+  of 10, 20 or 30 words, or new words studied as cards and quizzed a batch at a time; today's goal (20 answers), the streak, the level, the words you forget
   most and the word of the day.
 - **Pass**: the Quadra Pass (balance, this month, the statement and every
   setting through the kit's account sheet), Quadra Plus (join, go yearly,
@@ -42,18 +41,27 @@ Hard on purpose: what takes effort to recall is what's remembered.
   first of all a word this person has already mixed this one up with. Two
   options are never both right (no shared meaning term) and never read the
   same.
-- **The kind of question** (`smartType`) goes from recognising (meaning,
-  English, by ear) to producing (unscramble, fill in the missing letters,
-  dictation) as a word is learnt; a word that keeps slipping is asked as if
-  it were two boxes on. A word missed in a round comes back at its end to
-  be written, not picked.
-- **Spaced repetition** (`grade`, `pickRound`): Leitner boxes, due again in
-  1, 3, 7 and 21 days (box 4 is mastered), one box a day at most; a miss
-  sends a word back to box 1, and each lapse (forgotten after it was
-  learnt) shortens its gaps. A round leads with the words missed last time
-  and forgotten most, brings the words they were mixed up with, takes
-  fewer new words when much is due, and never puts two look-alikes side by
-  side.
+- **The kind of question** (`smartType`): every box allows several kinds
+  and a round takes the one it has asked least, so one round goes through
+  them all; recognising (meaning, English, by ear) leads for new words,
+  producing (unscramble, fill in the missing letters, dictation) as a word
+  is learnt; a new word is never dictated, and a word that keeps slipping
+  is asked as if it were two boxes on. A word missed in a round comes back
+  at its end to be written, not picked.
+- **The memory model** (`grade`): FSRS-5 with its published defaults. Each
+  word has a stability (days until recall falls to 90%, when it's due) and
+  a difficulty (1-10). The grade comes from the answer and its time (slow
+  is "hard", a quick typed answer "easy"); a right answer's gain is
+  weighted by how it was asked (dictation 1.1 to picking a meaning 0.55);
+  a miss cuts stability and raises difficulty. The box (1-5) is read from
+  stability; 10 days and up (box 4) is mastered.
+- **A round** (`pickRound`): the words likeliest forgotten by now first,
+  the words they were mixed up with, new words only while fewer than 60
+  are still being learnt (fewer the closer, and fewer when much is due),
+  and never two look-alikes side by side.
+- **Studying** (`toStudy`): new words as cards (word, sound, meaning), the
+  next ones in the same order a round would bring them; a batch (a round's
+  size) unlocks a quiz on it, and the quiz's answers start their schedule.
 - **Points** (`lib/practice.mjs`): 2 XP a right answer, 15 a first mastery,
   read from the progress itself; the level and title from them. A day with
   20 answers keeps the streak; a notice at 20:00 when it's about to end.
@@ -63,7 +71,9 @@ Hard on purpose: what takes effort to recall is what's remembered.
 
 Only this app's payload on the pass (`vocab-progress-sync`): `z3:` + gzip
 base64 of `{ v: 3, w: { word: [box, due day, answers, right, last answer
-(s), mastered once, lapses, [mistaken for]] }, levels, mode, days }`. The
+(s), mastered once, lapses, [mistaken for], stability, difficulty] },
+levels, mode, days, study }` (a row stops after the last part it has;
+`study`: the studied batch waiting for its quiz). The
 only wallet settings it writes are a member's `avatar` and `frame`; it
 writes no wallet entries.
 
@@ -79,10 +89,9 @@ public/
   index.html, app.js (the shell, words, help), hub-ui.js (Pass, Truth, Apps),
   ui.js, styles.css, sw.js, manifest.webmanifest
   data/words.json    [word, part of speech, level, meaning, phonetic]
-  data/packs.json    { toeic | ielts | biz: [[word, part of speech, meaning]] }
   data/audio/*.mp3   a recording of every word (Microsoft's en-US Jenny neural
                      voice; Shared-Proxy/tools/word-audio.py makes missing ones)
-  lib/words.mjs      boxes, rounds, questions and their wrong options, saved progress
+  lib/words.mjs      the memory model, rounds, questions and their wrong options, saved progress
   lib/practice.mjs   points, levels, the day's goal and the streak
   lib/truth.mjs      the house's numbers and the account's own record
   lib/voice.mjs      ranking the device's voices (when a recording is missing)

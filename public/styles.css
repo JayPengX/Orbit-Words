@@ -128,13 +128,16 @@ img { max-width: 100%; }
 .choice.wrong { border-color: var(--loss); background: color-mix(in srgb, var(--loss) 12%, transparent); }
 .choice.dim { opacity: 0.5; }
 .choice:disabled { cursor: default; }
-.slots { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
-.slot { width: 34px; height: 42px; border-radius: 10px; border: 1.5px dashed var(--q-border); display: grid; place-items: center; font-size: 20px; font-weight: 800; }
+/* One row of slots and one of tiles for any word (letters are asked up to
+   11): each column shrinks with the count (--n). */
+.slots, .tiles { display: grid; grid-template-columns: repeat(var(--n), minmax(0, var(--cell))); justify-content: center; gap: min(6px, calc(36px / var(--n))); }
+.slots { --cell: 34px; }
+.tiles { --cell: 44px; }
+.slot { aspect-ratio: 34 / 42; border-radius: min(10px, calc(80px / var(--n))); border: 1.5px dashed var(--q-border); display: grid; place-items: center; font-size: min(20px, calc(150px / var(--n))); font-weight: 800; }
 .slot.filled { border-style: solid; border-color: var(--accent); }
 .slot.right { border-color: var(--win); color: var(--win); }
 .slot.wrong { border-color: var(--loss); color: var(--loss); }
-.tiles { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-.tile { width: 44px; height: 48px; border-radius: 12px; border: 0; background: var(--accent); color: var(--accent-ink); font-size: 20px; font-weight: 800; box-shadow: 0 3px 0 color-mix(in srgb, var(--accent) 60%, #000); }
+.tile { aspect-ratio: 44 / 48; min-width: 0; padding: 0; border-radius: min(12px, calc(90px / var(--n))); border: 0; background: var(--accent); color: var(--accent-ink); font-size: min(20px, calc(170px / var(--n))); font-weight: 800; box-shadow: 0 3px 0 color-mix(in srgb, var(--accent) 60%, #000); }
 .tile:disabled { opacity: 0.15; box-shadow: none; }
 .spell-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
 .spell-input { min-width: 0; font: 700 20px/1.2 var(--q-font); padding: 12px 14px; border-radius: 14px; border: 1.5px solid var(--q-border); background: var(--q-surface); color: var(--q-text); letter-spacing: 0.03em; }
@@ -295,3 +298,10 @@ img { max-width: 100%; }
 .app-last { white-space: nowrap; }
 .app-status { font-size: 13px; color: var(--q-text-2); }
 .pass-guide { margin-top: 18px; }
+
+/* Studying new words: one card at a time, the whole meaning. */
+.study-card .q-btn { margin-top: 12px; }
+.study-word { display: grid; gap: 8px; text-align: center; justify-items: center; padding-block: 28px; }
+.study-word .word.big { font-size: clamp(28px, 9vw, 40px); }
+.study-meaning { white-space: pre-line; font-size: 17px; line-height: 1.6; }
+.study-nav { margin-top: 12px; }

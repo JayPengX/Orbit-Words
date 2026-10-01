@@ -1,6 +1,6 @@
 // Words: the high-school English reference list (大考中心, 108 curriculum),
-// levels 1 to 6, the word packs, and how Quadra Hub teaches them. Pure
-// functions (no DOM), so they're tested directly.
+// levels 1 to 6, and how Quadra Hub teaches them. Pure functions (no DOM),
+// so they're tested directly.
 //
 // Learning is meant to be hard, because what's hard to recall is what's
 // remembered ("desirable difficulty"):
@@ -9,61 +9,33 @@
 //     something close (能力 / 才能), the same part of speech and shape, and
 //     above all a word this person has already mixed this one up with
 //     (`distractors`). Two options are never both right.
-//   - Each word is asked in the hardest way it's ready for: recognising it
-//     (English to meaning, meaning to English, by ear), then producing it
-//     (unscrambling, filling in its missing letters, dictation) as it's
-//     learnt (`smartType`).
-//   - Spaced repetition with lapses (`grade`, `pickRound`): Leitner boxes,
-//     due again later the better a word is known, back to the first box when
-//     it's missed, and sooner every time it's forgotten again. A round leads
-//     with the words missed and forgotten most, adds the words they were
-//     confused with, and keeps confusable words apart in the round.
+//   - Each word is asked in a way it's ready for, and a round mixes every
+//     way: recognising it (English to meaning, meaning to English, by ear)
+//     and producing it (unscrambling, filling in its missing letters,
+//     dictation), producing more the better it's known (`smartType`).
+//   - A memory model per word (`grade`, FSRS, the scheduler Anki uses): how
+//     long it stays remembered (stability, in days) and how hard it is for
+//     this person (difficulty, 1 to 10). A word comes back when the chance
+//     of still knowing it falls to 90%. Recalling it late in that time
+//     counts more than recalling it fresh; writing it counts more than
+//     picking it; a quick answer more than a slow one; missing it cuts its
+//     stability and makes it harder for good.
+//   - A round leads with the words most likely forgotten by now, adds the
+//     words they were confused with, keeps confusable words apart, and adds
+//     new words only while the words still being learnt are few enough to
+//     hold (`pickRound`).
+//   - New words can be studied first, as cards (`toStudy`): a batch of them,
+//     then a quiz on just that batch.
 //
-// A word's progress (the payload's `w`): { b box, d due day, n answers,
-// r right, t last answer (ms), m mastered once, l lapses, c [keys it was
-// mistaken for, latest first] }.
+// A word's progress (the payload's `w`): { s stability (days), D difficulty,
+// b box (from s: 1 to 5), d due day, n answers, r right, t last answer (ms),
+// m mastered once, l lapses, c [keys it was mistaken for, latest first] }.
 
 export const LEVELS = [1, 2, 3, 4, 5, 6];
-// Themed lists (data/packs.json) that share progress with the main list's
-// words and add the rest, their level the pack's id.
-export const PACK_IDS = ['toeic', 'ielts', 'biz'];
-// How hard a level is (a pack counts as level 5).
-export const levelRank = level => (typeof level === 'number' ? level : 5);
-// A word is in the chosen levels by its level, or by a pack it's in.
-export const inLevels = (w, levels) => levels.includes(w.level) || Boolean(w.packs?.some(p => levels.includes(p)));
-// The main list with the packs added: { pack: [[word, pos, zh], …] }.
-export function addPacks(words, packs) {
-  const out = words.map(w => ({ ...w }));
-  const byKey = new Map(out.map(w => [w.key, w]));
-  for (const id of PACK_IDS) {
-    for (const [word, pos, zh] of packs?.[id] || []) {
-      const key = keyOf(word);
-      const had = byKey.get(key);
-      if (had) had.packs = [...new Set([...(had.packs || []), id])];
-      else {
-        const w = { i: out.length, word, key, pos, level: id, zh, ph: '', packs: [id] };
-        out.push(w);
-        byKey.set(key, w);
-      }
-    }
-  }
-  return out;
-}
-
-// Days until a word in each box is asked again (box 0 is new). Box 4 and up
-// is mastered: a week, then three.
-export const BOX_DAYS = [0, 0, 1, 3, 7, 21];
-// A new word right the first time: already known, checked again tomorrow.
-export const KNOWN_BOX = 3;
-export const MASTERED = 4;
-// Each time a word is forgotten again (a lapse: missed after it had been
-// learnt), its gaps shrink by this much more, so a word that keeps slipping
-// keeps coming back.
-const LAPSE_SHRINK = 0.5;
-// How many mix-ups are remembered per word.
-const CONFUSED_KEEP = 4;
 // Which study modes a person can choose; 'smart' picks per word.
 export const MODES = ['smart', 'meaning', 'word', 'listen', 'letters', 'cloze', 'spell'];
+// How many mix-ups are remembered per word.
+const CONFUSED_KEEP = 4;
 const DAY = 86_400_000;
 const TPE = 8 * 3_600_000;
 
@@ -76,38 +48,89 @@ export function loadWords(rows) {
   return rows.map(([word, pos, level, zh, ph], i) => ({ i, word, key: keyOf(word), pos, level, zh, ph: ph || '' }));
 }
 
+// ---- The memory model --------------------------------------------------------------------
+//
+// FSRS-5's published defaults (open-spaced-repetition). R(t) = (1 + F·t/S)^C:
+// the chance of recalling a word t days after its last answer; at t = S it's
+// 90%, the retention asked for, so a word is due again S days on.
+const FSRS = [0.40255, 1.18385, 3.173, 15.69105, 7.1949, 0.5345, 1.4604, 0.0046, 1.54575, 0.1192, 1.01925, 1.9395, 0.11, 0.29605, 2.2698, 0.2315, 2.9898, 0.51655, 0.6621];
+const DECAY = -0.5;
+const FACTOR = 19 / 81;
+export const retrievability = (days, s) => (1 + (FACTOR * Math.max(0, days)) / Math.max(0.01, s)) ** DECAY;
+// How much a right answer is worth by how it was asked: recall from nothing
+// (dictation) proves the most, picking from four the least.
+export const TYPE_WEIGHT = { meaning: 0.55, word: 0.7, listen: 0.75, letters: 0.85, cloze: 0.95, spell: 1.1 };
+// Grades, as FSRS has them: 1 missed, 2 right but slow, 3 right, 4 right and quick.
+// Quick and slow, by how it was asked (ms): a choice, or per letter typed.
+export function gradeOf(correct, type, ms, word = '') {
+  if (!correct) return 1;
+  if (!(ms > 0)) return 3;
+  const choice = type === 'meaning' || type === 'word' || type === 'listen';
+  const slow = choice ? 9_000 : 6_000 + 900 * word.length;
+  const quick = choice ? 2_500 : 1_500 + 350 * word.length;
+  return ms > slow ? 2 : ms < quick && !choice ? 4 : 3;
+}
+// Stability to box: 1 (under 2 days) to 5 (a month or more); box 4 and up
+// is mastered (remembered for more than ten days).
+const BOX_FROM = [0, 2, 4, 10, 30];
+export const MASTERED = 4;
+export const boxOf = s => (s >= BOX_FROM[4] ? 5 : s >= BOX_FROM[3] ? 4 : s >= BOX_FROM[2] ? 3 : s >= BOX_FROM[1] ? 2 : 1);
+const clampD = d => Math.min(10, Math.max(1, d));
+const initD = g => clampD(FSRS[4] - Math.exp(FSRS[5] * (g - 1)) + 1);
+// Progress saved before the model: its stability and difficulty from its box and lapses.
+const OLD_S = [0, 0.5, 1, 3, 7, 21];
+const sOf = p => p.s ?? OLD_S[Math.min(5, p.b || 0)] / (1 + 0.5 * (p.l || 0));
+const dOf = p => p.D ?? clampD(5 + (p.l || 0));
+
 export function stateOf(p) {
   if (!p || !p.b) return 'new';
   return p.b >= MASTERED ? 'mastered' : 'learning';
 }
 
-// The gap after a right answer that puts a word in box `b`, with its lapses.
-export const gapDays = (b, lapses = 0) => (BOX_DAYS[b] ? Math.max(1, Math.round(BOX_DAYS[b] / (1 + LAPSE_SHRINK * lapses))) : 0);
-
-// One answer. `chose`: the word picked instead, on a wrong answer to a
-// choice. Returns the word's new progress and whether this answer mastered
-// it for the first time.
-export function grade(p, correct, { now = Date.now(), chose = null } = {}) {
+// One answer. `type`: how it was asked; `ms`: how long it took; `chose`:
+// the word picked instead, on a wrong answer. Returns the word's new
+// progress and whether this answer mastered it for the first time.
+export function grade(p, correct, { now = Date.now(), chose = null, type = 'meaning', ms = 0, word = '' } = {}) {
   const was = p || { b: 0, d: 0, n: 0, r: 0, t: 0 };
   const today = dayNum(now);
-  // Answered already today (a retry, a second round): no step up today.
-  const again = was.n > 0 && dayNum(was.t) === today;
+  const g = gradeOf(correct, type, ms, word);
+  const weight = TYPE_WEIGHT[type] ?? 1;
   const next = { ...was, n: (was.n || 0) + 1, r: (was.r || 0) + (correct ? 1 : 0), t: now };
+  let s;
+  let D;
+  if (!was.n && !was.b) {
+    // First sight: stability by the grade, and a right pick proves less.
+    s = FSRS[g - 1] * (correct ? weight : 1);
+    D = initD(g);
+  } else {
+    const s0 = sOf(was);
+    const d0 = dOf(was);
+    const elapsed = Math.max(0, (now - (was.t || now)) / DAY);
+    D = clampD(FSRS[7] * initD(4) + (1 - FSRS[7]) * (d0 - FSRS[6] * (g - 3) * ((10 - d0) / 9)));
+    if (elapsed < 1) {
+      // Asked again the same day: a small change either way.
+      s = s0 * Math.exp(FSRS[17] * (g - 3 + FSRS[18]));
+      if (correct) s = Math.min(Math.max(s0, s), s0 + 1);
+    } else {
+      const R = retrievability(elapsed, s0);
+      if (correct) {
+        const gain = Math.exp(FSRS[8]) * (11 - D) * s0 ** -FSRS[9] * (Math.exp(FSRS[10] * (1 - R)) - 1) * (g === 2 ? FSRS[15] : 1) * (g === 4 ? FSRS[16] : 1);
+        s = s0 * (1 + gain * weight);
+      } else {
+        s = Math.min(s0, FSRS[11] * D ** -FSRS[12] * ((s0 + 1) ** FSRS[13] - 1) * Math.exp(FSRS[14] * (1 - R)));
+      }
+    }
+  }
+  s = Math.max(0.1, Math.min(3650, s));
+  next.s = Math.round(s * 100) / 100;
+  next.D = Math.round(D * 100) / 100;
+  next.b = boxOf(next.s);
+  // Missed: due again today; else when it's 90% likely still known.
+  next.d = correct ? today + Math.max(1, Math.round(next.s)) : today;
   if (!correct) {
-    next.b = 1;
-    next.d = today;
     // Forgotten after it had been learnt: a lapse.
     if ((was.b || 0) >= 2) next.l = (was.l || 0) + 1;
     if (chose) next.c = [chose, ...(was.c || []).filter(k => k !== chose)].slice(0, CONFUSED_KEEP);
-  } else if (!was.b && !was.n) {
-    next.b = KNOWN_BOX;
-    next.d = today + 1;
-  } else if (again) {
-    next.b = Math.max(1, was.b || 0);
-    next.d = Math.max(was.d || 0, today + 1);
-  } else {
-    next.b = Math.min(5, (was.b || 0) + 1);
-    next.d = today + gapDays(next.b, was.l || 0);
   }
   const firstMastery = next.b >= MASTERED && !was.m;
   if (firstMastery) next.m = 1;
@@ -118,26 +141,25 @@ export function grade(p, correct, { now = Date.now(), chose = null } = {}) {
 // for two months.
 export function markKnown(p, now = Date.now()) {
   const was = p || { b: 0, d: 0, n: 0, r: 0, t: 0 };
-  return { ...was, b: 5, d: dayNum(now) + 60, t: now, m: 1 };
+  return { ...was, s: 60, D: 2, b: 5, d: dayNum(now) + 60, t: now, m: 1 };
 }
 
 // ---- How a word is asked -----------------------------------------------------------
 //
-// By its box, from recognising to producing it: a new word by its meaning,
-// the other way round or by ear; then from its letters and with letters
-// missing; a known one by dictation. A word that keeps slipping (lapses)
-// is asked the harder way too: recognising it isn't the problem.
+// Smart mode, per word by its box: from recognising to producing it. Every
+// box has several ways, and a round takes the one it has asked least so
+// far, so one round goes through all of them. A word that keeps slipping
+// (lapses) is asked as if it were further on: recognising it isn't the
+// problem. A new word is never dictated (it was never heard).
 export const SMART_TYPES = [
-  ['meaning', 'word', 'listen'],
-  ['meaning', 'word', 'listen', 'letters'],
-  ['word', 'listen', 'letters', 'cloze'],
-  ['listen', 'cloze', 'spell', 'word'],
-  ['cloze', 'spell'],
+  ['meaning', 'word', 'listen', 'letters', 'cloze'],
+  ['word', 'listen', 'letters', 'cloze', 'spell', 'meaning'],
+  ['listen', 'letters', 'cloze', 'spell', 'word'],
+  ['letters', 'cloze', 'spell', 'listen'],
+  ['cloze', 'spell', 'letters'],
   ['spell', 'cloze']
 ];
 export const isLong = word => Boolean(word) && (/\s/.test(word.word) || word.word.length > 11);
-// The kind for this word: of the ones that suit it, the one this round has
-// asked least so far (used: { type: count }), so a round mixes them.
 export function smartType(p, random = Math.random, word = null, used = {}) {
   const box = Math.min(5, (p?.b || 0) + Math.min(2, p?.l || 0));
   let kinds = SMART_TYPES[box];
@@ -154,31 +176,36 @@ export function smartType(p, random = Math.random, word = null, used = {}) {
 
 // ---- A round ---------------------------------------------------------------------------
 //
-// Due words first, the weakest first: the ones missed last time (box 1),
-// then the ones forgotten most (lapses), then the most overdue. New words
-// fill the rest, fewer when much is waiting. A word due that was mixed up
-// with another brings that one along, so the two are told apart side by
-// side. Then the round is ordered so words that look alike aren't asked
-// one after the other (interleaved, never blocked).
-export function pickRound(words, progress, { levels = LEVELS, size = 10, now = Date.now(), random = Math.random } = {}) {
+// Due words first, the likeliest forgotten first (lowest chance of recall
+// now; a word missed last time is lowest). New words fill the rest while
+// the words still being learnt (box 1 and 2) are few enough to hold: none
+// past HOLD, fewer the closer it is, and fewer when much is due. A word due
+// that was mixed up with another brings that one along, so the two are told
+// apart side by side. Then the round is ordered so words that look alike
+// aren't asked one after the other (interleaved, never blocked).
+// `skip`: words not to bring in new (a studied batch waiting for its quiz).
+const HOLD = 60;
+export function pickRound(words, progress, { levels = LEVELS, size = 10, now = Date.now(), random = Math.random, skip = new Set() } = {}) {
   const today = dayNum(now);
-  const chosen = words.filter(w => inLevels(w, levels));
+  const chosen = words.filter(w => levels.includes(w.level));
   const byKey = new Map(chosen.map(w => [w.key, w]));
-  const weakness = w => {
+  // The chance of recall a day on at least (so a word missed an hour ago,
+  // its stability cut, still ranks as the likeliest forgotten).
+  const recall = w => {
     const p = progress[w.key];
-    return (p.b === 1 ? 100 : 0) + 10 * (p.l || 0) + Math.min(30, today - p.d) - p.b;
+    return retrievability(Math.max(1, (now - (p.t || 0)) / DAY), sOf(p));
   };
-  const due = chosen.filter(w => progress[w.key]?.b && progress[w.key].d <= today).sort((a, b) => weakness(b) - weakness(a) || random() - 0.5);
-  // New words from every chosen level alike, the hardest first (a fixed mixed
-  // order within a level), a little shuffled within the next few.
-  const byLevel = [...new Set(chosen.map(w => w.level))].sort((a, b) => levelRank(b) - levelRank(a)).map(l => chosen.filter(w => w.level === l && !progress[w.key]?.b).sort((a, b) => hash(a.key) - hash(b.key)));
-  const fresh = [];
-  for (let i = 0; fresh.length < 60 && byLevel.some(list => i < list.length); i++) for (const list of byLevel) if (i < list.length) fresh.push(list[i]);
-  const window = fresh.sort(() => random() - 0.5);
-  // New words: 40% of a round, 20% when more than two rounds are due.
-  const newShare = due.length > size * 2 ? 0.2 : 0.4;
+  const seen = chosen.filter(w => progress[w.key]?.b);
+  const ranked = seen.map(w => [recall(w) + random() * 0.01, w]).sort((a, b) => a[0] - b[0]).map(x => x[1]);
+  const due = ranked.filter(w => progress[w.key].d <= today);
+  const learning = seen.filter(w => progress[w.key].b <= 2).length;
+  // New words, a little shuffled within the next few.
+  const window = toStudy(words, progress, { levels, n: 60, skip }).sort(() => random() - 0.5);
+  // New words: up to 40% of a round, less as the words being learnt pile up
+  // and when more than two rounds are due.
+  const newShare = Math.max(0, (due.length > size * 2 ? 0.2 : 0.4) * (1 - learning / HOLD));
   let dueCount = Math.min(due.length, window.length ? Math.round(size * (1 - newShare)) : size);
-  const newCount = Math.min(window.length, size - dueCount);
+  const newCount = Math.min(window.length, size - dueCount, learning >= HOLD ? 0 : size);
   dueCount = Math.min(due.length, size - newCount);
   const round = due.slice(0, dueCount);
   const inRound = new Set(round.map(w => w.key));
@@ -191,8 +218,21 @@ export function pickRound(words, progress, { levels = LEVELS, size = 10, now = D
     }
   }
   for (const w of window) if (round.length < dueCount + newCount && !inRound.has(w.key)) (round.push(w), inRound.add(w.key));
+  // Nothing due and no room for new words: the ones slipping most.
+  for (const w of ranked) if (round.length < Math.min(size, dueCount + newCount || size) && !inRound.has(w.key)) (round.push(w), inRound.add(w.key));
   return spread(round.sort(() => random() - 0.5));
 }
+// The next `n` new words: from every chosen level alike, the hardest level
+// first, in a fixed mixed order within a level (the same words each time
+// until they're learnt). `skip`: ones already taken.
+export function toStudy(words, progress, { levels = LEVELS, n = 10, skip = new Set() } = {}) {
+  const chosen = words.filter(w => levels.includes(w.level) && !progress[w.key]?.b && !skip.has(w.key));
+  const byLevel = [...new Set(chosen.map(w => w.level))].sort((a, b) => b - a).map(l => chosen.filter(w => w.level === l).sort((a, b) => hash(a.key) - hash(b.key)));
+  const out = [];
+  for (let i = 0; out.length < n && byLevel.some(list => i < list.length); i++) for (const list of byLevel) if (i < list.length && out.length < n) out.push(list[i]);
+  return out;
+}
+
 // Reorders a list so no two neighbours look alike, where it can: each next
 // word is one that doesn't look like the one before, the ones with the most
 // look-alikes still left first (so they aren't all that's left at the end).
@@ -380,10 +420,10 @@ export function spellDiff(typed, word) {
 export function stats(words, progress, now = Date.now()) {
   const today = dayNum(now);
   const out = { all: { total: 0, seen: 0, learning: 0, mastered: 0, due: 0 } };
-  for (const l of [...LEVELS, ...PACK_IDS]) out[l] = { total: 0, seen: 0, learning: 0, mastered: 0, due: 0 };
+  for (const l of LEVELS) out[l] = { total: 0, seen: 0, learning: 0, mastered: 0, due: 0 };
   for (const w of words) {
     const p = progress[w.key];
-    for (const s of new Set([out[w.level], ...(w.packs || []).map(id => out[id]), out.all])) {
+    for (const s of [out[w.level], out.all]) {
       s.total++;
       if (p?.b) {
         s.seen++;
@@ -402,27 +442,29 @@ export const hardest = (words, progress, n = 5) =>
 // ---- Saved progress (this app's payload on the pass) ------------------------------
 //
 // { v: 3, w: { word: [box, due day, answers, right, last answer (s),
-//   mastered once, lapses, [mistaken for]] }, levels, mode, days }
+//   mastered once, lapses, [mistaken for], stability, difficulty] }, levels,
+//   mode, days, study } (a row stops after the last part it has; `study`:
+//   the studied batch waiting for its quiz)
 // (`days`: answers per Taiwan day, practice.mjs). The app gzips it.
-export function packProgress({ progress, levels, mode, days = {} }) {
+export function packProgress({ progress, levels, mode, days = {}, study = [] }) {
   const w = {};
   for (const [k, p] of Object.entries(progress)) {
-    const row = [p.b || 0, p.d || 0, p.n || 0, p.r || 0, Math.round((p.t || 0) / 1000), p.m ? 1 : 0];
-    if (p.l || p.c?.length) row.push(p.l || 0);
-    if (p.c?.length) row.push(p.c);
+    const row = [p.b || 0, p.d || 0, p.n || 0, p.r || 0, Math.round((p.t || 0) / 1000), p.m ? 1 : 0, p.l || 0, p.c || [], p.s ?? null, p.D ?? null];
+    while (row.length > 6 && (row.at(-1) === null || row.at(-1) === 0 || (Array.isArray(row.at(-1)) && !row.at(-1).length))) row.pop();
     w[k] = row;
   }
-  return { v: 3, w, levels, mode, days };
+  return { v: 3, w, levels, mode, days, study };
 }
 export function unpackProgress(obj) {
   if (obj?.v !== 3 || !obj.w) return null;
   const progress = {};
-  for (const [k, a] of Object.entries(obj.w)) progress[k] = { b: a[0], d: a[1], n: a[2], r: a[3], t: a[4] * 1000, ...(a[5] ? { m: 1 } : {}), ...(a[6] ? { l: a[6] } : {}), ...(Array.isArray(a[7]) && a[7].length ? { c: a[7] } : {}) };
+  for (const [k, a] of Object.entries(obj.w)) progress[k] = { b: a[0], d: a[1], n: a[2], r: a[3], t: a[4] * 1000, ...(a[5] ? { m: 1 } : {}), ...(a[6] ? { l: a[6] } : {}), ...(Array.isArray(a[7]) && a[7].length ? { c: a[7] } : {}), ...(a[8] > 0 ? { s: a[8] } : {}), ...(a[9] > 0 ? { D: a[9] } : {}) };
   return {
     progress,
-    levels: Array.isArray(obj.levels) && obj.levels.length ? obj.levels.filter(l => LEVELS.includes(l) || PACK_IDS.includes(l)) : null,
+    levels: Array.isArray(obj.levels) && obj.levels.some(l => LEVELS.includes(l)) ? obj.levels.filter(l => LEVELS.includes(l)) : null,
     mode: MODES.includes(obj.mode) ? obj.mode : null,
-    days: obj.days && typeof obj.days === 'object' ? obj.days : {}
+    days: obj.days && typeof obj.days === 'object' ? obj.days : {},
+    study: Array.isArray(obj.study) ? obj.study.filter(k => typeof k === 'string') : []
   };
 }
 

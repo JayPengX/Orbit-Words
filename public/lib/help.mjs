@@ -281,17 +281,17 @@ export const HELP = {
         'Quadra 的相關 App：練單字的地方，也是你的 Quadra Pass 和 Quadra Plus 的管理中心，還告訴你 Quadra 的錢怎麼流、莊家和券商怎麼從你身上賺錢。所有 App 的說明也在這裡。Hub 不用錢，也不發錢。'
       ]],
       ['tabs', '每個分頁', [
-        '「單字」：選級別或單字包和學習方式，開始一輪；看今天的目標、連續天數、等級和最常忘的字。',
+        '「單字」：選級別和學習方式，開始一輪，或先背新字再測驗；看今天的目標、連續天數、等級和最常忘的字。',
         '「Pass」：帳戶、Quadra Plus（加入、續訂、取消）、會員的頭像與頭像框、裝置和安全。',
         '「真相」：錢從哪裡來、Play 的莊家優勢、彩券和刮刮樂的回本率、免費投注和 VIP 回饋的真正價值、Plus 為什麼存在、交易成本和透支，都用真實數字和你自己的紀錄算。',
         '「App」：每個 Quadra App 在做什麼、你上次什麼時候用、打開它或看它的說明。',
         '右上角的「?」：每個 Quadra App 的說明（就是這裡）。'
       ]],
       ['words', '背單字', [
-        '大考中心高中英文參考詞彙第 1 到 6 級，共 6,170 字，加上多益、雅思、商務英文三個單字包，每個字都有真人發音錄音（Microsoft Jenny）。每一輪 10、20 或 30 個字，混合該複習的字和新字；答錯的字會在這一輪最後再問一次。',
+        '大考中心高中英文參考詞彙第 1 到 6 級，共 6,170 字，每個字都有真人發音錄音（Microsoft Jenny）。每一輪 10、20 或 30 個字，混合該複習的字和新字；答錯的字會在這一輪最後再問一次。「背新字」一張一張看新字（發音、意思），背滿一批（一輪的字數）就考這批字，考完之後照記憶模型排複習。',
         '題目故意出得難，因為想得辛苦才記得住：錯的選項都是最容易選錯的字：拼法幾乎一樣的（adapt、adopt、adept）、意思很接近的、同詞性同長度的，還有你以前搞混過的那個字；不會出兩個都對的選項。',
-        '「智慧」模式依熟練度出題：新字先認（選意思、選英文、聽音選字），學過的字要自己寫出來（拼字母、填空、聽寫）；常忘的字直接考難的。',
-        '答對升一格、答錯回第一格，第 4 格算「精熟」，之後 1、3、7、21 天後再複習；一個字一天最多升一格。每忘一次，它回來的間隔就縮短。每一輪先排上次答錯和最常忘的字，把你搞混過的字排在同一輪讓你分辨，長得像的字不會連著出。'
+        '「智慧」模式一輪裡輪流出每一種題型：新字多半是認（選意思、選英文、聽音選字），也會拼字母和填空；越熟越要自己寫出來（填空、聽寫）；常忘的字直接考難的。新字不會考聽寫。',
+        '每個字有自己的記憶模型（FSRS，Anki 用的排程）：記得多穩（天數）和對你多難。算出還記得的機率掉到 90% 時，它就該複習。隔越久還答對、用寫的答對、答得快，下次就隔越久；選擇題答對、答得慢，加得少；答錯會大幅縮短，這個字也會被記成比較難。記得超過 10 天算「精熟」。每一輪先考最可能已經忘的字，把你搞混過的字排在同一輪讓你分辨，長得像的字不會連著出；還在學的字太多時，就先不加新字。'
       ]],
       ['goal', '每日目標與等級', [
         '一天回答 20 題就達成今天的目標，連續天數 +1；開啟通知後，晚上 8 點還沒達成會提醒你。',
@@ -311,17 +311,17 @@ export const HELP = {
         'Quadra’s related app for learning words, and the place to manage your Quadra Pass and Quadra Plus. It also shows how money moves in Quadra and how the house and the broker earn from you. Every app’s guide lives here too. Hub uses no money and pays none.'
       ]],
       ['tabs', 'The tabs', [
-        'Words: pick levels or word packs and a way to learn, and start a round; today’s goal, your streak, your level and the words you forget most.',
+        'Words: pick levels and a way to learn, and start a round, or study new words first and take a quiz on them; today’s goal, your streak, your level and the words you forget most.',
         'Pass: your account, Quadra Plus (join, renew, stop), a member’s avatar and frame, devices and security.',
         'Truth: where your money comes from, Play’s house edge, what lottery tickets and scratch cards pay back, what free bets and VIP cashback are really worth, why Plus exists, trading costs and overdrafts, in real numbers and your own record.',
         'Apps: what each Quadra app is for, when you last used it, open it or read its guide.',
         'The ? at the top right: every Quadra app’s guide (this page).'
       ]],
       ['words', 'Words', [
-        'The high-school English reference list, levels 1 to 6: 6,170 words, and the TOEIC, IELTS and Business English packs, each word recorded (Microsoft’s Jenny voice). A round is 10, 20 or 30 words, reviews and new ones mixed; a missed word comes back once at the end of the round.',
+        'The high-school English reference list, levels 1 to 6: 6,170 words, each recorded (Microsoft’s Jenny voice). A round is 10, 20 or 30 words, reviews and new ones mixed; a missed word comes back once at the end of the round. Study new words shows them card by card (sound and meaning); a full batch (a round’s size) unlocks a quiz on just those words, and from then on they’re scheduled like the rest.',
         'Questions are hard on purpose, because what takes effort to recall is what you remember: every wrong option is the one you’re most likely to pick: spelt almost the same (adapt, adopt, adept), close in meaning, the same part of speech and length, and the word you’ve mixed it up with before. Two options are never both right.',
-        'Smart mode asks by how well you know a word: a new one you recognise (its meaning, from its meaning, by ear), a learnt one you produce (unscramble, fill in the missing letters, dictation); a word you keep forgetting goes straight to the hard kinds.',
-        'Right moves a word up a box, wrong back to box 1; box 4 is mastered, and words come back after 1, 3, 7 and 21 days, one box a day at most. Each time a word is forgotten again it comes back sooner. A round leads with what you missed last time and forget most, puts words you’ve mixed up side by side to tell them apart, and never asks two look-alikes in a row.'
+        'Smart mode takes every kind of question in turn in a round: a new word mostly to recognise (its meaning, from its meaning, by ear), unscrambled or with letters missing too; the better you know it, the more you write it (missing letters, dictation); a word you keep forgetting goes straight to the hard kinds. A new word is never dictated.',
+        'Each word has its own memory model (FSRS, the scheduler Anki uses): how long it stays remembered and how hard it is for you. It comes back when the chance you still know it falls to 90%. Recalled after a longer gap, written rather than picked, or answered quickly, it comes back later; picked or slow, a little later; missed, much sooner, and it counts as harder from then on. Remembered for more than 10 days is mastered. A round leads with the words you’re likeliest to have forgotten, puts words you’ve mixed up side by side, never asks two look-alikes in a row, and holds back new words while too many are still being learnt.'
       ]],
       ['goal', 'Daily goal and levels', [
         'Answer 20 questions in a day to meet the day’s goal and grow your streak; with notices on, you’re reminded at 8 pm if you haven’t.',

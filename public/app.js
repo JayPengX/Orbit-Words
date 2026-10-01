@@ -1,11 +1,11 @@
 // Quadra Hub: a related add-on of Quadra. Words to learn (the high-school
-// list, levels 1 to 6, and three packs), the Quadra Pass and Quadra Plus to
+// list, levels 1 to 6), the Quadra Pass and Quadra Plus to
 // manage, the truth about how Quadra's money moves, and every app a tap
 // away, with its guide. It uses no money: the word progress is its own
 // payload on the pass, and the only wallet setting it writes is a member's
 // avatar and frame.
 import { quadraSession, tabBar, topActions, installGate, watchUpdates, settingPatch, schedulePush, notify, APPS } from './lib/quadra.mjs';
-import { LEVELS, PACK_IDS, addPacks, levelRank, MODES, loadWords, pickRound, smartType, markKnown, makeQuestion, grade, sameWord, spellDiff, stats, stateOf, packProgress, unpackProgress, mergeProgress, shortMeaning, wordOfDay, clozeText, hardest, keyOf } from './lib/words.mjs';
+import { LEVELS, MODES, loadWords, pickRound, toStudy, smartType, markKnown, makeQuestion, grade, sameWord, spellDiff, stats, stateOf, packProgress, unpackProgress, mergeProgress, shortMeaning, wordOfDay, clozeText, hardest, keyOf } from './lib/words.mjs';
 import { xpOf, answerXp, xpText, levelOf, DAILY_GOAL, logAnswer, mergeDays, todayCount, streakOf, bestStreak, streakAtRisk, lastDays, taipeiDay } from './lib/practice.mjs';
 import { HELP_ORDER, helpFor, parseHelpHash } from './lib/help.mjs';
 import { pickVoice } from './lib/voice.mjs';
@@ -31,6 +31,9 @@ const state = {
   size: 10,
   loaded: false,
   round: null,
+  // New words studied as cards, waiting for their quiz (keys).
+  study: [],
+  studying: null,
   help: { app: 'pass', topic: null }
 };
 
@@ -59,7 +62,7 @@ async function decodePayload(payload) {
     return null;
   }
 }
-const encodePayload = async () => `z3:${await gzipB64(JSON.stringify(packProgress({ progress: state.progress, levels: state.levels, mode: state.mode, days: state.days })))}`;
+const encodePayload = async () => `z3:${await gzipB64(JSON.stringify(packProgress({ progress: state.progress, levels: state.levels, mode: state.mode, days: state.days, study: state.study })))}`;
 
 // Another copy of the progress (the pass's, or one a merge brought in): per word the newest.
 function absorb(decoded) {
@@ -68,6 +71,7 @@ function absorb(decoded) {
   state.days = mergeDays(state.days, decoded.days);
   if (decoded.levels && !state.levelsTouched) state.levels = decoded.levels;
   if (decoded.mode) state.mode = decoded.mode;
+  state.study = [...new Set([...state.study, ...decoded.study])];
 }
 
 // ---- Sync: the payload and a member's looks, one write at a time ----------------------------
@@ -104,12 +108,11 @@ document.addEventListener('visibilitychange', () => document.visibilityState ===
 // ---- Words ----------------------------------------------------------------------------------
 
 async function loadWordList() {
-  const [main, packs] = await Promise.all([fetch(`./data/words.json?v=${VERSION}`).then(r => r.json()), fetch(`./data/packs.json?v=${VERSION}`).then(r => r.json())]);
-  state.words = addPacks(loadWords(main), packs);
+  state.words = loadWords(await fetch(`./data/words.json?v=${VERSION}`).then(r => r.json()));
   state.byKey = new Map(state.words.map(w => [w.key, w]));
 }
-// A level's name: 第 3 級, or a pack's name.
-const levelName = l => (typeof l === 'number' ? t('level', { n: l }) : t(`pack_${l}`));
+// A level's name: 第 3 級.
+const levelName = l => t('level', { n: l });
 const joined = items => items.join(locale === 'en' ? ', ' : '、');
 
 // Pronunciation: every word has a recording in Microsoft's neural voice
@@ -164,12 +167,13 @@ function renderWords() {
   const box = $('panel-words');
   if (!state.words) return put(box, el('div', { class: 'center-spin' }, [el('div', { class: 'spinner' })]));
   if (state.round) return renderRound(box);
+  if (state.studying) return renderStudy(box);
   const st = stats(state.words, state.progress);
-  const chosen = [...LEVELS, ...PACK_IDS].filter(l => state.levels.includes(l));
+  const chosen = LEVELS.filter(l => state.levels.includes(l));
   const due = chosen.reduce((s, l) => s + st[l].due, 0);
   const levelCard = l =>
     el('button', { class: `level-card${state.levels.includes(l) ? ' on' : ''}`, type: 'button', 'aria-pressed': String(state.levels.includes(l)), onclick: () => toggleLevel(l) }, [
-      el('div', { class: 'level-top' }, [el('strong', { text: levelName(l) }), el('small', { text: t(typeof l === 'number' ? `levelHint${l}` : `packHint_${l}`) })]),
+      el('div', { class: 'level-top' }, [el('strong', { text: levelName(l) }), el('small', { text: t(`levelHint${l}`) })]),
       bar(st[l].mastered, st[l].total, 'accent'),
       el('div', { class: 'level-foot' }, [el('span', { class: 'num', text: `${st[l].mastered.toLocaleString()} / ${st[l].total.toLocaleString()}` }), st[l].due ? el('span', { class: 'due', text: t('dueN', { n: st[l].due }) }) : null])
     ]);
@@ -193,10 +197,10 @@ function renderWords() {
         el('span', { class: 'muted', text: t('roundSize') }),
         el('div', { class: 'segmented', role: 'group' }, [10, 20, 30].map(n => el('button', { type: 'button', 'aria-pressed': String(state.size === n), text: t('wordsN', { n }), onclick: () => ((state.size = n), renderWords()) })))
       ]),
-      el('button', { class: 'q-btn primary block big-start', type: 'button', disabled: !chosen.length, text: t('startRound'), onclick: startRound })
+      el('button', { class: 'q-btn primary block big-start', type: 'button', disabled: !chosen.length, text: t('startRound'), onclick: () => startRound() })
     ]),
+    studyCard(),
     section(t('levels'), el('div', { class: 'level-grid' }, LEVELS.map(levelCard))),
-    section(t('packsTitle'), el('div', { class: 'level-grid' }, PACK_IDS.map(levelCard))),
     section(t('modes'), modes, { sub: t('modesSub') }),
     section(t('progress'), progressCard(st)),
     hardestCard(),
@@ -258,17 +262,102 @@ function wordOfDayCard() {
 
 function toggleLevel(l) {
   state.levelsTouched = true;
-  state.levels = state.levels.includes(l) ? state.levels.filter(x => x !== l) : [...state.levels, l].sort((a, b) => levelRank(a) - levelRank(b) || String(a).localeCompare(String(b)));
+  state.levels = state.levels.includes(l) ? state.levels.filter(x => x !== l) : [...state.levels, l].sort((a, b) => a - b);
   changed();
   renderWords();
 }
 
+// ---- Studying new words -------------------------------------------------------------------
+//
+// New words as cards to memorise (the word, its sound, its meaning), one
+// batch (a round's size) at a time; a full batch is quizzed, and from the
+// quiz on its words are scheduled like any other.
+function studyCard() {
+  const n = state.study.length;
+  const full = n >= state.size;
+  const next = toStudy(state.words, state.progress, { levels: state.levels, n: 1, skip: new Set(state.study) }).length > 0;
+  return section(
+    t('studyTitle'),
+    el('div', { class: 'q-card pad study-card' }, [
+      el('div', { class: 'goal-row' }, [el('span', { text: full ? t('studyReady') : t('studyLeft', { n: state.size - n }) }), el('strong', { class: 'num', text: `${Math.min(n, state.size)} / ${state.size}` })]),
+      bar(n, state.size, 'accent'),
+      full
+        ? el('button', { class: 'q-btn primary block', type: 'button', text: t('studyQuiz', { n }), onclick: () => startRound({ quiz: true }) })
+        : el('button', { class: 'q-btn block', type: 'button', disabled: !next || !state.levels.length, text: !next ? t('studyNone') : n ? t('studyMore') : t('studyStart'), onclick: startStudy })
+    ]),
+    { sub: t('studySub', { n: state.size }) }
+  );
+}
+function startStudy() {
+  const list = toStudy(state.words, state.progress, { levels: state.levels, n: Math.max(0, state.size - state.study.length), skip: new Set(state.study) });
+  if (!list.length) return toast(t('studyNone'));
+  state.studying = { list, i: 0 };
+  renderWords();
+  speak(list[0]);
+}
+function studyStep(delta) {
+  const s = state.studying;
+  s.i = Math.max(0, Math.min(s.list.length - 1, s.i + delta));
+  renderWords();
+  speak(s.list[s.i]);
+}
+// 記住了: into the batch; the last one ends the session.
+function studyGot() {
+  const s = state.studying;
+  const word = s.list[s.i];
+  if (!state.study.includes(word.key)) state.study = [...state.study, word.key];
+  changed();
+  if (s.i + 1 >= s.list.length || state.study.length >= state.size) {
+    state.studying = null;
+    renderWords();
+    return toast(state.study.length >= state.size ? t('studyReady') : t('studySaved'), 'good');
+  }
+  studyStep(1);
+}
+// 太簡單: known already, out of the way; not in the batch.
+function studyKnown() {
+  const s = state.studying;
+  const word = s.list[s.i];
+  state.progress = { ...state.progress, [word.key]: markKnown(state.progress[word.key]) };
+  state.study = state.study.filter(k => k !== word.key);
+  s.list = s.list.filter(w => w.key !== word.key);
+  changed();
+  if (!s.list.length) {
+    state.studying = null;
+    return renderWords();
+  }
+  s.i = Math.min(s.i, s.list.length - 1);
+  renderWords();
+  speak(s.list[s.i]);
+}
+function renderStudy(box) {
+  const s = state.studying;
+  const word = s.list[s.i];
+  const inBatch = state.study.length;
+  const head = el('div', { class: 'round-head' }, [
+    el('button', { class: 'q-close', type: 'button', 'aria-label': t('close'), text: '×', onclick: () => ((state.studying = null), renderWords()) }),
+    el('div', { class: 'round-bar' }, [el('i', { style: `width:${(Math.min(inBatch, state.size) / state.size) * 100}%` })]),
+    el('strong', { class: 'num round-earn', text: `${Math.min(inBatch, state.size)} / ${state.size}` })
+  ]);
+  const card = el('div', { class: 'q-card pad study-word' }, [
+    el('div', { class: 'word-line' }, [el('strong', { class: 'word big', text: word.word }), speakButton(word, true)]),
+    el('small', { class: 'muted', text: [word.ph ? `/${word.ph}/` : '', word.pos, levelName(word.level)].filter(Boolean).join(' · ') }),
+    el('p', { class: 'meaning study-meaning', text: word.zh })
+  ]);
+  const nav = el('div', { class: 'two-btn study-nav' }, [
+    el('button', { class: 'q-btn', type: 'button', disabled: s.i === 0, text: `‹ ${t('studyPrev')}`, onclick: () => studyStep(-1) }),
+    el('button', { class: 'q-btn primary', type: 'button', text: `${t('studyGot')} ›`, onclick: studyGot })
+  ]);
+  put(box, head, card, nav, el('button', { class: 'q-btn small ghost too-easy', type: 'button', text: t('tooEasy'), onclick: studyKnown }));
+}
+
 // ---- A round ---------------------------------------------------------------------------
 
-function startRound() {
-  const list = pickRound(state.words, state.progress, { levels: state.levels, size: state.size });
+function startRound({ quiz = false } = {}) {
+  // A quiz: the studied batch, look-alikes apart; else the usual round.
+  const list = quiz ? pickRound(state.study.map(k => state.byKey.get(k)).filter(Boolean), {}, { levels: LEVELS, size: state.study.length }) : pickRound(state.words, state.progress, { levels: state.levels, size: state.size, skip: new Set(state.study) });
   if (!list.length) return toast(t('nothingLeft'));
-  state.round = { list, i: 0, results: [], earned: 0, q: null, answered: false };
+  state.round = { list, i: 0, results: [], earned: 0, q: null, answered: false, quiz };
   nextQuestion();
 }
 function nextQuestion() {
@@ -283,6 +372,7 @@ function nextQuestion() {
   r.answered = false;
   r.typed = '';
   r.built = [];
+  r.shownAt = Date.now();
   renderWords();
   // Only when the question is the sound (by ear, dictation): straight away,
   // inside the tap that led here (iOS plays sound only then). Else 🔊 plays it.
@@ -297,7 +387,8 @@ function answer(correct, typed = '') {
   r.answered = true;
   const word = r.q.word;
   const other = !correct && typed && keyOf(typed) !== word.key ? state.byKey.get(keyOf(typed)) || null : null;
-  const res = grade(state.progress[word.key], correct, { chose: other?.key });
+  // How long it took counts: a quick right answer is known better than a slow one.
+  const res = grade(state.progress[word.key], correct, { chose: other?.key, type: r.q.type, ms: Date.now() - r.shownAt, word: word.word });
   state.progress = { ...state.progress, [word.key]: res.p };
   if (other) {
     const o = state.progress[other.key] || { b: 0, d: 0, n: 0, r: 0, t: 0 };
@@ -331,6 +422,12 @@ function advance() {
   const r = state.round;
   if (r.i + 1 >= r.list.length) {
     r.done = true;
+    // The batch is quizzed: from now on its words are scheduled like any other.
+    if (r.quiz) {
+      const asked = new Set(r.list.map(w => w.key));
+      state.study = state.study.filter(k => !asked.has(k));
+      changed();
+    }
     sync();
     return renderWords();
   }
@@ -385,10 +482,12 @@ function questionView(r) {
   } else if (question.type === 'letters') {
     const built = r.built;
     const used = new Set(built.map(b => b.i));
-    const slots = el('div', { class: 'slots' }, [...word.word].map((ch, i) => el('span', { class: `slot${built[i] ? ' filled' : ''}${done ? (last.correct ? ' right' : ' wrong') : ''}`, text: built[i]?.ch ?? (ch === ' ' ? '␣' : '') })));
+    // One row whatever the length: the slots and tiles shrink to fit (--n).
+    const fit = `--n:${word.word.length}`;
+    const slots = el('div', { class: 'slots', style: fit }, [...word.word].map((ch, i) => el('span', { class: `slot${built[i] ? ' filled' : ''}${done ? (last.correct ? ' right' : ' wrong') : ''}`, text: built[i]?.ch ?? (ch === ' ' ? '␣' : '') })));
     const tiles = el(
       'div',
-      { class: 'tiles' },
+      { class: 'tiles', style: fit },
       question.letters.map((ch, i) =>
         el('button', {
           class: 'tile',
@@ -447,7 +546,7 @@ function roundSummary(r) {
       el('p', { class: 'summary-big num', text: `${right} / ${asked.length}` }),
       el('p', { class: 'muted', text: t('summaryLine', { v: xpText(r.earned), m: mastered }) }),
       el('p', { class: 'muted small', text: right === asked.length ? t('summaryAll') : t('summaryMissed') }),
-      el('div', { class: 'two-btn' }, [el('button', { class: 'q-btn', type: 'button', text: t('backToWords'), onclick: endRound }), el('button', { class: 'q-btn primary', type: 'button', text: t('again'), onclick: startRound })])
+      el('div', { class: 'two-btn' }, [el('button', { class: 'q-btn', type: 'button', text: t('backToWords'), onclick: endRound }), el('button', { class: 'q-btn primary', type: 'button', text: t('again'), onclick: () => startRound() })])
     ]),
     el(
       'div',
