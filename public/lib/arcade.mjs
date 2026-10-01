@@ -15,6 +15,8 @@ const PORTED_LIST = [
   ['runner', '🦖', 'action', '小恐龍', 'Dino run', '動作 · 點一下跳', 'Action · tap to jump', 1500, 1.5, 'dino/index.html', 'github.com/wayou/t-rex-runner (BSD)'],
   ['match3', '🍓', 'puzzle', '消消樂', 'Match three', '益智 · 90 秒', 'Puzzle · 90 s', 6000, 1.5, 'match3/index.html', 'github.com/rembound/Match-3-Game-HTML5 (MIT)'],
   ['bubbles', '🫧', 'puzzle', '泡泡龍', 'Bubble shooter', '益智 · 3 分鐘', 'Puzzle · 3 minutes', 8000, 3, 'bubbles/index.html', 'github.com/rembound/Bubble-Shooter-HTML5 (MIT)'],
+  ['stack', '🏗️', 'action', '疊疊樂', 'Tower', '抓時機 · 三條命', 'Timing · 3 lives', 1500, 2, 'tower/index.html', 'github.com/iamkun/tower_game (MIT)'],
+  ['breakout', '🏓', 'action', '打磚塊', 'Breakout', '動作 · 三條命', 'Action · 3 lives', 3000, 3, 'breakout/index.html', 'github.com/jakesgordon/javascript-breakout (MIT)'],
   ['merge', '🔢', 'puzzle', '2048', '2048', '益智 · 滑動合併數字', 'Puzzle · swipe and merge', 12000, 5, '2048/index.html', 'github.com/gabrielecirulli/2048 (MIT)']
 ];
 
@@ -37,9 +39,7 @@ const LIST = [
   ['queens', '👑', 'logic', '六皇后', 'Six queens', '邏輯 · 兩盤', 'Logic · 2 boards', 40, 1],
   ['snake', '🐍', 'action', '貪食蛇', 'Snake', '動作 · 越長越難', 'Action · longer, harder', 50, 1.5],
   ['blocks', '🧱', 'action', '俄羅斯方塊', 'Falling blocks', '動作 · 2 分鐘', 'Action · 2 minutes', 50, 3],
-  ['breakout', '🏓', 'action', '打磚塊', 'Breakout', '動作 · 三條命', 'Action · 3 lives', 45, 0.8],
   ['flappy', '🐤', 'action', '飛飛鳥', 'Flappy bird', '動作 · 點一下飛', 'Action · tap to flap', 45, 1.5],
-  ['stack', '🏗️', 'action', '疊疊樂', 'Stack', '抓時機 · 越疊越窄', 'Timing · narrower and narrower', 45, 1.5],
   ['dodge', '☄️', 'action', '閃隕石', 'Dodge', '動作 · 撐 60 秒', 'Action · last 60 s', 40, 0.6],
   ['catch', '🍎', 'action', '接水果', 'Fruit catch', '動作 · 45 秒', 'Action · 45 s', 40, 0.6],
   ['whack', '🔨', 'reflex', '打地鼠', 'Whack-a-mole', '反應 · 40 秒', 'Reflex · 40 s', 35, 0.5],
@@ -795,12 +795,12 @@ export const HOW = {
   queens: ['在 6×6 棋盤放 6 個皇后：每一列、每一行只能一個，而且不能在同一條斜線上。衝突的皇后會變紅。點格子放或拿起。', 'Place 6 queens on the 6×6 board: one per row and column, none sharing a diagonal. Clashing queens turn red. Tap to place or remove.'],
   snake: ['滑動或方向鍵轉彎，吃蘋果會變長、變快。撞到牆或自己就結束。', 'Swipe or use the arrows to turn. Apples make you longer and faster; hitting a wall or yourself ends it.'],
   blocks: ['方塊會落下：點左半邊/右半邊移動，點上方旋轉，往下滑直接落下。排滿一整行就消除，一次消越多行分數越高。兩分鐘。', 'Blocks fall: tap left or right half to move, tap the top to turn, swipe down to drop. Full rows clear; more at once scores more. Two minutes.'],
-  breakout: ['手指左右拖動下方的擋板接住球，把上面的磚塊全部打掉。漏接三次就結束。', 'Drag the paddle to keep the ball up and break all the bricks. Miss it three times and it’s over.'],
+  breakout: ['點一下開始，手指左右拖動擋板接住球，打掉所有磚塊就進下一關（再多一條命）。漏接三次就結束。', 'Tap to start; drag the paddle to keep the ball up. Clear every brick for the next level (and a life). Miss three times and it’s over.'],
   flappy: ['點一下小鳥往上飛，不點就往下掉。穿過綠色水管中間的空隙，碰到就結束。', 'Tap to flap up; stop and it falls. Fly through the gaps in the pipes; touching one ends it.'],
   bubbles: ['手指放在畫面上瞄準，放開就射出泡泡；三顆以上同色連在一起就消掉，掉下來的泡泡另外加分。泡泡碰到底部或 3 分鐘到就結束。', 'Touch to aim and lift to shoot; three or more of a colour together pop, and bubbles that fall with them score extra. It ends when the bubbles reach the bottom or after 3 minutes.'],
   runner: ['點一下跳過仙人掌和翼龍。速度會越來越快，撞到就結束。', 'Tap to jump the cacti and pterodactyls. It keeps speeding up; a hit ends it.'],
   merge: ['上下左右滑動，所有方塊一起移動；相同數字相撞就合併成兩倍。沒有可以動的格子就結束，合併得越多分數越高。', 'Swipe: every tile moves; two equal tiles that meet merge into their sum. It ends when nothing can move; the more you merge, the higher the score.'],
-  stack: ['方塊左右移動，點一下放下。沒對齊的部分會被切掉，塔越來越窄。完全對齊得雙倍分數。', 'Tap to drop the sliding block. Whatever hangs over is cut off; a perfect drop scores double.'],
+  stack: ['吊車上的方塊左右擺動，點一下放下。疊得越準分數越高，完全對齊有加成，連續完美更多；方塊掉下去三次就結束。', 'The block swings on the crane: tap to drop it. The straighter, the more points; a perfect drop scores extra, more in a row. Three blocks fallen ends it.'],
   dodge: ['左右拖動火箭閃開落下的隕石，撐越久分數越高（最多 60 秒）。', 'Drag the rocket to dodge the falling rocks; the longer you last the better (up to 60 s).'],
   catch: ['左右拖動籃子接水果（⭐ 3 分），避開炸彈（扣 3 分）。45 秒。', 'Drag the basket to catch fruit (⭐ is 3), and avoid bombs (−3). 45 seconds.'],
   whack: ['地鼠冒出來就點牠：🐹 1 分、🌟 3 分；不要打兔子 🐰（扣 2 分）。40 秒。', 'Tap moles as they pop up: 🐹 1, 🌟 3; don’t hit the bunny 🐰 (−2). 40 seconds.'],

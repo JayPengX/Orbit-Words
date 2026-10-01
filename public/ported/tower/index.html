@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Tower</title>
+<!-- Tower Building by BMQB (MIT, see LICENSE), github.com/iamkun/tower_game
+     (dist/main.js built from its src; one change: the "floor" label in Chinese),
+     in Quadra Rewards: the game alone (no landing page, sharing or
+     analytics), started with a tap; its score and its end go through
+     ../bridge.js. -->
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #f95240 url(assets/main-bg.png); touch-action: none; -webkit-user-select: none; user-select: none; }
+  #canvas { position: fixed; inset: 0; margin: auto; }
+  #q-start { position: fixed; left: 16px; right: 16px; top: 40%; text-align: center; font: 800 20px system-ui, sans-serif; color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,.35); pointer-events: none; }
+  #q-load { position: fixed; left: 0; right: 0; top: 45%; text-align: center; font: 600 15px system-ui, sans-serif; color: #fff; }
+</style>
+<script src="../bridge.js"></script>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<p id="q-load"></p>
+<p id="q-start" hidden></p>
+<script src="./dist/main.js"></script>
+<script>
+  var L = quadra.L;
+  var score = 0;
+  var started = false;
+  var w = innerWidth;
+  var h = innerHeight;
+  if (h / w < 1.5) w = Math.ceil(h / 1.5);
+  var load = document.getElementById('q-load');
+  var hint = document.getElementById('q-start');
+  load.textContent = L('載入中…', 'Loading…');
+  hint.textContent = L('點一下開始，再點一下放下方塊', 'Tap to start, then tap to drop each block');
+  var game = TowerGame({
+    width: w,
+    height: h,
+    canvasId: 'canvas',
+    soundOn: true,
+    setGameScore: function (s) {
+      score = s;
+      quadra.score(s);
+    },
+    setGameSuccess: function () {},
+    setGameFailed: function (f) {
+      if (f >= 3) quadra.over(score);
+    }
+  });
+  game.load(function () {
+    game.init();
+    load.hidden = true;
+    hint.hidden = false;
+  }, function (status) {
+    load.textContent = L('載入中 ', 'Loading ') + Math.floor((status.success / status.total) * 100) + '%';
+  });
+  // One tap starts it (the game's own taps then drop the blocks).
+  document.addEventListener('pointerdown', function () {
+    if (started || hint.hidden) return;
+    started = true;
+    hint.hidden = true;
+    game.start();
+    setTimeout(function () { try { game.playBgm(); } catch (e) {} });
+  }, true);
+</script>
+</body>
+</html>
