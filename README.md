@@ -2,7 +2,7 @@
 
 Where Quadra rewards effort with points (XP) and explains itself (formerly
 Quadra Words). It pays no money: since v7 the opening money and the
-allowance are the only money Quadra gives.
+monthly pay (a fixed NT$6,000) are the only money Quadra gives.
 
 **https://jaypengx.github.io/Quadra-Rewards/**
 

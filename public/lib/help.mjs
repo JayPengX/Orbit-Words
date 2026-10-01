@@ -43,7 +43,7 @@ export const HELP = {
         '新手禮：在 Play 第一次用自己的錢下注後，送一張 NT$200 免費投注（7 天內有效）；在 Securities 的第一筆交易免手續費（稅和規費照收）。'
       ]],
       ['money', '錢怎麼算', [
-        '所有 App 共用一個新台幣錢包。新帳號開戶金 NT$30,000；每個月 1 日發津貼，依你的資產（現金加上 Securities 持股）：NT$4 萬以下 NT$8,000、10 萬以下 4,000、25 萬以下 1,500，再多是 500。開戶金和津貼是 Quadra 唯一會給的錢。那個月第一次打開任何 App 時入帳，沒打開的月份下次補發。',
+        '所有 App 共用一個新台幣錢包。新帳號開戶金 NT$30,000；每個月 1 日固定發薪 NT$6,000，跟薪水一樣，存多存少都一樣。開戶金和月薪是 Quadra 唯一會給的錢。那個月第一次打開任何 App 時入帳，沒打開的月份下次補發。',
         '餘額可以是負的（透支），每月計息 1%。就像交割款沒付，2 天內沒補足就是違約交割：扣透支金額 7% 的違約金、自動賣出持股補足，而且 5 年內不能融資、融券。自己先賣就沒事。融資借來的錢只能留在 Securities 買賣，不能拿去 Play 或補透支。',
         'Securities 投資、Play 下注和買彩券、Rewards 的單字、遊戲和任務給積分（XP）不給錢，只有加值商店會花錢；Fixtures 和 Orbit Class 不用錢。錢只存在 Quadra Pass，不能在帳號之間轉。'
       ]]
@@ -76,7 +76,7 @@ export const HELP = {
         'Welcome offers: your first bet in Play with your own money brings a NT$200 free bet (7 days), and your first trade in Securities pays no commission (taxes and fees as usual).'
       ]],
       ['money', 'Money', [
-        'Every app shares one NT$ wallet. A new pass opens with NT$30,000; the 1st of every month brings an allowance by what you’re worth (cash plus Securities holdings): NT$8,000 under NT$40,000, 4,000 under 100,000, 1,500 under 250,000, 500 above. The opening money and the allowance are the only money Quadra gives. It’s paid the first time that month you open any app; a month you miss is paid when you’re back.',
+        'Every app shares one NT$ wallet. A new pass opens with NT$30,000; the 1st of every month pays a fixed NT$6,000, like a salary: the same however much you hold. The opening money and the pay are the only money Quadra gives. It’s paid the first time that month you open any app; a month you miss is paid when you’re back.',
         'The balance can go below zero (an overdraft) at 1% a month. Like an unpaid settlement, if it isn’t covered within 2 days it’s a default: a 7% penalty on what’s owed, holdings sold for it, and no margin or short selling for 5 years. Sell something first and none of that happens. Money borrowed on margin stays in Securities for trading: it can’t be bet in Play or cover an overdraft.',
         'Securities invests, Play bets and sells lottery tickets, Rewards gives points (XP) for words, games and missions, never money (only its shop spends); Fixtures and Orbit Class don’t use money. Money lives on the Quadra Pass only and can’t move between passes.'
       ]]
@@ -303,7 +303,7 @@ export const HELP = {
         '等級：累計積分決定等級（Lv 2 要 100 XP、Lv 5 要 1,600、Lv 10 要 8,100、Lv 20 要 36,100、Lv 30 要 84,100、Lv 50 要 240,100，每天認真玩大約一年到頂），每幾級換一個稱號：新手、學徒、好手、高手、達人、大師、傳奇、神話。兌換東西花的是「可用積分」，不會降級。',
         '等級獎勵與頭像（「任務 › 等級與頭像」）：Lv 5、10、15、20、30、50 各解鎖一個頭像，Lv 5、15、25…每十級送一張連續紀錄保護卡；也能用積分換頭像（300 到 5,000 XP），Plus 會員有專屬的 ✦。戴上的頭像會出現在每個 Quadra App 的帳戶按鈕上。',
         '積分還能換：頭像框（Lv 10 青銅、Lv 40 傳奇、Lv 50 神話，或用 2,000 到 30,000 XP 換白銀、翡翠、黃金、霓虹、極光）、換掉一個每日任務（100 XP，一天最多 2 次）、補回昨天斷掉的連續紀錄（1,500 XP，斷掉前已連續 3 天以上、手上沒有保護卡時）。每次兌換都會先問你。',
-        '錢只有開戶金和每月津貼（在 Quadra Pass 的說明裡）；在 Rewards 花錢的只有加值商店。',
+        '錢只有開戶金和每月薪水（在 Quadra Pass 的說明裡）；在 Rewards 花錢的只有加值商店。',
         '財富等級依錢包總額分成八級，從「起步」（NT$5 萬以下）到「億萬」（NT$2,000 萬以上）。'
       ]]
     ],
@@ -345,7 +345,7 @@ export const HELP = {
         'Levels: every point you earn counts (level 2 at 100 XP, 5 at 1,600, 10 at 8,100, 20 at 36,100, 30 at 84,100, 50 at 240,100: about a year of daily play to the top), with a new title every few levels: Rookie, Apprentice, Skilled, Expert, Master, Grandmaster, Legend, Mythic. Buying things spends your points to spend, never your level.',
         'Level rewards and avatars (Missions › Level and avatars): levels 5, 10, 15, 20, 30 and 50 each unlock an avatar, and levels 5, 15, 25… bring a streak protection card; points buy more avatars (300 to 5,000 XP), and Plus members get ✦. The avatar you wear shows on your account button in every Quadra app.',
         'Points also buy frames (bronze at level 10, legend at 40, mythic at 50; silver, jade, gold, neon and aurora for 2,000 to 30,000 XP), a swap of a daily mission (100 XP, twice a day at most) and yesterday’s streak bought back (1,500 XP, when it had run 3 days or more and you hold no protection card). Each asks first.',
-        'Money comes only from the opening money and the monthly allowance (see Quadra Pass); in Rewards only the shop spends it.',
+        'Money comes only from the opening money and the monthly pay (see Quadra Pass); in Rewards only the shop spends it.',
         'Eight wealth ranks by the wallet’s total, from Starter (under NT$50,000) to Tycoon (NT$20 million and up).'
       ]]
     ]
