@@ -141,7 +141,7 @@ export function renderTruth(box, { t, state }) {
     section(
       t('sidesTitle'),
       el('div', { class: 'q-card list sides' }, [
-        sideRow('🌤️', t('sideGod'), money(s.given), t('sideGodSub', { start: money(s.gave.start), pay: money(s.gave.pay), rank: money(s.gave.rank) })),
+        sideRow('🌤️', t('sideGod'), money(s.given), t('sideGodSub', { start: money(s.gave.start), pay: money(s.gave.pay), rank: money(s.gave.rank), other: money(s.gave.other) })),
         sideRow('🏛️', t('sideQuadra'), `−${money(s.took)}`, t('sideQuadraSub'), 'took'),
         sideRow('🙋', t('sideYou'), money(s.own, { sign: true }), t('sideYouSub'), s.own >= 0 ? 'up' : 'down'),
         el('div', { class: 'side-total' }, [el('span', { text: t('sideWorth') }), el('strong', { class: 'num', text: money(s.worth) })])

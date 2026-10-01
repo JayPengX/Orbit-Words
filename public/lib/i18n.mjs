@@ -35,7 +35,7 @@ export const STRINGS = {
     // Truth
     truthTitle: 'Quadra 的真相', truthLead: '這裡用真實的數字，和你自己的紀錄，說明錢從哪裡來、往哪裡去，以及莊家、券商和會員方案怎麼從你身上賺錢。知道了，才是自己在做決定。',
     sidesTitle: '錢從哪裡來', sidesSub: '你的錢只有三方：系統發的（開戶金、每月固定 {pay} 薪水、財富等級獎勵），Quadra 收走的，和你自己的成績。',
-    sideGod: '系統發的', sideGodSub: '開戶金 {start} · 薪水 {pay} · 等級獎勵 {rank}', sideQuadra: 'Quadra 收走的', sideQuadraSub: 'Play 的莊家優勢、Plus 月費、透支利息', sideYou: '你自己的成績', sideYouSub: '投資的漲跌、下注贏回的、省下的', sideWorth: '你現在的身價',
+    sideGod: '系統發的', sideGodSub: '開戶金 {start} · 薪水 {pay} · 等級獎勵 {rank} · 其他 {other}', sideQuadra: 'Quadra 收走的', sideQuadraSub: 'Play 的莊家優勢、Plus 月費、透支利息', sideYou: '你自己的成績', sideYouSub: '投資的漲跌、下注贏回的、省下的', sideWorth: '你現在的身價',
     edgeTitle: '莊家優勢', edgeSub: '每個賠率裡都藏著抽成：機率加起來超過 100%，多出來的就是莊家的。下面是每下注 NT$100，長期平均會被留下多少。',
     edgeSingle: '單場', edgeSingleSub: '賠率背後的機率加起來 {cut} 倍', edgeLegs: '{n} 關串關', edgeBoost: '{n} 關串關加上串關加成', edgeBoostSub: '加成只加在獎金上，抽成卻每關相乘；Plus 會員 {plus}',
     yourBets: '你的投注回收率', yourBetsSub: '投注 {staked}，拿回 {won}', edgeFoot: '串關關數越多，莊家留得越多：所以 App 會用「加成」和「精選串關」推你多串幾關。中獎超過 {free} 還要扣 {tax} 的稅；提前兌現再扣 {keep}（Plus {plus}）。',
@@ -108,7 +108,7 @@ export const STRINGS = {
     rotate: 'Change my pass', rotateAsk: 'Get a new pass?', rotateBody: 'The old pass stops working and other devices sign out. The new one is shown once.', rotateOk: 'Get a new pass', moreSettings: 'Notices, statement and other settings',
     truthTitle: 'The truth about Quadra', truthLead: 'Real numbers and your own record: where your money comes from and goes, and how the house, the broker and the membership earn from you. Knowing it is how your choices become your own.',
     sidesTitle: 'Where your money comes from', sidesSub: 'Your money has three sides: what the system gave (the opening money, a fixed {pay} pay each month, wealth level rewards), what Quadra took, and your own result.',
-    sideGod: 'The system gave', sideGodSub: 'Opening {start} · pay {pay} · level rewards {rank}', sideQuadra: 'Quadra took', sideQuadraSub: 'Play’s house edge, Plus fees, overdraft interest', sideYou: 'Your own result', sideYouSub: 'Markets up and down, bets won back, money saved', sideWorth: 'What you’re worth now',
+    sideGod: 'The system gave', sideGodSub: 'Opening {start} · pay {pay} · level rewards {rank} · other {other}', sideQuadra: 'Quadra took', sideQuadraSub: 'Play’s house edge, Plus fees, overdraft interest', sideYou: 'Your own result', sideYouSub: 'Markets up and down, bets won back, money saved', sideWorth: 'What you’re worth now',
     edgeTitle: 'The house edge', edgeSub: 'Every price hides a cut: the chances behind the odds add up to more than 100%, and the extra is the house’s. Here’s what it keeps of every NT$100 staked, on average, over time.',
     edgeSingle: 'A single', edgeSingleSub: 'The chances behind the odds add up to {cut}×', edgeLegs: 'A {n}-pick parlay', edgeBoost: 'A {n}-pick parlay with the boost', edgeBoostSub: 'The boost adds to the winnings; the cut multiplies with every pick. Plus members: {plus}',
     yourBets: 'What your bets paid back', yourBetsSub: 'Staked {staked}, back {won}', edgeFoot: 'The more picks on a parlay, the more the house keeps, which is why the app pushes boosts and featured parlays. Winnings over {free} lose {tax} in tax; cash out keeps {keep} more ({plus} with Plus).',
