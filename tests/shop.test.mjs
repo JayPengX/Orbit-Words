@@ -179,12 +179,14 @@ test('points swap a daily mission, buy back a missed day, and buy frames', async
   // Repair (from October, missions keep a day): yesterday missed, the day before kept, no card.
   const later = Date.parse('2026-10-20T04:00:00Z');
   const k = n => ['words20', 'game1', 'quotes'].map(id => ({ id: `vocab:m:${taipeiDay(later - n * DAY)}:${id}`, t: later - n * DAY, app: 'vocab', kind: 'mission', amount: 0, xp: 1 }));
-  const s = { entries: [...k(2), ...k(3)] };
+  const s = { entries: [...k(2), ...k(3), ...k(4)] };
+  // A streak of two isn't worth buying back.
+  assert.equal(repairable({ entries: [...k(2), ...k(3)] }, activeDaySet({ entries: [...k(2), ...k(3)] }), later), null);
   const yesterday = taipeiDay(later - DAY);
   assert.equal(repairable(s, activeDaySet(s), later), yesterday);
   const fixed = { entries: [...s.entries, { id: `vocab:xs:repair:${yesterday}`, t: later, app: 'vocab', kind: 'redeem', amount: 0, note: '1500' }] };
   assert.equal(repairable(fixed, activeDaySet(fixed), later), null);
-  assert.equal(streakOf(fixed, later), 3);
+  assert.equal(streakOf(fixed, later), 4);
   // Frames: a bought one with its price, a level one never.
   const gold = redeemEntry(rich, 'frame', 'gold', now);
   assert.deepEqual([gold.id, gold.note], ['vocab:xs:frame:gold', '8000']);

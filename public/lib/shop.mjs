@@ -26,7 +26,7 @@ export const SHOP = {
   // Points only: a daily mission swapped (two a day at most), a missed day
   // bought back for the streak (yesterday's, when the day before was kept).
   reroll: { xp: 100, perDay: 2 },
-  repair: { xp: 1_500 }
+  repair: { xp: 1_500, least: 3 }
 };
 const MIN = 60_000;
 const mine = (wallet, prefix) => (wallet?.entries || []).filter(e => e.app === 'vocab' && typeof e.id === 'string' && e.id.startsWith(prefix));
@@ -93,11 +93,12 @@ export const rerolls = (wallet, day) => mine(wallet, `vocab:xs:reroll:${day}:`).
 
 // ---- Streak repair ---------------------------------------------------------------------
 // Yesterday, when it can be bought back: missed (no missions, no card),
-// the day before kept, and no card left to cover it. Otherwise null.
+// a streak of SHOP.repair.least days or more up to the day before (not
+// worth the points for less), and no card left to cover it. Otherwise null.
 export function repairable(wallet, activeDays, now = Date.now()) {
   const yesterday = taipeiDay(now - 86_400_000);
-  const before = taipeiDay(now - 2 * 86_400_000);
-  if (activeDays.has(yesterday) || !activeDays.has(before)) return null;
-  if (freezes(wallet, now).held > 0) return null;
-  return yesterday;
+  if (activeDays.has(yesterday) || freezes(wallet, now).held > 0) return null;
+  let run = 0;
+  while (run < SHOP.repair.least && activeDays.has(taipeiDay(now - (2 + run) * 86_400_000))) run++;
+  return run >= SHOP.repair.least ? yesterday : null;
 }

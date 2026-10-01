@@ -302,7 +302,7 @@ export const HELP = {
         '單字每答對一題 2 XP，第一次精熟一個字再加 15 XP（字卡不算）；遊戲一分鐘大約 10 XP，玩得好更多；任務 10–30 XP、每週目標 30–45 XP；Plus 會員全部 ×1.5，連續紀錄最多再 +30%。單字和遊戲每天前 600 XP 全額、接下來 600 XP 減半、之後只有一成（Plus、連續紀錄和加倍會一起拉高這些門檻），隔天恢復；任務、每週目標和今日挑戰不受影響。',
         '等級：累計積分決定等級（Lv 2 要 100 XP、Lv 5 要 1,600、Lv 10 要 8,100、Lv 20 要 36,100、Lv 30 要 84,100、Lv 50 要 240,100，每天認真玩大約一年到頂），每幾級換一個稱號：新手、學徒、好手、高手、達人、大師、傳奇、神話。兌換東西花的是「可用積分」，不會降級。',
         '等級獎勵與頭像（「任務 › 等級與頭像」）：Lv 5、10、15、20、30、50 各解鎖一個頭像，Lv 5、15、25…每十級送一張連續紀錄保護卡；也能用積分換頭像（300 到 5,000 XP），Plus 會員有專屬的 ✦。戴上的頭像會出現在每個 Quadra App 的帳戶按鈕上。',
-        '積分還能換：頭像框（Lv 10 青銅、Lv 40 傳奇、Lv 50 神話，或用 2,000 到 30,000 XP 換白銀、翡翠、黃金、霓虹、極光）、換掉一個每日任務（100 XP，一天最多 2 次）、補回昨天斷掉的連續紀錄（1,500 XP，前天有保住、手上沒有保護卡時）。每次兌換都會先問你。',
+        '積分還能換：頭像框（Lv 10 青銅、Lv 40 傳奇、Lv 50 神話，或用 2,000 到 30,000 XP 換白銀、翡翠、黃金、霓虹、極光）、換掉一個每日任務（100 XP，一天最多 2 次）、補回昨天斷掉的連續紀錄（1,500 XP，斷掉前已連續 3 天以上、手上沒有保護卡時）。每次兌換都會先問你。',
         '錢只有開戶金和每月津貼（在 Quadra Pass 的說明裡）；在 Rewards 花錢的只有加值商店。',
         '財富等級依錢包總額分成八級，從「起步」（NT$5 萬以下）到「億萬」（NT$2,000 萬以上）。'
       ]]
@@ -344,7 +344,7 @@ export const HELP = {
         'Words: 2 XP a right answer, 15 XP more for a first mastery (flash cards give none); games about 10 XP a minute, more when you play well; missions 10–30 XP, weekly goals 30–45 XP; ×1.5 for Plus members, and up to +30% with the streak. Each day the first 600 XP from words and games come in full, the next 600 at half, the rest at a tenth (Plus, the streak and the ×2 boost raise those steps too), back to full the next day; missions, weekly goals and the daily challenge aren’t counted.',
         'Levels: every point you earn counts (level 2 at 100 XP, 5 at 1,600, 10 at 8,100, 20 at 36,100, 30 at 84,100, 50 at 240,100: about a year of daily play to the top), with a new title every few levels: Rookie, Apprentice, Skilled, Expert, Master, Grandmaster, Legend, Mythic. Buying things spends your points to spend, never your level.',
         'Level rewards and avatars (Missions › Level and avatars): levels 5, 10, 15, 20, 30 and 50 each unlock an avatar, and levels 5, 15, 25… bring a streak protection card; points buy more avatars (300 to 5,000 XP), and Plus members get ✦. The avatar you wear shows on your account button in every Quadra app.',
-        'Points also buy frames (bronze at level 10, legend at 40, mythic at 50; silver, jade, gold, neon and aurora for 2,000 to 30,000 XP), a swap of a daily mission (100 XP, twice a day at most) and yesterday’s streak bought back (1,500 XP, when the day before was kept and you hold no protection card). Each asks first.',
+        'Points also buy frames (bronze at level 10, legend at 40, mythic at 50; silver, jade, gold, neon and aurora for 2,000 to 30,000 XP), a swap of a daily mission (100 XP, twice a day at most) and yesterday’s streak bought back (1,500 XP, when it had run 3 days or more and you hold no protection card). Each asks first.',
         'Money comes only from the opening money and the monthly allowance (see Quadra Pass); in Rewards only the shop spends it.',
         'Eight wealth ranks by the wallet’s total, from Starter (under NT$50,000) to Tycoon (NT$20 million and up).'
       ]]
