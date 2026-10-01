@@ -7,7 +7,7 @@
 // the cache too, refreshed behind it (pageFirst); anything else from the
 // network first, the cache only when offline.
 // One copy per file is kept: a new version replaces the old one.
-const CACHE = 'quadra-rewards-v1';
+const CACHE = 'quadra-hub-v1';
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(['./'])).then(() => self.skipWaiting()));
@@ -19,7 +19,7 @@ self.addEventListener('activate', event => {
       .keys()
       // Only this app's own old copies: the other Quadra apps share this site
       // (and its caches), and the pictures are kept for all of them.
-      .then(keys => Promise.all(keys.filter(k => (k.startsWith('quadra-rewards-') || k.startsWith('vocab-tool-cache-')) && k !== CACHE).map(k => caches.delete(k))))
+      .then(keys => Promise.all(keys.filter(k => k.startsWith('quadra-hub-') && k !== CACHE).map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });

@@ -7,7 +7,7 @@
 //   tabs    「每個分頁」: one line per tab, in the tab bar's order
 //   …       what's particular to it (a few topics)
 //   money   「錢怎麼算」: how it touches the one Quadra wallet
-// (The Quadra Pass's own guide: what, account, one, safe, plus, money.)
+// (The Quadra Pass's own guide: what, account, one, safe, plus, vip, money.)
 //
 // HELP[app][lang] = [[topic id, title, [paragraphs]], …]
 
@@ -17,7 +17,7 @@ export const HELP = {
   pass: {
     zh: [
       ['what', 'Quadra Pass 是什麼', [
-        'Quadra Pass 是你在所有 Quadra App 的帳號：Quadra Securities、Quadra Play、Quadra Fixtures、Quadra Rewards，和相關的 Orbit Class。每個 App 都用它登入，資料都存在它裡面。',
+        'Quadra Pass 是你在所有 Quadra App 的帳號：Quadra Securities、Quadra Play，和相關的 Quadra Fixtures、Quadra Hub、Orbit Class。每個 App 都用它登入，資料都存在它裡面。',
         '通行碼是一組 10 個字的代碼，就是這個帳號的鑰匙：知道它的人就能用，所以不要給別人。它只在建立或更換時顯示一次，裝置上不會保存，請記在安全的地方。',
         '在新裝置登入：輸入通行碼，或在已登入的裝置打開帳戶，按「新增裝置」取得 8 碼裝置代碼（10 分鐘內、只能用一次）。'
       ]],
@@ -34,8 +34,8 @@ export const HELP = {
         '帳戶裡可以「登出其他所有裝置」（這台保持登入），或「更換通行碼」（新的只顯示一次，舊的立刻失效）。忘記通行碼時，在還登入的裝置更換一組就好。'
       ]],
       ['plus', 'Quadra Plus 會員', [
-        '一個會員、所有 Quadra App：月繳 NT$490（第一次加入的那個月免費），或年繳 NT$4,900，等於每月約 NT$408、省下兩個月。從 Quadra 餘額扣款，在帳戶裡加入或管理；會員的帳戶按鈕有金色星星。',
-        'Play：每週一送 NT$200 免費投注（每月約 NT$867）、提前兌現只扣 2%（一般 5%）。Securities：手續費 2.8 折、換匯點差減半、融資利率少 1%、台幣活存前 NT$100,000 享 2%（一般 0.8%）、新定存利率 +0.1%、借券出借券商只抽 20%（一般 30%）。Rewards：積分 ×1.5、每月 2 張連續紀錄保護卡（商店價 NT$600）、積分兌換 9 折。會員卡上會顯示本月和加入以來回饋了多少。每週免費投注入帳時會通知你；續訂前三天（第一個免費月也一樣）會提醒扣款金額，想停就到帳戶 › Quadra Plus › 管理會員。每月 1 日從餘額自動扣款，沒打開 App 也照扣；餘額不足扣款失敗，會員就停止，要重新加入。取消後用到期滿，已付不退費，價格含 5% 營業稅。免費投注照運彩業者的規則：每個選項賠率 1.50 以上、不能提前兌現、7 天內用完。',
+        '一個會員，用在 Play 和 Securities：月繳 NT$490（第一次加入的那個月免費），或年繳 NT$4,900，等於每月約 NT$408、省下兩個月。從 Quadra 餘額扣款，在帳戶裡加入或管理；會員的帳戶按鈕有金色星星。',
+        'Plus 是 Play 和 Securities 的會員方案，所有權益都讓下注和交易更便宜或更大：Play 每週一送 NT$200 免費投注（每月約 NT$867）、3 關以上串關加成 ×1.5、提前兌現只扣 2%（一般 5%）；Securities 手續費 2.8 折、換匯點差減半、融資利率少 1%。另外會員可以在 Quadra Hub 自訂頭像和頭像框，所有 App 的帳戶按鈕都看得到。它怎麼替 Quadra 賺錢，Hub 的「真相」算給你看。會員卡上會顯示本月和加入以來回饋了多少。每週免費投注入帳時會通知你；續訂前三天（第一個免費月也一樣）會提醒扣款金額，想停就到 Hub 的「Pass」或帳戶 › Quadra Plus › 管理會員。每月 1 日從餘額自動扣款，沒打開 App 也照扣；餘額不足扣款失敗，會員就停止，要重新加入。取消後用到期滿，已付不退費，價格含 5% 營業稅。免費投注照運彩業者的規則：每個選項賠率 1.50 以上、不能提前兌現、7 天內用完。',
         '月繳隨時可以取消，已付的月份照常享有權益；年繳到期自動續約，也可以在「管理會員」取消續約。'
       ]],
       ['vip', 'VIP 投注回饋與新手禮', [
@@ -43,14 +43,14 @@ export const HELP = {
         '新手禮：在 Play 第一次用自己的錢下注後，送一張 NT$200 免費投注（7 天內有效）；在 Securities 的第一筆交易免手續費（稅和規費照收）。'
       ]],
       ['money', '錢怎麼算', [
-        '所有 App 共用一個新台幣錢包。新帳號開戶金 NT$30,000；每個月 1 日固定發薪 NT$6,000，跟薪水一樣，存多存少都一樣。系統發的錢只有三種：開戶金、月薪，和財富等級獎勵（身價第一次到達一個等級時送一次，小資族 NT$1,000 到億萬大亨 NT$30,000；見 Rewards 的說明）。月薪在那個月第一次打開任何 App 時入帳，沒打開的月份下次補發。Rewards 的「任務 › 錢從哪裡來」把你的錢分成三方：系統發的、Quadra 收走的（Play 的莊家優勢、Plus、加值、透支利息），和你自己的成績。',
+        '所有 App 共用一個新台幣錢包。新帳號開戶金 NT$30,000；每個月 1 日固定發薪 NT$6,000，跟薪水一樣，存多存少都一樣。系統發的錢只有三種：開戶金、月薪，和財富等級獎勵（身價第一次到達一個等級時送一次，小資族 NT$1,000 到億萬大亨 NT$30,000）。月薪在那個月第一次打開任何 App 時入帳，沒打開的月份下次補發。Quadra Hub 的「真相」把你的錢分成三方：系統發的、Quadra 收走的（Play 的莊家優勢、Plus、透支利息），和你自己的成績。',
         '餘額可以是負的（透支），每月計息 1%。就像交割款沒付，2 天內沒補足就是違約交割：扣透支金額 7% 的違約金、自動賣出持股補足，而且 5 年內不能融資、融券。自己先賣就沒事。融資借來的錢只能留在 Securities 買賣，不能拿去 Play 或補透支。',
-        'Securities 投資、Play 下注和買彩券、Rewards 的單字、遊戲和任務給積分（XP）不給錢，只有加值商店會花錢；Fixtures 和 Orbit Class 不用錢。錢只存在 Quadra Pass，不能在帳號之間轉。'
+        'Securities 投資、Play 下注和買彩券；Fixtures、Hub 和 Orbit Class 不用錢。錢只存在 Quadra Pass，不能在帳號之間轉。'
       ]]
     ],
     en: [
       ['what', 'What the Quadra Pass is', [
-        'The Quadra Pass is your account in every Quadra app: Quadra Securities, Quadra Play, Quadra Fixtures, Quadra Rewards and the related Orbit Class. Each signs in with it and keeps its data on it.',
+        'The Quadra Pass is your account in every Quadra app: Quadra Securities, Quadra Play and the related Quadra Fixtures, Quadra Hub and Orbit Class. Each signs in with it and keeps its data on it.',
         'The pass is a 10-character code, the key to the account: anyone who knows it can use it, so keep it to yourself. It’s shown only when it’s made or changed and never kept on a device: write it down somewhere safe.',
         'On a new device, enter the pass, or on a signed-in device open the account and choose “Add a device” for an 8-character device code (10 minutes, once).'
       ]],
@@ -67,8 +67,8 @@ export const HELP = {
         'The account can sign out every other device (this one stays in) or change the pass (the new one is shown once, the old one stops at once). Forgot it? Change it from a device that’s still signed in.'
       ]],
       ['plus', 'Quadra Plus', [
-        'One membership for every Quadra app: NT$490 a month (the first month you ever join is free), or NT$4,900 a year, about NT$408 a month with two months free. It comes from the Quadra balance; join or manage it in the account, and a member’s account button has a gold star.',
-        'Play: a NT$200 free bet every Monday (about NT$867 a month), and cash out keeps 2% instead of 5%. Securities: commission at 28% of the usual rate, half the FX spread, loans 1 point cheaper, 2% on the first NT$100,000 of NT$ cash (0.8% otherwise), +0.1% on new time deposits, and the broker keeps 20% of a lending fee instead of 30%. Rewards: points ×1.5, 2 streak protections a month (NT$600 in the shop) and 10% off the points catalogue. The Plus card shows what it gave back this month and since you joined. You’re told when each weekly free bet arrives, and three days before a renewal (the free month too) what it will charge; to stop, go to account › Quadra Plus › Manage membership. It’s charged from your balance on the 1st of every month, whether or not you open an app; if the balance can’t cover it the charge fails and the membership stops until you join again. Cancelling keeps what’s paid, nothing is refunded, and prices include 5% VAT. Free bets follow a sportsbook’s terms: odds of 1.50 or more on every pick, no cash out, used within 7 days.',
+        'One membership for Play and Securities: NT$490 a month (the first month you ever join is free), or NT$4,900 a year, about NT$408 a month with two months free. It comes from the Quadra balance; join or manage it in the account, and a member’s account button has a gold star.',
+        'Plus is Play’s and Securities’ membership, and every perk makes betting or trading cheaper or bigger. Play: a NT$200 free bet every Monday (about NT$867 a month), the parlay boost ×1.5 on 3 picks or more, and cash out keeps 2% instead of 5%. Securities: commission at 28% of the usual rate, half the FX spread, and margin loans 1 point cheaper. Members can also pick an avatar and a frame in Quadra Hub, shown on the account button in every app. How it earns Quadra money is worked out in Hub’s Truth. The Plus card shows what it gave back this month and since you joined. You’re told when each weekly free bet arrives, and three days before a renewal (the free month too) what it will charge; to stop, go to Hub’s Pass or account › Quadra Plus › Manage membership. It’s charged from your balance on the 1st of every month, whether or not you open an app; if the balance can’t cover it the charge fails and the membership stops until you join again. Cancelling keeps what’s paid, nothing is refunded, and prices include 5% VAT. Free bets follow a sportsbook’s terms: odds of 1.50 or more on every pick, no cash out, used within 7 days.',
         'Monthly stops whenever you like, keeping the perks for months paid; yearly renews each year, and renewal can be turned off under Manage membership.'
       ]],
       ['vip', 'VIP cashback and welcome offers', [
@@ -76,9 +76,9 @@ export const HELP = {
         'Welcome offers: your first bet in Play with your own money brings a NT$200 free bet (7 days), and your first trade in Securities pays no commission (taxes and fees as usual).'
       ]],
       ['money', 'Money', [
-        'Every app shares one NT$ wallet. A new pass opens with NT$30,000; the 1st of every month pays a fixed NT$6,000, like a salary: the same however much you hold. The system gives money three ways only: the opening money, the pay, and wealth level rewards (paid once, the first time what you’re worth reaches a level: NT$1,000 for Saver up to NT$30,000 for Tycoon; see Rewards). The pay comes the first time that month you open any app; a month you miss is paid when you’re back. Rewards’ Missions › Where your money comes from splits your money three ways: what the system gave, what Quadra took (Play’s house edge, Plus, purchases, overdraft interest), and your own result.',
+        'Every app shares one NT$ wallet. A new pass opens with NT$30,000; the 1st of every month pays a fixed NT$6,000, like a salary: the same however much you hold. The system gives money three ways only: the opening money, the pay, and wealth level rewards (paid once, the first time what you’re worth reaches a level: NT$1,000 for Saver up to NT$30,000 for Tycoon). The pay comes the first time that month you open any app; a month you miss is paid when you’re back. Quadra Hub’s Truth splits your money three ways: what the system gave, what Quadra took (Play’s house edge, Plus, overdraft interest), and your own result.',
         'The balance can go below zero (an overdraft) at 1% a month. Like an unpaid settlement, if it isn’t covered within 2 days it’s a default: a 7% penalty on what’s owed, holdings sold for it, and no margin or short selling for 5 years. Sell something first and none of that happens. Money borrowed on margin stays in Securities for trading: it can’t be bet in Play or cover an overdraft.',
-        'Securities invests, Play bets and sells lottery tickets, Rewards gives points (XP) for words, games and missions, never money (only its shop spends); Fixtures and Orbit Class don’t use money. Money lives on the Quadra Pass only and can’t move between passes.'
+        'Securities invests, Play bets and sells lottery tickets; Fixtures, Hub and Orbit Class don’t use money. Money lives on the Quadra Pass only and can’t move between passes.'
       ]]
     ]
   },
@@ -117,7 +117,7 @@ export const HELP = {
       ['fees', '費用', [
         '台股手續費 0.1425%（最低 NT$20，折扣後也一樣；零股最低 NT$1），賣出另收 0.3% 證交稅（ETF 0.1%、當沖 0.15%），元以下無條件捨去；每筆交易都看得到交割日（台股 T+2）；美股、日股等海外市場照複委託常見網路費率；共同基金透過基金平台申購，收 1% 申購手續費，贖回不收費。股利照各國規定預扣稅。',
         '換匯用市場中間價加減銀行價差；週末外匯休市時價差加倍。融資按天計息。',
-        'Quadra Plus 會員手續費（含基金申購手續費）2.8 折、點差減半、融資利率少 1%、台幣活存前 NT$100,000 享 2%、新定存 +0.1%、借券券商只抽 20%。Rewards 的積分可以換手續費折抵券（每筆最多折 NT$100）和定存加碼券（+0.5%）。'
+        'Quadra Plus 會員手續費（含基金申購手續費）2.8 折、點差減半、融資利率少 1%：交易越多、借越多，省越多，這正是它要你做的事。'
       ]],
       ['money', '錢怎麼算', [
         'Securities 的新台幣就是 Quadra 餘額：買進時從錢包出去，賣出時回來。手續費和稅照各市場真實規定（台股最低 NT$20，海外是複委託常見網路費率）；股利照各國規定預扣稅，除息日取得權利，幾週後現金入帳。',
@@ -158,7 +158,7 @@ export const HELP = {
       ['fees', 'Fees', [
         'Taiwan trades pay 0.1425% commission (NT$20 at least) and a sale 0.3% tax; US, Japanese and other markets a Taiwan broker’s usual online rate; mutual funds go through a fund platform, 1% to buy and nothing to sell. Dividends have each country’s withholding.',
         'Exchange is the mid-market rate plus or minus the bank’s spread, doubled at weekends while FX markets are shut. Margin loans charge interest daily.',
-        'Quadra Plus members pay 28% of the usual commission (fund fees too) and half the spread, borrow 1 point cheaper, earn 2% on the first NT$100,000 of NT$ cash, get +0.1% on new time deposits and leave the broker 20% of a lending fee. Rewards’ points buy commission vouchers (up to NT$100 off a trade) and deposit bonuses (+0.5%).'
+        'Quadra Plus members pay 28% of the usual commission (fund fees too) and half the spread, and borrow 1 point cheaper: the more you trade and borrow, the more it saves, which is what it’s for.'
       ]],
       ['money', 'Money', [
         'Securities’ NT$ is the Quadra balance: buying takes from the wallet, selling brings it back. Fees and taxes follow each market’s real rules (Taiwan at least NT$20; abroad a Taiwan broker’s usual online rate); dividends have each country’s withholding, earned on the ex-date, paid weeks later.',
@@ -186,7 +186,7 @@ export const HELP = {
         '大樂透、威力彩、今彩539、3星彩、4星彩、38／39／49樂合彩、BINGO BINGO、雙贏彩、大福彩，和 6 種刮刮樂。每張遊戲卡都能「快選 1 注」，打開可以自選或快選 5 注。中獎自動入帳並通知你。'
       ]],
       ['boost', '串關加成與提前兌現', [
-        '串關加成：3 場以上的串關全過時多給獎金，3 場 +5%、4 場 +8%、5 場 +12%、6 場 +15%、7 場以上 +20%。',
+        '串關加成：3 場以上的串關全過時多給獎金，3 場 +5%、4 場 +8%、5 場 +12%、6 場 +15%、7 場以上 +20%（Plus 會員 ×1.5）。',
         '提前兌現：比賽還沒結束也能先把投注單換成現金。金額是這張單現在的公平價值（依莊家目前估的機率，不含賠率裡的抽成），再扣 5%（Plus 扣 2%）；所以沒什麼變化時兌現會比繼續持有少一點，只有選項真的變得更可能贏時才會比本金多。',
         '首頁的「精選串關」幫你挑好大聯賽的熱門組合，一鍵加到投注單。',
         '免費投注：Plus 會員每週的免費投注和新手禮，在投注單上點一下就用在這張單（串關或單一選項），不扣本金，贏了拿獎金（不含本金），7 天內有效；不能提前兌現。'
@@ -214,7 +214,7 @@ export const HELP = {
         'Lotto 6/49, Super Lotto, Daily Cash 539, 3 and 4 Digits, the 38, 39 and 49 M games, BINGO BINGO, Lotto 12/24 and more, and 6 scratch cards. Every card has a one-tap quick pick; open one to pick numbers or quick pick 5. Winnings are paid automatically, with a notice.'
       ]],
       ['boost', 'Parlay boost and cash out', [
-        'Parlay boost: a winning parlay of 3 or more legs pays extra: +5% for 3, +8% for 4, +12% for 5, +15% for 6, +20% for 7 or more.',
+        'Parlay boost: a winning parlay of 3 or more legs pays extra: +5% for 3, +8% for 4, +12% for 5, +15% for 6, +20% for 7 or more (×1.5 for Plus members).',
         'Cash out: turn a slip into cash before the games end. It’s priced at the slip’s fair worth now (the house’s current chances, without the margin in the odds) less 5% (2% with Plus): while little has changed it pays a bit less than holding, and more than the stake only when the picks have really got likelier.',
         'Featured parlays on the home screen put together big-league picks, added to the slip in one tap.',
         'Free bets: Plus’s weekly one and the welcome offer; tap one on the slip to use it on that slip (a parlay or one pick). Nothing comes off your balance, a win pays the winnings (not the stake), and it lasts 7 days; no cash out.'
@@ -247,7 +247,7 @@ export const HELP = {
         'Play 有開賣的比賽，旁邊有「投注」（進行中是「場中」）小按鈕，比賽頁有「到 Play 下注」：一點就到 Play 的那場比賽，已經登入。'
       ]],
       ['money', '錢怎麼算', [
-        'Fixtures 不用錢：看比賽、追蹤都免費。每天打開一場比賽可以完成 Rewards 的每日任務。'
+        'Fixtures 不用錢：看比賽、追蹤都免費。'
       ]]
     ],
     en: [
@@ -271,91 +271,69 @@ export const HELP = {
         'Games Play sells have a small Bet chip (Live while in play), and a game page has “Bet in Play”: one tap opens that game in Play, signed in.'
       ]],
       ['money', 'Money', [
-        'Fixtures is free: watching and following cost nothing. Opening a match each day completes a daily mission in Rewards.'
+        'Fixtures is free: watching and following cost nothing.'
       ]]
     ]
   },
   vocab: {
     zh: [
-      ['what', 'Quadra Rewards 是什麼', [
-        'Quadra 獎勵努力的地方：背單字、玩遊戲、完成每日任務，拿積分（XP）、連續紀錄和徽章。積分會提升你的 Quadra 等級和稱號（每個 App 的帳戶都看得到），也能在這裡兌換保護卡、單字加倍和單字包；積分不是錢，Rewards 不發錢。所有 App 的說明也都在這裡。'
+      ['what', 'Quadra Hub 是什麼', [
+        'Quadra 的相關 App：練單字的地方，也是你的 Quadra Pass 和 Quadra Plus 的管理中心，還告訴你 Quadra 的錢怎麼流、莊家和券商怎麼從你身上賺錢。所有 App 的說明也在這裡。Hub 不用錢，也不發錢。'
       ]],
       ['tabs', '每個分頁', [
-        '「首頁」：財富等級、今天的積分、今日挑戰、接下來的任務、積分商店和今日單字。',
-        '「單字」：選級別或單字包和學習方式，開始一輪。',
-        '「遊戲」：單字遊戲、長局、謎題、動作、棋盤、腦力，可以搜尋和加入最愛；每天有一款今日挑戰。',
-        '「任務」：每日任務、等級與連續紀錄、每週目標、徽章、財富等級和錢從哪裡來；完成待領取的數量會標在分頁上。',
+        '「單字」：選級別或單字包和學習方式，開始一輪；看今天的目標、連續天數、等級和最常忘的字。',
+        '「Pass」：帳戶、Quadra Plus（加入、續訂、取消）、會員的頭像與頭像框、裝置和安全。',
+        '「真相」：錢從哪裡來、Play 的莊家優勢、彩券和刮刮樂的回本率、免費投注和 VIP 回饋的真正價值、Plus 為什麼存在、交易成本和透支，都用真實數字和你自己的紀錄算。',
+        '「App」：每個 Quadra App 在做什麼、你上次什麼時候用、打開它或看它的說明。',
         '右上角的「?」：每個 Quadra App 的說明（就是這裡）。'
       ]],
       ['words', '背單字', [
-        '大考中心高中英文參考詞彙第 1 到 6 級，共 6,170 字，每個字都有真人發音錄音（Microsoft Jenny）。每一輪 10、20 或 30 個字，混合該複習的字和新字；答錯的字會在這一輪最後再問一次。',
-        '「智慧」模式依熟練度出題，一輪會輪流用到五種題型：新字用選意思、選英文、聽音選字或拼字母，學過的字再加上聽寫；不會出「你知道這個字嗎」的字卡（那是自己選的「字卡」模式）。',
-        '答對升一格、答錯回第一格，第 4 格算「精熟」。一個字一天最多升一格，所以精熟看的是你好幾天的紀錄，不會在同一輪就精熟。第一次見到就答對的字代表你本來就會，直接跳到第 3 格，隔天再答對就精熟；每一輪會先排這些快精熟的字。之後在 1、5、14 天後再複習。'
+        '大考中心高中英文參考詞彙第 1 到 6 級，共 6,170 字，加上多益、雅思、商務英文三個單字包，每個字都有真人發音錄音（Microsoft Jenny）。每一輪 10、20 或 30 個字，混合該複習的字和新字；答錯的字會在這一輪最後再問一次。',
+        '題目故意出得難，因為想得辛苦才記得住：錯的選項都是最容易選錯的字：拼法幾乎一樣的（adapt、adopt、adept）、意思很接近的、同詞性同長度的，還有你以前搞混過的那個字；不會出兩個都對的選項。',
+        '「智慧」模式依熟練度出題：新字先認（選意思、選英文、聽音選字），學過的字要自己寫出來（拼字母、填空、聽寫）；常忘的字直接考難的。',
+        '答對升一格、答錯回第一格，第 4 格算「精熟」，之後 1、3、7、21 天後再複習；一個字一天最多升一格。每忘一次，它回來的間隔就縮短。每一輪先排上次答錯和最常忘的字，把你搞混過的字排在同一輪讓你分辨，長得像的字不會連著出。'
       ]],
-      ['missions', '每日任務與每週目標', [
-        '每日任務：每天從任務池換 6 個（3 個在 Rewards：回答 20 或 50 題單字、精熟 3 個單字、答對 10 題聽音選字／拼字母／聽寫、一輪全對、玩完 1 或 3 局遊戲、玩今日挑戰；3 個在其他 App：在 Securities 打開 3 檔股票、在 Fixtures 點開 1 或 3 場比賽、打開 Orbit Class 看課表、今天打開 Securities、Fixtures 和 Rewards）。完成後按「領取」拿積分。',
-        '加碼任務每天都有，要花錢：在 Securities 下一筆委託、在 Play 下 3 關以上的串關（免費投注也算）、買刮刮樂、買樂透。積分最多（40–60 XP），每天最多 2 個也算進連續紀錄；不做也沒關係。',
-        '連續紀錄：一天領取 5 個任務，連續天數就 +1（6 個每日任務裡有 3 個在其他 App；加碼任務每天最多算 2 個）；只賺一點積分不會算。漏掉的那天有保護卡會自動補上。連續越久積分越多：每天 +2%，15 天起 +30%。連續 7、30、100 天各送一個專屬頭像（🐯、🦅、🏆）和一張保護卡（看的是最長紀錄，斷了也不會收回）。',
-        '每週目標（週一到週日）：5 天保住連續紀錄、單字和遊戲拿 1,000 XP、完成 10 個任務、玩 10 局遊戲；四個都領取就送一張保護卡。開啟通知後，可以領取時和連續紀錄快斷時會提醒你。'
+      ['goal', '每日目標與等級', [
+        '一天回答 20 題就達成今天的目標，連續天數 +1；開啟通知後，晚上 8 點還沒達成會提醒你。',
+        '每答對一題 2 XP，第一次精熟一個字再加 15 XP。累計積分決定等級（Lv 2 要 100 XP、Lv 5 要 1,600、Lv 10 要 8,100、Lv 20 要 36,100），每幾級換一個稱號：新手、學徒、好手、高手、達人、大師、傳奇、神話。積分只是你的學習紀錄，不能換任何東西。'
       ]],
-      ['extras', '加值', [
-        '連續紀錄保護卡（NT$300 或 600 XP，最多持有 3 張）：哪天沒保住連續紀錄，它會自動用掉一張，連續紀錄照樣算下去。Plus 會員每月送兩張。',
-        '單字加倍（NT$150 或 300 XP）：接下來 30 分鐘每題單字積分 ×2；在加倍中再買，會接在後面再延 30 分鐘。',
-        '單字包（「單字」分頁）：多益 TOEIC NT$990、雅思 IELTS NT$1,490、商務英文 NT$1,990（或 8,000 / 12,000 / 16,000 XP），一次買斷，每個字都有真人發音。買了就和級別一樣可以勾選；和主單字表重複的字共用進度，答對一樣有積分。'
+      ['pass', 'Pass 與 Plus', [
+        '「Pass」分頁管理你的 Quadra Pass：新增裝置、登出其他裝置、更換通行碼、通知；Quadra Plus 的加入、年繳、取消續訂也在這裡。',
+        '頭像和頭像框是 Plus 會員的權益：會員期間在這裡挑，所有 App 的帳戶按鈕都會戴上；會員停止時就不顯示，重新加入會回來。'
       ]],
-      ['catalog', '積分兌換', [
-        '首頁的「積分商店」把積分換成 Quadra 自己的東西，像信用卡或航空哩程：Play 免費投注 NT$100（5,000 XP）或 NT$500（22,000 XP），7 天內用、每個選項賠率 1.50 以上、不能提前兌現，每月最多換 NT$1,000；證券手續費折抵券（4,000 XP），下一筆有手續費的交易最多折 NT$100，用不完不退，30 天內有效，每月 3 張；定存加碼券（12,000 XP），一筆 NT$100,000 以內的新定存利率 +0.5%，只算第一期、提前解約就取消，30 天內使用，每月 1 張；Quadra Plus 一個月（20,000 XP），試用過免費月之後每季一次，這個月不是會員就換這個月，已經是就換下個月。',
-        'Plus 會員兌換 9 折。每次兌換都會先問你；換到的券會出現在要用的 App（Play 的投注單、Securities 的下單和定存），用掉或過期就沒了。'
-      ]],
-      ['money', '積分怎麼算', [
-        '單字每答對一題 2 XP，第一次精熟一個字再加 15 XP（字卡不算）；遊戲一分鐘大約 10 XP，玩得好更多；任務 10–30 XP、每週目標 30–45 XP；Plus 會員全部 ×1.5，連續紀錄最多再 +30%。單字和遊戲每天前 600 XP 全額、接下來 600 XP 減半、之後只有一成（Plus、連續紀錄和加倍會一起拉高這些門檻），隔天恢復；任務、每週目標和今日挑戰不受影響。',
-        '等級：累計積分決定等級（Lv 2 要 100 XP、Lv 5 要 1,600、Lv 10 要 8,100、Lv 20 要 36,100、Lv 30 要 84,100、Lv 50 要 240,100，每天認真玩大約一年到頂），每幾級換一個稱號：新手、學徒、好手、高手、達人、大師、傳奇、神話。兌換東西花的是「可用積分」，不會降級。可用積分有效期限一年：每個月拿到的積分在隔年同月底到期，兌換時先扣最早的，快到期會提醒。',
-        '等級獎勵與頭像（「任務 › 等級與頭像」）：Lv 5、10、15、20、30、50 各解鎖一個頭像，Lv 5、15、25…每十級送一張連續紀錄保護卡；也能用積分換頭像（300 到 5,000 XP），Plus 會員有專屬的 ✦。戴上的頭像會出現在每個 Quadra App 的帳戶按鈕上。',
-        '積分還能換：頭像框（Lv 10 青銅、Lv 40 傳奇、Lv 50 神話，或用 2,000 到 30,000 XP 換白銀、翡翠、黃金、霓虹、極光）、換掉一個每日任務（100 XP，一天最多 2 次）、補回昨天斷掉的連續紀錄（1,500 XP，斷掉前已連續 3 天以上、手上沒有保護卡時）。每次兌換都會先問你。',
-        '積分全部在首頁的「積分商店」用：Quadra 商品（免費投注、手續費折抵券、定存加碼券、Plus 月份）、保護卡和單字加倍、單字包、頭像和相框。',
-        '系統發的錢有開戶金、每月薪水和財富等級獎勵（在 Quadra Pass 的說明裡）；在 Rewards 花錢的只有積分商店裡的加值和單字包。',
-        '財富等級看身價（錢包加上 Securities 的持股），分成八級：起步、小資族（NT$5 萬）、穩健（10 萬）、小康（25 萬）、富裕（50 萬）、有錢人（100 萬）、千萬富翁（500 萬）、億萬大亨（2,000 萬）。第一次到達一個等級，系統送一次等級獎勵：NT$1,000、2,000、3,000、5,000、8,000、15,000、30,000；之後掉下去不會收回，再回來也不會再送。「任務 › 錢從哪裡來」把你的錢分成三方：系統發的、Quadra 收走的，和你自己的成績。'
+      ['money', '錢怎麼算', [
+        'Hub 不用錢：練單字、看說明和真相都免費，也不會發錢。系統發的錢有開戶金、每月薪水和財富等級獎勵（在 Quadra Pass 的說明裡）。',
+        '財富等級看身價（錢包加上 Securities 的持股），分成八級：起步、小資族（NT$5 萬）、穩健（10 萬）、小康（25 萬）、富裕（50 萬）、有錢人（100 萬）、千萬富翁（500 萬）、億萬大亨（2,000 萬）。第一次到達一個等級，系統送一次等級獎勵：NT$1,000、2,000、3,000、5,000、8,000、15,000、30,000；之後掉下去不會收回，再回來也不會再送。'
       ]]
     ],
     en: [
-      ['what', 'What Quadra Rewards is', [
-        'Where Quadra rewards effort: words, games and daily missions earn points (XP), streaks and badges. Points raise your Quadra level and title (shown in every app’s account) and buy streak cards, word boosts and word packs here; they aren’t money, and Rewards pays none. Every app’s help lives here too.'
+      ['what', 'What Quadra Hub is', [
+        'Quadra’s related app for learning words, and the place to manage your Quadra Pass and Quadra Plus. It also shows how money moves in Quadra and how the house and the broker earn from you. Every app’s guide lives here too. Hub uses no money and pays none.'
       ]],
       ['tabs', 'The tabs', [
-        'Home: your wealth level, today’s points, today’s challenge, the next missions, the points shop and the word of the day.',
-        'Words: pick levels or word packs and a way to learn, and start a round.',
-        'Games: word games, long games, puzzles, action, board and brain games, with search and favourites; one game a day is today’s challenge.',
-        'Missions: daily missions, weekly goals, badges and your wealth rank; the tab shows how many are ready to claim.',
+        'Words: pick levels or word packs and a way to learn, and start a round; today’s goal, your streak, your level and the words you forget most.',
+        'Pass: your account, Quadra Plus (join, renew, stop), a member’s avatar and frame, devices and security.',
+        'Truth: where your money comes from, Play’s house edge, what lottery tickets and scratch cards pay back, what free bets and VIP cashback are really worth, why Plus exists, trading costs and overdrafts, in real numbers and your own record.',
+        'Apps: what each Quadra app is for, when you last used it, open it or read its guide.',
         'The ? at the top right: every Quadra app’s guide (this page).'
       ]],
       ['words', 'Words', [
-        'The high-school English reference list, levels 1 to 6: 6,170 words, each with a recording (Microsoft’s Jenny voice). A round is 10, 20 or 30 words, reviews and new ones mixed; a missed word comes back once at the end of the round.',
-        'Smart mode asks by how well you know a word, and uses five kinds of question in a round: a new word by meaning, meaning → word, by ear or unscrambling; words you’ve learnt get dictation too. Never a “do you know it?” flash card (that’s Cards mode, if you choose it).',
-        'Right moves a word up a box, wrong back to box 1; box 4 is mastered. A word moves up one box a day at most, so mastering comes from your record over days, never from a single round. A new word right the first time is one you know: it jumps to box 3, and right again tomorrow it’s mastered; rounds ask those first. After that, words return in 1, 5 and 14 days.'
+        'The high-school English reference list, levels 1 to 6: 6,170 words, and the TOEIC, IELTS and Business English packs, each word recorded (Microsoft’s Jenny voice). A round is 10, 20 or 30 words, reviews and new ones mixed; a missed word comes back once at the end of the round.',
+        'Questions are hard on purpose, because what takes effort to recall is what you remember: every wrong option is the one you’re most likely to pick: spelt almost the same (adapt, adopt, adept), close in meaning, the same part of speech and length, and the word you’ve mixed it up with before. Two options are never both right.',
+        'Smart mode asks by how well you know a word: a new one you recognise (its meaning, from its meaning, by ear), a learnt one you produce (unscramble, fill in the missing letters, dictation); a word you keep forgetting goes straight to the hard kinds.',
+        'Right moves a word up a box, wrong back to box 1; box 4 is mastered, and words come back after 1, 3, 7 and 21 days, one box a day at most. Each time a word is forgotten again it comes back sooner. A round leads with what you missed last time and forget most, puts words you’ve mixed up side by side to tell them apart, and never asks two look-alikes in a row.'
       ]],
-      ['missions', 'Missions and weekly goals', [
-        'Daily missions: six a day from a pool, three in Rewards (answer 20 or 50 word questions, master 3 words, get 10 right by ear, from letters or by dictation, a round without a miss, finish 1 or 3 games, play today’s challenge) and three in the other apps (open 3 stocks in Securities, open 1 or 3 matches in Fixtures, open Orbit Class, open Securities, Fixtures and Rewards today). Claim each for its points when done.',
-        'Bonus missions are there every day and spend money: an order in Securities, a parlay of 3+ picks in Play (a free bet counts), a scratch card, a lottery ticket. The most points (40–60 XP), and up to 2 a day count for the streak; skip them if you like.',
-        'Your streak: claim 5 missions in a day and it grows by a day (three of the six daily ones are in the other apps; up to 2 bonus ones count); a few points alone don’t keep it. A missed day is covered by a protection card if you hold one. The longer it runs, the more points: +2% a day, +30% from 15 days. 7, 30 and 100 days each bring an avatar of their own (🐯, 🦅, 🏆) and a protection card (by your longest streak, so they stay if it breaks).',
-        'Weekly goals (Monday to Sunday): keep your streak on 5 days, 1,000 XP from words and games, finish 10 missions, play 10 games; claim all four for a protection card. With notices on, you’re told when there’s something to claim and when a streak is about to end.'
+      ['goal', 'Daily goal and levels', [
+        'Answer 20 questions in a day to meet the day’s goal and grow your streak; with notices on, you’re reminded at 8 pm if you haven’t.',
+        '2 XP a right answer, 15 XP more the first time a word is mastered. Points make your level (level 2 at 100 XP, 5 at 1,600, 10 at 8,100, 20 at 36,100), with a title every few levels: Rookie, Apprentice, Skilled, Expert, Master, Grandmaster, Legend, Mythic. Points are your record of learning; they buy nothing.'
       ]],
-      ['extras', 'Extras', [
-        'Streak protection (NT$300 or 600 XP, hold up to 3): on a day the streak wasn’t kept, one is used by itself and the streak goes on. Plus members get two every month.',
-        'Word points ×2 (NT$150 or 300 XP): every word earns double points for the next 30 minutes; one bought during another runs 30 minutes after it.',
-        'Word packs (in Words): TOEIC NT$990, IELTS NT$1,490, Business English NT$1,990 (or 8,000 / 12,000 / 16,000 XP), bought once, every word recorded. Once yours, pick a pack like a level; words the main list shares keep one progress, and right answers earn points as usual.'
+      ['pass', 'Pass and Plus', [
+        'Pass manages your Quadra Pass: add a device, sign out the others, change the pass, notices; and Quadra Plus: join, go yearly, stop renewing.',
+        'An avatar and a frame are Plus’s: pick them here while you’re a member and every app’s account button wears them; when the membership stops they’re hidden, and back if you join again.'
       ]],
-      ['catalog', 'Points catalogue', [
-        'The points catalogue on Home turns points into Quadra’s own products, like a card’s or an airline’s: a Play free bet of NT$100 (5,000 XP) or NT$500 (22,000 XP), used within 7 days at odds of 1.50 or more on every pick and never cashed out, NT$1,000 of them a month at most; a Securities commission voucher (4,000 XP), up to NT$100 off the next trade that pays commission, the rest lost, 30 days, 3 a month; a deposit bonus (12,000 XP), +0.5% on one new time deposit of up to NT$100,000 for its first term (gone if it’s closed early), 30 days to use, 1 a month; a month of Quadra Plus (20,000 XP), once a quarter after your free month: this month if you’re not a member, next month if you are.',
-        'Plus members pay 10% fewer points. Each redemption asks first; what you get waits in the app it’s for (Play’s slip, Securities’ order ticket and deposits) until it’s used or expires.'
-      ]],
-      ['money', 'Points', [
-        'Words: 2 XP a right answer, 15 XP more for a first mastery (flash cards give none); games about 10 XP a minute, more when you play well; missions 10–30 XP, weekly goals 30–45 XP; ×1.5 for Plus members, and up to +30% with the streak. Each day the first 600 XP from words and games come in full, the next 600 at half, the rest at a tenth (Plus, the streak and the ×2 boost raise those steps too), back to full the next day; missions, weekly goals and the daily challenge aren’t counted.',
-        'Levels: every point you earn counts (level 2 at 100 XP, 5 at 1,600, 10 at 8,100, 20 at 36,100, 30 at 84,100, 50 at 240,100: about a year of daily play to the top), with a new title every few levels: Rookie, Apprentice, Skilled, Expert, Master, Grandmaster, Legend, Mythic. Buying things spends your points to spend, never your level. Points to spend last a year: each month’s points expire at the end of the same month the next year, the oldest are spent first, and you’re told before any run out.',
-        'Level rewards and avatars (Missions › Level and avatars): levels 5, 10, 15, 20, 30 and 50 each unlock an avatar, and levels 5, 15, 25… bring a streak protection card; points buy more avatars (300 to 5,000 XP), and Plus members get ✦. The avatar you wear shows on your account button in every Quadra app.',
-        'Points also buy frames (bronze at level 10, legend at 40, mythic at 50; silver, jade, gold, neon and aurora for 2,000 to 30,000 XP), a swap of a daily mission (100 XP, twice a day at most) and yesterday’s streak bought back (1,500 XP, when it had run 3 days or more and you hold no protection card). Each asks first.',
-        'Points are all spent in the Points shop on Home: Quadra’s products (free bets, fee vouchers, deposit boosts, Plus months), streak cards and the word boost, word packs, avatars and frames.',
-        'The system gives money as the opening money, the monthly pay and wealth level rewards (see Quadra Pass); in Rewards only the shop’s items and word packs spend it.',
-        'Wealth levels go by what you’re worth (your wallet and Securities holdings), eight of them: Starter, Saver (NT$50k), Steady (100k), Comfortable (250k), Wealthy (500k), Rich (1M), Multi-millionaire (5M) and Tycoon (20M). The first time you reach one, the system pays its reward once: NT$1,000, 2,000, 3,000, 5,000, 8,000, 15,000 and 30,000; falling back keeps it, and coming back pays nothing more. Missions › Where your money comes from splits your money three ways: what the system gave, what Quadra took, and your own result.'
+      ['money', 'Money', [
+        'Hub is free: words, the guides and the truth cost nothing, and it pays nothing. The system gives money as the opening money, the monthly pay and wealth level rewards (see Quadra Pass).',
+        'Wealth levels go by what you’re worth (your wallet and Securities holdings), eight of them: Starter, Saver (NT$50k), Steady (100k), Comfortable (250k), Wealthy (500k), Rich (1M), Multi-millionaire (5M) and Tycoon (20M). The first time you reach one, the system pays its reward once: NT$1,000, 2,000, 3,000, 5,000, 8,000, 15,000 and 30,000; falling back keeps it, and coming back pays nothing more.'
       ]]
     ]
   },
@@ -372,7 +350,7 @@ export const HELP = {
         '課表只有建立它的 Quadra Pass 能編輯。要分享時按「產生分享金鑰」（24 小時內有效），對方在自己的 Orbit Class 輸入就得到一份自己的副本。'
       ]],
       ['money', '錢怎麼算', [
-        'Orbit Class 不用錢。每天看課表可以完成 Rewards 的每日任務。'
+        'Orbit Class 不用錢。'
       ]]
     ],
     en: [
@@ -387,7 +365,7 @@ export const HELP = {
         'Only the Quadra Pass that made a schedule edits it. To share it, make a share key (valid 24 hours): entering it in their own Orbit Class gives a classmate their own copy.'
       ]],
       ['money', 'Money', [
-        'Orbit Class is free. Checking your classes each day completes a daily mission in Rewards.'
+        'Orbit Class is free.'
       ]]
     ]
   }

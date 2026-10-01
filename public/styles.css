@@ -1,5 +1,5 @@
-/* Quadra Rewards: tokens (the kit's neutrals with this app's violet), the
-   app shell, then home, words, games and help. */
+/* Quadra Hub: tokens (the kit's neutrals with this app's violet), the app
+   shell, then words, help, Pass, Truth and Apps. */
 :root {
   color-scheme: light;
   --accent: #7c3aed;
@@ -7,12 +7,8 @@
   --accent-ink: #ffffff;
   --q-accent: var(--accent);
   --q-accent-ink: var(--accent-ink);
-  --live: #dc2626;
-  --live-wash: rgba(220, 38, 38, 0.1);
   --win: #059669;
-  --draw: #a16207;
   --loss: #dc2626;
-  --away: #64748b;
   font-family: var(--q-font);
 }
 @media (prefers-color-scheme: dark) {
@@ -21,12 +17,8 @@
     --accent: #a78bfa;
     --accent-wash: rgba(167, 139, 250, 0.16);
     --accent-ink: #1e1b4b;
-    --live: #f87171;
-    --live-wash: rgba(248, 113, 113, 0.14);
     --win: #34d399;
-    --draw: #fbbf24;
     --loss: #f87171;
-    --away: #94a3b8;
   }
 }
 :root[data-theme='dark'] {
@@ -34,12 +26,8 @@
   --accent: #a78bfa;
   --accent-wash: rgba(167, 139, 250, 0.16);
   --accent-ink: #1e1b4b;
-  --live: #f87171;
-  --live-wash: rgba(248, 113, 113, 0.14);
   --win: #34d399;
-  --draw: #fbbf24;
   --loss: #f87171;
-  --away: #94a3b8;
 }
 
 * { box-sizing: border-box; }
@@ -55,10 +43,7 @@ img { max-width: 100%; }
 .muted { color: var(--q-muted); }
 .small { font-size: 13px; }
 .num { font-variant-numeric: tabular-nums; }
-.empty { color: var(--q-muted); font-size: 14px; padding: 28px 8px; text-align: center; }
 .center-spin { display: grid; place-items: center; padding: 40px 0; }
-.link { border: 0; background: none; padding: 0; color: inherit; text-align: left; font-weight: 600; }
-@media (hover: hover) { .link:hover { color: var(--accent); text-decoration: underline; } }
 .pad { padding: 14px; }
 .q-card + .q-card { margin-top: 12px; }
 .section-sub { color: var(--q-muted); font-size: 13px; margin: -6px 0 10px; }
@@ -71,10 +56,8 @@ img { max-width: 100%; }
 .q-chip.small { min-height: 28px; padding: 0 11px; font-size: 12.5px; }
 .q-chip.on { background: var(--accent-wash); color: var(--accent); border-color: transparent; }
 
-/* Sideways button groups (match sections, race sessions). */
+/* A row of choices (the round size). */
 .segmented { display: flex; gap: 2px; padding: 3px; background: var(--q-sunken); border-radius: 12px; margin: 12px 0; }
-.segmented.scroll { overflow-x: auto; scrollbar-width: none; }
-.segmented.scroll::-webkit-scrollbar { display: none; }
 .segmented button { flex: 1 0 auto; border: 0; background: none; padding: 7px 12px; border-radius: 9px; font-size: 13.5px; font-weight: 650; color: var(--q-text-2); white-space: nowrap; }
 .segmented button[aria-pressed='true'] { background: var(--q-surface); color: var(--accent); box-shadow: var(--q-shadow-sm); }
 
@@ -86,55 +69,18 @@ img { max-width: 100%; }
 .meter { height: 8px; border-radius: 99px; background: var(--q-sunken); overflow: hidden; }
 .meter > i { display: block; height: 100%; border-radius: inherit; background: var(--q-muted); transition: width 0.4s ease; }
 .meter.accent > i { background: var(--accent); }
-.meter.light { background: rgba(255, 255, 255, 0.22); }
-.meter.light > i { background: #fff; }
 .accent { color: var(--accent); }
 .note { font-size: 13px; color: var(--q-muted); margin-top: 8px; }
+.note:empty { display: none; }
 .two-btn { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
 .q-btn.ghost { background: none; border-color: transparent; }
 .q-btn.primary.block, .q-btn.block { width: 100%; }
 
-/* ---- Home ---- */
-.rank-card {
-  margin-top: 6px; padding: 18px; border-radius: 22px; color: #fff;
-  background: radial-gradient(120% 140% at 0% 0%, #a855f7 0%, #7c3aed 45%, #4c1d95 100%);
-  box-shadow: 0 12px 30px rgba(76, 29, 149, 0.28);
-}
-.rank-top { display: flex; align-items: center; gap: 12px; }
-.rank-top > div { display: grid; flex: 1 1 auto; min-width: 0; }
-.rank-top small { opacity: 0.8; font-size: 12.5px; }
-.rank-top strong { font-size: 18px; font-weight: 800; }
-.rank-icon { font-size: 30px; width: 48px; height: 48px; display: grid; place-items: center; border-radius: 14px; background: rgba(255, 255, 255, 0.16); flex: none; }
-.rank-icon.sm { font-size: 18px; width: 30px; height: 30px; border-radius: 9px; background: var(--q-sunken); }
-.streak { flex: none; font-size: 12.5px; font-weight: 700; padding: 5px 10px; border-radius: 99px; background: rgba(255, 255, 255, 0.18); white-space: nowrap; }
-.rank-balance { font-size: clamp(28px, 9vw, 40px); font-weight: 800; letter-spacing: -0.02em; margin: 14px 0 10px; white-space: nowrap; }
-.rank-next { font-size: 13px; opacity: 0.9; margin-top: 8px; }
-.step { gap: 4px; }
-.mission { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 12px 14px; border-top: 1px solid var(--q-divider, var(--q-border)); }
-.mission:first-child { border-top: 0; }
-.mission.done { opacity: 0.6; }
-.mission-icon { font-size: 22px; width: 36px; text-align: center; }
-.mission-text { display: grid; gap: 6px; min-width: 0; }
-.mission-text strong { font-size: 14px; line-height: 1.3; }
-.mission-bar { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; }
-.mission-bar small { font-size: 12px; white-space: nowrap; }
-.claimed { font-size: 12.5px; color: var(--q-muted); white-space: nowrap; }
-.mission .q-btn { white-space: nowrap; }
-.rank-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 9px 14px; border-top: 1px solid var(--q-divider, var(--q-border)); font-size: 14px; }
-.rank-row:first-child { border-top: 0; }
-.rank-row.passed { opacity: 0.55; }
-.rank-row.current { background: var(--accent-wash); }
-.rank-row.current strong { color: var(--accent); }
-.grow p { font-size: 14px; color: var(--q-text-2); line-height: 1.6; }
-
 /* ---- Words ---- */
-.start-card { display: grid; gap: 12px; margin-top: 6px; }
-.start-top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.start-card { display: grid; gap: 12px; margin-top: 12px; }
+.start-top { display: grid; gap: 2px; }
 .start-top h2 { font-size: 20px; font-weight: 800; }
 .start-top p { font-size: 13.5px; margin-top: 2px; }
-.earn-mini { display: grid; justify-items: end; flex: none; }
-.earn-mini small { font-size: 11.5px; }
-.earn-mini strong { font-size: 14px; white-space: nowrap; }
 .big-start { min-height: 50px; font-size: 16px; }
 .level-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 @media (min-width: 720px) { .level-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
@@ -222,148 +168,102 @@ img { max-width: 100%; }
 .help-card p { font-size: 14.5px; line-height: 1.7; color: var(--q-text-2); }
 .help-card p + p { margin-top: 8px; }
 .help-card.focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-wash); }
-.q-card + .q-card { margin-top: 0; }
 .help-list .q-card + .q-card { margin-top: 0; }
 
-/* ---- Home: word of the day, badges ---- */
-.wotd { display: grid; gap: 4px; margin-top: 14px; }
-.wotd-top { display: flex; justify-content: space-between; align-items: center; }
-.wotd-label { font-size: 11.5px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 0.04em; }
-.wotd .meaning { margin: 4px 0 0; }
-.badge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 140px), 1fr)); gap: 8px; }
-.badge { display: grid; justify-items: center; text-align: center; gap: 2px; padding: 12px 8px; border-radius: 14px; background: var(--q-sunken); opacity: 0.55; }
-.badge.on { opacity: 1; background: var(--accent-wash); }
-.badge-icon { font-size: 28px; filter: grayscale(1); }
-.badge.on .badge-icon { filter: none; }
-.badge strong { font-size: 13.5px; }
-.badge small { font-size: 11.5px; color: var(--q-muted); }
-.tab-panel > .daily-card { margin-top: 20px; }
-
-/* Round size */
-.size-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 12px 0 2px; }
-.size-row .segmented button { min-width: 64px; }
+/* ---- Words: today, the round's extras ---- */
+.size-row { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; }
+.size-row > span { white-space: nowrap; }
 .size-row .segmented { margin: 0; }
-
-/* A round on a phone: after an answer, 下一題 stays pinned above the tab bar. */
+.size-row .segmented button { flex: 1 1 0; min-width: 0; padding: 7px 6px; }
+.goal-card { display: grid; gap: 10px; margin-top: 6px; }
+.goal-top { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; }
+.xp-badge { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; background: color-mix(in srgb, var(--accent) 14%, var(--q-surface)); color: var(--accent); font-size: 18px; font-weight: 800; }
+.goal-name small, .goal-streak small { display: block; color: var(--q-muted); font-size: 12px; }
+.goal-name strong { font-size: 17px; }
+.goal-streak { text-align: right; }
+.goal-streak strong { font-size: 16px; color: var(--q-muted); }
+.goal-streak strong.on { color: #ea580c; }
+.goal-row { display: flex; justify-content: space-between; gap: 8px; font-size: 13.5px; }
+.week-dots { display: flex; gap: 6px; }
+.week-dot { flex: 1; height: 8px; border-radius: 99px; background: var(--q-sunken); }
+.week-dot.some { background: color-mix(in srgb, var(--accent) 35%, var(--q-sunken)); }
+.week-dot.kept { background: var(--accent); }
+.goal-foot { font-size: 12px; }
+.cloze { font-size: clamp(26px, 8vw, 34px); font-weight: 800; letter-spacing: 0.18em; overflow-wrap: anywhere; }
+.mixed { display: grid; gap: 2px; padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--loss) 8%, var(--q-surface)); }
+.mixed .word-line strong { font-size: 20px; }
 .too-easy { display: block; margin: 10px auto 0; color: var(--q-muted); }
+/* After an answer, 下一題 stays pinned above the tab bar. */
 .answered { padding-bottom: 76px; }
 .next-bar { position: fixed; left: 0; right: 0; bottom: calc(var(--q-nav) + 10px); z-index: 50; display: flex; justify-content: center; padding: 0 16px; pointer-events: none; }
 .next-bar .q-btn { pointer-events: auto; width: min(560px, 100%); box-shadow: 0 10px 24px -10px rgb(0 0 0 / 0.45); }
+.wotd { display: grid; gap: 4px; margin-top: 14px; }
+.wotd-top { display: flex; justify-content: space-between; align-items: center; }
+.wotd-label { font-size: 11.5px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 0.04em; }
+.list .result-row .speak { width: 32px; height: 32px; font-size: 14px; }
+.hard-list .result-row small.muted { white-space: normal; }
 
-/* Home: today's earnings in the rank card */
-.rank-today { display: grid; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.22); }
-.rank-today-head { display: flex; justify-content: space-between; align-items: baseline; }
-.rank-today-head small { font-size: 12.5px; opacity: 0.9; }
-.rank-today-head strong { font-size: 17px; }
-.rank-today-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-.rank-today-part { display: grid; gap: 4px; min-width: 0; }
-.rank-today-part small { font-size: 11px; opacity: 0.9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-/* Home: claimed missions folded */
-.mission-done > summary { padding: 12px 16px; color: var(--q-muted); font-size: 13.5px; font-weight: 650; cursor: pointer; list-style: none; }
-.mission-done > summary::before { content: '✓ '; color: var(--win); }
-.mission-done[open] > summary { border-bottom: 1px solid var(--q-border); }
-/* Home: badges as a strip */
-.badge-strip-head { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px; margin-bottom: 12px; }
-.badge-strip-head strong { font-size: 14px; }
-.badge-strip { display: flex; flex-wrap: wrap; gap: 8px; }
-.badge-dot { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 12px; background: var(--q-sunken); font-size: 22px; filter: grayscale(1); opacity: 0.45; }
-.badge-dot.on { background: var(--accent-wash); filter: none; opacity: 1; }
-.badge-more > summary { margin-top: 12px; color: var(--accent); font-size: 13.5px; font-weight: 700; cursor: pointer; list-style: none; }
-.badge-more[open] > summary { margin-bottom: 10px; }
-/* Home: the ranks folded under the current one */
-details.ranks > summary { list-style: none; cursor: pointer; }
-details.ranks > summary small { margin-left: auto; color: var(--accent); }
-details.ranks[open] > summary { display: none; }
-
-/* ---- Extras: the shop, the day's cap -------------------------------- */
-.rank-full { margin: 8px 0 0; font-size: 12.5px; opacity: 0.9; }
-.shop-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 12px 14px; border-top: 1px solid var(--q-divider, var(--q-border)); }
-.shop-row:first-child { border-top: 0; }
-.shop-icon { font-size: 22px; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 10px; background: var(--accent-wash); }
-.shop-text { display: grid; gap: 2px; min-width: 0; }
-.shop-text small { color: var(--q-muted); font-size: 12.5px; }
-.shop-plus { display: grid; gap: 8px; padding: 12px 14px 14px; border-top: 1px solid var(--q-divider, var(--q-border)); }
-.shop-plus small { font-size: 12px; }
-.boost-buy { display: flex; justify-content: space-between; align-items: center; gap: 8px; width: 100%; margin: 10px 0 2px; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--q-border); background: var(--q-surface); color: inherit; font: inherit; font-size: 13px; cursor: pointer; }
-.boost-buy strong { color: var(--accent); }
-.boost-on { margin: 10px 0 2px; padding: 8px 12px; border-radius: 10px; background: var(--accent-wash); color: var(--accent); font-size: 13px; font-weight: 700; }
-.spend-line { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin: 18px 2px 6px; }
-.link-btn { background: none; border: 0; padding: 4px 0; color: var(--accent); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
-.level-card.pack.locked { border-style: solid; background: var(--q-surface); }
-.level-card.pack.locked .level-foot { align-items: baseline; }
-.pack-price { font-weight: 800; color: var(--accent); }
-.pack-plus { font-size: 0.75rem; font-weight: 700; color: #a8843f; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme='light']) .pack-plus { color: #d9b877; } }
-:root[data-theme='dark'] .pack-plus { color: #d9b877; }
-
-/* Two ways to pay (money, points), side by side under an item's name. */
-.shop-pay { display: flex; gap: 8px; margin-top: 8px; }
-.pay-btn { min-width: 0; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--q-border); background: var(--q-surface); color: inherit; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
-.pay-btn.xp { border-color: color-mix(in srgb, var(--accent) 35%, transparent); background: color-mix(in srgb, var(--accent) 10%, var(--q-surface)); color: var(--accent); }
-.pay-btn.xp.short { opacity: 0.5; }
-.pay-btn:active { transform: scale(0.97); }
-.shop-row { grid-template-columns: auto minmax(0, 1fr); }
-.shop-row .shop-text > .claimed { display: inline-block; margin-top: 8px; }
-
-/* The level card on home: the level in a badge, the title, today's points. */
-.xp-card { display: grid; gap: 10px; }
-.xp-top { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; }
-.xp-badge { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; background: color-mix(in srgb, var(--accent) 14%, var(--q-surface)); color: var(--accent); font-size: 18px; font-weight: 800; }
-.xp-name small, .xp-today small { display: block; color: var(--q-muted); font-size: 12px; }
-.xp-name strong { font-size: 17px; }
-.xp-today { text-align: right; }
-.xp-today strong { color: var(--accent); font-size: 16px; }
-.xp-foot { display: flex; justify-content: space-between; gap: 8px; font-size: 12.5px; }
-/* In a pack's half-width card the two prices stack, full width. */
-.level-card .shop-pay { flex-direction: column; align-items: stretch; }
-.level-card .pay-btn { width: 100%; }
-.level-card.pack small { white-space: normal; overflow-wrap: anywhere; }
-.xp-card { margin-top: 12px; }
-.level-grid.packs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.level-card.pack { min-width: 0; }
-
-/* Level and avatars (任務). */
-button.xp-card { width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; }
-.lv-card { display: grid; gap: 10px; }
+/* ---- Pass ---- */
+.pass-hero {
+  display: grid; gap: 4px; margin-top: 6px; padding: 18px; border-radius: 22px; color: #fff;
+  background: radial-gradient(120% 140% at 0% 0%, #a855f7 0%, #7c3aed 45%, #4c1d95 100%);
+  box-shadow: 0 12px 30px rgba(76, 29, 149, 0.28);
+}
+.pass-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.pass-brand { font-size: 12px; font-weight: 800; letter-spacing: 0.14em; opacity: 0.85; }
+.pass-plus { font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 99px; background: rgba(255, 255, 255, 0.2); color: #fde68a; }
+.pass-hero > small { font-size: 12.5px; opacity: 0.85; }
+.pass-balance { font-size: clamp(28px, 9vw, 40px); font-weight: 800; letter-spacing: -0.02em; white-space: nowrap; }
+.pass-month { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; opacity: 0.92; }
+.pass-since { margin-top: 2px; }
+.pass-open { margin-top: 12px; background: rgba(255, 255, 255, 0.16); border-color: transparent; color: #fff; }
+.plus-box { display: grid; gap: 12px; }
+.stat-row.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.plus-back { display: grid; gap: 10px; }
+.plus-back .stat strong { font-size: 17px; }
+.perks { display: grid; gap: 14px; }
+.perk-group { display: grid; gap: 8px; }
+.perk-h { color: var(--q-muted); font-size: 12.5px; font-weight: 700; }
+.perk { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: start; }
+.perk > span:last-child { display: grid; }
+.perk strong { font-size: 14px; }
+.perk small { font-size: 12.5px; }
+.perk-mark { color: #b7903f; font-size: 13px; line-height: 1.5; }
+.looks { display: grid; gap: 10px; }
+.looks-lock { display: grid; gap: 2px; text-align: left; padding: 12px 14px; border-radius: 14px; border: 1px solid color-mix(in srgb, #b7903f 45%, transparent); background: color-mix(in srgb, #f5d78e 18%, var(--q-surface)); color: inherit; font: inherit; cursor: pointer; }
+.looks-lock strong { color: #8a6a24; }
+.looks-lock small { color: var(--q-muted); font-size: 12.5px; }
 .lv-h { color: var(--q-muted); font-size: 12.5px; font-weight: 700; }
-.lv-road { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
-.lv-step { display: grid; justify-items: center; gap: 2px; padding: 10px 4px; border-radius: 14px; background: var(--q-sunken); text-align: center; }
-.lv-gift { font-size: 22px; line-height: 1.2; }
-.lv-step small { font-size: 11px; }
 .av-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
-.av-tile { display: grid; justify-items: center; gap: 4px; padding: 10px 4px 8px; border: 1.5px solid var(--q-border); border-radius: 14px; background: var(--q-surface); color: inherit; font: inherit; cursor: pointer; }
+.av-tile { display: grid; justify-items: center; gap: 4px; padding: 10px 4px 8px; border: 1.5px solid var(--q-border); border-radius: 14px; background: var(--q-surface); color: inherit; font: inherit; cursor: pointer; min-height: 70px; }
 .av-tile.on { border-color: var(--accent); background: var(--accent-wash); }
-.av-tile.locked .av-glyph { filter: grayscale(1); opacity: 0.45; }
-.av-tile.can .av-glyph { filter: none; opacity: 1; }
-.av-tile.can small { color: var(--accent); font-weight: 700; }
+.av-tile.locked > :first-child { filter: grayscale(1); opacity: 0.45; }
 .av-glyph { font-size: 28px; line-height: 1.1; }
 .av-tile small { font-size: 11.5px; color: var(--q-muted); white-space: nowrap; }
 .av-tile.on small { color: var(--accent); font-weight: 700; }
-/* The streak on the level card, and its milestones. */
-.streak-line { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 8px; padding-top: 8px; border-top: 1px solid var(--q-border); font-size: 13px; font-weight: 700; color: var(--q-muted); }
-.streak-line.on span { color: #ea580c; }
-.streak-goal { display: grid; gap: 6px; padding: 12px 14px; margin: 0; font-size: 13px; border-bottom: 1px solid var(--q-border); }
-.streak-goal strong { font-size: 14px; }
-.streak-goal.kept strong { color: #16a34a; }
-.lv-step.got { background: color-mix(in srgb, #f97316 14%, var(--q-surface)); }
-
-/* The day's soft cap, mission swaps, streak repair, frame previews */
-.cap-line { display: block; font-size: 12px; color: var(--q-muted); }
-.cap-line.half { color: #b45309; }
-.cap-line.low { color: #dc2626; }
-.swap-btn { justify-self: start; padding: 2px 0; font-size: 12px; }
-.repair-btn { justify-self: start; }
 .fr-preview { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; font-size: 22px; line-height: 1; }
-.av-tile.locked .fr-preview { opacity: 0.55; }
-.slot.hint { background: var(--accent-wash); color: var(--accent); }
-/* 積分兌換: the points catalogue, rows like the shop's. */
-.catalog-foot { display: block; padding: 10px 14px 12px; border-top: 1px solid var(--q-divider, var(--q-border)); font-size: 12px; }
+.device-rows { display: grid; gap: 10px; }
+.device-code { display: grid; justify-items: center; gap: 2px; padding: 12px; border-radius: 14px; background: var(--q-sunken); text-align: center; }
+.device-code strong { font-size: 26px; letter-spacing: 0.08em; }
+.device-code small { font-size: 12.5px; }
 
-/* ---- 財富等級: the levels with their rewards; the three sides of the money ---- */
-.ranks .rank-row { display: flex; align-items: center; gap: 10px; }
-.rank-name { display: grid; flex: 1; min-width: 0; }
-.rank-reward { font-weight: 750; font-size: 13px; color: var(--q-accent); white-space: nowrap; }
-.rank-reward.paid { color: var(--q-muted); font-weight: 600; }
+/* ---- Truth ---- */
+.truth-hero { display: grid; gap: 6px; margin-top: 6px; padding: 16px 18px; border-radius: 20px; background: linear-gradient(135deg, var(--accent-wash), var(--q-surface) 75%); border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent); }
+.truth-hero strong { font-size: 19px; font-weight: 800; }
+.truth-hero p { font-size: 14px; line-height: 1.65; color: var(--q-text-2); }
+.facts .t-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 11px 14px; border-top: 1px solid var(--q-divider, var(--q-border)); }
+.facts .t-row:first-child { border-top: 0; }
+.t-label { display: grid; min-width: 0; }
+.t-label strong { font-size: 14px; }
+.t-label small { font-size: 12px; line-height: 1.45; }
+.t-value { font-size: 16px; white-space: nowrap; }
+.t-row.up .t-value { color: var(--q-good); }
+.t-row.down .t-value { color: var(--q-bad); }
+.facts-foot { padding: 11px 14px 13px; border-top: 1px solid var(--q-border); background: var(--q-sunken); font-size: 13px; line-height: 1.6; color: var(--q-text-2); }
+.tricks .trick { display: grid; gap: 2px; padding: 11px 14px; border-top: 1px solid var(--q-divider, var(--q-border)); }
+.tricks .trick:first-child { border-top: 0; }
+.trick strong { font-size: 14px; }
+.trick small { font-size: 12.5px; line-height: 1.55; }
 .sides .side-row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-top: 1px solid var(--q-divider, var(--q-border)); }
 .sides .side-row:first-child { border-top: 0; }
 .side-icon { font-size: 22px; flex: none; }
@@ -373,13 +273,25 @@ button.xp-card { width: 100%; text-align: left; font: inherit; color: inherit; c
 .side-row.up > .num { color: var(--q-good); }
 .side-row.down > .num { color: var(--q-bad); }
 .side-total { display: flex; justify-content: space-between; padding: 12px 14px; border-top: 1px solid var(--q-border); background: var(--q-sunken); font-weight: 650; }
-/* ---- 積分商店 ---- */
-.shop-teaser { display: grid; gap: 4px; width: 100%; text-align: left; border: 1px solid var(--q-border); cursor: pointer; font: inherit; color: inherit; }
-.shop-teaser-top { display: flex; justify-content: space-between; align-items: baseline; }
-.shop-teaser-top strong { font-size: 22px; }
-.shop-teaser p { margin: 0; font-size: 13px; }
-.shop-teaser-go { color: var(--q-accent); font-weight: 700; font-size: 14px; }
-.shop-balance { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; padding: 4px 2px 8px; }
-.shop-balance strong { font-size: 24px; }
-.shop-part { margin-top: 14px; }
-button.level-card.pack.locked { font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.rank-progress { display: grid; gap: 6px; padding: 12px 14px; }
+.rank-row { display: flex; align-items: center; gap: 10px; padding: 9px 14px; border-top: 1px solid var(--q-divider, var(--q-border)); font-size: 14px; }
+.rank-row.passed { opacity: 0.55; }
+.rank-row.current { background: var(--accent-wash); }
+.rank-row.current strong { color: var(--accent); }
+.rank-icon { font-size: 18px; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 9px; background: var(--q-sunken); flex: none; }
+.rank-name { display: grid; flex: 1; min-width: 0; }
+.rank-reward { font-weight: 750; font-size: 13px; color: var(--accent); white-space: nowrap; }
+.rank-reward.paid { color: var(--q-muted); font-weight: 600; }
+
+/* ---- Apps ---- */
+.app-list { display: grid; gap: 12px; }
+.app-card { display: grid; gap: 10px; }
+.app-card .two-btn { margin-top: 0; }
+.app-top { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; }
+.app-logo { width: 48px; height: 48px; border-radius: 13px; display: block; }
+.app-name { display: grid; min-width: 0; }
+.app-name strong { font-size: 16px; }
+.app-name small, .app-last { font-size: 12px; }
+.app-last { white-space: nowrap; }
+.app-status { font-size: 13px; color: var(--q-text-2); }
+.pass-guide { margin-top: 18px; }

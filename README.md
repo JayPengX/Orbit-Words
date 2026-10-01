@@ -1,104 +1,92 @@
 # Quadra Hub
 
-Where Quadra rewards effort with points (XP) and explains itself (formerly
-Quadra Words). It pays no money: since v7 the opening money and the
-monthly pay (a fixed NT$6,000) are the only money Quadra gives.
+A related add-on of Quadra, like Quadra Fixtures and Orbit Class: a place to
+learn English words, the place to manage your Quadra Pass and Quadra Plus,
+and the plain truth about how Quadra's money moves and how the house earns
+from you. It uses no money and pays none.
 
-**https://jaypengx.github.io/Quadra-Rewards/**
+**https://jaypengx.github.io/Quadra-Hub/**
 
 ## What's in it
 
-- **Home**: your wealth rank (from the Quadra Pass wallet's total), the word
-  of the day, next steps, today's game challenge, daily missions across the
-  apps, weekly goals, today's points by kind, badges, and how to grow the
-  money.
-- **Words**: the 大考中心 high-school English reference list, levels 1 to 6
-  (6,170 words, every one recorded in Microsoft's Jenny voice). Rounds of
-  10, 20 or 30 mix reviews due and new words, and a missed word comes back
-  once at the end; six ways to learn (flash cards, English → meaning,
-  meaning → English, listen and pick, unscramble, dictation) or Smart mode,
-  which asks by how well you know a word (never unscrambling a phrase).
-  Leitner boxes: right moves a word up (due again in 1, 2, 5, 14 days),
-  wrong sends it back; box 4 is mastered. A new word right the first time
-  is already known and goes straight to box 3. The sound starts inside the
-  tap (iOS silences sound started later) through one reused audio element;
-  without the clip, the device's best English voice.
-- **Notices** (the kit's `notify`): a mission or weekly goal newly ready to
-  claim, and a streak that ends tonight (after 20:00 Taiwan time).
-- **任務 Missions** (a tab): every daily mission, the weekly goals, badges
-  and wealth ranks; the tab shows how many are ready to claim. Home keeps
-  the next three missions.
-- **Help**: every Quadra app's guide, all in the same shape: what it is,
-  the tabs, a few topics, how it touches the money. A sheet over the app,
-  opened by the ? at the top right (the kit's `topActions`, as in every app)
-  or by other apps' links, `#help=<app>` or `#help=<app>:<topic>` (`helpUrl`
-  in the kit).
+- **單字 Words**: the 大考中心 high-school English reference list, levels 1
+  to 6 (6,170 words), and three packs (TOEIC, IELTS, Business English), every
+  word recorded in Microsoft's Jenny voice. Rounds of 10, 20 or 30 words;
+  today's goal (20 answers), the streak, the level, the words you forget
+  most and the word of the day.
+- **Pass**: the Quadra Pass (balance, this month, the statement and every
+  setting through the kit's account sheet), Quadra Plus (join, go yearly,
+  stop renewing, what it gave back), a member's avatar and frame, devices
+  and security.
+- **真相 Truth**: where the money comes from (the kit's `moneySides`), the
+  house edge on singles and parlays, what the parlay boost and Plus's bigger
+  boost give back, lottery and scratch card payback, what free bets and VIP
+  cashback are really worth, why Plus exists, trading costs, margin and
+  overdraft interest, and the designs that keep people playing, worked out
+  from the real rules (`lib/truth.mjs`) and the account's own record.
+- **App Apps**: every other Quadra app, when it was last used, a line of
+  status (Securities' cash and holdings, Play's stakes this month, VIP and
+  free bets), its guide and a way in.
+- **Help**: every Quadra app's guide, in the same shape: a sheet over the
+  app, opened by the ? at the top right (the kit's `topActions`) or by other
+  apps' links, `#help=<app>` or `#help=<app>:<topic>` (`helpUrl` in the kit).
 
-## Points, and the only money here
+## How the words are taught (`lib/words.mjs`)
 
-Every point is an entry in the pass's wallet (app `vocab`, fixed ids, so
-nothing counts twice) with `amount: 0` and its points in `xp`; the Worker
-drops any Rewards entry with a positive amount (`eco.js cleanEntry`).
-Entries from before v7 paid NT$ in `amount`; `xpOf` counts those as points.
-No daily limit (`ECONOMY` in the kit):
+Hard on purpose: what takes effort to recall is what's remembered.
 
-| | points |
-|---|---|
-| Words | 2 XP a right answer, 15 XP more a first mastery (×2 during a bought boost) |
-| Missions | 10–30 XP each, claimed (weekly goals 30–45 XP) |
+- **The wrong options** (`distractors`) are the likeliest mix-ups for the
+  kind of question: spelt alike (edit distance, shared start and end, the
+  same length), close in meaning (the meaningful characters of the Chinese
+  glosses), the same part of speech and shape (a phrase among phrases), and
+  first of all a word this person has already mixed this one up with. Two
+  options are never both right (no shared meaning term) and never read the
+  same.
+- **The kind of question** (`smartType`) goes from recognising (meaning,
+  English, by ear) to producing (unscramble, fill in the missing letters,
+  dictation) as a word is learnt; a word that keeps slipping is asked as if
+  it were two boxes on. A word missed in a round comes back at its end to
+  be written, not picked.
+- **Spaced repetition** (`grade`, `pickRound`): Leitner boxes, due again in
+  1, 3, 7 and 21 days (box 4 is mastered), one box a day at most; a miss
+  sends a word back to box 1, and each lapse (forgotten after it was
+  learnt) shortens its gaps. A round leads with the words missed last time
+  and forgotten most, brings the words they were mixed up with, takes
+  fewer new words when much is due, and never puts two look-alikes side by
+  side.
+- **Points** (`lib/practice.mjs`): 2 XP a right answer, 15 a first mastery,
+  read from the progress itself; the level and title from them. A day with
+  20 answers keeps the streak; a notice at 20:00 when it's about to end.
+  Points buy nothing.
 
-Weekly goals (Monday to Sunday, ids `vocab:wk:<Monday>:<goal>`) are claimed
-as missions. Badges are read from the record (wallet entries, words
-mastered, bests), so nothing extra is stored.
+## Saved data
 
-The shop (`lib/shop.mjs`) is the only money Rewards moves, and only out of
-the pool: streak protection NT$300, word points ×2 for 30 minutes NT$150,
-word packs TOEIC 990 / IELTS 1,490 / Business 1,990 (half price for Quadra
-Plus members, who also get two protection cards a month and points ×1.5).
-Each can be bought with points instead (600 / 300 XP; packs 8,000 / 12,000 /
-16,000 XP): `redeemEntry`, `vocab:xs:<item>:<key>`, kind `redeem`, amount
-0, the points in the note; the Worker checks the price (`REWARDS_XP`).
-
-**Levels:** every point earned counts towards the Quadra level (the kit's
-`xpLevel`: level L from 50·L·(L−1) XP; a title every few levels, Rookie to
-Mythic), shown on Rewards' home and in every app's account sheet. Spending
-points lowers what's left to spend (`xpBalance`), never the level.
-
-**Level rewards and avatars** (任務 › 等級與頭像, the kit's `AVATARS`):
-levels 5, 10, 15, 20, 30 and 50 unlock an avatar, and levels 5, 15, 25…
-bring a streak card (`levelCards`, counted in `freezes`); points buy the
-others (`vocab:xs:avatar:<id>`, priced by the Worker's `REWARDS_XP.avatar`);
-✦ is Plus's. The one worn is the wallet setting `avatar` and shows on the
-account button in every app. A new level shows once what it brought
-(`checkLevelUp`, `quadra.rewards.level` per device).
-
-Missions (Orbit Class included: checking the day's classes) read each app's activity counts in the wallet (`act:<app>`) and
-when each app was last opened. Three are about Play and Securities (a
-parlay of 3+, a scratch card, a monthly plan); they give points, not free
-bets (v7).
+Only this app's payload on the pass (`vocab-progress-sync`): `z3:` + gzip
+base64 of `{ v: 3, w: { word: [box, due day, answers, right, last answer
+(s), mastered once, lapses, [mistaken for]] }, levels, mode, days }`. The
+only wallet settings it writes are a member's `avatar` and `frame`; it
+writes no wallet entries.
 
 ## How it works
 
 A static site (GitHub Pages), no build step, Quadra Pass required (the
-shared kit in `public/lib/quadra.mjs` and `public/quadra.css`, copied from
-`Shared-Proxy/kit` by `node kit/sync.mjs`; don't edit the copies).
-
-- Word progress is this app's payload on the pass: `z3:` + gzip base64 of
-  `{ v: 3, w: { word: [box, due day, seen, right, last seen s, mastered] }, levels, mode }`.
-  Quadra Words' synced snapshots and its on-device progress
-  (`vocab_progress_v1`) are migrated on first open.
-- Money entries wait in `quadra.rewards.out` until the pass has them.
+shared kit in `public/lib/quadra.mjs`, `public/quadra.css` and
+`public/boot.js`, copied from `Shared-Proxy/kit` by `node kit/sync.mjs`;
+don't edit the copies).
 
 ```
 public/
-  index.html, app.js, styles.css, sw.js, manifest.webmanifest
+  index.html, app.js (the shell, words, help), hub-ui.js (Pass, Truth, Apps),
+  ui.js, styles.css, sw.js, manifest.webmanifest
   data/words.json    [word, part of speech, level, meaning, phonetic]
+  data/packs.json    { toeic | ielts | biz: [[word, part of speech, meaning]] }
   data/audio/*.mp3   a recording of every word (Microsoft's en-US Jenny neural
                      voice; Shared-Proxy/tools/word-audio.py makes missing ones)
-  lib/voice.mjs      ranking the device's voices (a fallback, or chosen)
-  lib/words.mjs      boxes, rounds, questions, saved progress
-  lib/earn.mjs       points, missions, wealth ranks
-  lib/help.mjs       the help centre's text
+  lib/words.mjs      boxes, rounds, questions and their wrong options, saved progress
+  lib/practice.mjs   points, levels, the day's goal and the streak
+  lib/truth.mjs      the house's numbers and the account's own record
+  lib/voice.mjs      ranking the device's voices (when a recording is missing)
+  lib/help.mjs       every app's guide
   lib/i18n.mjs       Traditional Chinese and English
 ```
 
