@@ -104,7 +104,7 @@ export const HELP = {
       ]],
       ['more', '公債、融資、放空', [
         '公債有票面利率和到期日，價格跟殖利率反向；買進要付應計利息，到期自動還本。',
-        '可以用持股借錢（融資），也可以放空股票、ETF 和加密貨幣。每 NT$1 股票最多借 NT$0.6（現金不算擔保），所以借了再買、再借，每一輪都變少，最多大約借到自有資金的 1.5 倍（總部位 2.5 倍，和台股融資六成一樣）。借來的錢只能留在 Securities。維持率跌破 130% 會追繳，跌破 115% 會被強制處理。'
+        '可以用持股借錢（融資），也可以放空股票、ETF 和加密貨幣。可借成數和券商一樣：台股上市 6 成、上櫃 5 成，其他市場 5 成（美國 Reg T），陸股、印度股、加密貨幣、基金、黃金存摺不能融資；公債 9 成、公司債 7 成。現金不算擔保，所以借了再買、再借，每一輪都變少（台股最多約借到自有資金的 1.5 倍）。借來的錢只能留在 Securities。維持率跌破 130% 會追繳，跌破 115% 會被強制處理。'
       ]],
       ['time', '時光機', [
         '在「紀錄」試算：幾年前投入一筆錢（或每月定期定額）到某個標的，現在會變多少，中間最大跌幅多少。'
@@ -140,7 +140,7 @@ export const HELP = {
       ]],
       ['more', 'Bonds, margin, shorting', [
         'Bonds have a coupon and a maturity, and their price moves against yields; buying pays accrued interest, and they repay at maturity.',
-        'Borrow against holdings, or sell stocks, ETFs and crypto short. Each NT$1 of stock lends at most NT$0.60 (cash doesn’t count), so borrow, buy and borrow again shrinks each round: about 1.5× your own money at most (2.5× in all, like Taiwan’s 60% margin). Borrowed money stays in Securities. Under a 130% ratio the broker calls; under 115% it closes positions.'
+        'Borrow against holdings, or sell stocks, ETFs and crypto short. Loan values are a broker’s: Taiwan 60% listed, 50% OTC; 50% elsewhere (US Reg T); none on A-shares, Indian stocks, crypto, funds or the gold passbook; government bonds 90%, corporate 70%. Cash doesn’t count, so borrow, buy and borrow again shrinks each round (in Taiwan stocks, about 1.5× your own money at most). Borrowed money stays in Securities. Under a 130% ratio the broker calls; under 115% it closes positions.'
       ]],
       ['time', 'Time machine', [
         'Under History: what a lump sum (or a monthly plan) put into anything years ago would be worth now, and its worst drop on the way.'
