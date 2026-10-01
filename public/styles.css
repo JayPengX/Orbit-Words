@@ -1031,3 +1031,28 @@ html.rw-playing .arc-fit > .arc-ported { height: 100%; }
 .arc-frame { flex: 1 1 auto; width: 100%; min-height: 0; border: 0; border-radius: 18px; background: #000; display: block; }
 .arc-ported .arc-quit { align-self: center; flex: none; }
 .arcade.over .arc-frame { pointer-events: none; filter: saturate(0.6); }
+
+/* ---- 財富等級: the levels with their rewards; the three sides of the money ---- */
+.ranks .rank-row { display: flex; align-items: center; gap: 10px; }
+.rank-name { display: grid; flex: 1; min-width: 0; }
+.rank-reward { font-weight: 750; font-size: 13px; color: var(--q-accent); white-space: nowrap; }
+.rank-reward.paid { color: var(--q-muted); font-weight: 600; }
+.sides .side-row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-top: 1px solid var(--q-divider, var(--q-border)); }
+.sides .side-row:first-child { border-top: 0; }
+.side-icon { font-size: 22px; flex: none; }
+.side-text { display: grid; flex: 1; min-width: 0; }
+.side-text small { font-size: 12px; }
+.side-row.took > .num { color: var(--q-bad); }
+.side-row.up > .num { color: var(--q-good); }
+.side-row.down > .num { color: var(--q-bad); }
+.side-total { display: flex; justify-content: space-between; padding: 12px 14px; border-top: 1px solid var(--q-border); background: var(--q-sunken); font-weight: 650; }
+/* ---- 積分商店 ---- */
+.shop-teaser { display: grid; gap: 4px; width: 100%; text-align: left; border: 1px solid var(--q-border); cursor: pointer; font: inherit; color: inherit; }
+.shop-teaser-top { display: flex; justify-content: space-between; align-items: baseline; }
+.shop-teaser-top strong { font-size: 22px; }
+.shop-teaser p { margin: 0; font-size: 13px; }
+.shop-teaser-go { color: var(--q-accent); font-weight: 700; font-size: 14px; }
+.shop-balance { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; padding: 4px 2px 8px; }
+.shop-balance strong { font-size: 24px; }
+.shop-part { margin-top: 14px; }
+button.level-card.pack.locked { font: inherit; color: inherit; text-align: left; cursor: pointer; }

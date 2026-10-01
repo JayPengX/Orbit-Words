@@ -4,7 +4,7 @@
 // the Quadra Pass's shared wallet; the wealth ranks show where the pool
 // stands; the help centre explains every app.
 import {
-  quadraSession, tabBar, topActions, installGate, watchUpdates, recordAffinity, setting, settingPatch, taipeiDay, poolBalance, money, randomId, notify, schedulePush, APPS, ECONOMY, PLUS, ask, tell, plusCard, plusMember, openPlus, affinityPatch, xpLevel, xpBalance, xpExpiring, xpForLevel, AVATARS, avatarOwned, avatarBought, levelCards, STREAK, streakBonus, longestStreakOf, FRAMES, frameOwned, activeDaySet, CATALOG, catalogCost, catalogLimit, catalogEntry, catalogTokens, catalogPlusMonth, CATALOG_BETS, freeBets
+  quadraSession, tabBar, topActions, installGate, watchUpdates, recordAffinity, setting, settingPatch, taipeiDay, poolBalance, money, randomId, notify, schedulePush, APPS, ECONOMY, PLUS, ask, tell, plusCard, plusMember, openPlus, affinityPatch, xpLevel, xpBalance, xpExpiring, xpForLevel, AVATARS, avatarOwned, avatarBought, levelCards, STREAK, streakBonus, longestStreakOf, FRAMES, frameOwned, activeDaySet, CATALOG, catalogCost, catalogLimit, catalogEntry, catalogTokens, catalogPlusMonth, CATALOG_BETS, freeBets, worthOf, moneySides, rankRewarded
 } from './lib/quadra.mjs';
 import { SHOP, shopEntry, redeemEntry, freezes, boostUntil, openPacks, packPrice, packEntry, packOpen, rerolls, repairable } from './lib/shop.mjs';
 import { LEVELS, PACK_IDS, addPacks, levelRank, inLevels, MODES, loadWords, pickRound, smartType, markKnown, makeQuestion, grade, payFor, sameWord, spellDiff, stats, stateOf, packProgress, unpackProgress, mergeProgress, migrateWords, shortMeaning, wordOfDay } from './lib/words.mjs';
@@ -417,12 +417,10 @@ function packCards(st) {
         ]);
       }
       const n = state.words.filter(x => x.level === id || x.packs?.includes(id)).length;
-      const price = packPrice(w, id);
-      // Two ways to pay: money, or points (dimmed until there are enough).
-      return el('div', { class: 'level-card pack locked' }, [
+      // Not had yet: bought in the shop (積分商店), opened there at the packs.
+      return el('button', { class: 'level-card pack locked', type: 'button', onclick: () => openShop('packs') }, [
         el('div', { class: 'level-top' }, [el('strong', { text: t(`pack_${id}`) }), el('small', { text: t(`packHint_${id}`) })]),
-        el('small', { class: 'muted', text: `${t('packWords', { n })} · ${t('packOnce')}` }),
-        payButtons(price, SHOP.packsXp[id], () => buyPack(id), () => buyPack(id, { points: true }))
+        el('small', { class: 'muted', text: `${t('packWords', { n })} · ${t('packInShop')}` })
       ]);
     })
   );
@@ -710,7 +708,7 @@ document.addEventListener('keydown', e => {
 function renderHome() {
   const box = $('panel-home');
   if (!state.wallet) return put(box, el('div', { class: 'center-spin' }, [el('div', { class: 'spinner' })]));
-  const balance = poolBalance(state.wallet);
+  const balance = worthOf(state.wallet);
   const r = rankOf(balance);
   const streak = streakDays(state.wallet);
   const e = earned();
@@ -725,7 +723,7 @@ function renderHome() {
     ]),
     el('p', { class: 'rank-balance num', text: nt(balance) }),
     r.next ? bar(r.progress, 1, 'light') : null,
-    el('p', { class: 'rank-next', text: r.next ? t('toNext', { v: nt(r.toNext), rank: t(`rank_${r.next.id}`) }) : t('topRank') })
+    el('p', { class: 'rank-next', text: r.next ? t('toNextReward', { v: nt(r.toNext), rank: t(`rank_${r.next.id}`), reward: nt(r.next.reward) }) : t('topRank') })
   ]);
   // The level (every point earned), today's points and what's left to spend.
   const levelCard = el('button', { class: 'q-card pad xp-card', type: 'button', onclick: () => (showTab('missions'), setTimeout(() => $('level-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)) }, [
@@ -756,8 +754,7 @@ function renderHome() {
     levelCard,
     dailyCard,
     next.length ? section(t('missions'), el('div', { class: 'q-card list' }, next.map(missionRow)), { action: el('button', { type: 'button', text: `${t('missionsAll')} ›`, onclick: () => showTab('missions') }) }) : null,
-    section(t('shopTitle'), shopCard()),
-    section(t('catalogTitle'), catalogCard(), { sub: t('catalogSub') }),
+    section(t('shopHub'), shopTeaser()),
     wordOfDayCard(),
     el('div', { class: 'spend-line' }, [
       el('small', { class: 'muted', text: t('spendLine') }),
@@ -818,7 +815,8 @@ function renderMissions() {
     el('div', { id: 'level-section' }, [section(t('levelTitle'), levelSection(), { sub: t('levelSub') })]),
     section(t('weekly'), weeklyCard()),
     section(t('badgesTitle'), badgesCard(st), { sub: t('allTime', { v: xp(xpAllTime(withOutbox())) }) }),
-    section(t('ranks'), ranksCard(rankOf(poolBalance(state.wallet)).index))
+    section(t('ranks'), ranksCard(rankOf(worthOf(state.wallet)).index), { sub: t('ranksSub') }),
+    section(t('sidesTitle'), sidesCard(), { sub: t('sidesSub') })
   );
 }
 
@@ -1064,33 +1062,12 @@ function levelSection() {
     )
   );
   const have = xpBalance(w);
-  const worn = wornId();
-  const tile = a => {
-    const owned = avatarOwned(w, a.id);
-    const on = owned && worn === a.id;
-    const label = on ? t('avatarOn') : owned ? t('avatarWear') : a.plus ? 'Plus' : a.streak ? `🔥 ${t('daysN', { n: a.streak })}` : a.level ? `Lv ${a.level}` : xp(a.xp);
-    const cls = `av-tile${on ? ' on' : ''}${owned ? '' : ' locked'}${!owned && a.xp && have >= a.xp ? ' can' : ''}`;
-    return el('button', { class: cls, type: 'button', 'aria-pressed': String(on), onclick: () => pickAvatar(a) }, [el('span', { class: 'av-glyph', 'aria-hidden': 'true', text: a.glyph }), el('small', { class: 'num', text: label })]);
-  };
   return el('div', { class: 'q-card pad lv-card' }, [
     el('small', { class: 'lv-h', text: t('streakTitle', { n: streakDays(w), best: longestStreakOf(w) }) }),
     streakRoad(),
     el('small', { class: 'lv-h', text: t('levelNextGifts') }),
     next.length ? road : el('p', { class: 'muted', text: t('topRank') }),
-    el('small', { class: 'lv-h', text: t('avatarsTitle', { v: xp(have) }) }),
-    el('div', { class: 'av-grid' }, AVATARS.map(tile)),
-    el('small', { class: 'lv-h', text: t('framesTitle') }),
-    el('div', { class: 'av-grid' }, FRAMES.map(f => {
-      const owned = frameOwned(w, f.id);
-      const on = owned && wornFrame() === f.id;
-      const glyph = AVATARS.find(a => a.id === worn)?.glyph || '🙂';
-      const label = on ? t('avatarOn') : owned ? t('avatarWear') : f.level ? `Lv ${f.level}` : xp(f.xp);
-      const cls = `av-tile${on ? ' on' : ''}${owned ? '' : ' locked'}${!owned && f.xp && have >= f.xp ? ' can' : ''}`;
-      return el('button', { class: cls, type: 'button', 'aria-pressed': String(on), 'aria-label': t(`frame_${f.id}`), onclick: () => pickFrame(f) }, [
-        el('span', { class: `fr-preview q-framed q-frame-${f.id}`, 'aria-hidden': 'true', text: glyph }),
-        el('small', { class: 'num', text: label })
-      ]);
-    }))
+    el('button', { class: 'q-btn block', type: 'button', text: t('looksInShop', { v: xp(have) }), onclick: () => openShop('looks') })
   ]);
 }
 const wornFrame = () => ('frame' in pendingSettings ? pendingSettings.frame.value?.id : setting(state.wallet, 'frame', null)?.id) ?? null;
@@ -1191,11 +1168,140 @@ function badgesCard(st) {
 
 const MISSION_ICON = { words20: '📚', words50: '📖', master3: '🏅', hard10: '🎧', perfect: '💯', game1: '🎮', games3: '🕹️', challenge: '📅', invest: '📈', quotes: '🔍', match: '🏟️', matches3: '📺', orbit: '🪐', tour: '🧭', parlay3: '🎫', scratch: '🎟️', lotto: '🎱' };
 
+// 財富等級: every level, its reward (paid once, the first time it's reached)
+// and where the account is.
 function ranksCard(current) {
-  return el('details', { class: 'q-card list ranks' }, [
-    el('summary', { class: 'rank-row current' }, [el('span', { class: 'rank-icon sm', text: RANKS[current].icon }), el('strong', { text: t(`rank_${RANKS[current].id}`) }), el('small', { class: 'muted', text: t('ranksSee') })]),
-    ...RANKS.map((rk, i) =>
-      el('div', { class: `rank-row${i === current ? ' current' : i < current ? ' passed' : ''}` }, [el('span', { class: 'rank-icon sm', text: rk.icon }), el('strong', { text: t(`rank_${rk.id}`) }), el('small', { class: 'num muted', text: rk.min ? nt(rk.min) : '—' })])
+  const w = state.wallet;
+  return el('div', { class: 'q-card list ranks' }, RANKS.map((rk, i) => {
+    const paid = rk.reward && rankRewarded(w, rk.id);
+    return el('div', { class: `rank-row${i === current ? ' current' : i < current ? ' passed' : ''}` }, [
+      el('span', { class: 'rank-icon sm', text: rk.icon }),
+      el('span', { class: 'rank-name' }, [el('strong', { text: t(`rank_${rk.id}`) }), el('small', { class: 'num muted', text: rk.min ? nt(rk.min) : '—' })]),
+      rk.reward ? el('span', { class: `rank-reward num${paid ? ' paid' : ''}`, text: paid ? t('rankPaid', { v: nt(rk.reward) }) : `+${nt(rk.reward)}` }) : null
+    ]);
+  }));
+}
+// The three sides of the money: what the system gave (opening money, pay,
+// level rewards), what Quadra took (Play's edge, Plus, purchases, interest)
+// and what's the account's own doing.
+function sidesCard() {
+  const m = moneySides(state.wallet);
+  const row = (icon, label, value, sub, cls = '') => el('div', { class: `side-row ${cls}` }, [el('span', { class: 'side-icon', 'aria-hidden': 'true', text: icon }), el('span', { class: 'side-text' }, [el('strong', { text: label }), el('small', { class: 'muted', text: sub })]), el('strong', { class: 'num', text: value })]);
+  return el('div', { class: 'q-card list sides' }, [
+    row('🌤️', t('sideGod'), nt(m.given), t('sideGodSub', { start: nt(m.gave.start), pay: nt(m.gave.pay), rank: nt(m.gave.rank) })),
+    row('🏛️', t('sideQuadra'), `−${nt(m.took)}`, t('sideQuadraSub'), 'took'),
+    row('🙋', t('sideYou'), money(m.own, { sign: true }), t('sideYouSub'), m.own >= 0 ? 'up' : 'down'),
+    el('div', { class: 'side-total' }, [el('span', { text: t('sideWorth') }), el('strong', { class: 'num', text: nt(m.worth) })])
+  ]);
+}
+// A wealth level reached: its reward, once (the Worker paid it; this says so).
+const RANK_SEEN_KEY = 'quadra.rewards.ranksSeen';
+function checkRankRewards() {
+  if (!state.wallet) return;
+  let seen;
+  try {
+    seen = new Set(JSON.parse(localStorage.getItem(RANK_SEEN_KEY) || 'null') || []);
+  } catch {
+    seen = new Set();
+  }
+  const paid = (state.wallet.entries || []).filter(e => e.app === 'eco' && e.kind === 'rank');
+  const first = !localStorage.getItem(RANK_SEEN_KEY);
+  for (const e of paid) {
+    if (seen.has(e.id)) continue;
+    seen.add(e.id);
+    // Rewards paid before this device first looked are just marked seen.
+    if (!first) toast(t('rankReached', { rank: t(`rank_${e.note}`), v: nt(e.amount) }), 'good');
+  }
+  try {
+    localStorage.setItem(RANK_SEEN_KEY, JSON.stringify([...seen]));
+  } catch {}
+}
+
+// ---- 積分商店: everything points buy, in one place ------------------------------------------
+//
+// Quadra's own products (the catalogue), Rewards' items (streak cards, the
+// word boost), word packs, avatars and frames. Home shows what's spendable
+// and opens it; the 單字 tab's packs and 任務's level road point here.
+let shopSheet = null;
+function shopTeaser() {
+  const w = withOutbox();
+  const have = xpBalance(w);
+  const member = plusMember(w);
+  // The best thing within reach: the dearest catalogue item that can be had now.
+  const reach = CATALOG.filter(c => catalogLimit(w, c.id).ok && catalogCost(c.id, member) <= have).sort((a, b) => catalogCost(b.id, member) - catalogCost(a.id, member))[0];
+  return el('button', { class: 'q-card pad shop-teaser', type: 'button', onclick: () => openShop() }, [
+    el('div', { class: 'shop-teaser-top' }, [el('small', { class: 'muted', text: t('xpToSpendShort') }), el('strong', { class: 'num', text: xp(have) })]),
+    el('p', { class: 'muted', text: reach ? t('shopReach', { name: t(`catalog_${reach.id}`), v: xp(catalogCost(reach.id, member)) }) : t('shopTeaserSub') }),
+    el('span', { class: 'shop-teaser-go', text: t('shopOpen') })
+  ]);
+}
+function openShop(focus = '') {
+  if (!shopSheet?.open) {
+    shopSheet?.remove();
+    shopSheet = el('dialog', { class: 'q-sheet shop-sheet', 'aria-label': t('shopHub') });
+    shopSheet.addEventListener('click', e => e.target === shopSheet && shopSheet.close());
+    shopSheet.addEventListener('close', () => {
+      shopSheet.remove();
+      shopSheet = null;
+    });
+    document.body.append(shopSheet);
+    shopSheet.showModal();
+  }
+  renderShop();
+  if (focus) setTimeout(() => shopSheet?.querySelector(`#shop-${focus}`)?.scrollIntoView({ block: 'start', behavior: 'smooth' }), 50);
+}
+function renderShop() {
+  if (!shopSheet) return;
+  const w = withOutbox();
+  const head = el('div', { class: 'q-sheet-head' }, [el('h2', { text: t('shopHub') }), el('button', { class: 'q-close', type: 'button', 'aria-label': t('close'), text: '×', onclick: () => shopSheet.close() })]);
+  const part = (id, title, sub, body) => el('section', { class: 'shop-part', id: `shop-${id}` }, [el('h3', { class: 'section-h', text: title }), sub ? el('p', { class: 'section-sub', text: sub }) : null, body]);
+  put(
+    shopSheet,
+    head,
+    el('div', { class: 'shop-balance' }, [el('small', { class: 'muted', text: t('xpToSpendShort') }), el('strong', { class: 'num', text: xp(xpBalance(w)) }), expiringLine()]),
+    part('catalog', t('catalogTitle'), t('catalogSub'), catalogCard()),
+    part('items', t('shopTitle'), '', shopCard()),
+    part('packs', t('packsTitle'), t('packsShopSub'), shopPacks()),
+    part('looks', t('looksTitle'), t('looksSub'), looksCard())
+  );
+}
+// Word packs not yet had, to buy (the ones had are chosen on 單字).
+function shopPacks() {
+  const w = withOutbox();
+  const list = PACK_IDS.filter(id => !packOpen(w, id));
+  if (!list.length) return el('p', { class: 'muted', text: t('packsAllHad') });
+  return el('div', { class: 'q-card list shop' }, list.map(id => {
+    const n = state.words ? state.words.filter(x => x.level === id || x.packs?.includes(id)).length : 0;
+    return el('div', { class: 'shop-row' }, [el('span', { class: 'shop-icon', 'aria-hidden': 'true', text: '📘' }), el('div', { class: 'shop-text' }, [el('strong', { text: t(`pack_${id}`) }), el('small', { text: [t(`packHint_${id}`), n ? t('packWords', { n }) : '', t('packOnce')].filter(Boolean).join(' · ') }), payButtons(packPrice(w, id), SHOP.packsXp[id], () => buyPack(id), () => buyPack(id, { points: true }))])]);
+  }));
+}
+// Avatars and frames: buy with points, or wear what's had.
+function looksCard() {
+  const w = withOutbox();
+  const have = xpBalance(w);
+  const worn = wornId();
+  const tile = a => {
+    const owned = avatarOwned(w, a.id);
+    const on = owned && worn === a.id;
+    const label = on ? t('avatarOn') : owned ? t('avatarWear') : a.plus ? 'Plus' : a.streak ? `🔥 ${t('daysN', { n: a.streak })}` : a.level ? `Lv ${a.level}` : xp(a.xp);
+    const cls = `av-tile${on ? ' on' : ''}${owned ? '' : ' locked'}${!owned && a.xp && have >= a.xp ? ' can' : ''}`;
+    return el('button', { class: cls, type: 'button', 'aria-pressed': String(on), onclick: () => pickAvatar(a) }, [el('span', { class: 'av-glyph', 'aria-hidden': 'true', text: a.glyph }), el('small', { class: 'num', text: label })]);
+  };
+  const glyph = AVATARS.find(a => a.id === worn)?.glyph || '🙂';
+  return el('div', { class: 'q-card pad lv-card' }, [
+    el('small', { class: 'lv-h', text: t('avatarsShort') }),
+    el('div', { class: 'av-grid' }, AVATARS.map(tile)),
+    el('small', { class: 'lv-h', text: t('framesTitle') }),
+    el(
+      'div',
+      { class: 'av-grid' },
+      FRAMES.map(f => {
+        const owned = frameOwned(w, f.id);
+        const on = owned && wornFrame() === f.id;
+        const label = on ? t('avatarOn') : owned ? t('avatarWear') : f.level ? `Lv ${f.level}` : xp(f.xp);
+        const cls = `av-tile${on ? ' on' : ''}${owned ? '' : ' locked'}${!owned && f.xp && have >= f.xp ? ' can' : ''}`;
+        return el('button', { class: cls, type: 'button', 'aria-pressed': String(on), 'aria-label': t(`frame_${f.id}`), onclick: () => pickFrame(f) }, [el('span', { class: `fr-preview q-framed q-frame-${f.id}`, 'aria-hidden': 'true', text: glyph }), el('small', { class: 'num', text: label })]);
+      })
     )
   ]);
 }
@@ -1278,6 +1384,7 @@ function showTab(tab) {
   refresh();
 }
 function refresh() {
+  if (shopSheet?.open) renderShop();
   checkLevelUp();
   if (state.tab === 'home') renderHome();
   if (state.tab === 'words' && !(state.round && !state.round.answered && document.activeElement?.tagName === 'INPUT')) renderWords();
@@ -1345,6 +1452,7 @@ q.on('wallet', w => {
 let readySeen = null;
 function checkNotices() {
   if (!state.wallet || !state.loaded) return;
+  checkRankRewards();
   const w = withOutbox();
   const ready = [
     ...missions(w).filter(m => m.done && !m.claimed).map(m => [`m:${taipeiDay()}:${m.id}`, t(`mission_${m.id}`), m.xp]),

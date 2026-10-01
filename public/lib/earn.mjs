@@ -12,7 +12,7 @@
 // Before v7 the same entries paid NT$ (their amount): those count as points too.
 // Points earned make the level (the kit's xpLevel); points spent in the shop
 // (shop.mjs redeemEntry) come off what's left to spend (xpBalance).
-import { taipeiDay, todayActivity, poolBalance, xpOf, xpEarned, plusMember, plusTenure, PLUS, activeDaySet, streakBonus, missionDays, STREAK, ECONOMY } from './quadra.mjs';
+import { taipeiDay, todayActivity, poolBalance, xpOf, xpEarned, plusMember, plusTenure, PLUS, activeDaySet, streakBonus, missionDays, STREAK, ECONOMY, WEALTH_RANKS, worthOf } from './quadra.mjs';
 import { freezes, freezeEntry, frozenDays, rerolls } from './shop.mjs';
 
 export { xpOf };
@@ -187,16 +187,9 @@ export function claimEntry(wallet, id, now = Date.now()) {
 }
 
 // ---- Wealth ranks: where the pool stands, and the next step ------------------------
-export const RANKS = [
-  { id: 'start', min: 0, icon: '🌱' },
-  { id: 'saver', min: 50_000, icon: '🪙' },
-  { id: 'steady', min: 100_000, icon: '💼' },
-  { id: 'comfort', min: 250_000, icon: '🏡' },
-  { id: 'wealthy', min: 500_000, icon: '💎' },
-  { id: 'rich', min: 1_000_000, icon: '🏦' },
-  { id: 'multi', min: 5_000_000, icon: '👑' },
-  { id: 'tycoon', min: 20_000_000, icon: '🚀' }
-];
+// 財富等級: the kit's (what the account is worth; each level's one-time reward
+// paid by the economy, eco.js RANKS).
+export const RANKS = WEALTH_RANKS;
 export function rankOf(balance) {
   let i = 0;
   while (i + 1 < RANKS.length && balance >= RANKS[i + 1].min) i++;
@@ -205,7 +198,7 @@ export function rankOf(balance) {
   const progress = next ? Math.max(0, Math.min(1, (balance - rank.min) / (next.min - rank.min))) : 1;
   return { rank, next, progress, index: i, toNext: next ? Math.max(0, next.min - balance) : 0 };
 }
-export const walletRank = wallet => rankOf(poolBalance(wallet));
+export const walletRank = wallet => rankOf(worthOf(wallet));
 
 // Days the streak was kept (3 daily missions claimed; before October 2026 any
 // practice or game), and the days a protection card covered: the kit's rule,

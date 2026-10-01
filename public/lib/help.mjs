@@ -43,7 +43,7 @@ export const HELP = {
         '新手禮：在 Play 第一次用自己的錢下注後，送一張 NT$200 免費投注（7 天內有效）；在 Securities 的第一筆交易免手續費（稅和規費照收）。'
       ]],
       ['money', '錢怎麼算', [
-        '所有 App 共用一個新台幣錢包。新帳號開戶金 NT$30,000；每個月 1 日固定發薪 NT$6,000，跟薪水一樣，存多存少都一樣。開戶金和月薪是 Quadra 唯一會給的錢。那個月第一次打開任何 App 時入帳，沒打開的月份下次補發。',
+        '所有 App 共用一個新台幣錢包。新帳號開戶金 NT$30,000；每個月 1 日固定發薪 NT$6,000，跟薪水一樣，存多存少都一樣。系統發的錢只有三種：開戶金、月薪，和財富等級獎勵（身價第一次到達一個等級時送一次，小資族 NT$1,000 到億萬大亨 NT$30,000；見 Rewards 的說明）。月薪在那個月第一次打開任何 App 時入帳，沒打開的月份下次補發。Rewards 的「任務 › 錢從哪裡來」把你的錢分成三方：系統發的、Quadra 收走的（Play 的莊家優勢、Plus、加值、透支利息），和你自己的成績。',
         '餘額可以是負的（透支），每月計息 1%。就像交割款沒付，2 天內沒補足就是違約交割：扣透支金額 7% 的違約金、自動賣出持股補足，而且 5 年內不能融資、融券。自己先賣就沒事。融資借來的錢只能留在 Securities 買賣，不能拿去 Play 或補透支。',
         'Securities 投資、Play 下注和買彩券、Rewards 的單字、遊戲和任務給積分（XP）不給錢，只有加值商店會花錢；Fixtures 和 Orbit Class 不用錢。錢只存在 Quadra Pass，不能在帳號之間轉。'
       ]]
@@ -76,7 +76,7 @@ export const HELP = {
         'Welcome offers: your first bet in Play with your own money brings a NT$200 free bet (7 days), and your first trade in Securities pays no commission (taxes and fees as usual).'
       ]],
       ['money', 'Money', [
-        'Every app shares one NT$ wallet. A new pass opens with NT$30,000; the 1st of every month pays a fixed NT$6,000, like a salary: the same however much you hold. The opening money and the pay are the only money Quadra gives. It’s paid the first time that month you open any app; a month you miss is paid when you’re back.',
+        'Every app shares one NT$ wallet. A new pass opens with NT$30,000; the 1st of every month pays a fixed NT$6,000, like a salary: the same however much you hold. The system gives money three ways only: the opening money, the pay, and wealth level rewards (paid once, the first time what you’re worth reaches a level: NT$1,000 for Saver up to NT$30,000 for Tycoon; see Rewards). The pay comes the first time that month you open any app; a month you miss is paid when you’re back. Rewards’ Missions › Where your money comes from splits your money three ways: what the system gave, what Quadra took (Play’s house edge, Plus, purchases, overdraft interest), and your own result.',
         'The balance can go below zero (an overdraft) at 1% a month. Like an unpaid settlement, if it isn’t covered within 2 days it’s a default: a 7% penalty on what’s owed, holdings sold for it, and no margin or short selling for 5 years. Sell something first and none of that happens. Money borrowed on margin stays in Securities for trading: it can’t be bet in Play or cover an overdraft.',
         'Securities invests, Play bets and sells lottery tickets, Rewards gives points (XP) for words, games and missions, never money (only its shop spends); Fixtures and Orbit Class don’t use money. Money lives on the Quadra Pass only and can’t move between passes.'
       ]]
@@ -105,13 +105,17 @@ export const HELP = {
       ]],
       ['more', '公債、融資、放空', [
         '公債有票面利率和到期日，價格跟殖利率反向；買進要付應計利息，到期自動還本。',
-        '買進時可以選「融資」：成交時券商借你一部分，買的股票就是擔保，賣出時先還融資（沒有單獨借現金這回事）。也可以放空股票、ETF 和加密貨幣。融資成數和券商一樣：台股上市 6 成、上櫃 5 成，其他市場 5 成（美國 Reg T），陸股、印度股、加密貨幣、基金、黃金存摺不能融資；公債 9 成、公司債 7 成。利息加在融資上，還款或賣出時一起付。維持率跌破 130% 會追繳，2 天內沒回到 130%，融資買進的持股全部賣出（斷頭）；跌破 115% 馬上強制處理。'
+        '買進時可以選「融資」：成交時券商借你一部分，買的股票就是擔保，賣出時先還融資（沒有單獨借現金這回事）。融資成數和券商一樣：台股上市 6 成、上櫃 5 成，其他市場 5 成（美國 Reg T），陸股、印度股、加密貨幣、基金、黃金存摺不能融資；公債 9 成、公司債 7 成。利息加在融資上，還款或賣出時一起付。',
+        '台股的融資、融券要先開「信用帳戶」（換匯・融資 › 融資）：證券帳戶滿 3 個月、最近一年成交 10 筆以上、成交金額達額度的一半；額度 50 萬、100 萬、200 萬、300 萬、500 萬，50 萬以上還要財力證明（總資產達額度 3 成）。融資、融券各用自己的額度。2026 年 10 月以前開的帳戶已經有 50 萬額度。',
+        '融資、融券期限 6 個月，到期前一個月內可以按「展延」再延 6 個月；到期沒展延，融資的股票會被賣出、融券會被買回。融券：要繳賣出金額 9 成的保證金，賣出的錢也押在券商，買回時一起退；另收 0.08% 融券手續費，不收借券利息。其他市場的放空照國外券商：借券年費 3%，開倉要 150% 擔保。',
+        '現股當沖：當天買進再賣出，證交稅減半（0.15%）。先賣後買要證券帳戶滿一年、最近一年成交 10 筆，收盤前一定要買回，沒買回會被自動買回。收盤後到 14:30 下的台股單進「盤後交易」（整股盤後定價、零股盤後），14:30 以收盤價撮合一次，沒成交就取消；盤中零股 9:10 開始。',
+        '維持率收盤時低於 130% 會追繳，兩個營業日內要補到 166%；到期還低於 130%，融資買進的持股全部賣出（斷頭）；低於 100% 馬上強制處理。'
       ]],
       ['time', '時光機', [
         '在「紀錄」試算：幾年前投入一筆錢（或每月定期定額）到某個標的，現在會變多少，中間最大跌幅多少。'
       ]],
       ['fees', '費用', [
-        '台股手續費 0.1425%（最低 NT$20），賣出另收 0.3% 證交稅；美股、日股等海外市場照複委託常見網路費率；共同基金透過基金平台申購，收 1% 申購手續費，贖回不收費。股利照各國規定預扣稅。',
+        '台股手續費 0.1425%（最低 NT$20，折扣後也一樣；零股最低 NT$1），賣出另收 0.3% 證交稅（ETF 0.1%、當沖 0.15%），元以下無條件捨去；每筆交易都看得到交割日（台股 T+2）；美股、日股等海外市場照複委託常見網路費率；共同基金透過基金平台申購，收 1% 申購手續費，贖回不收費。股利照各國規定預扣稅。',
         '換匯用市場中間價加減銀行價差；週末外匯休市時價差加倍。融資按天計息。',
         'Quadra Plus 會員手續費（含基金申購手續費）2.8 折、點差減半、融資利率少 1%、台幣活存前 NT$100,000 享 2%、新定存 +0.1%、借券券商只抽 20%。Rewards 的積分可以換手續費折抵券（每筆最多折 NT$100）和定存加碼券（+0.5%）。'
       ]],
@@ -142,7 +146,11 @@ export const HELP = {
       ]],
       ['more', 'Bonds, margin, shorting', [
         'Bonds have a coupon and a maturity, and their price moves against yields; buying pays accrued interest, and they repay at maturity.',
-        'Buy on margin by choosing 融資 on the order: the broker lends part of it as it fills, the shares its collateral, and selling repays it first (there’s no borrowing cash on its own). Stocks, ETFs and crypto can also be sold short. How much is lent is a broker’s: Taiwan 60% listed, 50% OTC; 50% elsewhere (US Reg T); none on A-shares, Indian stocks, crypto, funds or the gold passbook; government bonds 90%, corporate 70%. Interest is added to the loan and paid when it’s repaid or the shares are sold. Under a 130% ratio the broker calls: not back to 130% within 2 days, everything bought on margin is sold; under 115% it closes positions at once.'
+        'Buy on margin by choosing 融資 on the order: the broker lends part of it as it fills, the shares its collateral, and selling repays it first (there’s no borrowing cash on its own). How much is lent is a broker’s: Taiwan 60% listed, 50% OTC; 50% elsewhere (US Reg T); none on A-shares, Indian stocks, crypto, funds or the gold passbook; government bonds 90%, corporate 70%. Interest is added to the loan and paid when it’s repaid or the shares are sold.',
+        'In Taiwan, margin and short selling need a credit account (FX & loans › Loans): the brokerage account open 3 months, 10 trades in the last year, and that year’s turnover at least half the limit. Limits are NT$500k, 1M, 2M, 3M and 5M; above 500k a broker asks for proof of means (30% of the limit). Margin and shorts each have the limit. Accounts opened before October 2026 have NT$500k already.',
+        'Margin and shorts run 6 months; in the last month Extend adds 6 more, otherwise they’re closed when due. A Taiwan short (融券) puts up 90% of the sale, and the sale money is held too, both back when bought back; a 0.08% handling fee, no borrowing interest. Elsewhere shorts work as abroad: a 3% yearly borrowing fee and 150% cover to open.',
+        'Day trading in Taiwan: bought and sold the same day pays half the tax (0.15%). Selling first needs the account open a year with 10 trades in the last year, and must be bought back by the close, or it’s bought back for you. Orders after the 13:30 close and before 14:30 go to the after-hours sessions: matched once at 14:30 at the close, or cancelled. Odd lots trade from 09:10.',
+        'Under a 130% ratio at the close, the broker calls: two business days to get back to 166%; still under 130% at the deadline, everything bought on margin is sold; under 100% it closes positions at once.'
       ]],
       ['time', 'Time machine', [
         'Under History: what a lump sum (or a monthly plan) put into anything years ago would be worth now, and its worst drop on the way.'
@@ -229,10 +237,11 @@ export const HELP = {
         '右上角：說明、重新整理和你的 Quadra Pass；再點一次目前的分頁會回到頂端。'
       ]],
       ['follow', '追蹤', [
-        '依喜好順序追蹤運動（第一個最優先），再選每種運動的聯賽；球隊在比賽或球隊頁按「+ 追蹤」，網球、高爾夫、F1、UFC 的選手在選手頁追蹤。追蹤的球隊開賽和完賽會通知你；Play 的推薦也用你的追蹤。'
+        '依喜好順序追蹤運動（第一個最優先），再選每種運動的聯賽，都在「我的設定」；球隊在比賽或球隊頁按「+ 追蹤」，網球、高爾夫、F1、MotoGP、UFC 的選手在選手頁追蹤，F1 車隊在車隊頁追蹤（有它車手的比賽都算你的）。「追蹤」分頁列出每隊上一場、下一場和近五場，選手和聯賽在後面。追蹤的球隊開賽和完賽會通知你；Play 的推薦也用你的追蹤。',
+        '「直播」分頁上方可以只看某個轉播服務的比賽；排名可以看過去五季（聯賽冠軍標在最上面），球隊頁有歷年戰績；MotoGP 有車手積分榜和車手頁（生涯和每一季），Formula E 有完賽名次，F1 Academy 和 GT 世界挑戰賽有賽程和各節時間。'
       ]],
       ['watch', '台灣轉播', [
-        '比賽頁和推薦卡片會列出台灣可以收看的頻道與平台（愛爾達、緯來、DAZN、博斯、各聯盟的官方訂閱…）。轉播權會變動，以各平台公告為準。'
+        '比賽頁和推薦卡片會列出台灣可以收看的頻道與平台（愛爾達、緯來、DAZN、博斯、各聯盟的官方訂閱…），在「我的設定」選你有的服務。YouTube 只在聯盟頻道真的有那場比賽的影片時才列出（GT 世界挑戰賽全部免費直播）。轉播權會變動，以各平台公告為準。'
       ]],
       ['play', '到 Play 下注', [
         'Play 有開賣的比賽，旁邊有「投注」（進行中是「場中」）小按鈕，比賽頁有「到 Play 下注」：一點就到 Play 的那場比賽，已經登入。'
@@ -272,10 +281,10 @@ export const HELP = {
         'Quadra 獎勵努力的地方：背單字、玩遊戲、完成每日任務，拿積分（XP）、連續紀錄和徽章。積分會提升你的 Quadra 等級和稱號（每個 App 的帳戶都看得到），也能在這裡兌換保護卡、單字加倍和單字包；積分不是錢，Rewards 不發錢。所有 App 的說明也都在這裡。'
       ]],
       ['tabs', '每個分頁', [
-        '「首頁」：今天的積分、今日挑戰、接下來的任務、加值（保護卡、單字加倍、Plus）和今日單字。',
+        '「首頁」：財富等級、今天的積分、今日挑戰、接下來的任務、積分商店和今日單字。',
         '「單字」：選級別或單字包和學習方式，開始一輪。',
         '「遊戲」：單字遊戲、長局、謎題、動作、棋盤、腦力，可以搜尋和加入最愛；每天有一款今日挑戰。',
-        '「任務」：每日任務、每週目標、徽章和財富等級；完成待領取的數量會標在分頁上。',
+        '「任務」：每日任務、等級與連續紀錄、每週目標、徽章、財富等級和錢從哪裡來；完成待領取的數量會標在分頁上。',
         '右上角的「?」：每個 Quadra App 的說明（就是這裡）。'
       ]],
       ['words', '背單字', [
@@ -301,7 +310,7 @@ export const HELP = {
         '單字包（「單字」分頁）：多益 TOEIC NT$990、雅思 IELTS NT$1,490、商務英文 NT$1,990（或 8,000 / 12,000 / 16,000 XP），一次買斷，每個字都有真人發音。買了就和級別一樣可以勾選；和主單字表重複的字共用進度，答對一樣有積分。'
       ]],
       ['catalog', '積分兌換', [
-        '首頁的「積分兌換」把積分換成 Quadra 自己的東西，像信用卡或航空哩程：Play 免費投注 NT$100（5,000 XP）或 NT$500（22,000 XP），7 天內用、每個選項賠率 1.50 以上、不能提前兌現，每月最多換 NT$1,000；證券手續費折抵券（4,000 XP），下一筆有手續費的交易最多折 NT$100，用不完不退，30 天內有效，每月 3 張；定存加碼券（12,000 XP），一筆 NT$100,000 以內的新定存利率 +0.5%，只算第一期、提前解約就取消，30 天內使用，每月 1 張；Quadra Plus 一個月（20,000 XP），試用過免費月之後每季一次，這個月不是會員就換這個月，已經是就換下個月。',
+        '首頁的「積分商店」把積分換成 Quadra 自己的東西，像信用卡或航空哩程：Play 免費投注 NT$100（5,000 XP）或 NT$500（22,000 XP），7 天內用、每個選項賠率 1.50 以上、不能提前兌現，每月最多換 NT$1,000；證券手續費折抵券（4,000 XP），下一筆有手續費的交易最多折 NT$100，用不完不退，30 天內有效，每月 3 張；定存加碼券（12,000 XP），一筆 NT$100,000 以內的新定存利率 +0.5%，只算第一期、提前解約就取消，30 天內使用，每月 1 張；Quadra Plus 一個月（20,000 XP），試用過免費月之後每季一次，這個月不是會員就換這個月，已經是就換下個月。',
         'Plus 會員兌換 9 折。每次兌換都會先問你；換到的券會出現在要用的 App（Play 的投注單、Securities 的下單和定存），用掉或過期就沒了。'
       ]],
       ['money', '積分怎麼算', [
@@ -309,8 +318,9 @@ export const HELP = {
         '等級：累計積分決定等級（Lv 2 要 100 XP、Lv 5 要 1,600、Lv 10 要 8,100、Lv 20 要 36,100、Lv 30 要 84,100、Lv 50 要 240,100，每天認真玩大約一年到頂），每幾級換一個稱號：新手、學徒、好手、高手、達人、大師、傳奇、神話。兌換東西花的是「可用積分」，不會降級。可用積分有效期限一年：每個月拿到的積分在隔年同月底到期，兌換時先扣最早的，快到期會提醒。',
         '等級獎勵與頭像（「任務 › 等級與頭像」）：Lv 5、10、15、20、30、50 各解鎖一個頭像，Lv 5、15、25…每十級送一張連續紀錄保護卡；也能用積分換頭像（300 到 5,000 XP），Plus 會員有專屬的 ✦。戴上的頭像會出現在每個 Quadra App 的帳戶按鈕上。',
         '積分還能換：頭像框（Lv 10 青銅、Lv 40 傳奇、Lv 50 神話，或用 2,000 到 30,000 XP 換白銀、翡翠、黃金、霓虹、極光）、換掉一個每日任務（100 XP，一天最多 2 次）、補回昨天斷掉的連續紀錄（1,500 XP，斷掉前已連續 3 天以上、手上沒有保護卡時）。每次兌換都會先問你。',
-        '錢只有開戶金和每月薪水（在 Quadra Pass 的說明裡）；在 Rewards 花錢的只有加值商店。',
-        '財富等級依錢包總額分成八級，從「起步」（NT$5 萬以下）到「億萬」（NT$2,000 萬以上）。'
+        '積分全部在首頁的「積分商店」用：Quadra 商品（免費投注、手續費折抵券、定存加碼券、Plus 月份）、保護卡和單字加倍、單字包、頭像和相框。',
+        '系統發的錢有開戶金、每月薪水和財富等級獎勵（在 Quadra Pass 的說明裡）；在 Rewards 花錢的只有積分商店裡的加值和單字包。',
+        '財富等級看身價（錢包加上 Securities 的持股），分成八級：起步、小資族（NT$5 萬）、穩健（10 萬）、小康（25 萬）、富裕（50 萬）、有錢人（100 萬）、千萬富翁（500 萬）、億萬大亨（2,000 萬）。第一次到達一個等級，系統送一次等級獎勵：NT$1,000、2,000、3,000、5,000、8,000、15,000、30,000；之後掉下去不會收回，再回來也不會再送。「任務 › 錢從哪裡來」把你的錢分成三方：系統發的、Quadra 收走的，和你自己的成績。'
       ]]
     ],
     en: [
@@ -318,7 +328,7 @@ export const HELP = {
         'Where Quadra rewards effort: words, games and daily missions earn points (XP), streaks and badges. Points raise your Quadra level and title (shown in every app’s account) and buy streak cards, word boosts and word packs here; they aren’t money, and Rewards pays none. Every app’s help lives here too.'
       ]],
       ['tabs', 'The tabs', [
-        'Home: today’s points, today’s challenge, the next missions, extras (streak protection, word points ×2, Plus) and the word of the day.',
+        'Home: your wealth level, today’s points, today’s challenge, the next missions, the points shop and the word of the day.',
         'Words: pick levels or word packs and a way to learn, and start a round.',
         'Games: word games, long games, puzzles, action, board and brain games, with search and favourites; one game a day is today’s challenge.',
         'Missions: daily missions, weekly goals, badges and your wealth rank; the tab shows how many are ready to claim.',
@@ -355,8 +365,9 @@ export const HELP = {
         'Levels: every point you earn counts (level 2 at 100 XP, 5 at 1,600, 10 at 8,100, 20 at 36,100, 30 at 84,100, 50 at 240,100: about a year of daily play to the top), with a new title every few levels: Rookie, Apprentice, Skilled, Expert, Master, Grandmaster, Legend, Mythic. Buying things spends your points to spend, never your level. Points to spend last a year: each month’s points expire at the end of the same month the next year, the oldest are spent first, and you’re told before any run out.',
         'Level rewards and avatars (Missions › Level and avatars): levels 5, 10, 15, 20, 30 and 50 each unlock an avatar, and levels 5, 15, 25… bring a streak protection card; points buy more avatars (300 to 5,000 XP), and Plus members get ✦. The avatar you wear shows on your account button in every Quadra app.',
         'Points also buy frames (bronze at level 10, legend at 40, mythic at 50; silver, jade, gold, neon and aurora for 2,000 to 30,000 XP), a swap of a daily mission (100 XP, twice a day at most) and yesterday’s streak bought back (1,500 XP, when it had run 3 days or more and you hold no protection card). Each asks first.',
-        'Money comes only from the opening money and the monthly pay (see Quadra Pass); in Rewards only the shop spends it.',
-        'Eight wealth ranks by the wallet’s total, from Starter (under NT$50,000) to Tycoon (NT$20 million and up).'
+        'Points are all spent in the Points shop on Home: Quadra’s products (free bets, fee vouchers, deposit boosts, Plus months), streak cards and the word boost, word packs, avatars and frames.',
+        'The system gives money as the opening money, the monthly pay and wealth level rewards (see Quadra Pass); in Rewards only the shop’s items and word packs spend it.',
+        'Wealth levels go by what you’re worth (your wallet and Securities holdings), eight of them: Starter, Saver (NT$50k), Steady (100k), Comfortable (250k), Wealthy (500k), Rich (1M), Multi-millionaire (5M) and Tycoon (20M). The first time you reach one, the system pays its reward once: NT$1,000, 2,000, 3,000, 5,000, 8,000, 15,000 and 30,000; falling back keeps it, and coming back pays nothing more. Missions › Where your money comes from splits your money three ways: what the system gave, what Quadra took, and your own result.'
       ]]
     ]
   },
