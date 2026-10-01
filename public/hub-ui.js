@@ -167,9 +167,11 @@ export function renderTruth(box, { t, state }) {
       t('sidesTitle'),
       el('div', { class: 'q-card list sides' }, [
         sideRow('🌤️', t('sideGod'), money(s.given), t('sideGodSub', { start: money(s.gave.start), pay: money(s.gave.pay), rank: money(s.gave.rank), other: money(s.gave.other) })),
-        sideRow('🏛️', t('sideQuadra'), `−${money(s.took)}`, t('sideQuadraSub'), 'took'),
+        // Against Quadra, either way: green when Play has paid out more than
+        // was lost there and paid in fees, red when Quadra kept more.
+        sideRow('🏛️', t('sideQuadra'), money(s.quadra, { sign: true }), t('sideQuadraSub', { fees: money(s.fees) }), s.quadra >= 0 ? 'up' : 'down'),
         sideRow('🙋', t('sideYou'), money(s.own, { sign: true }), t('sideYouSub'), s.own >= 0 ? 'up' : 'down'),
-        el('div', { class: 'side-total' }, [el('span', { text: t('sideWorth') }), el('strong', { class: 'num', text: money(s.worth) })])
+        el('div', { class: 'side-total' }, [el('span', {}, [document.createTextNode(t('sideWorth')), s.atStake > 0 ? el('small', { class: 'muted', text: t('sideAtStake', { v: money(s.atStake) }) }) : null]), el('strong', { class: 'num', text: money(s.worth) })])
       ]),
       { sub: t('sidesSub', { pay: money(ECONOMY.monthly) }) }
     ),

@@ -311,3 +311,4 @@ img { max-width: 100%; }
 .study-word .word.big { font-size: clamp(28px, 9vw, 40px); }
 .study-meaning { white-space: pre-line; font-size: 17px; line-height: 1.6; }
 .study-nav { margin-top: 12px; }
+.side-total > span small { display: block; font-size: 12px; font-weight: 600; }
