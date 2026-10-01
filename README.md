@@ -1,4 +1,4 @@
-# Quadra Rewards
+# Quadra Hub
 
 Where Quadra rewards effort with points (XP) and explains itself (formerly
 Quadra Words). It pays no money: since v7 the opening money and the

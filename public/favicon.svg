@@ -5,5 +5,5 @@
   </defs>
   <rect width="512" height="512" rx="116" fill="url(#q-vocab-bg)"/>
   <rect width="512" height="512" rx="116" fill="url(#q-vocab-hl)"/>
-  <rect x="116" y="116" width="128" height="128" rx="30" fill="#fff" fill-opacity="0.26"/><rect x="268" y="116" width="128" height="128" rx="30" fill="#fff" fill-opacity="0.26"/><rect x="116" y="268" width="128" height="128" rx="30" fill="#fff" fill-opacity="0.26"/><rect x="268" y="268" width="128" height="128" rx="30" fill="#fff"/><g transform="translate(268 268)"><path d="M64 18 L77 48 L110 51 L85 72 L93 104 L64 87 L35 104 L43 72 L18 51 L51 48 Z" fill="none" stroke="#6d28d9" stroke-width="10" stroke-linejoin="round"/></g>
+  <rect x="116" y="116" width="128" height="128" rx="30" fill="#fff" fill-opacity="0.26"/><rect x="268" y="116" width="128" height="128" rx="30" fill="#fff" fill-opacity="0.26"/><rect x="116" y="268" width="128" height="128" rx="30" fill="#fff" fill-opacity="0.26"/><rect x="268" y="268" width="128" height="128" rx="30" fill="#fff"/><g transform="translate(268 268)"><path d="M64 38 C52 28 34 26 18 30 V100 C34 96 52 98 64 108 C76 98 94 96 110 100 V30 C94 26 76 28 64 38 Z" fill="none" stroke="#6d28d9" stroke-width="10" stroke-linejoin="round"/><path d="M64 38 V106" stroke="#6d28d9" stroke-width="10" stroke-linecap="round"/></g>
 </svg>

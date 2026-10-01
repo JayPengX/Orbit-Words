@@ -1,7 +1,7 @@
 {
-  "name": "Quadra Rewards",
-  "short_name": "Rewards",
-  "description": "背單字、玩小遊戲、完成任務賺錢，所有 Quadra 服務的說明。",
+  "name": "Quadra Hub",
+  "short_name": "Hub",
+  "description": "背單字、管理你的 Quadra Pass 和 Plus，看清楚 Quadra 的錢怎麼流。",
   "lang": "zh-Hant-TW",
   "start_url": "./",
   "scope": "./",
