@@ -6,7 +6,7 @@ import { taipeiDay, PLUS } from '../public/lib/quadra.mjs';
 
 const DAY = 86_400_000;
 const now = Date.parse('2026-09-28T04:00:00Z');
-const played = n => ({ id: `vocab:g:${n}`, t: now - n * DAY, app: 'vocab', kind: 'game', amount: 0, xp: 10 });
+const played = n => ({ id: `vocab:w:${n}`, t: now - n * DAY, app: 'vocab', kind: 'words', amount: 0, xp: 10 });
 
 test('protection cards: bought, granted a Plus month, used on a missed day', () => {
   // Played 5 to 2 days ago, missed yesterday: one card saves the streak.
@@ -102,7 +102,7 @@ test('points buy a card, a boost or a pack, only with enough to spend; Plus earn
   const { redeemEntry, packOwned } = await import('../public/lib/shop.mjs');
   const { claimEntry, xpRate } = await import('../public/lib/earn.mjs');
   const { xpBalance } = await import('../public/lib/quadra.mjs');
-  const rich = { entries: [{ id: 'vocab:g:1', t: now - DAY, app: 'vocab', kind: 'game', amount: 0, xp: 9_000 }] };
+  const rich = { entries: [{ id: 'vocab:w:1', t: now - DAY, app: 'vocab', kind: 'words', amount: 0, xp: 9_000 }] };
   const card = redeemEntry(rich, 'freeze', 'a', now);
   assert.deepEqual([card.id, card.kind, card.amount, card.note], ['vocab:xs:freeze:a', 'redeem', 0, String(SHOP.freeze.xp)]);
   const after = { entries: [...rich.entries, card] };
@@ -126,7 +126,7 @@ test('points buy a card, a boost or a pack, only with enough to spend; Plus earn
 test('levels give streak cards at 5, 15, 25…, and points buy avatars (level ones can’t be bought)', async () => {
   const { redeemEntry } = await import('../public/lib/shop.mjs');
   const { avatarOwned } = await import('../public/lib/quadra.mjs');
-  const xp = n => ({ id: `vocab:g:x${n}`, t: now - DAY, app: 'vocab', kind: 'game', amount: 0, xp: n });
+  const xp = n => ({ id: `vocab:w:x${n}`, t: now - DAY, app: 'vocab', kind: 'words', amount: 0, xp: n });
   // 1,600 XP is level 5: one card; 19,600 is level 15: two.
   assert.equal(freezes({ entries: [xp(1_600)] }, now).granted, 1);
   assert.equal(freezes({ entries: [xp(19_600)] }, now).granted, 2);
@@ -142,10 +142,12 @@ test('levels give streak cards at 5, 15, 25…, and points buy avatars (level on
 test('a week with every weekly goal claimed brings a protection card', async () => {
   const { weeklyCards } = await import('../public/lib/shop.mjs');
   const wk = (week, ids) => ids.map(id => ({ id: `vocab:wk:${week}:${id}`, t: now, app: 'vocab', kind: 'mission', amount: 0, xp: 30 }));
-  const all = ['days5', 'earn1000', 'missions10', 'games10'];
-  const w = { entries: [...wk('2026-09-21', all), ...wk('2026-09-28', all.slice(0, 3))] };
-  assert.equal(weeklyCards(w), 1);
-  assert.equal(freezes(w, now).granted, 1);
+  const three = ['days5', 'earn1000', 'missions10'];
+  // Before the games went a week had four goals and needed all four; from the
+  // week of 28 September, the three.
+  const w = { entries: [...wk('2026-09-14', three), ...wk('2026-09-21', [...three, 'games10']), ...wk('2026-09-28', three), ...wk('2026-10-05', three.slice(0, 2))] };
+  assert.equal(weeklyCards(w), 2);
+  assert.equal(freezes(w, now).granted, 2);
 });
 
 test('the day’s soft cap: full, then half, then a tenth; ×rate moves the steps', async () => {
@@ -165,7 +167,7 @@ test('points swap a daily mission, buy back a missed day, and buy frames', async
   const { redeemEntry, rerolls, repairable, SHOP } = await import('../public/lib/shop.mjs');
   const { dailyMissionIds, missions } = await import('../public/lib/earn.mjs');
   const { activeDaySet, streakOf, frameOwned } = await import('../public/lib/quadra.mjs');
-  const rich = { entries: [{ id: 'vocab:g:1', t: now - DAY, app: 'vocab', kind: 'game', amount: 0, xp: 20_000 }] };
+  const rich = { entries: [{ id: 'vocab:w:1', t: now - DAY, app: 'vocab', kind: 'words', amount: 0, xp: 20_000 }] };
   const day = taipeiDay(now);
   const before = dailyMissionIds(day);
   const away = before[4];
@@ -179,7 +181,7 @@ test('points swap a daily mission, buy back a missed day, and buy frames', async
   assert.deepEqual(after.filter(id => !before.includes(id)).length, 1);
   // Repair (from October, missions keep a day): yesterday missed, the day before kept, no card.
   const later = Date.parse('2026-10-20T04:00:00Z');
-  const k = n => ['words20', 'game1', 'quotes', 'match', 'orbit'].map(id => ({ id: `vocab:m:${taipeiDay(later - n * DAY)}:${id}`, t: later - n * DAY, app: 'vocab', kind: 'mission', amount: 0, xp: 1 }));
+  const k = n => ['words20', 'master3', 'quotes', 'match', 'orbit'].map(id => ({ id: `vocab:m:${taipeiDay(later - n * DAY)}:${id}`, t: later - n * DAY, app: 'vocab', kind: 'mission', amount: 0, xp: 1 }));
   const s = { entries: [...k(2), ...k(3), ...k(4)] };
   // A streak of two isn't worth buying back.
   assert.equal(repairable({ entries: [...k(2), ...k(3)] }, activeDaySet({ entries: [...k(2), ...k(3)] }), later), null);

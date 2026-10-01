@@ -17,7 +17,7 @@ export const HELP = {
   pass: {
     zh: [
       ['what', 'Quadra Pass 是什麼', [
-        'Quadra Pass 是你在所有 Quadra App 的帳號：Quadra Securities、Quadra Play、Quadra Fixtures、Quadra Rewards，和相關的 Orbit Class。每個 App 都用它登入，資料都存在它裡面。',
+        'Quadra Pass 是你在所有 Quadra App 的帳號：Quadra Securities、Quadra Play、Quadra Rewards，和相關的 Quadra Fixtures、Orbit Class。每個 App 都用它登入，資料都存在它裡面。',
         '通行碼是一組 10 個字的代碼，就是這個帳號的鑰匙：知道它的人就能用，所以不要給別人。它只在建立或更換時顯示一次，裝置上不會保存，請記在安全的地方。',
         '在新裝置登入：輸入通行碼，或在已登入的裝置打開帳戶，按「新增裝置」取得 8 碼裝置代碼（10 分鐘內、只能用一次）。'
       ]],
@@ -27,7 +27,7 @@ export const HELP = {
       ]],
       ['one', '一次只用一個 App', [
         '同一個通行碼一次只在一個 App、一台裝置上使用。打開另一個 App（或另一台裝置），原本那個會暫停並顯示「在別處使用中」，按一下就能拿回來，資料不會互相蓋掉。',
-        '從一個 App 跳到另一個（例如 Fixtures 的「到 Play 下注」）會自動帶著登入。'
+        '從一個 App 跳到另一個（例如從 Rewards 的任務到 Securities）會自動帶著登入。'
       ]],
       ['safe', '安全', [
         '伺服器只保存通行碼的雜湊值；裝置上只有會過期、可以撤銷的登入憑證，不會有通行碼本身。',
@@ -45,12 +45,12 @@ export const HELP = {
       ['money', '錢怎麼算', [
         '所有 App 共用一個新台幣錢包。新帳號開戶金 NT$30,000；每個月 1 日固定發薪 NT$6,000，跟薪水一樣，存多存少都一樣。系統發的錢只有三種：開戶金、月薪，和財富等級獎勵（身價第一次到達一個等級時送一次，小資族 NT$1,000 到億萬大亨 NT$30,000；見 Rewards 的說明）。月薪在那個月第一次打開任何 App 時入帳，沒打開的月份下次補發。Rewards 的「任務 › 錢從哪裡來」把你的錢分成三方：系統發的、Quadra 收走的（Play 的莊家優勢、Plus、加值、透支利息），和你自己的成績。',
         '餘額可以是負的（透支），每月計息 1%。就像交割款沒付，2 天內沒補足就是違約交割：扣透支金額 7% 的違約金、自動賣出持股補足，而且 5 年內不能融資、融券。自己先賣就沒事。融資借來的錢只能留在 Securities 買賣，不能拿去 Play 或補透支。',
-        'Securities 投資、Play 下注和買彩券、Rewards 的單字、遊戲和任務給積分（XP）不給錢，只有加值商店會花錢；Fixtures 和 Orbit Class 不用錢。錢只存在 Quadra Pass，不能在帳號之間轉。'
+        'Securities 投資、Play 下注和買彩券、Rewards 的單字和任務給積分（XP）不給錢，只有加值商店會花錢；Fixtures 和 Orbit Class 不用錢。錢只存在 Quadra Pass，不能在帳號之間轉。'
       ]]
     ],
     en: [
       ['what', 'What the Quadra Pass is', [
-        'The Quadra Pass is your account in every Quadra app: Quadra Securities, Quadra Play, Quadra Fixtures, Quadra Rewards and the related Orbit Class. Each signs in with it and keeps its data on it.',
+        'The Quadra Pass is your account in every Quadra app: Quadra Securities, Quadra Play, Quadra Rewards and the related Quadra Fixtures and Orbit Class. Each signs in with it and keeps its data on it.',
         'The pass is a 10-character code, the key to the account: anyone who knows it can use it, so keep it to yourself. It’s shown only when it’s made or changed and never kept on a device: write it down somewhere safe.',
         'On a new device, enter the pass, or on a signed-in device open the account and choose “Add a device” for an 8-character device code (10 minutes, once).'
       ]],
@@ -60,7 +60,7 @@ export const HELP = {
       ]],
       ['one', 'One app at a time', [
         'A pass is used in one app on one device at a time. Opening another app (or device) pauses the first, which says it’s in use elsewhere; one tap takes it back, so nothing overwrites anything.',
-        'Going from one app to another (Bet in Play from Fixtures, say) arrives signed in.'
+        'Going from one app to another (from a Rewards mission to Securities, say) arrives signed in.'
       ]],
       ['safe', 'Security', [
         'The server keeps only a hash of the pass; devices keep only sign-ins that expire and can be revoked, never the pass itself.',
@@ -78,7 +78,7 @@ export const HELP = {
       ['money', 'Money', [
         'Every app shares one NT$ wallet. A new pass opens with NT$30,000; the 1st of every month pays a fixed NT$6,000, like a salary: the same however much you hold. The system gives money three ways only: the opening money, the pay, and wealth level rewards (paid once, the first time what you’re worth reaches a level: NT$1,000 for Saver up to NT$30,000 for Tycoon; see Rewards). The pay comes the first time that month you open any app; a month you miss is paid when you’re back. Rewards’ Missions › Where your money comes from splits your money three ways: what the system gave, what Quadra took (Play’s house edge, Plus, purchases, overdraft interest), and your own result.',
         'The balance can go below zero (an overdraft) at 1% a month. Like an unpaid settlement, if it isn’t covered within 2 days it’s a default: a 7% penalty on what’s owed, holdings sold for it, and no margin or short selling for 5 years. Sell something first and none of that happens. Money borrowed on margin stays in Securities for trading: it can’t be bet in Play or cover an overdraft.',
-        'Securities invests, Play bets and sells lottery tickets, Rewards gives points (XP) for words, games and missions, never money (only its shop spends); Fixtures and Orbit Class don’t use money. Money lives on the Quadra Pass only and can’t move between passes.'
+        'Securities invests, Play bets and sells lottery tickets, Rewards gives points (XP) for words and missions, never money (only its shop spends); Fixtures and Orbit Class don’t use money. Money lives on the Quadra Pass only and can’t move between passes.'
       ]]
     ]
   },
@@ -227,7 +227,7 @@ export const HELP = {
   match: {
     zh: [
       ['what', 'Quadra Fixtures 是什麼', [
-        'Quadra 的運動資料中心：所有運動的比分、賽程、排名、球隊和球員，每場比賽的詳細數據，還有依你追蹤的運動排好的推薦。Play 有開賣的比賽有「到 Play 下注」。'
+        'Quadra 的運動資料中心：所有運動的比分、賽程、排名、球隊和球員，每場比賽的詳細數據，還有依你追蹤的運動排好的推薦。和 Orbit Class 一樣是 Quadra 的相關服務：不用錢，也不連到 Play。'
       ]],
       ['tabs', '每個分頁', [
         '「首頁」：選一天（前三天到下週），當天每場比賽依你的喜好排好：先是不撞時間的精選，再來是其他比賽；可以只看追蹤的、你的球隊或某個運動。',
@@ -237,14 +237,11 @@ export const HELP = {
         '右上角：說明、重新整理和你的 Quadra Pass；再點一次目前的分頁會回到頂端。'
       ]],
       ['follow', '追蹤', [
-        '依喜好順序追蹤運動（第一個最優先），再選每種運動的聯賽，都在「我的設定」；球隊在比賽或球隊頁按「+ 追蹤」，網球、高爾夫、F1、MotoGP、UFC 的選手在選手頁追蹤，F1 車隊在車隊頁追蹤（有它車手的比賽都算你的）。「追蹤」分頁列出每隊上一場、下一場和近五場，選手和聯賽在後面。追蹤的球隊開賽和完賽會通知你；Play 的推薦也用你的追蹤。',
+        '依喜好順序追蹤運動（第一個最優先），再選每種運動的聯賽，都在「我的設定」；球隊在比賽或球隊頁按「+ 追蹤」，網球、高爾夫、F1、MotoGP、UFC 的選手在選手頁追蹤，F1 車隊在車隊頁追蹤（有它車手的比賽都算你的）。「追蹤」分頁列出每隊上一場、下一場和近五場，選手和聯賽在後面。追蹤的球隊開賽和完賽會通知你。',
         '「直播」分頁上方可以只看某個轉播服務的比賽；排名可以看過去五季（聯賽冠軍標在最上面），球隊頁有歷年戰績；MotoGP 有車手積分榜和車手頁（生涯和每一季），Formula E 有完賽名次，F1 Academy 和 GT 世界挑戰賽有賽程和各節時間。'
       ]],
       ['watch', '台灣轉播', [
         '比賽頁和推薦卡片會列出台灣可以收看的頻道與平台（愛爾達、緯來、DAZN、博斯、各聯盟的官方訂閱…），在「我的設定」選你有的服務。YouTube 只在聯盟頻道真的有那場比賽的影片時才列出（GT 世界挑戰賽全部免費直播）。轉播權會變動，以各平台公告為準。'
-      ]],
-      ['play', '到 Play 下注', [
-        'Play 有開賣的比賽，旁邊有「投注」（進行中是「場中」）小按鈕，比賽頁有「到 Play 下注」：一點就到 Play 的那場比賽，已經登入。'
       ]],
       ['money', '錢怎麼算', [
         'Fixtures 不用錢：看比賽、追蹤都免費。每天打開一場比賽可以完成 Rewards 的每日任務。'
@@ -252,7 +249,7 @@ export const HELP = {
     ],
     en: [
       ['what', 'What Quadra Fixtures is', [
-        'Quadra’s sports data centre: every sport’s scores, schedules, tables, teams and players, each match’s details, and picks ranked by what you follow. Matches Play sells have Bet in Play.'
+        'Quadra’s sports data centre: every sport’s scores, schedules, tables, teams and players, each match’s details, and picks ranked by what you follow. Like Orbit Class, it’s a related add-on: no money, and no links to Play.'
       ]],
       ['tabs', 'The tabs', [
         'Home: pick a day (three days back to a week ahead): every match of it, ranked for you, a no-clash plan first, then the rest; narrow it to what you follow, your teams or one sport.',
@@ -262,13 +259,10 @@ export const HELP = {
         'Top right: help, refresh and your Quadra Pass; tap the open tab again to go back to its top.'
       ]],
       ['follow', 'Following', [
-        'Follow sports in order of priority (the first counts most), then leagues in each; follow teams with “+ Follow” on a match or team page, and tennis, golf, F1 and UFC players on their page. A followed team’s start and final score come as notices, and Play’s picks use your follows too.'
+        'Follow sports in order of priority (the first counts most), then leagues in each; follow teams with “+ Follow” on a match or team page, and tennis, golf, F1 and UFC players on their page. A followed team’s start and final score come as notices.'
       ]],
       ['watch', 'Watching in Taiwan', [
         'Match pages and pick cards list where to watch in Taiwan (ELTA, Videoland, DAZN, Sportcast, league passes…). Rights change; each service’s own listings are the final word.'
-      ]],
-      ['play', 'Betting in Play', [
-        'Games Play sells have a small Bet chip (Live while in play), and a game page has “Bet in Play”: one tap opens that game in Play, signed in.'
       ]],
       ['money', 'Money', [
         'Fixtures is free: watching and following cost nothing. Opening a match each day completes a daily mission in Rewards.'
@@ -278,12 +272,11 @@ export const HELP = {
   vocab: {
     zh: [
       ['what', 'Quadra Rewards 是什麼', [
-        'Quadra 獎勵努力的地方：背單字、玩遊戲、完成每日任務，拿積分（XP）、連續紀錄和徽章。積分會提升你的 Quadra 等級和稱號（每個 App 的帳戶都看得到），也能在這裡兌換保護卡、單字加倍和單字包；積分不是錢，Rewards 不發錢。所有 App 的說明也都在這裡。'
+        'Quadra 獎勵努力的地方：背單字、完成每日任務，拿積分（XP）、連續紀錄和徽章。積分會提升你的 Quadra 等級和稱號（每個 App 的帳戶都看得到），也能在這裡兌換保護卡、單字加倍和單字包；積分不是錢，Rewards 不發錢。所有 App 的說明也都在這裡。'
       ]],
       ['tabs', '每個分頁', [
-        '「首頁」：財富等級、今天的積分、今日挑戰、接下來的任務、積分商店和今日單字。',
+        '「首頁」：財富等級、今天的積分、接下來的任務、積分商店和今日單字。',
         '「單字」：選級別或單字包和學習方式，開始一輪。',
-        '「遊戲」：單字遊戲、長局、謎題、動作、棋盤、腦力，可以搜尋和加入最愛；每天有一款今日挑戰。',
         '「任務」：每日任務、等級與連續紀錄、每週目標、徽章、財富等級和錢從哪裡來；完成待領取的數量會標在分頁上。',
         '右上角的「?」：每個 Quadra App 的說明（就是這裡）。'
       ]],
@@ -292,17 +285,11 @@ export const HELP = {
         '「智慧」模式依熟練度出題，一輪會輪流用到五種題型：新字用選意思、選英文、聽音選字或拼字母，學過的字再加上聽寫；不會出「你知道這個字嗎」的字卡（那是自己選的「字卡」模式）。',
         '答對升一格、答錯回第一格，第 4 格算「精熟」。一個字一天最多升一格，所以精熟看的是你好幾天的紀錄，不會在同一輪就精熟。第一次見到就答對的字代表你本來就會，直接跳到第 3 格，隔天再答對就精熟；每一輪會先排這些快精熟的字。之後在 1、5、14 天後再複習。'
       ]],
-      ['games', '遊戲', [
-        '103 款遊戲，分成單字、邏輯、益智、動作、反應、棋類、牌類、記憶和數字九類。遊戲頁一排排瀏覽，點「全部」看整類，也能搜尋或加入最愛；一局結束會推薦接著玩的遊戲。',
-        '短局一到兩分鐘；「長局」（數獨、接龍、新接龍、蜘蛛接龍、大盤踩地雷、跳棋）和找單字要十分鐘以上，玩得越好積分越多。',
-        '遊戲開始後佔滿整個畫面，不會捲動；右上角的「?」隨時看玩法。',
-        '今日挑戰：當天第一局有得分就加積分（5 XP 起，連續幾天多一點，最多 20 XP）。每款遊戲的最佳紀錄跨裝置保留。'
-      ]],
       ['missions', '每日任務與每週目標', [
-        '每日任務：每天從任務池換 6 個（3 個在 Rewards：回答 20 或 50 題單字、精熟 3 個單字、答對 10 題聽音選字／拼字母／聽寫、一輪全對、玩完 1 或 3 局遊戲、玩今日挑戰；3 個在其他 App：在 Securities 打開 3 檔股票、在 Fixtures 點開 1 或 3 場比賽、打開 Orbit Class 看課表、今天打開 Securities、Fixtures 和 Rewards）。完成後按「領取」拿積分。',
+        '每日任務：每天從任務池換 6 個（3 個在 Rewards：回答 20 或 50 題單字、精熟 3 個單字、答對 10 題聽音選字／拼字母／聽寫、一輪全對；3 個在其他 App：在 Securities 打開 3 檔股票、在 Fixtures 點開 1 或 3 場比賽、打開 Orbit Class 看課表、今天打開 Securities、Fixtures 和 Rewards）。完成後按「領取」拿積分。',
         '加碼任務每天都有，要花錢：在 Securities 下一筆委託、在 Play 下 3 關以上的串關（免費投注也算）、買刮刮樂、買樂透。積分最多（40–60 XP），每天最多 2 個也算進連續紀錄；不做也沒關係。',
         '連續紀錄：一天領取 5 個任務，連續天數就 +1（6 個每日任務裡有 3 個在其他 App；加碼任務每天最多算 2 個）；只賺一點積分不會算。漏掉的那天有保護卡會自動補上。連續越久積分越多：每天 +2%，15 天起 +30%。連續 7、30、100 天各送一個專屬頭像（🐯、🦅、🏆）和一張保護卡（看的是最長紀錄，斷了也不會收回）。',
-        '每週目標（週一到週日）：5 天保住連續紀錄、單字和遊戲拿 1,000 XP、完成 10 個任務、玩 10 局遊戲；四個都領取就送一張保護卡。開啟通知後，可以領取時和連續紀錄快斷時會提醒你。'
+        '每週目標（週一到週日）：5 天保住連續紀錄、單字拿 1,000 XP、完成 10 個任務；三個都領取就送一張保護卡。開啟通知後，可以領取時和連續紀錄快斷時會提醒你。'
       ]],
       ['extras', '加值', [
         '連續紀錄保護卡（NT$300 或 600 XP，最多持有 3 張）：哪天沒保住連續紀錄，它會自動用掉一張，連續紀錄照樣算下去。Plus 會員每月送兩張。',
@@ -314,8 +301,8 @@ export const HELP = {
         'Plus 會員兌換 9 折。每次兌換都會先問你；換到的券會出現在要用的 App（Play 的投注單、Securities 的下單和定存），用掉或過期就沒了。'
       ]],
       ['money', '積分怎麼算', [
-        '單字每答對一題 2 XP，第一次精熟一個字再加 15 XP（字卡不算）；遊戲一分鐘大約 10 XP，玩得好更多；任務 10–30 XP、每週目標 30–45 XP；Plus 會員全部 ×1.5，連續紀錄最多再 +30%。單字和遊戲每天前 600 XP 全額、接下來 600 XP 減半、之後只有一成（Plus、連續紀錄和加倍會一起拉高這些門檻），隔天恢復；任務、每週目標和今日挑戰不受影響。',
-        '等級：累計積分決定等級（Lv 2 要 100 XP、Lv 5 要 1,600、Lv 10 要 8,100、Lv 20 要 36,100、Lv 30 要 84,100、Lv 50 要 240,100，每天認真玩大約一年到頂），每幾級換一個稱號：新手、學徒、好手、高手、達人、大師、傳奇、神話。兌換東西花的是「可用積分」，不會降級。可用積分有效期限一年：每個月拿到的積分在隔年同月底到期，兌換時先扣最早的，快到期會提醒。',
+        '單字每答對一題 2 XP，第一次精熟一個字再加 15 XP（字卡不算）；任務 10–30 XP、每週目標 30–45 XP；Plus 會員全部 ×1.5，連續紀錄最多再 +30%。單字每天前 600 XP 全額、接下來 600 XP 減半、之後只有一成（Plus、連續紀錄和加倍會一起拉高這些門檻），隔天恢復；任務和每週目標不受影響。',
+        '等級：累計積分決定等級（Lv 2 要 100 XP、Lv 5 要 1,600、Lv 10 要 8,100、Lv 20 要 36,100、Lv 30 要 84,100、Lv 50 要 240,100，每天認真用大約一年到頂），每幾級換一個稱號：新手、學徒、好手、高手、達人、大師、傳奇、神話。兌換東西花的是「可用積分」，不會降級。可用積分有效期限一年：每個月拿到的積分在隔年同月底到期，兌換時先扣最早的，快到期會提醒。',
         '等級獎勵與頭像（「任務 › 等級與頭像」）：Lv 5、10、15、20、30、50 各解鎖一個頭像，Lv 5、15、25…每十級送一張連續紀錄保護卡；也能用積分換頭像（300 到 5,000 XP），Plus 會員有專屬的 ✦。戴上的頭像會出現在每個 Quadra App 的帳戶按鈕上。',
         '積分還能換：頭像框（Lv 10 青銅、Lv 40 傳奇、Lv 50 神話，或用 2,000 到 30,000 XP 換白銀、翡翠、黃金、霓虹、極光）、換掉一個每日任務（100 XP，一天最多 2 次）、補回昨天斷掉的連續紀錄（1,500 XP，斷掉前已連續 3 天以上、手上沒有保護卡時）。每次兌換都會先問你。',
         '積分全部在首頁的「積分商店」用：Quadra 商品（免費投注、手續費折抵券、定存加碼券、Plus 月份）、保護卡和單字加倍、單字包、頭像和相框。',
@@ -325,12 +312,11 @@ export const HELP = {
     ],
     en: [
       ['what', 'What Quadra Rewards is', [
-        'Where Quadra rewards effort: words, games and daily missions earn points (XP), streaks and badges. Points raise your Quadra level and title (shown in every app’s account) and buy streak cards, word boosts and word packs here; they aren’t money, and Rewards pays none. Every app’s help lives here too.'
+        'Where Quadra rewards effort: words and daily missions earn points (XP), streaks and badges. Points raise your Quadra level and title (shown in every app’s account) and buy streak cards, word boosts and word packs here; they aren’t money, and Rewards pays none. Every app’s help lives here too.'
       ]],
       ['tabs', 'The tabs', [
-        'Home: your wealth level, today’s points, today’s challenge, the next missions, the points shop and the word of the day.',
+        'Home: your wealth level, today’s points, the next missions, the points shop and the word of the day.',
         'Words: pick levels or word packs and a way to learn, and start a round.',
-        'Games: word games, long games, puzzles, action, board and brain games, with search and favourites; one game a day is today’s challenge.',
         'Missions: daily missions, weekly goals, badges and your wealth rank; the tab shows how many are ready to claim.',
         'The ? at the top right: every Quadra app’s guide (this page).'
       ]],
@@ -339,17 +325,11 @@ export const HELP = {
         'Smart mode asks by how well you know a word, and uses five kinds of question in a round: a new word by meaning, meaning → word, by ear or unscrambling; words you’ve learnt get dictation too. Never a “do you know it?” flash card (that’s Cards mode, if you choose it).',
         'Right moves a word up a box, wrong back to box 1; box 4 is mastered. A word moves up one box a day at most, so mastering comes from your record over days, never from a single round. A new word right the first time is one you know: it jumps to box 3, and right again tomorrow it’s mastered; rounds ask those first. After that, words return in 1, 5 and 14 days.'
       ]],
-      ['games', 'Games', [
-        '103 games in nine kinds: words, logic, puzzles, action, reflex, board, cards, memory and numbers. Browse them row by row, open a whole kind with See all, search, or keep favourites; a finished round suggests what to play next.',
-        'Short games take a minute or two; the long ones (sudoku, solitaire, FreeCell, Spider, big minesweeper, checkers) and word search ten minutes or more. Play well and they give more points.',
-        'A game in play has the whole screen and nothing scrolls; the ? at the top shows how to play.',
-        'Today’s challenge: its first round that scores adds a bonus (from 5 XP, a little more each day in a row, up to 20 XP). Each game’s best is kept on every device.'
-      ]],
       ['missions', 'Missions and weekly goals', [
-        'Daily missions: six a day from a pool, three in Rewards (answer 20 or 50 word questions, master 3 words, get 10 right by ear, from letters or by dictation, a round without a miss, finish 1 or 3 games, play today’s challenge) and three in the other apps (open 3 stocks in Securities, open 1 or 3 matches in Fixtures, open Orbit Class, open Securities, Fixtures and Rewards today). Claim each for its points when done.',
+        'Daily missions: six a day from a pool, three in Rewards (answer 20 or 50 word questions, master 3 words, get 10 right by ear, from letters or by dictation, a round without a miss) and three in the other apps (open 3 stocks in Securities, open 1 or 3 matches in Fixtures, open Orbit Class, open Securities, Fixtures and Rewards today). Claim each for its points when done.',
         'Bonus missions are there every day and spend money: an order in Securities, a parlay of 3+ picks in Play (a free bet counts), a scratch card, a lottery ticket. The most points (40–60 XP), and up to 2 a day count for the streak; skip them if you like.',
         'Your streak: claim 5 missions in a day and it grows by a day (three of the six daily ones are in the other apps; up to 2 bonus ones count); a few points alone don’t keep it. A missed day is covered by a protection card if you hold one. The longer it runs, the more points: +2% a day, +30% from 15 days. 7, 30 and 100 days each bring an avatar of their own (🐯, 🦅, 🏆) and a protection card (by your longest streak, so they stay if it breaks).',
-        'Weekly goals (Monday to Sunday): keep your streak on 5 days, 1,000 XP from words and games, finish 10 missions, play 10 games; claim all four for a protection card. With notices on, you’re told when there’s something to claim and when a streak is about to end.'
+        'Weekly goals (Monday to Sunday): keep your streak on 5 days, 1,000 XP from words, finish 10 missions; claim all three for a protection card. With notices on, you’re told when there’s something to claim and when a streak is about to end.'
       ]],
       ['extras', 'Extras', [
         'Streak protection (NT$300 or 600 XP, hold up to 3): on a day the streak wasn’t kept, one is used by itself and the streak goes on. Plus members get two every month.',
@@ -361,8 +341,8 @@ export const HELP = {
         'Plus members pay 10% fewer points. Each redemption asks first; what you get waits in the app it’s for (Play’s slip, Securities’ order ticket and deposits) until it’s used or expires.'
       ]],
       ['money', 'Points', [
-        'Words: 2 XP a right answer, 15 XP more for a first mastery (flash cards give none); games about 10 XP a minute, more when you play well; missions 10–30 XP, weekly goals 30–45 XP; ×1.5 for Plus members, and up to +30% with the streak. Each day the first 600 XP from words and games come in full, the next 600 at half, the rest at a tenth (Plus, the streak and the ×2 boost raise those steps too), back to full the next day; missions, weekly goals and the daily challenge aren’t counted.',
-        'Levels: every point you earn counts (level 2 at 100 XP, 5 at 1,600, 10 at 8,100, 20 at 36,100, 30 at 84,100, 50 at 240,100: about a year of daily play to the top), with a new title every few levels: Rookie, Apprentice, Skilled, Expert, Master, Grandmaster, Legend, Mythic. Buying things spends your points to spend, never your level. Points to spend last a year: each month’s points expire at the end of the same month the next year, the oldest are spent first, and you’re told before any run out.',
+        'Words: 2 XP a right answer, 15 XP more for a first mastery (flash cards give none); missions 10–30 XP, weekly goals 30–45 XP; ×1.5 for Plus members, and up to +30% with the streak. Each day the first 600 XP from words come in full, the next 600 at half, the rest at a tenth (Plus, the streak and the ×2 boost raise those steps too), back to full the next day; missions and weekly goals aren’t counted.',
+        'Levels: every point you earn counts (level 2 at 100 XP, 5 at 1,600, 10 at 8,100, 20 at 36,100, 30 at 84,100, 50 at 240,100: about a year of daily use to the top), with a new title every few levels: Rookie, Apprentice, Skilled, Expert, Master, Grandmaster, Legend, Mythic. Buying things spends your points to spend, never your level. Points to spend last a year: each month’s points expire at the end of the same month the next year, the oldest are spent first, and you’re told before any run out.',
         'Level rewards and avatars (Missions › Level and avatars): levels 5, 10, 15, 20, 30 and 50 each unlock an avatar, and levels 5, 15, 25… bring a streak protection card; points buy more avatars (300 to 5,000 XP), and Plus members get ✦. The avatar you wear shows on your account button in every Quadra app.',
         'Points also buy frames (bronze at level 10, legend at 40, mythic at 50; silver, jade, gold, neon and aurora for 2,000 to 30,000 XP), a swap of a daily mission (100 XP, twice a day at most) and yesterday’s streak bought back (1,500 XP, when it had run 3 days or more and you hold no protection card). Each asks first.',
         'Points are all spent in the Points shop on Home: Quadra’s products (free bets, fee vouchers, deposit boosts, Plus months), streak cards and the word boost, word packs, avatars and frames.',

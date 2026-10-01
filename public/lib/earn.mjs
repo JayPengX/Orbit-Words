@@ -1,4 +1,4 @@
-// Points in Rewards: what was earned today (words, games, missions), the
+// Points in Rewards: what was earned today (words, missions), the
 // day's missions, and the wealth ranks.
 //
 // Rewards pays points (XP), never money (v7: money comes only from Quadra's
@@ -7,7 +7,8 @@
 // or a second device never counts twice):
 //   words     word practice, one entry a batch of answers ('vocab:w:…';
 //             Quadra Words' older ones are kind 'reward')
-//   game      a finished game round ('vocab:g:…')
+//   game      a finished game round ('vocab:g:…'), until the games were
+//             removed: old ones still count towards the level
 //   mission   a claimed mission or weekly goal ('vocab:m:<day>:<mission>')
 // Before v7 the same entries paid NT$ (their amount): those count as points too.
 // Points earned make the level (the kit's xpLevel); points spent in the shop
@@ -16,20 +17,20 @@ import { taipeiDay, todayActivity, poolBalance, xpOf, xpEarned, plusMember, plus
 import { freezes, freezeEntry, frozenDays, rerolls } from './shop.mjs';
 
 export { xpOf };
-const KIND_OF = { words: 'words', reward: 'words', game: 'game', mission: 'mission' };
+const KIND_OF = { words: 'words', reward: 'words', mission: 'mission' };
 // Points ×PLUS.vocab.xpBoost for a Quadra Plus member, and more with the
 // streak (+2% a day of it, up to +30%: the kit's streakBonus).
 export const xpRate = (wallet, now = Date.now()) => (plusMember(wallet, now) ? PLUS.vocab.xpBoost : 1) * (1 + streakBonus(streakDays(wallet, now)));
-// Points as text: "120 XP" (one decimal under 10, for a game's small steps).
+// Points as text: "120 XP" (one decimal under 10).
 export function xpText(v, { sign = false } = {}) {
   const n = Math.abs(v) < 10 ? Math.round(v * 10) / 10 : Math.round(v);
   return `${sign && n > 0 ? '+' : ''}${n.toLocaleString('en-US')} XP`;
 }
 
-// Points today per kind: { words, game, mission, total }.
+// Points today per kind: { words, mission, total }.
 export function xpToday(wallet, now = Date.now()) {
   const day = taipeiDay(now);
-  const out = { words: 0, game: 0, mission: 0, total: 0 };
+  const out = { words: 0, mission: 0, total: 0 };
   for (const e of wallet?.entries || []) {
     if (e.app !== 'vocab' || taipeiDay(e.t) !== day) continue;
     const kind = KIND_OF[e.kind];
@@ -40,12 +41,9 @@ export function xpToday(wallet, now = Date.now()) {
   return out;
 }
 
-// ---- The day's soft cap on words and games (ECONOMY.dailyXp) ---------------------------
-// Points from words and games today, the ones not yet written (`pending`) too.
-export const capToday = (wallet, now = Date.now(), pending = 0) => {
-  const e = xpToday(wallet, now);
-  return e.words + e.game + pending;
-};
+// ---- The day's soft cap on word points (ECONOMY.dailyXp) -------------------------------
+// Word points today, the ones not yet written (`pending`) too.
+export const capToday = (wallet, now = Date.now(), pending = 0) => xpToday(wallet, now).words + pending;
 // What `points` (at the person's rate) come to after today's `had`: the
 // first ECONOMY.dailyXp.full ×rate in full, up to .half ×rate at half, then .rest.
 export function dampXp(points, had, rate = 1) {
@@ -100,10 +98,6 @@ export const MISSIONS = [
   { id: 'hard10', app: 'vocab', xp: 20, goal: 10, count: a => a.vocab?.hard || 0 },
   // A round of 10 words or more without a miss.
   { id: 'perfect', app: 'vocab', xp: 20, goal: 1, count: a => a.vocab?.perfect || 0 },
-  { id: 'game1', app: 'vocab', group: 'games', xp: 10, goal: 1, count: a => a.vocab?.game || 0 },
-  { id: 'games3', app: 'vocab', group: 'games', xp: 20, goal: 3, count: a => a.vocab?.game || 0 },
-  // Today's challenge played.
-  { id: 'challenge', app: 'vocab', xp: 15, goal: 1, count: (a, apps, day, wallet) => ((wallet?.entries || []).some(e => e.id === dailyId(day)) ? 1 : 0) },
   // The other apps: using them, nothing to spend and no personal choice
   // (a watchlist, a team to follow) needed.
   // Securities: different stocks' pages opened (each counts once a day).
@@ -200,9 +194,9 @@ export function rankOf(balance) {
 }
 export const walletRank = wallet => rankOf(worthOf(wallet));
 
-// Days the streak was kept (3 daily missions claimed; before October 2026 any
-// practice or game), and the days a protection card covered: the kit's rule,
-// so every app agrees.
+// Days the streak was kept (STREAK.missions daily missions claimed; before
+// October 2026 any practice or game), and the days a protection card
+// covered: the kit's rule, so every app agrees.
 export const activeDays = activeDaySet;
 
 // Days in a row the streak was kept (today counts once it's kept; a day a
@@ -258,39 +252,24 @@ export function freezeDue(wallet, now = Date.now()) {
   return gap.reverse().map(day => freezeEntry(day, now));
 }
 
-// ---- The daily challenge (games.mjs picks the game) ----------------------------------------
-export const dailyId = day => `vocab:d:${day}`;
-// Days in a row the challenge was played, up to yesterday (today counts once played).
-export function dailyStreak(wallet, now = Date.now()) {
-  const ids = new Set((wallet?.entries || []).map(e => e.id));
-  let n = 0;
-  let t = now;
-  if (!ids.has(dailyId(taipeiDay(t)))) t -= 86_400_000;
-  while (ids.has(dailyId(taipeiDay(t)))) {
-    n++;
-    t -= 86_400_000;
-  }
-  return n;
-}
-
 // ---- Weekly goals: a Taiwan week (Monday to Sunday), claimed like missions ------------------
 //
 // Claimed as missions (kind 'mission', ids 'vocab:wk:<Monday>:<goal>').
-// All of a week's goals claimed bring a streak protection card (shop.mjs).
+// All of a week's goals claimed bring a streak protection card (shop.mjs
+// weeklyCards).
 export function weekStart(now = Date.now()) {
   const day = taipeiDay(now);
   const d = new Date(`${day}T00:00:00Z`);
   const back = (d.getUTCDay() + 6) % 7;
   return new Date(d.getTime() - back * 86_400_000).toISOString().slice(0, 10);
 }
-const earnKinds = new Set(['words', 'reward', 'game']);
+const earnKinds = new Set(['words', 'reward']);
 export const WEEKLY = [
   // Days this week the streak was kept with missions (a protection card's don't count).
   { id: 'days5', xp: 45, goal: 5, count: (list, wallet, week) => Object.entries(missionDays(wallet)).filter(([d, n]) => d >= week && n >= STREAK.missions).length },
-  // Points from words and games (the id is older than the points).
+  // Points from words (the id is older than the points).
   { id: 'earn1000', xp: 45, goal: 1000, count: list => Math.floor(list.filter(e => earnKinds.has(e.kind)).reduce((s, e) => s + xpOf(e), 0)) },
-  { id: 'missions10', xp: 40, goal: 10, count: list => list.filter(e => e.kind === 'mission' && e.id.startsWith('vocab:m:')).length },
-  { id: 'games10', xp: 30, goal: 10, count: list => list.filter(e => e.kind === 'game' && !e.id.startsWith('vocab:d:')).length }
+  { id: 'missions10', xp: 40, goal: 10, count: list => list.filter(e => e.kind === 'mission' && e.id.startsWith('vocab:m:')).length }
 ];
 export const weeklyId = (week, id) => `vocab:wk:${week}:${id}`;
 export function weeklyGoals(wallet, now = Date.now()) {
@@ -310,17 +289,13 @@ export function claimWeekly(wallet, id, now = Date.now()) {
 
 // ---- Badges: milestones, earned once and kept (they're read from the record) ----------------
 //
-// ctx: { wallet, mastered, bests, games } (bests from games.mjs' mergeBests).
+// ctx: { wallet, mastered }.
 export const BADGES = [
-  { id: 'firstGame', icon: '🎮', test: c => (c.wallet?.entries || []).some(e => e.app === 'vocab' && e.kind === 'game') },
   { id: 'words100', icon: '📘', test: c => c.mastered >= 100 },
   { id: 'words500', icon: '📚', test: c => c.mastered >= 500 },
   { id: 'words1000', icon: '🎓', test: c => c.mastered >= 1000 },
   { id: 'streak7', icon: '🔥', test: c => longestStreak(c.wallet) >= 7 },
   { id: 'streak30', icon: '☄️', test: c => longestStreak(c.wallet) >= 30 },
-  { id: 'daily7', icon: '📅', test: c => longestStreak(c.wallet, e => e.id?.startsWith('vocab:d:')) >= 7 },
-  { id: 'allGames', icon: '🕹️', test: c => (c.games || []).every(g => c.bests?.[g]) },
-  { id: 'games20', icon: '👾', test: c => Object.keys(c.bests || {}).length >= 20 },
   { id: 'missions50', icon: '🎁', test: c => (c.wallet?.entries || []).filter(e => e.app === 'vocab' && e.kind === 'mission').length >= 50 },
   { id: 'earned10k', icon: '💰', test: c => xpAllTime(c.wallet) >= 10_000 },
   { id: 'wealthy', icon: '💎', test: c => walletRank(c.wallet).index >= RANKS.findIndex(r => r.id === 'wealthy') },

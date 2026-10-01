@@ -53,14 +53,19 @@ export function freezes(wallet, now = Date.now()) {
   const used = mine(wallet, 'vocab:fz:').length;
   return { bought, granted, used, held: Math.max(0, bought + granted - used) };
 }
-// Weeks with all four weekly goals claimed ('vocab:wk:<Monday>:<goal>').
+// Weeks with every weekly goal claimed ('vocab:wk:<Monday>:<goal>'). The
+// goals are earn.mjs' WEEKLY (days5, earn1000, missions10); before the games
+// went (weeks before WEEKLY_FROM) a week had a fourth, games10, and needed
+// all four, so no earlier week gains a card now.
+const WEEKLY_IDS = ['days5', 'earn1000', 'missions10'];
+const WEEKLY_FROM = '2026-09-28';
 export function weeklyCards(wallet) {
   const weeks = {};
   for (const e of mine(wallet, 'vocab:wk:')) {
     const [, , week, id] = e.id.split(':');
     (weeks[week] = weeks[week] || new Set()).add(id);
   }
-  return Object.values(weeks).filter(ids => ids.size >= 4).length;
+  return Object.entries(weeks).filter(([week, ids]) => WEEKLY_IDS.every(id => ids.has(id)) && (week >= WEEKLY_FROM || ids.size >= 4)).length;
 }
 // The days a card covered.
 export const frozenDays = wallet => new Set(mine(wallet, 'vocab:fz:').map(e => e.id.slice(9)));
