@@ -1015,3 +1015,13 @@ button.xp-card { width: 100%; text-align: left; font: inherit; color: inherit; c
 .slot.hint { background: var(--accent-wash); color: var(--accent); }
 /* 積分兌換: the points catalogue, rows like the shop's. */
 .catalog-foot { display: block; padding: 10px 14px 12px; border-top: 1px solid var(--q-divider, var(--q-border)); font-size: 12px; }
+
+/* A game fills what's left of the screen: the strip on top, the game centred
+   in the rest (arcadeView's refit sizes a canvas or scales a board to it). */
+html.rw-playing .game-slot > .game.arcade { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 10px; }
+html.rw-playing .game.arcade > .arc-strip { flex: none; }
+.arc-fit { display: grid; place-items: center; }
+html.rw-playing .arc-fit { flex: 1 1 auto; min-height: 0; overflow: hidden; }
+html.rw-playing .arc-fit > * { transform-origin: center center; width: 100%; }
+.game-end-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.game-end-row .game-big-button { width: 100%; min-width: 0; margin: 0; }

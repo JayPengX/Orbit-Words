@@ -243,6 +243,39 @@ export function bestRound(game) {
   return 60;
 }
 
+// ---- One rate for every game ---------------------------------------------------------
+//
+// A round pays for the time it took and how well it went, the same for every
+// game: GAME_XPM XP a minute at the game's best score, √(score ÷ best) of that
+// below it, for up to the game's own length (roundMinutes). A hard 90-second
+// derby and a 30-second dino run pay alike per minute for the same share of
+// their best; long games pay more because they take longer, not by their rate.
+export const GAME_XPM = ECONOMY.gamesPerMinute * 1.5;
+const CLASSIC_MINUTES = { derby: 1.5, freethrow: 1.5, pairs: 2, merge: 1.5, speed: 1, hangman: 3, simon: 2, sudoku: 7.5 };
+const ARCADE_MINUTES = { runner: 1.5, flappy: 1.5, jump: 2, racer: 2, jetpack: 2, invaders: 3, frogger: 3, snake: 3, breakout: 3, keepy: 1.5, stack: 1.5, pianotiles: 1.5, minigolf: 4, archery: 1.5, reaction: 1, mines: 3, lights: 3, slide: 4, codebreak: 4, bulls: 4, nonogram: 4, flood: 2, hanoi: 3, sokoban: 5, maze: 3, queens: 3, pegs: 6, takuzu: 5, skyscrapers: 5, futoshiki: 5, magicsq: 4, pipes: 4, colorsort: 4, samegame: 4, lines: 5, jigsaw: 4, blockfit: 5, rushhour: 5, wordle: 4, schulte: 1.5, digits: 2, gridmem: 2, spotdiff: 3, pyramid: 5, golf: 4, tripeaks: 5, pokersq: 4, tictactoe: 2, connect4: 3, reversi: 5, gomoku: 4, dotsboxes: 5, mancala: 5, battleship: 5, emojimem: 2, pathmem: 2 };
+// How long a full round of `game` takes a fair player, in minutes (the most it pays for).
+export function roundMinutes(game) {
+  if (CLASSIC_MINUTES[game]) return CLASSIC_MINUTES[game];
+  if (ARCADE_MINUTES[game]) return ARCADE_MINUTES[game];
+  const a = ARCADE_BY_ID[game];
+  if (!a) return 3;
+  if (a.long) return 12;
+  const sec = /(\d+)\s*s\b/.exec(a.kindEn);
+  if (sec) return Number(sec[1]) / 60;
+  const min = /(\d+)\s*min/.exec(a.kindEn);
+  if (min) return Number(min[1]);
+  return 3;
+}
+// The most a round of `game` pays (its best score over its full length).
+export const roundTop = game => Math.round(GAME_XPM * roundMinutes(game));
+// A round's XP: its raw amount (the game's own scoring) and how long it took.
+export function roundXp(game, amount, ms) {
+  if (!(amount > 0)) return 0;
+  const q = Math.min(1, amount / (bestRound(game) || 1));
+  const minutes = Math.min(Math.max(0, ms || 0) / 60_000, roundMinutes(game));
+  return Math.max(1, Math.round(GAME_XPM * minutes * Math.sqrt(q)));
+}
+
 // ---- Speed match ----------------------------------------------------------------------
 //
 // A word and four meanings; pick the right one before the clock runs out.

@@ -54,7 +54,8 @@ export default function racer(api) {
       }
       c.save();
       c.translate(x, H - 60);
-      c.rotate(-Math.PI / 2);
+      // The emoji faces left: a quarter turn clockwise points it up the road.
+      c.rotate(Math.PI / 2);
       c.fillText('🏎️', 0, 0);
       c.restore();
       c.textAlign = 'left';

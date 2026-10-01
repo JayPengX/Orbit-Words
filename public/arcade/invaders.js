@@ -79,7 +79,12 @@ export default function invaders(api) {
       c.textBaseline = 'middle';
       c.font = '24px system-ui';
       for (const f of foes) c.fillText(f.icon, f.x, f.y);
-      c.fillText('🚀', ship.x, ship.y);
+      // The rocket emoji points up and to the right: turned to point straight up.
+      c.save();
+      c.translate(ship.x, ship.y);
+      c.rotate(-Math.PI / 4);
+      c.fillText('🚀', 0, 0);
+      c.restore();
       c.fillStyle = '#fde047';
       for (const s of shots) c.fillRect(s.x - 1.5, s.y - 6, 3, 10);
       c.fillStyle = '#f87171';

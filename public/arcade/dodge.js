@@ -47,7 +47,12 @@ export default function dodge(api) {
       c.font = '26px system-ui';
       c.textAlign = 'center';
       c.textBaseline = 'middle';
-      c.fillText('🚀', ship.x, ship.y);
+      // The rocket emoji points up and to the right: turned to point straight up.
+      c.save();
+      c.translate(ship.x, ship.y);
+      c.rotate(-Math.PI / 4);
+      c.fillText('🚀', 0, 0);
+      c.restore();
       c.textAlign = 'left';
       c.textBaseline = 'alphabetic';
       hudText(c, W, `${Math.floor(t / 1000)}s`, '');

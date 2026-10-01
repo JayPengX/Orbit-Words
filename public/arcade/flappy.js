@@ -51,6 +51,8 @@ export default function flappy(api) {
       c.save();
       c.translate(bird.x, bird.y);
       c.rotate(Math.max(-0.5, Math.min(1, bird.vy * 2)));
+      // The chick emoji looks left: mirrored, it flies the way it's going.
+      c.scale(-1, 1);
       c.font = '28px system-ui';
       c.textAlign = 'center';
       c.textBaseline = 'middle';

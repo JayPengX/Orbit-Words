@@ -6,7 +6,7 @@ import {
   DERBY, pitchPlan, ballAt, swingResult, FREE_THROW, shotPlan, markerAt, shotResult,
   PAIRS, pairsBoard, pairResult, MERGE, mergeBoard, move, spawn, canMove, mergePoints,
   SPEED, speedQuestion, HANGMAN, hangmanWords, hangmanPay, guessLetter, hangmanSolved, hangmanOver, hangmanMask,
-  SIMON, simonPay, simonSequence, SUDOKU, sudokuPuzzle, ALL_GAMES, gameInfo
+  SIMON, simonPay, simonSequence, SUDOKU, sudokuPuzzle, ALL_GAMES, gameInfo, roundXp, roundTop
 } from './lib/games.mjs';
 import { ARCADE_BY_ID, arcadePay, HOW, NEW_GAMES, CATEGORIES } from './lib/arcade.mjs';
 import { xpText } from './lib/earn.mjs';
@@ -28,8 +28,13 @@ function el(tag, props = {}, children = []) {
 }
 // Points on screen, XP (the names are older than the points).
 const fmtMoney = (v, { sign = true } = {}) => xpText(v, { sign });
-// A game's raw points as XP (points × PAY_SCALE).
-const fmtPay = pts => xpText(pts * PAY_SCALE);
+// A game's own score (its points), not XP: a round's XP comes from its score
+// and its length (roundXp).
+const fmtPts = v => {
+  const n = Math.round(v * 10) / 10;
+  return ctx?.locale === 'en' ? `${n} pts` : `${n} 分`;
+};
+const fmtPay = pts => fmtPts(pts * PAY_SCALE);
 
 const FAV_KEY = 'quadra.rewards.favs';
 const RECENT_KEY = 'quadra.rewards.recent';
@@ -112,7 +117,7 @@ export function mountGames(container, context) {
       el('span', { class: 'gh-icon', 'aria-hidden': 'true', text: i.icon }),
       NEW_GAMES.has(g) ? el('span', { class: 'gh-new', text: t('newTag') }) : i.long ? el('span', { class: 'gh-long', text: t('longTag') }) : null,
       el('strong', { class: 'gh-tile-name', text: i.name }),
-      el('small', { class: 'gh-tile-sub num', text: b ? `🏆 ${fmtMoney(b.v, { sign: false })}` : t('gameUpTo', { v: fmtMoney(bestRound(g), { sign: false }) }).replace(/^一局最多約 /, '最多 ').replace(/^Up to about (.+) a round$/, 'Up to $1') })
+      el('small', { class: 'gh-tile-sub num', text: b ? `🏆 ${fmtMoney(b.v, { sign: false })}` : t('gameUpTo', { v: fmtMoney(roundTop(g), { sign: false }) }).replace(/^一局最多約 /, '最多 ').replace(/^Up to about (.+) a round$/, 'Up to $1') })
     ]);
   };
   // One row of the list view: icon, name, kind, pay, best, star.
@@ -132,7 +137,7 @@ export function mountGames(container, context) {
           g === d.game && !d.done ? el('span', { class: 'gh-daily-tag inline', text: t('dailyTag') }) : null
         ]),
         el('small', { class: 'gh-kind', text: i.kind }),
-        el('small', { class: 'gh-row-pay num' }, [el('span', { class: 'gh-max', text: t('gameUpTo', { v: fmtMoney(bestRound(g), { sign: false }) }) }), b ? el('span', { class: 'gh-best', text: ` · 🏆 ${fmtMoney(b.v, { sign: false })}` }) : null])
+        el('small', { class: 'gh-row-pay num' }, [el('span', { class: 'gh-max', text: t('gameUpTo', { v: fmtMoney(roundTop(g), { sign: false }) }) }), b ? el('span', { class: 'gh-best', text: ` · 🏆 ${fmtMoney(b.v, { sign: false })}` }) : null])
       ]),
       el('button', {
         class: `gh-star${fav ? ' on' : ''}`,
@@ -295,6 +300,7 @@ export function mountGames(container, context) {
     document.documentElement.classList.remove('rw-playing');
   }
   reopen = open;
+  backToList = close;
   roundDone = () => {
     live = false;
     render();
@@ -309,6 +315,7 @@ export function mountGames(container, context) {
 let live = false;
 let roundDone = () => {};
 let reopen = () => {};
+let backToList = () => {};
 
 // Timers and the animation of the running game, all stopped when it closes.
 let gameTimers = [];
@@ -350,14 +357,14 @@ function gameHud() {
       meter.setAttribute('aria-label', `${t('hudLevel')} ${bars} / 5`);
     }
     count.textContent = label ?? t('hudCount', { n: done, of });
-    cash.textContent = fmtMoney(earned, { sign: false });
+    cash.textContent = fmtPts(earned);
     streak.textContent = run >= 2 ? t('hudStreak', { n: run }) : '';
     streak.classList.toggle('hot', run >= 5);
     progress.firstChild.style.width = `${Math.min(100, (done / of) * 100)}%`;
   };
   const flash = (amount, good) => {
     if (!amount) return;
-    note.textContent = good ? t('hudBonus', { v: fmtMoney(amount, { sign: false }) }) : t('hudPenalty', { v: fmtMoney(amount, { sign: false }) });
+    note.textContent = good ? t('hudBonus', { v: fmtPts(amount) }) : t('hudPenalty', { v: fmtPts(amount) });
     note.className = `hud-note ${good ? 'bonus' : 'penalty'}`;
     void note.offsetWidth;
     note.classList.add('show');
@@ -367,7 +374,7 @@ function gameHud() {
 
 function streakRule(game) {
   const r = STREAK[game];
-  const v = x => fmtMoney(x * PAY_SCALE, { sign: false });
+  const v = x => fmtPts(x * PAY_SCALE);
   if (r.ladder) return state.t('streakRuleLadder', { a: v(r.ladder[0]), b: v(r.ladder[1]), penalty: v(r.penalty) });
   return r.penalty ? state.t('streakRule', { every: r.every, bonus: v(r.bonus), penalty: v(r.penalty) }) : state.t('streakRuleSafe', { every: r.every, bonus: v(r.bonus) });
 }
@@ -391,7 +398,8 @@ function nextGames(game) {
 function finishRound(game, amount, box, summary, ms, score = null) {
   const t = state.t;
   stopGame();
-  const { paid, bonus, best } = ctx.pay(game, amount);
+  // Every game at one rate: the time the round took and how well it went.
+  const { paid, bonus, best } = ctx.pay(game, roundXp(game, amount, ms));
   box.classList.remove('min');
   const fold = el('button', { class: 'game-fold', type: 'button', 'aria-label': t('gameClose'), text: '⌄', onclick: () => {
     const min = box.classList.toggle('min');
@@ -401,10 +409,13 @@ function finishRound(game, amount, box, summary, ms, score = null) {
     ...[
       fold,
       el('p', { class: 'game-result' }, [document.createTextNode(summary), el('strong', { class: paid > 0 ? 'paid' : '', text: ` ${t('gamePaid', { v: fmtMoney(paid) })}` })]),
-      score?.penalty ? el('p', { class: 'note', text: t('scoreLine', { bonus: fmtMoney(score.bonus, { sign: false }), penalty: fmtMoney(score.penalty, { sign: false }) }) }) : score?.bonus ? el('p', { class: 'note', text: t('comboLine', { bonus: fmtMoney(score.bonus, { sign: false }) }) }) : null,
+      score?.penalty ? el('p', { class: 'note', text: t('scoreLine', { bonus: fmtPts(score.bonus), penalty: fmtPts(score.penalty) }) }) : score?.bonus ? el('p', { class: 'note', text: t('comboLine', { bonus: fmtPts(score.bonus) }) }) : null,
       bonus > 0 ? el('p', { class: 'daily-paid', text: t('dailyPaid', { v: fmtMoney(bonus, { sign: false }) }) }) : null,
       best ? el('p', { class: 'best-new', text: t('bestNew') }) : null,
-      el('button', { class: 'q-btn primary game-big-button', type: 'button', text: t('gameAgain'), onclick: () => reopen(game) }),
+      el('div', { class: 'game-end-row' }, [
+        el('button', { class: 'q-btn game-big-button', type: 'button', text: t('gameBack'), onclick: () => backToList() }),
+        el('button', { class: 'q-btn primary game-big-button', type: 'button', text: t('gameAgain'), onclick: () => reopen(game) })
+      ]),
       nextGames(game)
     ].filter(Boolean)
   );
@@ -1370,7 +1381,7 @@ function arcadeView(id, make) {
     set({ score = 0, info = '' } = {}) {
       scoreEl.textContent = t('arcadeScore', { n: Math.round(score * 10) / 10 });
       infoEl.textContent = info;
-      payEl.textContent = fmtMoney(arcadePay(id, score), { sign: false });
+      payEl.textContent = fmtMoney(roundXp(id, arcadePay(id, score), Date.now() - started), { sign: false });
     },
     end(score, summary = null) {
       if (ended) return;
@@ -1416,6 +1427,46 @@ function arcadeView(id, make) {
   };
   api.set({ score: 0 });
   const stage = make(api);
-  root = el('div', { class: `game arcade arcade-${id}` }, [strip, stage, box]);
+  // The game as big as the screen allows: a canvas at the most the space
+  // left takes at its shape; a board scaled up (or down) to fill it, centred.
+  const fit = el('div', { class: 'arc-fit' }, [stage]);
+  root = el('div', { class: `game arcade arcade-${id}` }, [strip, fit, box]);
+  const refit = () => {
+    if (!root.isConnected || !document.documentElement.classList.contains('rw-playing')) return;
+    const fw = fit.clientWidth;
+    const fh = fit.clientHeight;
+    if (!fw || !fh) return;
+    const canvas = stage.querySelector('canvas.arc-canvas, canvas.game-canvas');
+    if (canvas && stage.children.length === 1) {
+      const ar = Number(canvas.style.getPropertyValue('--ar')) || canvas.width / canvas.height || 1;
+      canvas.style.width = `${Math.floor(Math.min(fw, fh * ar, 560))}px`;
+      canvas.style.maxWidth = 'none';
+      return;
+    }
+    stage.style.scale = '';
+    // What's drawn (a board narrower than the screen counts at its own width).
+    let left = Infinity;
+    let right = -Infinity;
+    let n = 0;
+    for (const node of stage.querySelectorAll('*')) {
+      if (++n > 600) break;
+      const r = node.getBoundingClientRect();
+      if (r.width < 1 || r.height < 1) continue;
+      left = Math.min(left, r.left);
+      right = Math.max(right, r.right);
+    }
+    const w = right > left ? right - left : stage.offsetWidth;
+    const h = stage.scrollHeight;
+    if (!w || !h) return;
+    const k = Math.max(0.55, Math.min(1.8, fw / w, fh / h));
+    if (Math.abs(k - 1) > 0.04) stage.style.scale = String(Math.floor(k * 100) / 100);
+  };
+  if ('ResizeObserver' in window) {
+    const ro = new ResizeObserver(() => requestAnimationFrame(refit));
+    ro.observe(fit);
+    ro.observe(stage);
+    cleanups.push(() => ro.disconnect());
+  }
+  later(refit, 30);
   return root;
 }
