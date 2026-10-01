@@ -2,7 +2,7 @@
 // looks), Truth (how Quadra's money moves and how the house earns, in real
 // numbers and this account's own record) and Apps (every Quadra app, with
 // its guide). `hub`: { q, t, locale, state, wornOf, wear, openHelp } from app.js.
-import { APPS, AVATARS, FRAMES, PLUS, VIP, WELCOME, money, plusMember, plusCard, openPlus, plusPerks, plusReturns, plusTenure, accountDetails, accountSheet, showNewPass, ask, formatPass, freeBets, vipStatus, vipName, worthOf, WEALTH_RANKS, OVERDRAFT_RATE, ECONOMY } from './lib/quadra.mjs';
+import { APPS, AVATARS, FRAMES, LOOK_STREAKS, lookOpen, plusStreak, PLUS, VIP, WELCOME, money, plusMember, plusCard, openPlus, plusPerks, plusReturns, plusTenure, accountDetails, accountSheet, showNewPass, ask, formatPass, freeBets, vipStatus, vipName, worthOf, WEALTH_RANKS, OVERDRAFT_RATE, ECONOMY } from './lib/quadra.mjs';
 import { PLAY, STOCK, houseKeep, boostedKeep, freeBetWorth, roundTrip, plusMath, record, overdraftYear, vipShare } from './lib/truth.mjs';
 import { el, put, section, toast, bar } from './ui.js';
 
@@ -52,24 +52,49 @@ function plusSection(q, t, locale, w, member) {
 }
 
 // Avatars and frames: a member wears one (or none); anyone else sees them
-// locked, and a tap opens Plus.
+// locked, and a tap opens Plus. The rarest are for staying a member: each
+// streak's own row, locked (with how many months are left) until it's held.
 function looksSection(q, t, w, member, wornOf, wear) {
   const avatar = wornOf('avatar');
   const frame = wornOf('frame');
   const glyph = AVATARS.find(a => a.id === avatar)?.glyph || '🙂';
-  const pick = (key, id) => (member ? wear(key, id === wornOf(key) ? null : id) : openPlus(q));
-  const tile = (key, item, face) => {
-    const on = member && wornOf(key) === item.id;
-    return el('button', { class: `av-tile${on ? ' on' : ''}${member ? '' : ' locked'}`, type: 'button', 'aria-pressed': String(on), 'aria-label': key === 'frame' ? t(`frame_${item.id}`) : item.glyph, onclick: () => pick(key, item.id) }, [face, el('small', { text: on ? t('lookOn') : key === 'frame' ? t(`frame_${item.id}`) : '' })]);
+  const streak = plusStreak(w);
+  const pick = (key, item) => {
+    if (!member) return openPlus(q);
+    if (!lookOpen(w, item)) return toast(t('streakNeed', { n: item.streak - streak }));
+    wear(key, item.id === wornOf(key) ? null : item.id);
   };
+  const tile = (key, item, face) => {
+    const open = lookOpen(w, item);
+    const on = open && wornOf(key) === item.id;
+    const label = on ? t('lookOn') : key === 'frame' ? t(`frame_${item.id}`) : '';
+    return el('button', { class: `av-tile${on ? ' on' : ''}${open ? '' : ' locked'}`, type: 'button', 'aria-pressed': String(on), 'aria-label': [key === 'frame' ? t(`frame_${item.id}`) : item.glyph, item.streak && !open ? t('lookStreak', { n: item.streak }) : ''].filter(Boolean).join(' · '), onclick: () => pick(key, item) }, [face, el('small', { text: label })]);
+  };
+  const faces = {
+    avatar: a => el('span', { class: 'av-glyph', 'aria-hidden': 'true', text: a.glyph }),
+    frame: f => el('span', { class: `fr-preview q-framed q-frame-${f.id}${frame === f.id ? ' on' : ''}`, 'aria-hidden': 'true', text: glyph })
+  };
+  // Every look anyone member wears, then a row per streak.
+  const rows = (key, list) => [
+    el('div', { class: 'av-grid' }, list.filter(x => !x.streak).map(x => tile(key, x, faces[key](x)))),
+    ...LOOK_STREAKS.map(n => {
+      const items = list.filter(x => x.streak === n);
+      if (!items.length) return null;
+      const held = member && streak >= n;
+      return el('div', { class: 'av-tier' }, [
+        el('small', { class: `av-tier-h${held ? ' held' : ''}`, text: `${held ? '✓' : '🔒'} ${t('lookStreak', { n })}` }),
+        el('div', { class: 'av-grid' }, items.map(x => tile(key, x, faces[key](x))))
+      ]);
+    })
+  ];
   return section(
     t('looksTitle'),
     el('div', { class: 'q-card pad looks' }, [
-      member ? null : el('button', { class: 'looks-lock', type: 'button', onclick: () => openPlus(q) }, [el('strong', { text: t('looksLocked') }), el('small', { text: t('looksLockedSub') })]),
+      member ? el('p', { class: 'av-streak' }, [el('strong', { class: 'num', text: t('streakNow', { n: streak }) }), el('small', { class: 'muted', text: t('streakSub') })]) : el('button', { class: 'looks-lock', type: 'button', onclick: () => openPlus(q) }, [el('strong', { text: t('looksLocked') }), el('small', { text: t('looksLockedSub') })]),
       el('small', { class: 'lv-h', text: t('avatarsTitle') }),
-      el('div', { class: 'av-grid' }, AVATARS.map(a => tile('avatar', a, el('span', { class: 'av-glyph', 'aria-hidden': 'true', text: a.glyph })))),
+      ...rows('avatar', AVATARS),
       el('small', { class: 'lv-h', text: t('framesTitle') }),
-      el('div', { class: 'av-grid' }, FRAMES.map(f => tile('frame', f, el('span', { class: `fr-preview q-framed q-frame-${f.id}${frame === f.id ? ' on' : ''}`, 'aria-hidden': 'true', text: glyph }))))
+      ...rows('frame', FRAMES)
     ]),
     { sub: t('looksSub') }
   );
