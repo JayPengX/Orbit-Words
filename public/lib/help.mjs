@@ -44,7 +44,7 @@ export const HELP = {
       ]],
       ['money', '錢怎麼算', [
         '所有 App 共用一個新台幣錢包。新帳號開戶金 NT$30,000；每個月 1 日發津貼，依你的資產（現金加上 Securities 持股）：NT$4 萬以下 NT$8,000、10 萬以下 4,000、25 萬以下 1,500，再多是 500。開戶金和津貼是 Quadra 唯一會給的錢。那個月第一次打開任何 App 時入帳，沒打開的月份下次補發。',
-        '餘額可以是負的（透支），每月計息 1%；到 Securities 賣出持股或用融資就能補足。',
+        '餘額可以是負的（透支），每月計息 1%；到 Securities 賣出持股就能補足（融資借來的錢只能留在 Securities 買賣，不能拿去 Play 或補透支）。',
         'Securities 投資、Play 下注和買彩券、Rewards 的單字、遊戲和任務給積分（XP）不給錢，只有加值商店會花錢；Fixtures 和 Orbit Class 不用錢。錢只存在 Quadra Pass，不能在帳號之間轉。'
       ]]
     ],
@@ -77,7 +77,7 @@ export const HELP = {
       ]],
       ['money', 'Money', [
         'Every app shares one NT$ wallet. A new pass opens with NT$30,000; the 1st of every month brings an allowance by what you’re worth (cash plus Securities holdings): NT$8,000 under NT$40,000, 4,000 under 100,000, 1,500 under 250,000, 500 above. The opening money and the allowance are the only money Quadra gives. It’s paid the first time that month you open any app; a month you miss is paid when you’re back.',
-        'The balance can go below zero (an overdraft) at 1% a month; selling holdings or borrowing in Securities covers it.',
+        'The balance can go below zero (an overdraft) at 1% a month; selling holdings in Securities covers it (money borrowed on margin stays in Securities for trading: it can’t be bet in Play or cover an overdraft).',
         'Securities invests, Play bets and sells lottery tickets, Rewards gives points (XP) for words, games and missions, never money (only its shop spends); Fixtures and Orbit Class don’t use money. Money lives on the Quadra Pass only and can’t move between passes.'
       ]]
     ]
@@ -104,7 +104,7 @@ export const HELP = {
       ]],
       ['more', '公債、融資、放空', [
         '公債有票面利率和到期日，價格跟殖利率反向；買進要付應計利息，到期自動還本。',
-        '可以用持股借錢（融資），也可以放空股票、ETF 和加密貨幣。維持率跌破 130% 會追繳，跌破 115% 會被強制處理。'
+        '可以用持股借錢（融資），也可以放空股票、ETF 和加密貨幣。每 NT$1 股票最多借 NT$0.6（現金不算擔保），所以借了再買、再借，每一輪都變少，最多大約借到自有資金的 1.5 倍（總部位 2.5 倍，和台股融資六成一樣）。借來的錢只能留在 Securities。維持率跌破 130% 會追繳，跌破 115% 會被強制處理。'
       ]],
       ['time', '時光機', [
         '在「紀錄」試算：幾年前投入一筆錢（或每月定期定額）到某個標的，現在會變多少，中間最大跌幅多少。'
@@ -140,7 +140,7 @@ export const HELP = {
       ]],
       ['more', 'Bonds, margin, shorting', [
         'Bonds have a coupon and a maturity, and their price moves against yields; buying pays accrued interest, and they repay at maturity.',
-        'Borrow against holdings, or sell stocks, ETFs and crypto short. Under a 130% ratio the broker calls; under 115% it closes positions.'
+        'Borrow against holdings, or sell stocks, ETFs and crypto short. Each NT$1 of stock lends at most NT$0.60 (cash doesn’t count), so borrow, buy and borrow again shrinks each round: about 1.5× your own money at most (2.5× in all, like Taiwan’s 60% margin). Borrowed money stays in Securities. Under a 130% ratio the broker calls; under 115% it closes positions.'
       ]],
       ['time', 'Time machine', [
         'Under History: what a lump sum (or a monthly plan) put into anything years ago would be worth now, and its worst drop on the way.'
