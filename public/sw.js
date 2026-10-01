@@ -7,6 +7,9 @@
 // the cache too, refreshed behind it (pageFirst); anything else from the
 // network first, the cache only when offline.
 // One copy per file is kept: a new version replaces the old one.
+// Pictures from other sites: the shared kit's (sw-images.js).
+importScripts('./sw-images.js');
+
 const CACHE = 'quadra-hub-v1';
 
 self.addEventListener('install', event => {
