@@ -249,11 +249,73 @@ export function pickRound(words, progress, { levels = LEVELS, size = 10, now = D
   for (const w of ranked) if (round.length < Math.min(size, dueCount + newCount || size) && !inRound.has(w.key)) (round.push(w), inRound.add(w.key));
   return spread(round.sort(() => random() - 0.5));
 }
-// The next `n` new words: from every chosen level alike, the hardest level
-// first, in a fixed mixed order within a level (the same words each time
-// until they're learnt). `skip`: ones already taken.
+// ---- Which new words this person is likely to get wrong --------------------------------
+//
+// With thousands of words, a new word worth asking is one this person
+// probably doesn't know. Every answer so far says where that is: how often
+// they miss at each level, at each part of speech and word length (as a
+// ratio to their usual), and words spelt like ones they've missed lately
+// (adapt after adopt). Levels start from a guess (harder, missed more) that
+// answers soon outweigh. Returns w => the chance this word is missed.
+const LEVEL_PRIOR = l => 0.12 + 0.1 * (l - 1);
+const PRIOR_WEIGHT = 6;
+const posOf = w => String(w.pos || '').split('/')[0] || '?';
+const lenOf = w => (w.word.length <= 5 ? 0 : w.word.length <= 8 ? 1 : w.word.length <= 11 ? 2 : 3);
+const missedEver = p => (p.n || 0) > (p.r || 0) || (p.l || 0) > 0;
+// `alike: false`: without the look-alike check (quicker, for a first sort).
+export function missChance(words, progress, { alike: lookAlikes = true } = {}) {
+  const seen = words.filter(w => progress[w.key]?.n);
+  const missed = seen.filter(w => missedEver(progress[w.key]));
+  const overall = (missed.length + 1) / (seen.length + 2);
+  const rate = key => {
+    const all = new Map();
+    for (const w of seen) {
+      const k = key(w);
+      const c = all.get(k) || { n: 0, m: 0 };
+      c.n++;
+      if (missedEver(progress[w.key])) c.m++;
+      all.set(k, c);
+    }
+    return all;
+  };
+  const byLevel = rate(w => w.level);
+  const byPos = rate(posOf);
+  const byLen = rate(lenOf);
+  // A group's own rate against the usual, pulled to 1 while it's seen little.
+  const ratio = (map, k) => {
+    const c = map.get(k);
+    if (!c) return 1;
+    return Math.min(2.5, Math.max(0.4, (c.m + overall * 4) / (c.n + 4) / overall));
+  };
+  // The latest misses (the look-alikes of these are the likeliest next).
+  const recent = missed.sort((a, b) => (progress[b.key].t || 0) - (progress[a.key].t || 0)).slice(0, 40).map(w => w.key);
+  return w => {
+    const c = byLevel.get(w.level) || { n: 0, m: 0 };
+    const level = (c.m + LEVEL_PRIOR(w.level) * PRIOR_WEIGHT) / (c.n + PRIOR_WEIGHT);
+    let odds = (level / (1 - level)) * ratio(byPos, posOf(w)) * ratio(byLen, lenOf(w));
+    if (lookAlikes && recent.length) {
+      let alike = 0;
+      for (const k of recent) if (k !== w.key) alike = Math.max(alike, lookAlike(w.key, k));
+      if (alike >= ALIKE) odds *= 1 + 2.5 * alike;
+    }
+    return odds / (1 + odds);
+  };
+}
+
+// The next `n` new words: the ones this person is likeliest to miss first
+// (missChance), from the chosen levels; a fixed nudge per word keeps the
+// order from being one group at a time. The same words each time until
+// answers change the picture. `skip`: ones already taken.
 export function toStudy(words, progress, { levels = LEVELS, n = 10, skip = new Set() } = {}) {
   const chosen = words.filter(w => levels.includes(w.level) && !progress[w.key]?.b && !skip.has(w.key));
+  if (Object.keys(progress).length) {
+    const chance = missChance(words, progress);
+    // Cheap first (no look-alikes), then the closer look for the front of the line.
+    const quick = missChance(words, progress, { alike: false });
+    const nudge = w => ((hash(w.key) % 1000) / 1000) * 0.08;
+    const front = chosen.map(w => [quick(w) + nudge(w), w]).sort((a, b) => b[0] - a[0]).slice(0, Math.max(n * 4, 200)).map(x => x[1]);
+    return front.map(w => [chance(w) + nudge(w), w]).sort((a, b) => b[0] - a[0]).slice(0, n).map(x => x[1]);
+  }
   const byLevel = [...new Set(chosen.map(w => w.level))].sort((a, b) => b - a).map(l => chosen.filter(w => w.level === l).sort((a, b) => hash(a.key) - hash(b.key)));
   const out = [];
   for (let i = 0; out.length < n && byLevel.some(list => i < list.length); i++) for (const list of byLevel) if (i < list.length && out.length < n) out.push(list[i]);

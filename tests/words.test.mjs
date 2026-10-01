@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { loadWords, toStudy, grade, gradeOf, retrievability, boxOf, pickRound, makeQuestion, distractors, lookAlike, meaningAlike, sameMeaning, editDistance, clozeGaps, clozeText, sameWord, spellDiff, stats, hardest, packProgress, unpackProgress, mergeProgress, dayNum, smartType, shortMeaning, wordOfDay, MASTERED, intervalOf } from '../public/lib/words.mjs';
+import { loadWords, toStudy, grade, gradeOf, retrievability, boxOf, pickRound, makeQuestion, distractors, lookAlike, meaningAlike, sameMeaning, editDistance, clozeGaps, clozeText, sameWord, spellDiff, stats, hardest, packProgress, unpackProgress, mergeProgress, dayNum, smartType, shortMeaning, wordOfDay, MASTERED, intervalOf, missChance } from '../public/lib/words.mjs';
 
 const read = f => JSON.parse(readFileSync(new URL(`../public/data/${f}`, import.meta.url)));
 const words = loadWords(read('words.json'));
@@ -102,6 +102,32 @@ test('efficiency: a word known at its check is out of the way for weeks, easy wo
   }
 });
 
+test('new words this person is likely to miss come first: by level, part of speech, length and look-alikes of their misses', () => {
+  const t0 = now - 5 * DAY;
+  const right = { b: 4, s: 20, D: 3, d: dayNum(now) + 20, n: 2, r: 2, t: t0 };
+  const wrong = (i = 0) => ({ b: 1, s: 0.5, D: 7, d: dayNum(now), n: 2, r: 0, t: t0 + i });
+  // Before any answer: harder levels first.
+  const cold = missChance(words, {});
+  assert.ok(cold(words.find(w => w.level === 6)) > cold(words.find(w => w.level === 1)));
+  // Level 4 known throughout, level 3 often missed: level 3's next words rank above level 4's.
+  const progress = {};
+  words.filter(w => w.level === 4).slice(0, 40).forEach(w => (progress[w.key] = right));
+  words.filter(w => w.level === 3).slice(0, 40).forEach((w, i) => (progress[w.key] = i % 2 ? wrong(i) : right));
+  const chance = missChance(words, progress);
+  const next3 = words.find(w => w.level === 3 && !progress[w.key]);
+  const next4 = words.find(w => w.level === 4 && !progress[w.key] && posOf(w) === posOf(next3));
+  assert.ok(chance(next3) > chance(next4), `${chance(next3)} ${chance(next4)}`);
+  // A look-alike of a word just missed is likelier to be missed than the same level's others.
+  const withMiss = { ...progress, adopt: wrong(99) };
+  const after = missChance(words, withMiss);
+  assert.ok(after(W('adapt')) > after(W('banana') || words.find(w => w.level === W('adapt').level && !/ad/.test(w.key))));
+  // toStudy follows it: the level missed more comes first, the same each time.
+  const study = toStudy(words, progress, { levels: [3, 4], n: 10 });
+  assert.ok(study.filter(w => w.level === 3).length >= 8, study.map(w => w.level).join());
+  assert.deepEqual(toStudy(words, progress, { levels: [3, 4], n: 10 }).map(w => w.key), study.map(w => w.key));
+});
+const posOf = w => String(w.pos || '').split('/')[0];
+
 test('smart mode mixes every kind in a round, producing more the better a word is known, never unscrambling a long word', () => {
   const kinds = p => {
     const seen = new Set();
@@ -150,7 +176,8 @@ test('a round leads with the likeliest forgotten, brings their mix-ups, holds ne
   const next = toStudy(words, progress, { levels: [1, 2], n: 10 });
   assert.equal(next.length, 10);
   assert.deepEqual(toStudy(words, progress, { levels: [1, 2], n: 10 }).map(w => w.key), next.map(w => w.key));
-  assert.ok(next.every(w => !progress[w.key]) && next.some(w => w.level === 1) && next.some(w => w.level === 2));
+  // Level 1 all known so far: the new words come from level 2, where a miss is likelier.
+  assert.ok(next.every(w => !progress[w.key] && w.level === 2));
   const taken = new Set(next.slice(0, 4).map(w => w.key));
   assert.deepEqual(toStudy(words, progress, { levels: [1, 2], n: 6, skip: taken }).map(w => w.key), next.slice(4).map(w => w.key));
   // A studied batch waiting for its quiz isn't brought in new by a round.
