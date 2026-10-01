@@ -197,7 +197,7 @@ test('help covers every app in both languages, and every string exists in both',
 
 test('new games: every one gives a modest round of points', async () => {
   const { GAMES, bestRound, STREAK, ICON } = await import('../public/lib/games.mjs');
-  assert.equal(GAMES.length, 7);
+  assert.equal(GAMES.length, 6);
   for (const g of GAMES) {
     assert.ok(STREAK[g] && ICON[g], g);
     assert.ok(bestRound(g) > 0 && bestRound(g) <= 80, `${g} ${bestRound(g)}`);

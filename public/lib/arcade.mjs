@@ -11,6 +11,11 @@
 // gomoku, the Schulte table, the Stroop test…).
 
 const PORTED_LIST = [
+  // [id, icon, category, 中文名, English name, 中文說明, English line, an excellent score, minutes, page, source]
+  ['runner', '🦖', 'action', '小恐龍', 'Dino run', '動作 · 點一下跳', 'Action · tap to jump', 1500, 1.5, 'dino/index.html', 'github.com/wayou/t-rex-runner (BSD)'],
+  ['match3', '🍓', 'puzzle', '消消樂', 'Match three', '益智 · 90 秒', 'Puzzle · 90 s', 6000, 1.5, 'match3/index.html', 'github.com/rembound/Match-3-Game-HTML5 (MIT)'],
+  ['bubbles', '🫧', 'puzzle', '泡泡龍', 'Bubble shooter', '益智 · 3 分鐘', 'Puzzle · 3 minutes', 8000, 3, 'bubbles/index.html', 'github.com/rembound/Bubble-Shooter-HTML5 (MIT)'],
+  ['merge', '🔢', 'puzzle', '2048', '2048', '益智 · 滑動合併數字', 'Puzzle · swipe and merge', 12000, 5, '2048/index.html', 'github.com/gabrielecirulli/2048 (MIT)']
 ];
 
 // [id, icon, category, 中文名, English name, 中文說明, English line, most a round (NT$), NT$ per point]
@@ -34,7 +39,6 @@ const LIST = [
   ['blocks', '🧱', 'action', '俄羅斯方塊', 'Falling blocks', '動作 · 2 分鐘', 'Action · 2 minutes', 50, 3],
   ['breakout', '🏓', 'action', '打磚塊', 'Breakout', '動作 · 三條命', 'Action · 3 lives', 45, 0.8],
   ['flappy', '🐤', 'action', '飛飛鳥', 'Flappy bird', '動作 · 點一下飛', 'Action · tap to flap', 45, 1.5],
-  ['runner', '🦖', 'action', '小恐龍', 'Dino run', '動作 · 點一下跳', 'Action · tap to jump', 45, 1.2],
   ['stack', '🏗️', 'action', '疊疊樂', 'Stack', '抓時機 · 越疊越窄', 'Timing · narrower and narrower', 45, 1.5],
   ['dodge', '☄️', 'action', '閃隕石', 'Dodge', '動作 · 撐 60 秒', 'Action · last 60 s', 40, 0.6],
   ['catch', '🍎', 'action', '接水果', 'Fruit catch', '動作 · 45 秒', 'Action · 45 s', 40, 0.6],
@@ -73,7 +77,6 @@ const LIST = [
   ['pipes', '🚰', 'puzzle', '水管', 'Pipes', '益智 · 兩盤', 'Puzzle · 2 boards', 45, 1],
   ['colorsort', '🧪', 'puzzle', '倒水排序', 'Water sort', '益智 · 三關', 'Puzzle · 3 levels', 50, 1],
   ['samegame', '🟥', 'puzzle', '消方塊', 'Same game', '益智 · 一盤', 'Puzzle · one board', 50, 0.25],
-  ['match3', '🍓', 'puzzle', '消消樂', 'Match three', '益智 · 60 秒', 'Puzzle · 60 s', 45, 0.3],
   ['lines', '🔵', 'puzzle', '五子連珠', 'Color lines', '益智 · 到盤面滿為止', 'Puzzle · until the board fills', 45, 0.5],
   ['dots', '🟣', 'puzzle', '連點', 'Dots', '益智 · 60 秒', 'Puzzle · 60 s', 45, 0.4],
   ['onet', '🐼', 'puzzle', '連連看', 'Onet', '益智 · 3 分鐘', 'Puzzle · 3 minutes', 50, 1.6],
@@ -131,9 +134,9 @@ export function addPorted(rows) {
 // Long games (ten minutes and more): a badge on the card, and a bigger most a round.
 export const LONG = new Set(['sudoku9', 'solitaire', 'minesbig', 'checkers', 'wordsearch', 'freecell', 'spider']);
 addPorted(PORTED_LIST);
-// A ported game's raw score scaled to 0-100 (100 at its excellent score).
 export const ARCADE = [
-  ...PORTED.map(g => ({ ...g, max: 100, rate: 100 / g.best, long: g.minutes >= 10, ported: g.page })),
+  // Paid like the rest: up to 50 a round (120 for a long game), all of it at its excellent score.
+  ...PORTED.map(g => ({ ...g, max: g.minutes >= 10 ? 120 : 50, rate: (g.minutes >= 10 ? 120 : 50) / g.best, long: g.minutes >= 10, ported: g.page })),
   ...LIST.map(([id, icon, cat, zh, en, kindZh, kindEn, max, rate]) => ({ id, icon, cat, zh, en, kindZh, kindEn, max, rate, long: LONG.has(id) }))
 ];
 export const ARCADE_BY_ID = Object.fromEntries(ARCADE.map(g => [g.id, g]));
@@ -746,7 +749,7 @@ export const HOW = {
   pipes: ["點水管轉 90 度，讓水從中間的水龍頭流到每一格水管。兩盤，轉越少下分數越高。", "Tap a pipe to turn it; get water from the tap in the middle to every pipe. Two boards; fewer turns score more."],
   colorsort: ["點一管再點另一管，把上面的顏色倒過去：只能倒在同色上面或空管裡，一管最多四格。每管都只剩一種顏色就過關。", "Tap a tube, then another, to pour its top colour: only onto the same colour or into an empty tube, four to a tube. One colour per tube wins the level."],
   samegame: ["點兩塊以上連在一起的同色方塊消掉，上面的往下掉、空的欄往左靠。一次消越多分數越高（多出來的平方），全部清光有獎勵。", "Tap two or more touching blocks of a colour; the rest fall and slide left. Bigger groups score much more (squared); clearing the board adds a bonus."],
-  match3: ["點兩顆相鄰的水果交換，連成三顆以上一樣的就消掉，連鎖也算分。60 秒。", "Swap two neighbouring fruits to line up three or more alike; they clear and chains count too. 60 seconds."],
+  match3: ["點一顆、再點旁邊一顆（或拖過去）交換，連成三顆以上同色就消掉，越長越多分，連鎖也算。90 秒。", "Tap a tile then a neighbour (or drag) to swap; three or more alike in a line clear, longer lines and chains score more. 90 seconds."],
   lines: ["點一顆球，再點它走得到的空格（中間不能被擋住）。同色五顆以上連成一線（橫、直、斜）就消掉得分；沒消掉的話會多出三顆球。盤面滿了結束。", "Tap a ball, then a free square it can reach (the way not blocked). Five or more of a colour in a line (any direction) clear and score; otherwise three new balls appear. It ends when the board fills."],
   dots: ["手指滑過相鄰（上下左右）的同色點，兩個以上放開就消掉，越長分數越多。60 秒。", "Drag through touching dots (up, down, left, right) of one colour; two or more clear when you let go, longer chains more. 60 seconds."],
   onet: ["點兩個一樣的圖案，如果能用轉彎不超過兩次的線連起來（線只能走空格，外框也算空的），就一起消掉。3 分鐘內清空，剩的時間也算分。", "Tap two matching tiles: if a line with at most two turns joins them through empty squares (the edge counts), both go. Clear the board in 3 minutes; time left scores too."],
@@ -778,7 +781,6 @@ export const HOW = {
   pairs: ['翻兩張牌：一張英文、一張中文意思，配對成功就留著。全部配完進下一盤。連續配對有加成，配錯扣一點。', 'Turn two cards: an English word and its meaning. A match stays up; clear the board for the next. Matches in a row add a bonus; a miss costs a little.'],
   speed: ['60 秒內，看英文單字，從四個中文意思選對的。答得越多賺越多，連對有加成。', 'For 60 seconds, pick the right meaning of each word out of four. More right, more pay; runs add a bonus.'],
   hangman: ['看中文意思，一次猜一個字母拼出英文單字。猜錯會少一條命，命用完就換下一個字。', 'From the meaning, guess the English word a letter at a time. A wrong letter costs a life; out of lives, on to the next word.'],
-  merge: ['滑動讓所有方塊往同一邊移動，兩個相同數字碰在一起就合併。合出越大的數字分數越高，格子滿了就結束。', 'Swipe to slide every tile; two equal numbers that meet merge. Bigger tiles score more; it ends when the board is full.'],
   sudoku: ['4×4 數獨：每一列、每一行、每個 2×2 小格都要剛好有 1 到 4。點格子再點數字填入。', '4×4 sudoku: every row, column and 2×2 box holds 1 to 4 once. Tap a cell, then a number.'],
   simon: ['看顏色亮起的順序，然後照同樣順序點。每一輪多一個，記得越長賺越多。', 'Watch the colours light up, then tap them in the same order. Each round adds one.'],
   mines: ['點格子打開；數字代表旁邊 8 格裡有幾顆雷。用數字推理哪裡安全，切到「🚩 插旗」標記雷。第一下一定安全，打開所有安全格就贏。', 'Tap to open a cell; a number says how many of the 8 around it are mines. Reason out the safe ones; switch to 🚩 to flag mines. The first tap is always safe; open every safe cell to win.'],
@@ -795,7 +797,9 @@ export const HOW = {
   blocks: ['方塊會落下：點左半邊/右半邊移動，點上方旋轉，往下滑直接落下。排滿一整行就消除，一次消越多行分數越高。兩分鐘。', 'Blocks fall: tap left or right half to move, tap the top to turn, swipe down to drop. Full rows clear; more at once scores more. Two minutes.'],
   breakout: ['手指左右拖動下方的擋板接住球，把上面的磚塊全部打掉。漏接三次就結束。', 'Drag the paddle to keep the ball up and break all the bricks. Miss it three times and it’s over.'],
   flappy: ['點一下小鳥往上飛，不點就往下掉。穿過綠色水管中間的空隙，碰到就結束。', 'Tap to flap up; stop and it falls. Fly through the gaps in the pipes; touching one ends it.'],
-  runner: ['點一下跳過仙人掌和老鷹。速度會越來越快。', 'Tap to jump the cacti and birds. It keeps speeding up.'],
+  bubbles: ['手指放在畫面上瞄準，放開就射出泡泡；三顆以上同色連在一起就消掉，掉下來的泡泡另外加分。泡泡碰到底部或 3 分鐘到就結束。', 'Touch to aim and lift to shoot; three or more of a colour together pop, and bubbles that fall with them score extra. It ends when the bubbles reach the bottom or after 3 minutes.'],
+  runner: ['點一下跳過仙人掌和翼龍。速度會越來越快，撞到就結束。', 'Tap to jump the cacti and pterodactyls. It keeps speeding up; a hit ends it.'],
+  merge: ['上下左右滑動，所有方塊一起移動；相同數字相撞就合併成兩倍。沒有可以動的格子就結束，合併得越多分數越高。', 'Swipe: every tile moves; two equal tiles that meet merge into their sum. It ends when nothing can move; the more you merge, the higher the score.'],
   stack: ['方塊左右移動，點一下放下。沒對齊的部分會被切掉，塔越來越窄。完全對齊得雙倍分數。', 'Tap to drop the sliding block. Whatever hangs over is cut off; a perfect drop scores double.'],
   dodge: ['左右拖動火箭閃開落下的隕石，撐越久分數越高（最多 60 秒）。', 'Drag the rocket to dodge the falling rocks; the longer you last the better (up to 60 s).'],
   catch: ['左右拖動籃子接水果（⭐ 3 分），避開炸彈（扣 3 分）。45 秒。', 'Drag the basket to catch fruit (⭐ is 3), and avoid bombs (−3). 45 seconds.'],

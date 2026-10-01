@@ -17,7 +17,7 @@
 import { ECONOMY } from './quadra.mjs';
 import { ARCADE_BY_ID, ARCADE } from './arcade.mjs';
 
-export const GAMES = ['pairs', 'speed', 'hangman', 'merge', 'simon', 'derby', 'freethrow'];
+export const GAMES = ['pairs', 'speed', 'hangman', 'simon', 'derby', 'freethrow'];
 export const ICON = { derby: '⚾', freethrow: '🏀', pairs: '🃏', merge: '🔢', speed: '⚡', hangman: '🔤', simon: '🎨', sudoku: '🧮' };
 // Every game: these eight, then the arcade (arcade.mjs), and each one's
 // category for the games list.
@@ -251,7 +251,7 @@ export function bestRound(game) {
 // derby and a 30-second dino run pay alike per minute for the same share of
 // their best; long games pay more because they take longer, not by their rate.
 export const GAME_XPM = ECONOMY.gamesPerMinute * 1.5;
-const CLASSIC_MINUTES = { derby: 1.5, freethrow: 1.5, pairs: 2, merge: 1.5, speed: 1, hangman: 3, simon: 2, sudoku: 7.5 };
+const CLASSIC_MINUTES = { derby: 1.5, freethrow: 1.5, pairs: 2, speed: 1, hangman: 3, simon: 2, sudoku: 7.5 };
 const ARCADE_MINUTES = { runner: 1.5, flappy: 1.5, jump: 2, racer: 2, jetpack: 2, invaders: 3, frogger: 3, snake: 3, breakout: 3, keepy: 1.5, stack: 1.5, pianotiles: 1.5, minigolf: 4, archery: 1.5, reaction: 1, mines: 3, lights: 3, slide: 4, codebreak: 4, bulls: 4, nonogram: 4, flood: 2, hanoi: 3, sokoban: 5, maze: 3, queens: 3, pegs: 6, takuzu: 5, skyscrapers: 5, futoshiki: 5, magicsq: 4, pipes: 4, colorsort: 4, samegame: 4, lines: 5, jigsaw: 4, blockfit: 5, rushhour: 5, wordle: 4, schulte: 1.5, digits: 2, gridmem: 2, spotdiff: 3, pyramid: 5, golf: 4, tripeaks: 5, pokersq: 4, tictactoe: 2, connect4: 3, reversi: 5, gomoku: 4, dotsboxes: 5, mancala: 5, battleship: 5, emojimem: 2, pathmem: 2 };
 // How long a full round of `game` takes a fair player, in minutes (the most it pays for).
 export function roundMinutes(game) {

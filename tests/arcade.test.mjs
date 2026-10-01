@@ -7,7 +7,8 @@ test('every arcade game has a screen, a unique id and a sane pay', () => {
   assert.ok(A.ARCADE.length >= 30);
   assert.equal(new Set(A.ARCADE.map(g => g.id)).size, A.ARCADE.length);
   for (const g of A.ARCADE) {
-    assert.ok(existsSync(new URL(`../public/arcade/${g.id}.js`, import.meta.url)), g.id);
+    // A ported game's page (public/ported/…, its licence beside it), or the arcade's own screen.
+    assert.ok(existsSync(new URL(g.ported ? `../public/ported/${g.ported.split('?')[0]}` : `../public/arcade/${g.id}.js`, import.meta.url)), g.id);
     // A short round pays at most NT$60; a long game (ten minutes and more) up to NT$120.
     assert.ok(g.max > 0 && g.max <= (g.long ? 120 : 60) && g.rate > 0, g.id);
     assert.equal(A.arcadePay(g.id, 1e6), g.max);

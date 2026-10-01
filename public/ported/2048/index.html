@@ -10,8 +10,8 @@
 <link rel="stylesheet" href="./style/main.css">
 <style>
   html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #faf8ef; touch-action: none; -webkit-user-select: none; user-select: none; }
-  .q-stage { position: fixed; inset: 0; display: grid; place-items: center; }
-  .q-board { width: 500px; transform-origin: center center; }
+  .q-stage { position: fixed; inset: 0; }
+  .q-board { position: absolute; left: 50%; top: calc(50% - 20px); width: 500px; transform-origin: center center; }
   .q-hint { position: fixed; left: 0; right: 0; bottom: 10px; text-align: center; font: 600 14px system-ui, sans-serif; color: #776e65; }
   .heading, .above-game, .game-message .lower { display: none !important; }
   .game-container { margin-top: 0; }
@@ -32,7 +32,7 @@
   document.querySelector('.q-hint').textContent = quadra.L('上下左右滑動，相同數字相撞就合併', 'Swipe; equal numbers merge');
   function fit() {
     var k = Math.min((innerWidth - 16) / 500, (innerHeight - 56) / 500);
-    document.querySelector('.q-board').style.transform = 'scale(' + Math.max(0.3, k) + ')';
+    document.querySelector('.q-board').style.transform = 'translate(-50%, -50%) scale(' + Math.max(0.3, k) + ')';
   }
   addEventListener('resize', fit);
   fit();

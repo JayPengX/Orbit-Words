@@ -139,6 +139,7 @@ KeyboardInputManager.prototype.keepPlaying = function (event) {
 
 KeyboardInputManager.prototype.bindButtonPress = function (selector, fn) {
   var button = document.querySelector(selector);
+  if (!button) return; // Quadra: no restart button (one round per opening)
   button.addEventListener("click", fn.bind(this));
   button.addEventListener(this.eventTouchend, fn.bind(this));
 };

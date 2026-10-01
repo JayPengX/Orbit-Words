@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Match 3</title>
+<!-- Match-3 by Rembound.com (MIT, see LICENSE), in Quadra Rewards. -->
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #e8eaec; touch-action: none; -webkit-user-select: none; user-select: none; }
+  #viewport { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: block; }
+</style>
+<script src="../bridge.js"></script>
+</head>
+<body>
+<canvas id="viewport" width="340" height="400"></canvas>
+<script>
+  // The canvas as large as the screen allows, its drawing kept sharp.
+  function fit() {
+    var c = document.getElementById('viewport');
+    var k = Math.min(innerWidth / 340, innerHeight / 400);
+    c.style.width = Math.floor(340 * k) + 'px';
+    c.style.height = Math.floor(400 * k) + 'px';
+  }
+  addEventListener('resize', fit);
+  fit();
+</script>
+<script src="match3.js"></script>
+</body>
+</html>
