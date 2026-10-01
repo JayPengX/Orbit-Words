@@ -1003,3 +1003,13 @@ button.xp-card { width: 100%; text-align: left; font: inherit; color: inherit; c
 .streak-goal strong { font-size: 14px; }
 .streak-goal.kept strong { color: #16a34a; }
 .lv-step.got { background: color-mix(in srgb, #f97316 14%, var(--q-surface)); }
+
+/* The day's soft cap, mission swaps, streak repair, frame previews */
+.cap-line { display: block; font-size: 12px; color: var(--q-muted); }
+.cap-line.half { color: #b45309; }
+.cap-line.low { color: #dc2626; }
+.swap-btn { justify-self: start; padding: 2px 0; font-size: 12px; }
+.repair-btn { justify-self: start; }
+.fr-preview { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; font-size: 22px; line-height: 1; }
+.av-tile.locked .fr-preview { opacity: 0.55; }
+.slot.hint { background: var(--accent-wash); color: var(--accent); }

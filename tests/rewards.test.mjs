@@ -60,7 +60,7 @@ test('boxes go up on right answers, once a day, back to 1 on a miss, cards cap a
   assert.equal(firsts, 1);
 });
 
-test('smart mode spreads a round over all six kinds of question', () => {
+test('smart mode spreads a round over the five kinds that test (never a flash card)', () => {
   const seen = new Set();
   const used = {};
   const word = { word: 'apple', level: 1 };
@@ -69,8 +69,7 @@ test('smart mode spreads a round over all six kinds of question', () => {
     used[k] = (used[k] || 0) + 1;
     seen.add(k);
   }
-  assert.deepEqual([...seen].sort(), ['card', 'letters', 'listen', 'meaning', 'spell', 'word']);
-  assert.ok((used.card || 0) <= 2);
+  assert.deepEqual([...seen].sort(), ['letters', 'listen', 'meaning', 'spell', 'word']);
   // A long word is never unscrambled.
   for (let i = 0; i < 30; i++) assert.notEqual(smartType({ b: 3 }, Math.random, { word: 'responsibility' }, {}), 'letters');
 });

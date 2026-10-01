@@ -6,6 +6,9 @@
 //              goes on ('vocab:fz:<day>' marks the day it covered)
 //   boost      ×2 word-practice points for 30 minutes
 //   pack       a word pack, bought once ('vocab:shop:pack:<id>', so never twice)
+//   avatar, frame   for the account button, bought once with points
+//   reroll     a daily mission swapped ('vocab:xs:reroll:<day>:<mission>')
+//   repair     a missed day bought back ('vocab:xs:repair:<day>'), points only
 //   Plus       PLUS.vocab.cards protection cards every Plus month, and packs
 //              at the kit's PLUS.vocab.packShare of the price (the Worker's
 //              REWARDS_SHOP takes no less)
@@ -13,13 +16,17 @@
 // ('vocab:xs:…', kind 'redeem', amount 0, the points in the note; the
 // Worker's REWARDS_XP takes no less). Rewards pays points, never money (v7):
 // the shop is the only money it moves.
-import { taipeiDay, plusMember, plusMonths, PLUS, xpBalance, xpEarned, xpLevel, levelCards, AVATARS, streakCards, longestStreakOf } from './quadra.mjs';
+import { taipeiDay, plusMember, plusMonths, PLUS, xpBalance, xpEarned, xpLevel, levelCards, AVATARS, FRAMES, streakCards, longestStreakOf } from './quadra.mjs';
 
 export const SHOP = {
   freeze: { price: 300, hold: 3, xp: 600 },
   boost: { price: 150, minutes: 30, xp: 300 },
   packs: { toeic: 990, ielts: 1_490, biz: 1_990 },
-  packsXp: { toeic: 8_000, ielts: 12_000, biz: 16_000 }
+  packsXp: { toeic: 8_000, ielts: 12_000, biz: 16_000 },
+  // Points only: a daily mission swapped (two a day at most), a missed day
+  // bought back for the streak (yesterday's, when the day before was kept).
+  reroll: { xp: 100, perDay: 2 },
+  repair: { xp: 1_500 }
 };
 const MIN = 60_000;
 const mine = (wallet, prefix) => (wallet?.entries || []).filter(e => e.app === 'vocab' && typeof e.id === 'string' && e.id.startsWith(prefix));
@@ -27,7 +34,7 @@ const mine = (wallet, prefix) => (wallet?.entries || []).filter(e => e.app === '
 export const shopEntry = (item, key, now = Date.now(), note = item) => ({ id: `vocab:shop:${item}:${key}`, t: now, app: 'vocab', kind: 'shop', amount: -SHOP[item].price, note });
 // The same, for points: null when there aren't enough to spend.
 export function redeemEntry(wallet, item, key, now = Date.now()) {
-  const cost = item === 'pack' ? SHOP.packsXp[key] : item === 'avatar' ? AVATARS.find(a => a.id === key)?.xp : SHOP[item].xp;
+  const cost = item === 'pack' ? SHOP.packsXp[key] : item === 'avatar' ? AVATARS.find(a => a.id === key)?.xp : item === 'frame' ? FRAMES.find(f => f.id === key)?.xp : SHOP[item]?.xp;
   if (!cost || xpBalance(wallet) < cost) return null;
   return { id: `vocab:xs:${item}:${key}`, t: now, app: 'vocab', kind: 'redeem', amount: 0, note: String(cost) };
 }
@@ -79,3 +86,18 @@ export const packOpen = (wallet, id) => packOwned(wallet, id);
 export const openPacks = wallet => Object.keys(SHOP.packs).filter(id => packOpen(wallet, id));
 export const packPrice = (wallet, id, now = Date.now()) => (plusMember(wallet, now) ? Math.round(SHOP.packs[id] * PLUS.vocab.packShare) : SHOP.packs[id]);
 export const packEntry = (wallet, id, now = Date.now(), note = id) => ({ id: packId(id), t: now, app: 'vocab', kind: 'shop', amount: -packPrice(wallet, id, now), note });
+
+// ---- Mission swaps ---------------------------------------------------------------------
+// Today's swaps, in order: the missions swapped away.
+export const rerolls = (wallet, day) => mine(wallet, `vocab:xs:reroll:${day}:`).sort((a, b) => a.t - b.t).map(e => e.id.split(':')[4]);
+
+// ---- Streak repair ---------------------------------------------------------------------
+// Yesterday, when it can be bought back: missed (no missions, no card),
+// the day before kept, and no card left to cover it. Otherwise null.
+export function repairable(wallet, activeDays, now = Date.now()) {
+  const yesterday = taipeiDay(now - 86_400_000);
+  const before = taipeiDay(now - 2 * 86_400_000);
+  if (activeDays.has(yesterday) || !activeDays.has(before)) return null;
+  if (freezes(wallet, now).held > 0) return null;
+  return yesterday;
+}

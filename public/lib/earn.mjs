@@ -12,8 +12,8 @@
 // Before v7 the same entries paid NT$ (their amount): those count as points too.
 // Points earned make the level (the kit's xpLevel); points spent in the shop
 // (shop.mjs redeemEntry) come off what's left to spend (xpBalance).
-import { taipeiDay, todayActivity, poolBalance, xpOf, xpEarned, plusMember, plusTenure, PLUS, activeDaySet, streakBonus, missionDays, STREAK } from './quadra.mjs';
-import { freezes, freezeEntry, frozenDays } from './shop.mjs';
+import { taipeiDay, todayActivity, poolBalance, xpOf, xpEarned, plusMember, plusTenure, PLUS, activeDaySet, streakBonus, missionDays, STREAK, ECONOMY } from './quadra.mjs';
+import { freezes, freezeEntry, frozenDays, rerolls } from './shop.mjs';
 
 export { xpOf };
 const KIND_OF = { words: 'words', reward: 'words', game: 'game', mission: 'mission' };
@@ -38,6 +38,43 @@ export function xpToday(wallet, now = Date.now()) {
     out.total += xpOf(e);
   }
   return out;
+}
+
+// ---- The day's soft cap on words and games (ECONOMY.dailyXp) ---------------------------
+// Points from words and games today, the ones not yet written (`pending`) too.
+export const capToday = (wallet, now = Date.now(), pending = 0) => {
+  const e = xpToday(wallet, now);
+  return e.words + e.game + pending;
+};
+// What `points` (at the person's rate) come to after today's `had`: the
+// first ECONOMY.dailyXp.full ×rate in full, up to .half ×rate at half, then .rest.
+export function dampXp(points, had, rate = 1) {
+  const { full, half, rest } = ECONOMY.dailyXp;
+  const a = full * rate;
+  const b = half * rate;
+  let out = 0;
+  let left = Math.max(0, points);
+  let e = Math.max(0, had);
+  if (e < a) {
+    const take = Math.min(left, a - e);
+    out += take;
+    e += take;
+    left -= take;
+  }
+  if (left > 0 && e < b) {
+    const take = Math.min(left, (b - e) * 2);
+    out += take / 2;
+    e += take / 2;
+    left -= take;
+  }
+  return out + left * rest;
+}
+// Where today stands: 'full' (and how much is left at it), 'half', or 'low'.
+export function capStage(had, rate = 1) {
+  const { full, half } = ECONOMY.dailyXp;
+  if (had < full * rate) return { stage: 'full', left: Math.ceil(full * rate - had) };
+  if (had < half * rate) return { stage: 'half', left: Math.ceil(half * rate - had) };
+  return { stage: 'low', left: 0 };
 }
 
 // Every point Rewards has ever given.
@@ -84,7 +121,7 @@ export const MISSIONS = [
 ];
 // The day's six: three in Rewards, three elsewhere, picked by the date (one
 // of a group at most: not 20 words and 50 the same day).
-export function dailyMissionIds(day) {
+export function dailyMissionIds(day, swapped = []) {
   const pick = (list, n) => {
     const groups = new Set();
     return list
@@ -95,7 +132,23 @@ export function dailyMissionIds(day) {
       .map(([, m]) => m.id);
   };
   const core = MISSIONS.filter(m => !m.bonus);
-  return [...pick(core.filter(m => m.app === 'vocab'), 3), ...pick(core.filter(m => m.app !== 'vocab'), 3)];
+  const ids = [...pick(core.filter(m => m.app === 'vocab'), 3), ...pick(core.filter(m => m.app !== 'vocab'), 3)];
+  // A swapped one gives way to the next of its side (Rewards or the other
+  // apps) not already there, one of a group at most.
+  for (const away of swapped) {
+    const i = ids.indexOf(away);
+    if (i < 0) continue;
+    const m = MISSIONS.find(x => x.id === away);
+    const side = core.filter(x => (x.app === 'vocab') === (m.app === 'vocab'));
+    const groups = new Set(ids.filter(id => id !== away).map(id => MISSIONS.find(x => x.id === id).group).filter(Boolean));
+    const next = side
+      .map(x => [hash(`${day}:${x.id}`), x])
+      .sort((a, b) => a[0] - b[0])
+      .map(([, x]) => x)
+      .find(x => !ids.includes(x.id) && !swapped.includes(x.id) && !(x.group && groups.has(x.group)));
+    if (next) ids[i] = next.id;
+  }
+  return ids;
 }
 function hash(text) {
   let h = 2166136261;
@@ -114,7 +167,7 @@ export function missions(wallet, now = Date.now()) {
   const act = todayActivity(wallet, now);
   const ids = new Set((wallet?.entries || []).map(e => e.id));
   const claimed = id => ids.has(missionId(day, id)) || ids.has(freeBetId(day, id));
-  const today = new Set(dailyMissionIds(day));
+  const today = new Set(dailyMissionIds(day, rerolls(wallet, day)));
   return MISSIONS.filter(m => m.bonus || today.has(m.id) || claimed(m.id)).map(m => {
     const progress = Math.min(m.goal, m.count(act, wallet?.apps, day, wallet));
     return { ...m, bonus: Boolean(m.bonus), progress, done: progress >= m.goal, claimed: claimed(m.id) };

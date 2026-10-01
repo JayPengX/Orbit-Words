@@ -13,7 +13,7 @@
 // word to box 1 at most.
 //
 // A round mixes due reviews with new words. Smart mode asks each word a way
-// that suits its box, and spreads a round over all six kinds of question.
+// that suits its box, and spreads a round over the five kinds that test it.
 
 export const LEVELS = [1, 2, 3, 4, 5, 6];
 // The word packs sold in the shop (data/packs.json): themed lists that share
@@ -93,18 +93,17 @@ export function markKnown(p, now = Date.now()) {
 }
 
 // The kinds of question that suit a word in smart mode, by its box: a new
-// word by its meaning, the other way round, as a flash card, by ear or from
-// its letters; then harder ones as it's learnt, up to dictation. A phrase or
-// a long word is never unscrambled (too many tiles for a phone).
+// word by its meaning, the other way round, by ear or from its letters; then
+// harder ones as it's learnt, up to dictation. Never a flash card (it asks
+// "do you know it?" and tests nothing: that's 字卡 mode, chosen on purpose).
+// A phrase or a long word is never unscrambled (too many tiles for a phone).
 export const SMART_TYPES = [
-  ['meaning', 'word', 'card', 'listen', 'letters'],
-  ['meaning', 'word', 'card', 'listen', 'letters'],
+  ['meaning', 'word', 'listen', 'letters'],
+  ['meaning', 'word', 'listen', 'letters'],
   ['word', 'listen', 'letters', 'spell'],
   ['listen', 'letters', 'spell', 'word'],
   ['spell', 'letters', 'listen']
 ];
-// Flash cards teach but test nothing (no points): one in about eight questions.
-const TYPE_WEIGHT = { card: 4 };
 export const isLong = word => Boolean(word) && (/\s/.test(word.word) || word.word.length > 11);
 // The kind for this word: of the ones that suit it, the one this round has
 // asked least so far (used: { type: count }), so a round has every kind.
@@ -114,7 +113,7 @@ export function smartType(p, random = Math.random, word = null, used = {}) {
   let best = null;
   let low = Infinity;
   for (const k of kinds) {
-    const score = (used[k] || 0) * (TYPE_WEIGHT[k] || 1) + random() * 0.9;
+    const score = (used[k] || 0) + random() * 0.9;
     if (score < low) (low = score), (best = k);
   }
   return best;

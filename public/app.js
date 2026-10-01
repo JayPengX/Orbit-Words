@@ -4,13 +4,12 @@
 // the Quadra Pass's shared wallet; the wealth ranks show where the pool
 // stands; the help centre explains every app.
 import {
-  quadraSession, tabBar, topActions, installGate, watchUpdates, recordAffinity, setting, settingPatch, taipeiDay, poolBalance, money, randomId, notify, schedulePush, APPS, ECONOMY, PLUS, ask, tell, plusCard, plusMember, openPlus, affinityPatch, xpLevel, xpBalance, xpForLevel, AVATARS, avatarOwned, avatarBought, levelCards, STREAK, streakBonus, longestStreakOf
+  quadraSession, tabBar, topActions, installGate, watchUpdates, recordAffinity, setting, settingPatch, taipeiDay, poolBalance, money, randomId, notify, schedulePush, APPS, ECONOMY, PLUS, ask, tell, plusCard, plusMember, openPlus, affinityPatch, xpLevel, xpBalance, xpForLevel, AVATARS, avatarOwned, avatarBought, levelCards, STREAK, streakBonus, longestStreakOf, FRAMES, frameOwned, activeDaySet
 } from './lib/quadra.mjs';
-import { SHOP, shopEntry, redeemEntry, freezes, boostUntil, openPacks, packPrice, packEntry, packOpen } from './lib/shop.mjs';
+import { SHOP, shopEntry, redeemEntry, freezes, boostUntil, openPacks, packPrice, packEntry, packOpen, rerolls, repairable } from './lib/shop.mjs';
 import { LEVELS, PACK_IDS, addPacks, levelRank, inLevels, MODES, loadWords, pickRound, smartType, markKnown, makeQuestion, grade, payFor, sameWord, spellDiff, stats, stateOf, packProgress, unpackProgress, mergeProgress, migrateWords, shortMeaning, wordOfDay } from './lib/words.mjs';
 import {
-  xpToday, xpOf, xpText, xpRate, missions, claimEntry, rankOf, RANKS, streakDays, xpAllTime, streakAtRisk, streakToday, dailyId, dailyStreak, weeklyGoals, claimWeekly, badges, freezeDue
-} from './lib/earn.mjs';
+  xpToday, xpOf, xpText, xpRate, missions, claimEntry, rankOf, RANKS, streakDays, xpAllTime, streakAtRisk, streakToday, dailyId, dailyStreak, weeklyGoals, claimWeekly, badges, freezeDue, capToday, dampXp, capStage } from './lib/earn.mjs';
 import { GAMES, gameInfo, dailyGame, dailyBonus, mergeBests } from './lib/games.mjs';
 import { HELP_ORDER, helpFor, parseHelpHash } from './lib/help.mjs';
 import { pickVoice } from './lib/voice.mjs';
@@ -183,8 +182,9 @@ let batch = null;
 function addWordPoints(points) {
   points = Math.max(0, points);
   // The ×2 boost bought in the shop, Plus's ×1.5 and the streak's bonus.
-  if (boosted()) points *= 2;
-  points *= xpRate(withOutbox());
+  const rate = xpRate(withOutbox()) * (boosted() ? 2 : 1);
+  // The day's soft cap (the boost and the rate move its steps too).
+  points = dampXp(points * rate, capToday(withOutbox(), Date.now(), batch?.xp || 0), rate);
   batch ||= { id: `vocab:w:${randomId()}`, t: Date.now(), app: 'vocab', kind: 'words', amount: 0, xp: 0, n: 0 };
   batch.xp += points;
   batch.n++;
@@ -482,7 +482,8 @@ function nextQuestion() {
   r.q = makeQuestion(word, type, state.words);
   r.answered = false;
   r.typed = '';
-  r.built = [];
+  // Building it from letters: the first letter given (two for a long word).
+  r.built = type === 'letters' ? letterHint(r.q) : [];
   r.revealed = false;
   renderWords();
   // Only when the question is the sound (by ear, dictation): straight away,
@@ -490,6 +491,19 @@ function nextQuestion() {
   if (['listen', 'spell'].includes(type)) speak(word);
 }
 
+function letterHint(question) {
+  const word = question.word.word;
+  const n = word.replace(/\s/g, '').length >= 8 ? 2 : 1;
+  const used = new Set();
+  const out = [];
+  for (const ch of [...word].slice(0, n)) {
+    const i = question.letters.findIndex((c, k) => c === ch && !used.has(k));
+    if (i < 0) break;
+    used.add(i);
+    out.push({ ch, i, hint: true });
+  }
+  return out;
+}
 function answer(correct, typed = '') {
   const r = state.round;
   if (!r || r.answered) return;
@@ -601,7 +615,7 @@ function questionView(r) {
   } else if (question.type === 'letters') {
     const built = r.built;
     const used = new Set(built.map(b => b.i));
-    const slots = el('div', { class: 'slots' }, [...word.word].map((ch, i) => el('span', { class: `slot${built[i] ? ' filled' : ''}${done ? (last.correct ? ' right' : ' wrong') : ''}`, text: built[i]?.ch ?? (ch === ' ' ? '␣' : '') })));
+    const slots = el('div', { class: 'slots' }, [...word.word].map((ch, i) => el('span', { class: `slot${built[i] ? ' filled' : ''}${built[i]?.hint ? ' hint' : ''}${done ? (last.correct ? ' right' : ' wrong') : ''}`, text: built[i]?.ch ?? (ch === ' ' ? '␣' : '') })));
     const tiles = el(
       'div',
       { class: 'tiles' },
@@ -622,10 +636,11 @@ function questionView(r) {
     put(
       card,
       prompt,
-      el('div', { class: 'word-head' }, [el('p', { class: 'meaning big', text: shortMeaning(word.zh) }), speakButton(word)]),
+      // The meaning only: hearing it would make it dictation with the letters given.
+      el('div', { class: 'word-head' }, [el('p', { class: 'meaning big', text: shortMeaning(word.zh) }), el('small', { class: 'muted', text: [word.pos, t('letters', { n: word.word.replace(/\s/g, '').length })].filter(Boolean).join(' · ') })]),
       slots,
       tiles,
-      !done && built.length ? el('button', { class: 'q-btn small ghost', type: 'button', text: t('undo'), onclick: () => ((r.built = built.slice(0, -1)), renderWords()) }) : null
+      !done && built.some(b => !b.hint) ? el('button', { class: 'q-btn small ghost', type: 'button', text: t('undo'), onclick: () => ((r.built = built.slice(0, -1)), renderWords()) }) : null
     );
   } else {
     // Dictation: hear it (and see the meaning), spell it.
@@ -722,6 +737,7 @@ function renderHome() {
     ]),
     bar(lv.progress, 1, 'accent'),
     el('div', { class: 'xp-foot' }, [el('small', { class: 'muted', text: t('levelNext', { v: xp(lv.toNext), n: lv.level + 1 }) }), el('small', { class: 'num', text: t('xpToSpend', { v: xp(xpBalance(withOutbox())) }) })]),
+    capLine(),
     streakLine()
   ]);
   // The missions most worth doing now (ready to claim first); all of them,
@@ -758,11 +774,24 @@ function missionRow(m) {
     : m.done
       ? el('button', { class: 'q-btn primary small', type: 'button', text: t('claim', { v: xp(m.xp) }), onclick: () => claim(m.id) })
       : el('button', { class: 'q-btn small', type: 'button', text: t('go'), onclick: () => goMission(m) });
+  // A daily one not started can be swapped for points.
+  const swap = !m.bonus && !m.claimed && !m.done && !m.progress && rerolls(withOutbox(), taipeiDay()).length < SHOP.reroll.perDay ? el('button', { class: 'link-btn swap-btn', type: 'button', text: t('swap', { v: xp(SHOP.reroll.xp) }), onclick: () => swapMission(m) }) : null;
   return el('div', { class: `mission${m.claimed ? ' done' : ''}` }, [
     el('span', { class: 'mission-icon', text: MISSION_ICON[m.id] }),
-    el('div', { class: 'mission-text' }, [el('strong', { text: t(`mission_${m.id}`) }), el('div', { class: 'mission-bar' }, [bar(m.progress, m.goal, 'accent'), el('small', { class: 'num muted', text: `${m.progress}/${m.goal} · ${xp(m.xp)}` })])]),
+    el('div', { class: 'mission-text' }, [el('strong', { text: t(`mission_${m.id}`) }), el('div', { class: 'mission-bar' }, [bar(m.progress, m.goal, 'accent'), el('small', { class: 'num muted', text: `${m.progress}/${m.goal} · ${xp(m.xp)}` })]), swap]),
     action
   ]);
+}
+async function swapMission(m) {
+  const w = withOutbox();
+  if (xpBalance(w) < SHOP.reroll.xp) return toast(t('shopPoints'));
+  const ok = await ask({ lang: locale, icon: '🔄', title: t('swapAsk'), body: t('swapAskBody', { name: t(`mission_${m.id}`), n: SHOP.reroll.perDay }), ok: t('shopUseXp', { v: xp(SHOP.reroll.xp) }), cancel: t('shopCancel') });
+  if (!ok) return;
+  const entry = redeemEntry(w, 'reroll', `${taipeiDay()}:${m.id}`);
+  if (!entry) return toast(t('shopPoints'));
+  payEntry(entry);
+  toast(t('swapDone'), 'good');
+  refresh();
 }
 // Missions and weekly goals done but not yet claimed: the 任務 tab's count.
 const readyToClaim = () => (state.wallet ? missions(state.wallet).filter(m => m.done && !m.claimed).length + weeklyGoals(withOutbox()).filter(g => g.done && !g.claimed).length : 0);
@@ -883,6 +912,13 @@ function claimGoal(id) {
   refresh();
 }
 
+// The day's soft cap on words and games: where today stands.
+function capLine() {
+  const w = withOutbox();
+  const c = capStage(capToday(w, Date.now(), batch?.xp || 0), xpRate(w) * (boosted() ? 2 : 1));
+  return el('small', { class: `cap-line ${c.stage}` }, [document.createTextNode(c.stage === 'full' ? t('capFull', { v: xp(c.left) }) : c.stage === 'half' ? t('capHalf', { v: xp(c.left) }) : t('capLow'))]);
+}
+
 // ---- The streak: what it's worth now, and what's next ----------------------------------------
 function streakLine() {
   const w = withOutbox();
@@ -892,17 +928,33 @@ function streakLine() {
   const gift = next ? AVATARS.find(a => a.streak === next) : null;
   return el('div', { class: `streak-line${n ? ' on' : ''}` }, [
     el('span', { class: 'num', text: n ? t('streakNow', { n, v: Math.round(streakBonus(n) * 100) }) : t('streakNone') }),
-    today.kept ? el('small', { class: 'muted', text: t('streakKept') }) : el('small', { class: 'muted', text: t('streakGoal', { n: today.n, goal: today.goal }) }),
+    today.kept ? el('small', { class: 'muted', text: t('streakKept') }) : repairable(w, activeDaySet(w)) ? el('small', { class: 'muted', text: t('streakMissed') }) : el('small', { class: 'muted', text: t('streakGoal', { n: today.n, goal: today.goal }) }),
     gift ? el('small', { class: 'muted', text: t('streakNext', { n: next, gift: `${gift.glyph} 🛡️` }) }) : null
   ]);
 }
 // Today and the streak: daily missions claimed, of the 3 that keep it.
 function streakGoalLine() {
-  const s = streakToday(withOutbox());
+  const w = withOutbox();
+  const s = streakToday(w);
+  const missed = repairable(w, activeDaySet(w));
   return el('div', { class: `streak-goal${s.kept ? ' kept' : ''}` }, [
     el('strong', { class: 'num', text: s.kept ? t('streakKept') : t('streakGoal', { n: s.n, goal: s.goal }) }),
-    s.kept ? null : bar(s.n, s.goal, 'accent')
+    s.kept ? null : bar(s.n, s.goal, 'accent'),
+    missed ? el('button', { class: 'q-btn small repair-btn', type: 'button', text: t('repairBtn', { v: xp(SHOP.repair.xp) }), onclick: () => repairStreak(missed) }) : null
   ]);
+}
+// Yesterday bought back with points, so the streak runs on.
+async function repairStreak(day) {
+  const w = withOutbox();
+  if (xpBalance(w) < SHOP.repair.xp) return toast(t('shopPoints'));
+  const before = streakDays({ ...w, entries: [...w.entries, { id: `vocab:xs:repair:${day}`, t: Date.now(), app: 'vocab', kind: 'redeem', amount: 0, note: '0' }] });
+  const ok = await ask({ lang: locale, icon: '🩹', title: t('repairAsk'), body: t('repairAskBody', { n: before }), ok: t('shopUseXp', { v: xp(SHOP.repair.xp) }), cancel: t('shopCancel') });
+  if (!ok) return;
+  const entry = redeemEntry(w, 'repair', day);
+  if (!entry) return toast(t('shopPoints'));
+  payEntry(entry);
+  toast(t('repairDone'), 'good');
+  refresh();
 }
 // The milestones (7, 30, 100 days), reached by the longest streak ever.
 function streakRoad() {
@@ -930,15 +982,16 @@ function levelSection() {
   const next = [];
   for (let L = lv.level + 1; next.length < 4 && L <= lv.level + 60; L++) {
     const avatar = AVATARS.find(a => a.level === L);
+    const frame = FRAMES.find(f => f.level === L);
     const card = levelCards(L) > levelCards(L - 1);
-    if (avatar || card) next.push({ L, avatar, card });
+    if (avatar || card || frame) next.push({ L, avatar, card, frame });
   }
   const road = el(
     'div',
     { class: 'lv-road' },
     next.map(n =>
       el('div', { class: 'lv-step' }, [
-        el('span', { class: 'lv-gift', 'aria-hidden': 'true', text: [n.avatar?.glyph, n.card ? '🛡️' : ''].filter(Boolean).join('') }),
+        el('span', { class: 'lv-gift', 'aria-hidden': 'true', text: [n.avatar?.glyph, n.frame ? '⭕' : '', n.card ? '🛡️' : ''].filter(Boolean).join('') }),
         el('strong', { class: 'num', text: `Lv ${n.L}` }),
         el('small', { class: 'muted', text: xp(Math.max(0, xpForLevel(n.L) - xpAllTime(w))) })
       ])
@@ -959,8 +1012,39 @@ function levelSection() {
     el('small', { class: 'lv-h', text: t('levelNextGifts') }),
     next.length ? road : el('p', { class: 'muted', text: t('topRank') }),
     el('small', { class: 'lv-h', text: t('avatarsTitle', { v: xp(have) }) }),
-    el('div', { class: 'av-grid' }, AVATARS.map(tile))
+    el('div', { class: 'av-grid' }, AVATARS.map(tile)),
+    el('small', { class: 'lv-h', text: t('framesTitle') }),
+    el('div', { class: 'av-grid' }, FRAMES.map(f => {
+      const owned = frameOwned(w, f.id);
+      const on = owned && wornFrame() === f.id;
+      const glyph = AVATARS.find(a => a.id === worn)?.glyph || '🙂';
+      const label = on ? t('avatarOn') : owned ? t('avatarWear') : f.level ? `Lv ${f.level}` : xp(f.xp);
+      const cls = `av-tile${on ? ' on' : ''}${owned ? '' : ' locked'}${!owned && f.xp && have >= f.xp ? ' can' : ''}`;
+      return el('button', { class: cls, type: 'button', 'aria-pressed': String(on), 'aria-label': t(`frame_${f.id}`), onclick: () => pickFrame(f) }, [
+        el('span', { class: `fr-preview q-framed q-frame-${f.id}`, 'aria-hidden': 'true', text: glyph }),
+        el('small', { class: 'num', text: label })
+      ]);
+    }))
   ]);
+}
+const wornFrame = () => ('frame' in pendingSettings ? pendingSettings.frame.value?.id : setting(state.wallet, 'frame', null)?.id) ?? null;
+async function pickFrame(f) {
+  const w = withOutbox();
+  if (frameOwned(w, f.id)) return wearFrame(f.id === wornFrame() ? null : f.id);
+  if (f.level) return toast(t('avatarAtLevel', { n: f.level }));
+  if (xpBalance(w) < f.xp) return toast(t('shopPoints'));
+  const ok = await ask({ lang: locale, icon: '⭕', title: t('frameBuyTitle', { name: t(`frame_${f.id}`) }), body: t('frameBuyBody'), ok: t('shopUseXp', { v: xp(f.xp) }), cancel: t('shopCancel') });
+  if (!ok) return;
+  const entry = redeemEntry(w, 'frame', f.id);
+  if (!entry) return toast(t('shopPoints'));
+  outbox.write([...outbox.read(), entry]);
+  wearFrame(f.id);
+}
+function wearFrame(id) {
+  pendingSettings = { ...pendingSettings, ...settingPatch('frame', id ? { id } : null).settings };
+  sync();
+  toast(id ? t('frameWorn') : t('frameOff'), 'good');
+  refresh();
 }
 async function pickAvatar(a) {
   const w = withOutbox();
@@ -1158,7 +1242,8 @@ const gameContext = {
   pay(game, amount) {
     const d = daily();
     // A round's points, ×1.5 for Plus (the best is the round's own score).
-    const points = Math.max(0, Math.round(amount * xpRate(withOutbox())));
+    const rate = xpRate(withOutbox());
+    const points = Math.max(0, Math.round(dampXp(amount * rate, capToday(withOutbox(), Date.now(), batch?.xp || 0), rate)));
     act.game++;
     recordAffinity('vocab', ['vocab:games', `vocab:game:${game}`], 1);
     const best = recordBest(game, Math.round(amount));

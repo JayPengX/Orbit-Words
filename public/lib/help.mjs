@@ -278,7 +278,7 @@ export const HELP = {
       ]],
       ['words', '背單字', [
         '大考中心高中英文參考詞彙第 1 到 6 級，共 6,170 字，每個字都有真人發音錄音（Microsoft Jenny）。每一輪 10、20 或 30 個字，混合該複習的字和新字；答錯的字會在這一輪最後再問一次。',
-        '「智慧」模式依熟練度出題，而且一輪會輪流用到全部六種題型：新字用選意思、選英文、字卡、聽音選字或拼字母，學過的字再加上聽寫。',
+        '「智慧」模式依熟練度出題，一輪會輪流用到五種題型：新字用選意思、選英文、聽音選字或拼字母，學過的字再加上聽寫；不會出「你知道這個字嗎」的字卡（那是自己選的「字卡」模式）。',
         '答對升一格、答錯回第一格，第 4 格算「精熟」。一個字一天最多升一格，所以精熟看的是你好幾天的紀錄，不會在同一輪就精熟。第一次見到就答對的字代表你本來就會，直接跳到第 3 格，隔天再答對就精熟；每一輪會先排這些快精熟的字。之後在 1、5、14 天後再複習。'
       ]],
       ['games', '遊戲', [
@@ -299,9 +299,10 @@ export const HELP = {
         '單字包（「單字」分頁）：多益 TOEIC NT$990、雅思 IELTS NT$1,490、商務英文 NT$1,990（或 8,000 / 12,000 / 16,000 XP），一次買斷，每個字都有真人發音。買了就和級別一樣可以勾選；和主單字表重複的字共用進度，答對一樣有積分。Plus 會員 5 折。'
       ]],
       ['money', '積分怎麼算', [
-        '單字每答對一題 2 XP，第一次精熟一個字再加 15 XP（字卡不算）；遊戲一分鐘大約 10 XP，玩得好更多；任務 10–30 XP、每週目標 30–45 XP；Plus 會員全部 ×1.5。積分沒有上限。',
-        '等級：累計積分決定等級（Lv 2 要 100 XP、Lv 5 要 1,000、Lv 10 要 4,500、Lv 20 要 19,000），每幾級換一個稱號：新手、學徒、好手、高手、達人、大師、傳奇、神話。兌換東西花的是「可用積分」，不會降級。',
+        '單字每答對一題 2 XP，第一次精熟一個字再加 15 XP（字卡不算）；遊戲一分鐘大約 10 XP，玩得好更多；任務 10–30 XP、每週目標 30–45 XP；Plus 會員全部 ×1.5，連續紀錄最多再 +30%。單字和遊戲每天前 600 XP 全額、接下來 600 XP 減半、之後只有一成（Plus、連續紀錄和加倍會一起拉高這些門檻），隔天恢復；任務、每週目標和今日挑戰不受影響。',
+        '等級：累計積分決定等級（Lv 2 要 100 XP、Lv 5 要 1,600、Lv 10 要 8,100、Lv 20 要 36,100、Lv 30 要 84,100、Lv 50 要 240,100，每天認真玩大約一年到頂），每幾級換一個稱號：新手、學徒、好手、高手、達人、大師、傳奇、神話。兌換東西花的是「可用積分」，不會降級。',
         '等級獎勵與頭像（「任務 › 等級與頭像」）：Lv 5、10、15、20、30、50 各解鎖一個頭像，Lv 5、15、25…每十級送一張連續紀錄保護卡；也能用積分換頭像（300 到 5,000 XP），Plus 會員有專屬的 ✦。戴上的頭像會出現在每個 Quadra App 的帳戶按鈕上。',
+        '積分還能換：頭像框（Lv 10 青銅、Lv 40 傳奇、Lv 50 神話，或用 2,000 到 30,000 XP 換白銀、翡翠、黃金、霓虹、極光）、換掉一個每日任務（100 XP，一天最多 2 次）、補回昨天斷掉的連續紀錄（1,500 XP，前天有保住、手上沒有保護卡時）。每次兌換都會先問你。',
         '錢只有開戶金和每月津貼（在 Quadra Pass 的說明裡）；在 Rewards 花錢的只有加值商店。',
         '財富等級依錢包總額分成八級，從「起步」（NT$5 萬以下）到「億萬」（NT$2,000 萬以上）。'
       ]]
@@ -319,7 +320,7 @@ export const HELP = {
       ]],
       ['words', 'Words', [
         'The high-school English reference list, levels 1 to 6: 6,170 words, each with a recording (Microsoft’s Jenny voice). A round is 10, 20 or 30 words, reviews and new ones mixed; a missed word comes back once at the end of the round.',
-        'Smart mode asks by how well you know a word, and uses all six kinds of question in a round: a new word by meaning, meaning → word, flash card, by ear or unscrambling; words you’ve learnt get dictation too.',
+        'Smart mode asks by how well you know a word, and uses five kinds of question in a round: a new word by meaning, meaning → word, by ear or unscrambling; words you’ve learnt get dictation too. Never a “do you know it?” flash card (that’s Cards mode, if you choose it).',
         'Right moves a word up a box, wrong back to box 1; box 4 is mastered. A word moves up one box a day at most, so mastering comes from your record over days, never from a single round. A new word right the first time is one you know: it jumps to box 3, and right again tomorrow it’s mastered; rounds ask those first. After that, words return in 1, 5 and 14 days.'
       ]],
       ['games', 'Games', [
@@ -340,9 +341,10 @@ export const HELP = {
         'Word packs (in Words): TOEIC NT$990, IELTS NT$1,490, Business English NT$1,990 (or 8,000 / 12,000 / 16,000 XP), bought once, every word recorded. Once yours, pick a pack like a level; words the main list shares keep one progress, and right answers earn points as usual. Half price for Plus members.'
       ]],
       ['money', 'Points', [
-        'Words: 2 XP a right answer, 15 XP more for a first mastery (flash cards give none); games about 10 XP a minute, more when you play well; missions 10–30 XP, weekly goals 30–45 XP; ×1.5 for Plus members. No daily limit.',
-        'Levels: every point you earn counts (level 2 at 100 XP, 5 at 1,000, 10 at 4,500, 20 at 19,000), with a new title every few levels: Rookie, Apprentice, Skilled, Expert, Master, Grandmaster, Legend, Mythic. Buying things spends your points to spend, never your level.',
+        'Words: 2 XP a right answer, 15 XP more for a first mastery (flash cards give none); games about 10 XP a minute, more when you play well; missions 10–30 XP, weekly goals 30–45 XP; ×1.5 for Plus members, and up to +30% with the streak. Each day the first 600 XP from words and games come in full, the next 600 at half, the rest at a tenth (Plus, the streak and the ×2 boost raise those steps too), back to full the next day; missions, weekly goals and the daily challenge aren’t counted.',
+        'Levels: every point you earn counts (level 2 at 100 XP, 5 at 1,600, 10 at 8,100, 20 at 36,100, 30 at 84,100, 50 at 240,100: about a year of daily play to the top), with a new title every few levels: Rookie, Apprentice, Skilled, Expert, Master, Grandmaster, Legend, Mythic. Buying things spends your points to spend, never your level.',
         'Level rewards and avatars (Missions › Level and avatars): levels 5, 10, 15, 20, 30 and 50 each unlock an avatar, and levels 5, 15, 25… bring a streak protection card; points buy more avatars (300 to 5,000 XP), and Plus members get ✦. The avatar you wear shows on your account button in every Quadra app.',
+        'Points also buy frames (bronze at level 10, legend at 40, mythic at 50; silver, jade, gold, neon and aurora for 2,000 to 30,000 XP), a swap of a daily mission (100 XP, twice a day at most) and yesterday’s streak bought back (1,500 XP, when the day before was kept and you hold no protection card). Each asks first.',
         'Money comes only from the opening money and the monthly allowance (see Quadra Pass); in Rewards only the shop spends it.',
         'Eight wealth ranks by the wallet’s total, from Starter (under NT$50,000) to Tycoon (NT$20 million and up).'
       ]]

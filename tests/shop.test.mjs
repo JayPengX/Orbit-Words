@@ -126,11 +126,11 @@ test('levels give streak cards at 5, 15, 25…, and points buy avatars (level on
   const { redeemEntry } = await import('../public/lib/shop.mjs');
   const { avatarOwned } = await import('../public/lib/quadra.mjs');
   const xp = n => ({ id: `vocab:g:x${n}`, t: now - DAY, app: 'vocab', kind: 'game', amount: 0, xp: n });
-  // 1,000 XP is level 5: one card; 11,000 is level 15: two.
-  assert.equal(freezes({ entries: [xp(1_000)] }, now).granted, 1);
-  assert.equal(freezes({ entries: [xp(11_000)] }, now).granted, 2);
-  assert.equal(freezes({ entries: [xp(999)] }, now).granted, 0);
-  const w = { entries: [xp(1_000)] };
+  // 1,600 XP is level 5: one card; 19,600 is level 15: two.
+  assert.equal(freezes({ entries: [xp(1_600)] }, now).granted, 1);
+  assert.equal(freezes({ entries: [xp(19_600)] }, now).granted, 2);
+  assert.equal(freezes({ entries: [xp(1_599)] }, now).granted, 0);
+  const w = { entries: [xp(1_600)] };
   const cat = redeemEntry(w, 'avatar', 'cat', now);
   assert.deepEqual([cat.id, cat.note], ['vocab:xs:avatar:cat', '300']);
   assert.ok(avatarOwned({ entries: [...w.entries, cat] }, 'cat'));
@@ -145,4 +145,49 @@ test('a week with every weekly goal claimed brings a protection card', async () 
   const w = { entries: [...wk('2026-09-21', all), ...wk('2026-09-28', all.slice(0, 3))] };
   assert.equal(weeklyCards(w), 1);
   assert.equal(freezes(w, now).granted, 1);
+});
+
+test('the day’s soft cap: full, then half, then a tenth; ×rate moves the steps', async () => {
+  const { dampXp, capStage } = await import('../public/lib/earn.mjs');
+  assert.equal(dampXp(100, 0), 100);
+  assert.equal(dampXp(100, 550), 50 + 25);
+  assert.equal(dampXp(200, 1_200), 20);
+  // 10 hours of good play (about 35 XP a minute) gives a little over 3,300, not 21,000.
+  assert.ok(Math.abs(dampXp(21_000, 0) - (600 + 600 + (21_000 - 1_800) * 0.1)) < 1e-6);
+  assert.equal(dampXp(900, 0, 1.5), 900);
+  assert.deepEqual(capStage(0), { stage: 'full', left: 600 });
+  assert.equal(capStage(700).stage, 'half');
+  assert.equal(capStage(1_300).stage, 'low');
+});
+
+test('points swap a daily mission, buy back a missed day, and buy frames', async () => {
+  const { redeemEntry, rerolls, repairable, SHOP } = await import('../public/lib/shop.mjs');
+  const { dailyMissionIds, missions } = await import('../public/lib/earn.mjs');
+  const { activeDaySet, streakOf, frameOwned } = await import('../public/lib/quadra.mjs');
+  const rich = { entries: [{ id: 'vocab:g:1', t: now - DAY, app: 'vocab', kind: 'game', amount: 0, xp: 20_000 }] };
+  const day = taipeiDay(now);
+  const before = dailyMissionIds(day);
+  const away = before[4];
+  const swap = redeemEntry(rich, 'reroll', `${day}:${away}`, now);
+  assert.deepEqual([swap.id, swap.note], [`vocab:xs:reroll:${day}:${away}`, String(SHOP.reroll.xp)]);
+  const w = { entries: [...rich.entries, swap] };
+  assert.deepEqual(rerolls(w, day), [away]);
+  const after = missions(w, now).filter(m => !m.bonus).map(m => m.id);
+  assert.equal(after.length, 6);
+  assert.ok(!after.includes(away));
+  assert.deepEqual(after.filter(id => !before.includes(id)).length, 1);
+  // Repair (from October, missions keep a day): yesterday missed, the day before kept, no card.
+  const later = Date.parse('2026-10-20T04:00:00Z');
+  const k = n => ['words20', 'game1', 'quotes'].map(id => ({ id: `vocab:m:${taipeiDay(later - n * DAY)}:${id}`, t: later - n * DAY, app: 'vocab', kind: 'mission', amount: 0, xp: 1 }));
+  const s = { entries: [...k(2), ...k(3)] };
+  const yesterday = taipeiDay(later - DAY);
+  assert.equal(repairable(s, activeDaySet(s), later), yesterday);
+  const fixed = { entries: [...s.entries, { id: `vocab:xs:repair:${yesterday}`, t: later, app: 'vocab', kind: 'redeem', amount: 0, note: '1500' }] };
+  assert.equal(repairable(fixed, activeDaySet(fixed), later), null);
+  assert.equal(streakOf(fixed, later), 3);
+  // Frames: a bought one with its price, a level one never.
+  const gold = redeemEntry(rich, 'frame', 'gold', now);
+  assert.deepEqual([gold.id, gold.note], ['vocab:xs:frame:gold', '8000']);
+  assert.ok(frameOwned({ entries: [...rich.entries, gold] }, 'gold'));
+  assert.equal(redeemEntry(rich, 'frame', 'legend', now), null);
 });
