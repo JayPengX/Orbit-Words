@@ -4,7 +4,7 @@
 // the Quadra Pass's shared wallet; the wealth ranks show where the pool
 // stands; the help centre explains every app.
 import {
-  quadraSession, tabBar, topActions, installGate, watchUpdates, recordAffinity, setting, settingPatch, taipeiDay, poolBalance, money, randomId, notify, schedulePush, APPS, ECONOMY, PLUS, ask, tell, plusCard, plusMember, openPlus, affinityPatch, xpLevel, xpBalance, xpExpiring, xpForLevel, AVATARS, avatarOwned, avatarBought, levelCards, STREAK, streakBonus, longestStreakOf, FRAMES, frameOwned, activeDaySet
+  quadraSession, tabBar, topActions, installGate, watchUpdates, recordAffinity, setting, settingPatch, taipeiDay, poolBalance, money, randomId, notify, schedulePush, APPS, ECONOMY, PLUS, ask, tell, plusCard, plusMember, openPlus, affinityPatch, xpLevel, xpBalance, xpExpiring, xpForLevel, AVATARS, avatarOwned, avatarBought, levelCards, STREAK, streakBonus, longestStreakOf, FRAMES, frameOwned, activeDaySet, CATALOG, catalogCost, catalogLimit, catalogEntry, catalogTokens, catalogPlusMonth, CATALOG_BETS, freeBets
 } from './lib/quadra.mjs';
 import { SHOP, shopEntry, redeemEntry, freezes, boostUntil, openPacks, packPrice, packEntry, packOpen, rerolls, repairable } from './lib/shop.mjs';
 import { LEVELS, PACK_IDS, addPacks, levelRank, inLevels, MODES, loadWords, pickRound, smartType, markKnown, makeQuestion, grade, payFor, sameWord, spellDiff, stats, stateOf, packProgress, unpackProgress, mergeProgress, migrateWords, shortMeaning, wordOfDay } from './lib/words.mjs';
@@ -422,8 +422,7 @@ function packCards(st) {
       return el('div', { class: 'level-card pack locked' }, [
         el('div', { class: 'level-top' }, [el('strong', { text: t(`pack_${id}`) }), el('small', { text: t(`packHint_${id}`) })]),
         el('small', { class: 'muted', text: `${t('packWords', { n })} · ${t('packOnce')}` }),
-        payButtons(price, SHOP.packsXp[id], () => buyPack(id), () => buyPack(id, { points: true })),
-        plusMember(w) ? null : el('small', { class: 'pack-plus', text: t('packPlusHalf', { v: nt(Math.round(SHOP.packs[id] * PLUS.vocab.packShare)) }) })
+        payButtons(price, SHOP.packsXp[id], () => buyPack(id), () => buyPack(id, { points: true }))
       ]);
     })
   );
@@ -758,6 +757,7 @@ function renderHome() {
     dailyCard,
     next.length ? section(t('missions'), el('div', { class: 'q-card list' }, next.map(missionRow)), { action: el('button', { type: 'button', text: `${t('missionsAll')} ›`, onclick: () => showTab('missions') }) }) : null,
     section(t('shopTitle'), shopCard()),
+    section(t('catalogTitle'), catalogCard(), { sub: t('catalogSub') }),
     wordOfDayCard(),
     el('div', { class: 'spend-line' }, [
       el('small', { class: 'muted', text: t('spendLine') }),
@@ -862,6 +862,63 @@ function shopCard() {
     el('div', { class: 'shop-plus' }, [plusCard(q, { compact: true }), el('small', { class: 'muted', text: member ? t('plusRewardsOn') : t('plusRewards') })])
   ]);
 }
+// ---- 積分兌換: points into Quadra's own products (the kit's CATALOG) ------------------------
+//
+// Each redemption is an entry like any purchase with points (kit
+// catalogEntry), waiting in the outbox until the pass has it; the app it's
+// for reads the token from the wallet (Play's free bets, Securities'
+// vouchers), and marks it used there.
+const CATALOG_ICON = { bet100: '🎁', bet500: '🎁', fee: '🎟️', td: '🏦', plus: '✦' };
+const CATALOG_APP = { bet100: 'odds', bet500: 'odds', fee: 'stock', td: 'stock', plus: null };
+// Tokens of an item still to use (free bets as Play counts them).
+const heldOf = (w, id) => (CATALOG_APP[id] === 'odds' ? freeBets(w).filter(x => x.id.startsWith(`vocab:xs:${id}:`)).length : catalogTokens(w, id).length);
+function catalogWhy(w, id, limit) {
+  if (limit.ok) return '';
+  if (limit.why === 'month') return t(id.startsWith('bet') ? 'catalogBetsFull' : 'catalogMonthFull', { v: nt(CATALOG_BETS) });
+  return t(`catalogWhy_${limit.why}`);
+}
+function catalogCard() {
+  const w = withOutbox();
+  const member = plusMember(w);
+  const have = xpBalance(w);
+  return el('div', { class: 'q-card list shop catalog' }, [
+    ...CATALOG.map(c => {
+      const cost = catalogCost(c.id, member);
+      const limit = catalogLimit(w, c.id);
+      const held = heldOf(w, c.id);
+      const month = c.id === 'plus' ? catalogPlusMonth(w) : null;
+      const left = !limit.ok ? catalogWhy(w, c.id, limit) : c.id.startsWith('bet') ? t('catalogBetsLeft', { v: nt(limit.left) }) : c.perMonth ? t('catalogLeft', { n: limit.left }) : '';
+      const sub = [t(`catalogSub_${c.id}`, { month: month ? Number(month.slice(5)) : '' }), held ? t('catalogHeld', { n: held }) : '', left].filter(Boolean).join(' · ');
+      const action = el('button', { class: `pay-btn xp${limit.ok && have >= cost ? '' : ' short'}`, type: 'button', onclick: () => redeemCatalog(c.id) }, [el('span', { class: 'num', text: xp(cost) })]);
+      return el('div', { class: 'shop-row' }, [el('span', { class: 'shop-icon', 'aria-hidden': 'true', text: CATALOG_ICON[c.id] }), el('div', { class: 'shop-text' }, [el('strong', { text: t(`catalog_${c.id}`) }), el('small', { text: sub }), el('div', { class: 'shop-pay' }, [action])])]);
+    }),
+    el('small', { class: 'muted catalog-foot', text: member ? t('catalogPlusOn') : t('catalogPlus') })
+  ]);
+}
+async function redeemCatalog(id) {
+  const w = withOutbox();
+  const limit = catalogLimit(w, id);
+  if (!limit.ok) return toast(catalogWhy(w, id, limit));
+  const cost = catalogCost(id, plusMember(w));
+  if (xpBalance(w) < cost) return toast(t('shopPoints'));
+  const month = id === 'plus' ? limit.month : null;
+  const ok = await ask({
+    lang: locale,
+    icon: CATALOG_ICON[id],
+    title: t(`catalog_${id}`),
+    body: t('catalogAsk', { v: xp(cost) }),
+    points: [[CATALOG_ICON[id], t(`catalogSub_${id}`, { month: month ? Number(month.slice(5)) : '' }), t(`catalogTerms_${id}`)]],
+    ok: t('shopUseXp', { v: xp(cost) }),
+    cancel: t('shopCancel')
+  });
+  if (!ok) return;
+  const entry = catalogEntry(withOutbox(), id, randomId());
+  if (!entry) return toast(t('shopPoints'));
+  payEntry(entry);
+  toast(t(`catalogDone_${CATALOG_APP[id] || 'plus'}`), 'good');
+  refresh();
+}
+
 // Protection cards used by themselves: the days missed since the streak's last day.
 function useFreezes() {
   if (!state.wallet || !state.loaded) return;

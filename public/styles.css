@@ -1013,3 +1013,5 @@ button.xp-card { width: 100%; text-align: left; font: inherit; color: inherit; c
 .fr-preview { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; font-size: 22px; line-height: 1; }
 .av-tile.locked .fr-preview { opacity: 0.55; }
 .slot.hint { background: var(--accent-wash); color: var(--accent); }
+/* 積分兌換: the points catalogue, rows like the shop's. */
+.catalog-foot { display: block; padding: 10px 14px 12px; border-top: 1px solid var(--q-divider, var(--q-border)); font-size: 12px; }

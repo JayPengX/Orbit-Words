@@ -35,7 +35,7 @@ export const HELP = {
       ]],
       ['plus', 'Quadra Plus 會員', [
         '一個會員、所有 Quadra App：月繳 NT$490（第一次加入的那個月免費），或年繳 NT$4,900，等於每月約 NT$408、省下兩個月。從 Quadra 餘額扣款，在帳戶裡加入或管理；會員的帳戶按鈕有金色星星。',
-        'Play：每週一送 NT$200 免費投注（每月約 NT$867）、提前兌現只扣 2%（一般 5%）。Securities：手續費 2.8 折、換匯點差減半、融資利率少 1%、台幣活存前 NT$100,000 享 2%（一般 0.8%）。Rewards：積分 ×1.5、每月 2 張連續紀錄保護卡（商店價 NT$600）、單字包 5 折（買了永久保留）。會員卡上會顯示本月和加入以來回饋了多少。每週免費投注入帳時會通知你；續訂前三天（第一個免費月也一樣）會提醒扣款金額，想停就到帳戶 › Quadra Plus › 管理會員。每月 1 日從餘額自動扣款，沒打開 App 也照扣；餘額不足扣款失敗，會員就停止，要重新加入。取消後用到期滿，已付不退費，價格含 5% 營業稅。免費投注照運彩業者的規則：每個選項賠率 1.50 以上、不能提前兌現、7 天內用完。',
+        'Play：每週一送 NT$200 免費投注（每月約 NT$867）、提前兌現只扣 2%（一般 5%）。Securities：手續費 2.8 折、換匯點差減半、融資利率少 1%、台幣活存前 NT$100,000 享 2%（一般 0.8%）、新定存利率 +0.1%、借券出借券商只抽 20%（一般 30%）。Rewards：積分 ×1.5、每月 2 張連續紀錄保護卡（商店價 NT$600）、積分兌換 9 折。會員卡上會顯示本月和加入以來回饋了多少。每週免費投注入帳時會通知你；續訂前三天（第一個免費月也一樣）會提醒扣款金額，想停就到帳戶 › Quadra Plus › 管理會員。每月 1 日從餘額自動扣款，沒打開 App 也照扣；餘額不足扣款失敗，會員就停止，要重新加入。取消後用到期滿，已付不退費，價格含 5% 營業稅。免費投注照運彩業者的規則：每個選項賠率 1.50 以上、不能提前兌現、7 天內用完。',
         '月繳隨時可以取消，已付的月份照常享有權益；年繳到期自動續約，也可以在「管理會員」取消續約。'
       ]],
       ['vip', 'VIP 投注回饋與新手禮', [
@@ -68,7 +68,7 @@ export const HELP = {
       ]],
       ['plus', 'Quadra Plus', [
         'One membership for every Quadra app: NT$490 a month (the first month you ever join is free), or NT$4,900 a year, about NT$408 a month with two months free. It comes from the Quadra balance; join or manage it in the account, and a member’s account button has a gold star.',
-        'Play: a NT$200 free bet every Monday (about NT$867 a month), and cash out keeps 2% instead of 5%. Securities: commission at 28% of the usual rate, half the FX spread, loans 1 point cheaper, 2% on the first NT$100,000 of NT$ cash (0.8% otherwise). Rewards: points ×1.5, 2 streak protections a month (NT$600 in the shop) and word packs at half price (yours to keep). The Plus card shows what it gave back this month and since you joined. You’re told when each weekly free bet arrives, and three days before a renewal (the free month too) what it will charge; to stop, go to account › Quadra Plus › Manage membership. It’s charged from your balance on the 1st of every month, whether or not you open an app; if the balance can’t cover it the charge fails and the membership stops until you join again. Cancelling keeps what’s paid, nothing is refunded, and prices include 5% VAT. Free bets follow a sportsbook’s terms: odds of 1.50 or more on every pick, no cash out, used within 7 days.',
+        'Play: a NT$200 free bet every Monday (about NT$867 a month), and cash out keeps 2% instead of 5%. Securities: commission at 28% of the usual rate, half the FX spread, loans 1 point cheaper, 2% on the first NT$100,000 of NT$ cash (0.8% otherwise), +0.1% on new time deposits, and the broker keeps 20% of a lending fee instead of 30%. Rewards: points ×1.5, 2 streak protections a month (NT$600 in the shop) and 10% off the points catalogue. The Plus card shows what it gave back this month and since you joined. You’re told when each weekly free bet arrives, and three days before a renewal (the free month too) what it will charge; to stop, go to account › Quadra Plus › Manage membership. It’s charged from your balance on the 1st of every month, whether or not you open an app; if the balance can’t cover it the charge fails and the membership stops until you join again. Cancelling keeps what’s paid, nothing is refunded, and prices include 5% VAT. Free bets follow a sportsbook’s terms: odds of 1.50 or more on every pick, no cash out, used within 7 days.',
         'Monthly stops whenever you like, keeping the perks for months paid; yearly renews each year, and renewal can be turned off under Manage membership.'
       ]],
       ['vip', 'VIP cashback and welcome offers', [
@@ -113,7 +113,7 @@ export const HELP = {
       ['fees', '費用', [
         '台股手續費 0.1425%（最低 NT$20），賣出另收 0.3% 證交稅；美股、日股等海外市場照複委託常見網路費率；共同基金透過基金平台申購，收 1% 申購手續費，贖回不收費。股利照各國規定預扣稅。',
         '換匯用市場中間價加減銀行價差；週末外匯休市時價差加倍。融資按天計息。',
-        'Quadra Plus 會員手續費（含基金申購手續費）2.8 折、點差減半、融資利率少 1%、台幣活存前 NT$100,000 享 2%。'
+        'Quadra Plus 會員手續費（含基金申購手續費）2.8 折、點差減半、融資利率少 1%、台幣活存前 NT$100,000 享 2%、新定存 +0.1%、借券券商只抽 20%。Rewards 的積分可以換手續費折抵券（每筆最多折 NT$100）和定存加碼券（+0.5%）。'
       ]],
       ['money', '錢怎麼算', [
         'Securities 的新台幣就是 Quadra 餘額：買進時從錢包出去，賣出時回來。手續費和稅照各市場真實規定（台股最低 NT$20，海外是複委託常見網路費率）；股利照各國規定預扣稅，除息日取得權利，幾週後現金入帳。',
@@ -150,7 +150,7 @@ export const HELP = {
       ['fees', 'Fees', [
         'Taiwan trades pay 0.1425% commission (NT$20 at least) and a sale 0.3% tax; US, Japanese and other markets a Taiwan broker’s usual online rate; mutual funds go through a fund platform, 1% to buy and nothing to sell. Dividends have each country’s withholding.',
         'Exchange is the mid-market rate plus or minus the bank’s spread, doubled at weekends while FX markets are shut. Margin loans charge interest daily.',
-        'Quadra Plus members pay 28% of the usual commission (fund fees too) and half the spread, borrow 1 point cheaper and earn 2% on the first NT$100,000 of NT$ cash.'
+        'Quadra Plus members pay 28% of the usual commission (fund fees too) and half the spread, borrow 1 point cheaper, earn 2% on the first NT$100,000 of NT$ cash, get +0.1% on new time deposits and leave the broker 20% of a lending fee. Rewards’ points buy commission vouchers (up to NT$100 off a trade) and deposit bonuses (+0.5%).'
       ]],
       ['money', 'Money', [
         'Securities’ NT$ is the Quadra balance: buying takes from the wallet, selling brings it back. Fees and taxes follow each market’s real rules (Taiwan at least NT$20; abroad a Taiwan broker’s usual online rate); dividends have each country’s withholding, earned on the ex-date, paid weeks later.',
@@ -298,7 +298,11 @@ export const HELP = {
       ['extras', '加值', [
         '連續紀錄保護卡（NT$300 或 600 XP，最多持有 3 張）：哪天沒保住連續紀錄，它會自動用掉一張，連續紀錄照樣算下去。Plus 會員每月送兩張。',
         '單字加倍（NT$150 或 300 XP）：接下來 30 分鐘每題單字積分 ×2；在加倍中再買，會接在後面再延 30 分鐘。',
-        '單字包（「單字」分頁）：多益 TOEIC NT$990、雅思 IELTS NT$1,490、商務英文 NT$1,990（或 8,000 / 12,000 / 16,000 XP），一次買斷，每個字都有真人發音。買了就和級別一樣可以勾選；和主單字表重複的字共用進度，答對一樣有積分。Plus 會員 5 折。'
+        '單字包（「單字」分頁）：多益 TOEIC NT$990、雅思 IELTS NT$1,490、商務英文 NT$1,990（或 8,000 / 12,000 / 16,000 XP），一次買斷，每個字都有真人發音。買了就和級別一樣可以勾選；和主單字表重複的字共用進度，答對一樣有積分。'
+      ]],
+      ['catalog', '積分兌換', [
+        '首頁的「積分兌換」把積分換成 Quadra 自己的東西，像信用卡或航空哩程：Play 免費投注 NT$100（5,000 XP）或 NT$500（22,000 XP），7 天內用、每個選項賠率 1.50 以上、不能提前兌現，每月最多換 NT$1,000；證券手續費折抵券（4,000 XP），下一筆有手續費的交易最多折 NT$100，用不完不退，30 天內有效，每月 3 張；定存加碼券（12,000 XP），一筆 NT$100,000 以內的新定存利率 +0.5%，只算第一期、提前解約就取消，30 天內使用，每月 1 張；Quadra Plus 一個月（20,000 XP），試用過免費月之後每季一次，這個月不是會員就換這個月，已經是就換下個月。',
+        'Plus 會員兌換 9 折。每次兌換都會先問你；換到的券會出現在要用的 App（Play 的投注單、Securities 的下單和定存），用掉或過期就沒了。'
       ]],
       ['money', '積分怎麼算', [
         '單字每答對一題 2 XP，第一次精熟一個字再加 15 XP（字卡不算）；遊戲一分鐘大約 10 XP，玩得好更多；任務 10–30 XP、每週目標 30–45 XP；Plus 會員全部 ×1.5，連續紀錄最多再 +30%。單字和遊戲每天前 600 XP 全額、接下來 600 XP 減半、之後只有一成（Plus、連續紀錄和加倍會一起拉高這些門檻），隔天恢復；任務、每週目標和今日挑戰不受影響。',
@@ -340,7 +344,11 @@ export const HELP = {
       ['extras', 'Extras', [
         'Streak protection (NT$300 or 600 XP, hold up to 3): on a day the streak wasn’t kept, one is used by itself and the streak goes on. Plus members get two every month.',
         'Word points ×2 (NT$150 or 300 XP): every word earns double points for the next 30 minutes; one bought during another runs 30 minutes after it.',
-        'Word packs (in Words): TOEIC NT$990, IELTS NT$1,490, Business English NT$1,990 (or 8,000 / 12,000 / 16,000 XP), bought once, every word recorded. Once yours, pick a pack like a level; words the main list shares keep one progress, and right answers earn points as usual. Half price for Plus members.'
+        'Word packs (in Words): TOEIC NT$990, IELTS NT$1,490, Business English NT$1,990 (or 8,000 / 12,000 / 16,000 XP), bought once, every word recorded. Once yours, pick a pack like a level; words the main list shares keep one progress, and right answers earn points as usual.'
+      ]],
+      ['catalog', 'Points catalogue', [
+        'The points catalogue on Home turns points into Quadra’s own products, like a card’s or an airline’s: a Play free bet of NT$100 (5,000 XP) or NT$500 (22,000 XP), used within 7 days at odds of 1.50 or more on every pick and never cashed out, NT$1,000 of them a month at most; a Securities commission voucher (4,000 XP), up to NT$100 off the next trade that pays commission, the rest lost, 30 days, 3 a month; a deposit bonus (12,000 XP), +0.5% on one new time deposit of up to NT$100,000 for its first term (gone if it’s closed early), 30 days to use, 1 a month; a month of Quadra Plus (20,000 XP), once a quarter after your free month: this month if you’re not a member, next month if you are.',
+        'Plus members pay 10% fewer points. Each redemption asks first; what you get waits in the app it’s for (Play’s slip, Securities’ order ticket and deposits) until it’s used or expires.'
       ]],
       ['money', 'Points', [
         'Words: 2 XP a right answer, 15 XP more for a first mastery (flash cards give none); games about 10 XP a minute, more when you play well; missions 10–30 XP, weekly goals 30–45 XP; ×1.5 for Plus members, and up to +30% with the streak. Each day the first 600 XP from words and games come in full, the next 600 at half, the rest at a tenth (Plus, the streak and the ×2 boost raise those steps too), back to full the next day; missions, weekly goals and the daily challenge aren’t counted.',

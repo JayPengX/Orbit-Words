@@ -39,18 +39,19 @@ test('the ×2 boost: 30 minutes, stacked', () => {
   assert.equal(shopEntry('boost', 'x', now).amount, -SHOP.boost.price);
 });
 
-test('word packs: bought once, half price for Plus, and they join the word list', async () => {
+test('word packs: bought once, one price for everyone (v11), and they join the word list', async () => {
   const { packEntry, packOwned, ownedPacks, packPrice, packOpen, openPacks } = await import('../public/lib/shop.mjs');
   const { loadWords, addPacks, pickRound, stats, inLevels, PACK_IDS } = await import('../public/lib/words.mjs');
+  const eco = await import('../../Shared-Proxy/eco.js').catch(() => null);
   const w = { entries: [] };
   assert.equal(packPrice(w, 'toeic', now), SHOP.packs.toeic);
   const member = { entries: [{ id: `eco:plus:${taipeiDay(now).slice(0, 7)}`, t: now, app: 'eco', kind: 'plus', amount: -990 }] };
-  // A Plus member pays PLUS.vocab.packShare of the price (the Worker takes
-  // no less), and studies a pack only once bought.
-  assert.equal(packPrice(member, 'biz', now), Math.round(SHOP.packs.biz * PLUS.vocab.packShare));
-  assert.equal(packEntry(member, 'biz', now).amount, -995);
-  // The Worker's lowest pack prices (eco.js REWARDS_SHOP): a member's price.
-  assert.deepEqual(Object.keys(SHOP.packs).map(id => packPrice(member, id, now)), [495, 745, 995]);
+  // Plus no longer halves a pack (v11): a member pays the price, studies it once bought.
+  assert.equal(PLUS.vocab.packShare, 1);
+  assert.equal(packPrice(member, 'biz', now), SHOP.packs.biz);
+  assert.equal(packEntry(member, 'biz', now).amount, -1_990);
+  // The Worker still takes the old member price, for purchases already waiting on a device.
+  if (eco) assert.ok(Object.keys(SHOP.packs).every(id => eco.REWARDS_SHOP.pack[id] <= packPrice(member, id, now)));
   assert.equal(packOpen(member, 'biz'), false);
   assert.deepEqual(openPacks(member), []);
   assert.equal(packOpen(w, 'biz'), false);
