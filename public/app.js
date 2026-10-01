@@ -4,7 +4,7 @@
 // the Quadra Pass's shared wallet; the wealth ranks show where the pool
 // stands; the help centre explains every app.
 import {
-  quadraSession, tabBar, topActions, installGate, watchUpdates, recordAffinity, setting, settingPatch, taipeiDay, poolBalance, money, randomId, notify, schedulePush, APPS, ECONOMY, PLUS, ask, tell, plusCard, plusMember, openPlus, affinityPatch, xpLevel, xpBalance, xpForLevel, AVATARS, avatarOwned, avatarBought, levelCards, STREAK, streakBonus, longestStreakOf, FRAMES, frameOwned, activeDaySet
+  quadraSession, tabBar, topActions, installGate, watchUpdates, recordAffinity, setting, settingPatch, taipeiDay, poolBalance, money, randomId, notify, schedulePush, APPS, ECONOMY, PLUS, ask, tell, plusCard, plusMember, openPlus, affinityPatch, xpLevel, xpBalance, xpExpiring, xpForLevel, AVATARS, avatarOwned, avatarBought, levelCards, STREAK, streakBonus, longestStreakOf, FRAMES, frameOwned, activeDaySet
 } from './lib/quadra.mjs';
 import { SHOP, shopEntry, redeemEntry, freezes, boostUntil, openPacks, packPrice, packEntry, packOpen, rerolls, repairable } from './lib/shop.mjs';
 import { LEVELS, PACK_IDS, addPacks, levelRank, inLevels, MODES, loadWords, pickRound, smartType, markKnown, makeQuestion, grade, payFor, sameWord, spellDiff, stats, stateOf, packProgress, unpackProgress, mergeProgress, migrateWords, shortMeaning, wordOfDay } from './lib/words.mjs';
@@ -737,6 +737,7 @@ function renderHome() {
     ]),
     bar(lv.progress, 1, 'accent'),
     el('div', { class: 'xp-foot' }, [el('small', { class: 'muted', text: t('levelNext', { v: xp(lv.toNext), n: lv.level + 1 }) }), el('small', { class: 'num', text: t('xpToSpend', { v: xp(xpBalance(withOutbox())) }) })]),
+    expiringLine(),
     capLine(),
     streakLine()
   ]);
@@ -913,6 +914,14 @@ function claimGoal(id) {
 }
 
 // The day's soft cap on words and games: where today stands.
+// Points that run out soon (a year after the month they were earned).
+function expiringLine() {
+  const x = xpExpiring(withOutbox());
+  if (!x) return null;
+  const d = new Date(x.at - 1 + 8 * 3_600_000);
+  return el('small', { class: 'cap-line low', text: t('xpExpiring', { v: xp(x.amount), date: `${d.getUTCMonth() + 1}/${d.getUTCDate()}` }) });
+}
+
 function capLine() {
   const w = withOutbox();
   const c = capStage(capToday(w, Date.now(), batch?.xp || 0), xpRate(w) * (boosted() ? 2 : 1));
