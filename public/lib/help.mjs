@@ -35,7 +35,7 @@ export const HELP = {
       ]],
       ['plus', 'Quadra Plus 會員', [
         '一個會員、所有 Quadra App：月繳 NT$490（第一次加入的那個月免費），或年繳 NT$4,900，等於每月約 NT$408、省下兩個月。從 Quadra 餘額扣款，在帳戶裡加入或管理；會員的帳戶按鈕有金色星星。',
-        'Play：每週一送 NT$200 免費投注（每月約 NT$867）、提前兌現只扣 2%（一般 5%）。Securities：手續費 2.8 折、換匯點差減半、融資利率少 1%、台幣活存前 NT$100,000 享 2%（一般 0.8%）。Rewards：積分 ×1.5、每月 2 張連續紀錄保護卡（商店價 NT$600）、單字包 5 折（買了永久保留）。會員卡上會顯示本月和加入以來回饋了多少。每週免費投注入帳時會通知你；續訂前三天（第一個免費月也一樣）會提醒扣款金額，想停就到帳戶 › Quadra Plus › 管理會員。',
+        'Play：每週一送 NT$200 免費投注（每月約 NT$867）、提前兌現只扣 2%（一般 5%）。Securities：手續費 2.8 折、換匯點差減半、融資利率少 1%、台幣活存前 NT$100,000 享 2%（一般 0.8%）。Rewards：積分 ×1.5、每月 2 張連續紀錄保護卡（商店價 NT$600）、單字包 5 折（買了永久保留）。會員卡上會顯示本月和加入以來回饋了多少。每週免費投注入帳時會通知你；續訂前三天（第一個免費月也一樣）會提醒扣款金額，想停就到帳戶 › Quadra Plus › 管理會員。每月 1 日從餘額自動扣款，沒打開 App 也照扣；餘額不足扣款失敗，會員就停止，要重新加入。取消後用到期滿，已付不退費，價格含 5% 營業稅。免費投注照運彩業者的規則：每個選項賠率 1.50 以上、不能提前兌現、7 天內用完。',
         '月繳隨時可以取消，已付的月份照常享有權益；年繳到期自動續約，也可以在「管理會員」取消續約。'
       ]],
       ['vip', 'VIP 投注回饋與新手禮', [
@@ -68,7 +68,7 @@ export const HELP = {
       ]],
       ['plus', 'Quadra Plus', [
         'One membership for every Quadra app: NT$490 a month (the first month you ever join is free), or NT$4,900 a year, about NT$408 a month with two months free. It comes from the Quadra balance; join or manage it in the account, and a member’s account button has a gold star.',
-        'Play: a NT$200 free bet every Monday (about NT$867 a month), and cash out keeps 2% instead of 5%. Securities: commission at 28% of the usual rate, half the FX spread, loans 1 point cheaper, 2% on the first NT$100,000 of NT$ cash (0.8% otherwise). Rewards: points ×1.5, 2 streak protections a month (NT$600 in the shop) and word packs at half price (yours to keep). The Plus card shows what it gave back this month and since you joined. You’re told when each weekly free bet arrives, and three days before a renewal (the free month too) what it will charge; to stop, go to account › Quadra Plus › Manage membership.',
+        'Play: a NT$200 free bet every Monday (about NT$867 a month), and cash out keeps 2% instead of 5%. Securities: commission at 28% of the usual rate, half the FX spread, loans 1 point cheaper, 2% on the first NT$100,000 of NT$ cash (0.8% otherwise). Rewards: points ×1.5, 2 streak protections a month (NT$600 in the shop) and word packs at half price (yours to keep). The Plus card shows what it gave back this month and since you joined. You’re told when each weekly free bet arrives, and three days before a renewal (the free month too) what it will charge; to stop, go to account › Quadra Plus › Manage membership. It’s charged from your balance on the 1st of every month, whether or not you open an app; if the balance can’t cover it the charge fails and the membership stops until you join again. Cancelling keeps what’s paid, nothing is refunded, and prices include 5% VAT. Free bets follow a sportsbook’s terms: odds of 1.50 or more on every pick, no cash out, used within 7 days.',
         'Monthly stops whenever you like, keeping the perks for months paid; yearly renews each year, and renewal can be turned off under Manage membership.'
       ]],
       ['vip', 'VIP cashback and welcome offers', [
