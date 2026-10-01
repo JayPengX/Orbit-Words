@@ -87,9 +87,10 @@ export const xpAllTime = xpEarned;
 //
 // Every day six daily missions come from the pool (three in Rewards, three
 // in the other apps, the same for everyone that day); claiming STREAK.missions
-// of them keeps the streak (the kit's activeDaySet). The bonus missions spend
-// money (an order, a bet, a ticket): always there, extra points, and never
-// needed for the streak.
+// (five) keeps the streak (the kit's activeDaySet), so the other apps are
+// always part of the day. The bonus missions spend money (an order, a bet, a
+// ticket): always there, the most points, and up to STREAK.bonusCounts of
+// them count for the streak too: the easy way to it, never a must.
 export const MISSIONS = [
   // Rewards
   { id: 'words20', app: 'vocab', group: 'words', xp: 15, goal: 20, count: a => a.vocab?.answer || 0 },
@@ -114,10 +115,10 @@ export const MISSIONS = [
   { id: 'orbit', app: 'orbit', xp: 10, goal: 1, count: a => (a.orbit?.open || 0) + (a.orbit?.edit || 0) },
   { id: 'tour', app: 'eco', xp: 10, goal: 3, count: (a, apps, day) => ['stock', 'match', 'vocab'].filter(x => apps?.[x]?.last && taipeiDay(apps[x].last) === day).length },
   // Bonus: they spend money.
-  { id: 'invest', app: 'stock', xp: 20, goal: 1, bonus: true, count: a => a.stock?.trade || 0 },
-  { id: 'parlay3', app: 'odds', xp: 30, goal: 1, bonus: true, count: a => a.odds?.parlay || 0 },
-  { id: 'scratch', app: 'odds', xp: 20, goal: 1, bonus: true, count: a => a.odds?.scratch || 0 },
-  { id: 'lotto', app: 'odds', xp: 20, goal: 1, bonus: true, count: a => a.odds?.lottery || 0 }
+  { id: 'invest', app: 'stock', xp: 40, goal: 1, bonus: true, count: a => a.stock?.trade || 0 },
+  { id: 'parlay3', app: 'odds', xp: 60, goal: 1, bonus: true, count: a => a.odds?.parlay || 0 },
+  { id: 'scratch', app: 'odds', xp: 40, goal: 1, bonus: true, count: a => a.odds?.scratch || 0 },
+  { id: 'lotto', app: 'odds', xp: 40, goal: 1, bonus: true, count: a => a.odds?.lottery || 0 }
 ];
 // The day's six: three in Rewards, three elsewhere, picked by the date (one
 // of a group at most: not 20 words and 50 the same day).

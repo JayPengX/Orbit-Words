@@ -289,8 +289,8 @@ export const HELP = {
       ]],
       ['missions', '每日任務與每週目標', [
         '每日任務：每天從任務池換 6 個（3 個在 Rewards：回答 20 或 50 題單字、精熟 3 個單字、答對 10 題聽音選字／拼字母／聽寫、一輪全對、玩完 1 或 3 局遊戲、玩今日挑戰；3 個在其他 App：在 Securities 打開 3 檔股票、在 Fixtures 點開 1 或 3 場比賽、打開 Orbit Class 看課表、今天打開 Securities、Fixtures 和 Rewards）。完成後按「領取」拿積分。',
-        '加碼任務每天都有，要花錢：在 Securities 下一筆委託、在 Play 下 3 關以上的串關（免費投注也算）、買刮刮樂、買樂透。積分較多，但不算進連續紀錄，不做也沒關係。',
-        '連續紀錄：一天領取 3 個每日任務（加碼任務不算），連續天數就 +1；只賺一點積分不會算。漏掉的那天有保護卡會自動補上。連續越久積分越多：每天 +2%，15 天起 +30%。連續 7、30、100 天各送一個專屬頭像（🐯、🦅、🏆）和一張保護卡（看的是最長紀錄，斷了也不會收回）。',
+        '加碼任務每天都有，要花錢：在 Securities 下一筆委託、在 Play 下 3 關以上的串關（免費投注也算）、買刮刮樂、買樂透。積分最多（40–60 XP），每天最多 2 個也算進連續紀錄；不做也沒關係。',
+        '連續紀錄：一天領取 5 個任務，連續天數就 +1（6 個每日任務裡有 3 個在其他 App；加碼任務每天最多算 2 個）；只賺一點積分不會算。漏掉的那天有保護卡會自動補上。連續越久積分越多：每天 +2%，15 天起 +30%。連續 7、30、100 天各送一個專屬頭像（🐯、🦅、🏆）和一張保護卡（看的是最長紀錄，斷了也不會收回）。',
         '每週目標（週一到週日）：5 天保住連續紀錄、單字和遊戲拿 1,000 XP、完成 10 個任務、玩 10 局遊戲；四個都領取就送一張保護卡。開啟通知後，可以領取時和連續紀錄快斷時會提醒你。'
       ]],
       ['extras', '加值', [
@@ -331,8 +331,8 @@ export const HELP = {
       ]],
       ['missions', 'Missions and weekly goals', [
         'Daily missions: six a day from a pool, three in Rewards (answer 20 or 50 word questions, master 3 words, get 10 right by ear, from letters or by dictation, a round without a miss, finish 1 or 3 games, play today’s challenge) and three in the other apps (open 3 stocks in Securities, open 1 or 3 matches in Fixtures, open Orbit Class, open Securities, Fixtures and Rewards today). Claim each for its points when done.',
-        'Bonus missions are there every day and spend money: an order in Securities, a parlay of 3+ picks in Play (a free bet counts), a scratch card, a lottery ticket. More points, but they don’t count for the streak; skip them if you like.',
-        'Your streak: claim 3 daily missions in a day (bonus ones don’t count) and it grows by a day; a few points alone don’t keep it. A missed day is covered by a protection card if you hold one. The longer it runs, the more points: +2% a day, +30% from 15 days. 7, 30 and 100 days each bring an avatar of their own (🐯, 🦅, 🏆) and a protection card (by your longest streak, so they stay if it breaks).',
+        'Bonus missions are there every day and spend money: an order in Securities, a parlay of 3+ picks in Play (a free bet counts), a scratch card, a lottery ticket. The most points (40–60 XP), and up to 2 a day count for the streak; skip them if you like.',
+        'Your streak: claim 5 missions in a day and it grows by a day (three of the six daily ones are in the other apps; up to 2 bonus ones count); a few points alone don’t keep it. A missed day is covered by a protection card if you hold one. The longer it runs, the more points: +2% a day, +30% from 15 days. 7, 30 and 100 days each bring an avatar of their own (🐯, 🦅, 🏆) and a protection card (by your longest streak, so they stay if it breaks).',
         'Weekly goals (Monday to Sunday): keep your streak on 5 days, 1,000 XP from words and games, finish 10 missions, play 10 games; claim all four for a protection card. With notices on, you’re told when there’s something to claim and when a streak is about to end.'
       ]],
       ['extras', 'Extras', [

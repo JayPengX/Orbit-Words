@@ -323,9 +323,9 @@ test('six daily missions a day (three in Rewards), bonus ones always; three clai
   const list = missions(w, now);
   assert.deepEqual(list.filter(m => m.bonus).map(m => m.id), ['invest', 'parlay3', 'scratch', 'lotto']);
   assert.equal(list.filter(m => !m.bonus).length, 6);
-  // The bonus ones and two daily ones: not kept yet; a third daily one keeps it.
+  // Two daily ones and three bonus ones (two count): four, not kept yet; a third daily one makes five.
   for (const id of ['parlay3', 'scratch', 'lotto', 'words20', 'game1']) w.entries.push(claimEntry(w, id, now));
-  assert.deepEqual(streakToday(w, now), { n: 2, goal: 3, kept: false });
+  assert.deepEqual(streakToday(w, now), { n: 4, goal: 5, kept: false });
   assert.equal(streakDays(w, now), 0);
   const third = list.find(m => !m.bonus && m.done && !['words20', 'game1'].includes(m.id));
   assert.ok(third);

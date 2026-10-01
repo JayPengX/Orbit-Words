@@ -88,7 +88,7 @@ test('missions about Play and plans give points, no free bet, once a day', async
   const ms = Object.fromEntries(missions(w, now).map(m => [m.id, m]));
   assert.ok(ms.parlay3.done && ms.scratch.done && ms.parlay3.bonus && !ms.quotes?.done && !('plan' in ms));
   const e = claimEntry(w, 'parlay3', now);
-  assert.deepEqual([e.id, e.kind, e.amount, e.xp], [`vocab:m:${day}:parlay3`, 'mission', 0, 30]);
+  assert.deepEqual([e.id, e.kind, e.amount, e.xp], [`vocab:m:${day}:parlay3`, 'mission', 0, 60]);
   const after = { ...w, entries: [e] };
   assert.equal(claimEntry(after, 'parlay3', now), null);
   assert.deepEqual(freeBets(after, now), []);
@@ -119,7 +119,7 @@ test('points buy a card, a boost or a pack, only with enough to spend; Plus earn
   const day = taipeiDay(now);
   const member = { entries: [{ id: `eco:plus:${day.slice(0, 7)}`, t: now, app: 'eco', kind: 'plus', amount: -490 }], settings: { 'act:odds': { value: { day, n: { scratch: 1 } }, t: now } } };
   assert.equal(xpRate(member, now), 1.5);
-  assert.equal(claimEntry(member, 'scratch', now).xp, 30);
+  assert.equal(claimEntry(member, 'scratch', now).xp, 60);
 });
 
 test('levels give streak cards at 5, 15, 25…, and points buy avatars (level ones can’t be bought)', async () => {
@@ -178,7 +178,7 @@ test('points swap a daily mission, buy back a missed day, and buy frames', async
   assert.deepEqual(after.filter(id => !before.includes(id)).length, 1);
   // Repair (from October, missions keep a day): yesterday missed, the day before kept, no card.
   const later = Date.parse('2026-10-20T04:00:00Z');
-  const k = n => ['words20', 'game1', 'quotes'].map(id => ({ id: `vocab:m:${taipeiDay(later - n * DAY)}:${id}`, t: later - n * DAY, app: 'vocab', kind: 'mission', amount: 0, xp: 1 }));
+  const k = n => ['words20', 'game1', 'quotes', 'match', 'orbit'].map(id => ({ id: `vocab:m:${taipeiDay(later - n * DAY)}:${id}`, t: later - n * DAY, app: 'vocab', kind: 'mission', amount: 0, xp: 1 }));
   const s = { entries: [...k(2), ...k(3), ...k(4)] };
   // A streak of two isn't worth buying back.
   assert.equal(repairable({ entries: [...k(2), ...k(3)] }, activeDaySet({ entries: [...k(2), ...k(3)] }), later), null);
