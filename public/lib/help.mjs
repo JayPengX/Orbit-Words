@@ -44,7 +44,7 @@ export const HELP = {
       ]],
       ['money', '錢怎麼算', [
         '所有 App 共用一個新台幣錢包。新帳號開戶金 NT$30,000；每個月 1 日發津貼，依你的資產（現金加上 Securities 持股）：NT$4 萬以下 NT$8,000、10 萬以下 4,000、25 萬以下 1,500，再多是 500。開戶金和津貼是 Quadra 唯一會給的錢。那個月第一次打開任何 App 時入帳，沒打開的月份下次補發。',
-        '餘額可以是負的（透支），每月計息 1%；到 Securities 賣出持股就能補足（融資借來的錢只能留在 Securities 買賣，不能拿去 Play 或補透支）。',
+        '餘額可以是負的（透支），每月計息 1%。就像交割款沒付，2 天內沒補足，Securities 會自動賣出持股補足；自己先賣也可以。融資借來的錢只能留在 Securities 買賣，不能拿去 Play 或補透支。',
         'Securities 投資、Play 下注和買彩券、Rewards 的單字、遊戲和任務給積分（XP）不給錢，只有加值商店會花錢；Fixtures 和 Orbit Class 不用錢。錢只存在 Quadra Pass，不能在帳號之間轉。'
       ]]
     ],
@@ -77,7 +77,7 @@ export const HELP = {
       ]],
       ['money', 'Money', [
         'Every app shares one NT$ wallet. A new pass opens with NT$30,000; the 1st of every month brings an allowance by what you’re worth (cash plus Securities holdings): NT$8,000 under NT$40,000, 4,000 under 100,000, 1,500 under 250,000, 500 above. The opening money and the allowance are the only money Quadra gives. It’s paid the first time that month you open any app; a month you miss is paid when you’re back.',
-        'The balance can go below zero (an overdraft) at 1% a month; selling holdings in Securities covers it (money borrowed on margin stays in Securities for trading: it can’t be bet in Play or cover an overdraft).',
+        'The balance can go below zero (an overdraft) at 1% a month. Like an unpaid settlement, if it isn’t covered within 2 days Securities sells holdings for it; you can sell first yourself. Money borrowed on margin stays in Securities for trading: it can’t be bet in Play or cover an overdraft.',
         'Securities invests, Play bets and sells lottery tickets, Rewards gives points (XP) for words, games and missions, never money (only its shop spends); Fixtures and Orbit Class don’t use money. Money lives on the Quadra Pass only and can’t move between passes.'
       ]]
     ]
@@ -90,7 +90,7 @@ export const HELP = {
       ['tabs', '每個分頁', [
         '「首頁」：帳戶摘要、為你推薦、漲跌幅並排、各分類清單（每張 15 檔）和搜尋；點任何標的看走勢、公司資料和下單。',
         '「資產」：淨值與走勢、配置、持股、現金與各幣別錢包、股利利息收入、定期定額和到價提醒。',
-        '「換匯・融資」：三個畫面：換匯（你付出／你會收到，兩邊都能輸入）、匯率看板、融資（已借、維持率、額度）。',
+        '「換匯・融資」：三個畫面：換匯（你付出／你會收到，兩邊都能輸入）、匯率看板、融資（已借、維持率、還款）。',
         '「紀錄」：每筆交易與異動、委託單、投資統計，以及「時光機」。'
       ]],
       ['orders', '委託單', [
@@ -104,7 +104,7 @@ export const HELP = {
       ]],
       ['more', '公債、融資、放空', [
         '公債有票面利率和到期日，價格跟殖利率反向；買進要付應計利息，到期自動還本。',
-        '可以用持股借錢（融資），也可以放空股票、ETF 和加密貨幣。可借成數和券商一樣：台股上市 6 成、上櫃 5 成，其他市場 5 成（美國 Reg T），陸股、印度股、加密貨幣、基金、黃金存摺不能融資；公債 9 成、公司債 7 成。現金不算擔保，所以借了再買、再借，每一輪都變少（台股最多約借到自有資金的 1.5 倍）。借來的錢只能留在 Securities。維持率跌破 130% 會追繳，跌破 115% 會被強制處理。'
+        '買進時可以選「融資」：成交時券商借你一部分，買的股票就是擔保，賣出時先還融資（沒有單獨借現金這回事）。也可以放空股票、ETF 和加密貨幣。融資成數和券商一樣：台股上市 6 成、上櫃 5 成，其他市場 5 成（美國 Reg T），陸股、印度股、加密貨幣、基金、黃金存摺不能融資；公債 9 成、公司債 7 成。利息加在融資上，還款或賣出時一起付。維持率跌破 130% 會追繳，跌破 115% 會被強制處理。'
       ]],
       ['time', '時光機', [
         '在「紀錄」試算：幾年前投入一筆錢（或每月定期定額）到某個標的，現在會變多少，中間最大跌幅多少。'
@@ -126,7 +126,7 @@ export const HELP = {
       ['tabs', 'The tabs', [
         'Home: your account at a glance, for you, gainers and losers side by side, lists by kind (15 each) and search; tap anything for its chart, company facts and the order ticket.',
         'Portfolio: net worth and its history, allocation, holdings, cash and each currency’s wallet, income, monthly plans and price alerts.',
-        'FX & loans: three views: exchange (you pay / you get, type either), the rates board, and loans (borrowed, the ratio, the limit).',
+        'FX & loans: three views: exchange (you pay / you get, type either), the rates board, and loans (borrowed, the ratio, repaying).',
         'History: every trade and change, orders, stats, and the time machine.'
       ]],
       ['orders', 'Orders', [
@@ -140,7 +140,7 @@ export const HELP = {
       ]],
       ['more', 'Bonds, margin, shorting', [
         'Bonds have a coupon and a maturity, and their price moves against yields; buying pays accrued interest, and they repay at maturity.',
-        'Borrow against holdings, or sell stocks, ETFs and crypto short. Loan values are a broker’s: Taiwan 60% listed, 50% OTC; 50% elsewhere (US Reg T); none on A-shares, Indian stocks, crypto, funds or the gold passbook; government bonds 90%, corporate 70%. Cash doesn’t count, so borrow, buy and borrow again shrinks each round (in Taiwan stocks, about 1.5× your own money at most). Borrowed money stays in Securities. Under a 130% ratio the broker calls; under 115% it closes positions.'
+        'Buy on margin by choosing 融資 on the order: the broker lends part of it as it fills, the shares its collateral, and selling repays it first (there’s no borrowing cash on its own). Stocks, ETFs and crypto can also be sold short. How much is lent is a broker’s: Taiwan 60% listed, 50% OTC; 50% elsewhere (US Reg T); none on A-shares, Indian stocks, crypto, funds or the gold passbook; government bonds 90%, corporate 70%. Interest is added to the loan and paid when it’s repaid or the shares are sold. Under a 130% ratio the broker calls; under 115% it closes positions.'
       ]],
       ['time', 'Time machine', [
         'Under History: what a lump sum (or a monthly plan) put into anything years ago would be worth now, and its worst drop on the way.'
