@@ -51,7 +51,7 @@ test('word packs: bought once, one price for everyone (v11), and they join the w
   assert.equal(packPrice(member, 'biz', now), SHOP.packs.biz);
   assert.equal(packEntry(member, 'biz', now).amount, -1_990);
   // The Worker still takes the old member price, for purchases already waiting on a device.
-  if (eco) assert.ok(Object.keys(SHOP.packs).every(id => eco.REWARDS_SHOP.pack[id] <= packPrice(member, id, now)));
+  if (eco?.REWARDS_SHOP) assert.ok(Object.keys(SHOP.packs).every(id => eco.REWARDS_SHOP.pack[id] <= packPrice(member, id, now)));
   assert.equal(packOpen(member, 'biz'), false);
   assert.deepEqual(openPacks(member), []);
   assert.equal(packOpen(w, 'biz'), false);
@@ -179,7 +179,7 @@ test('points swap a daily mission, buy back a missed day, and buy frames', async
   assert.deepEqual(after.filter(id => !before.includes(id)).length, 1);
   // Repair (from October, missions keep a day): yesterday missed, the day before kept, no card.
   const later = Date.parse('2026-10-20T04:00:00Z');
-  const k = n => ['words20', 'game1', 'quotes', 'match', 'orbit'].map(id => ({ id: `vocab:m:${taipeiDay(later - n * DAY)}:${id}`, t: later - n * DAY, app: 'vocab', kind: 'mission', amount: 0, xp: 1 }));
+  const k = n => ['words20', 'hard10', 'quotes', 'match', 'orbit'].map(id => ({ id: `vocab:m:${taipeiDay(later - n * DAY)}:${id}`, t: later - n * DAY, app: 'vocab', kind: 'mission', amount: 0, xp: 1 }));
   const s = { entries: [...k(2), ...k(3), ...k(4)] };
   // A streak of two isn't worth buying back.
   assert.equal(repairable({ entries: [...k(2), ...k(3)] }, activeDaySet({ entries: [...k(2), ...k(3)] }), later), null);

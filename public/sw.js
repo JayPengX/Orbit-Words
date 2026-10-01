@@ -18,7 +18,7 @@ self.addEventListener('activate', event => {
     caches
       .keys()
       // Only this app's own old copies: the other Quadra apps share this site
-      // (and its caches), and the logos are kept for all of them.
+      // (and its caches), and the pictures are kept for all of them.
       .then(keys => Promise.all(keys.filter(k => (k.startsWith('quadra-rewards-') || k.startsWith('vocab-tool-cache-')) && k !== CACHE).map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   );

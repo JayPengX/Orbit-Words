@@ -292,12 +292,6 @@ export const HELP = {
         '「智慧」模式依熟練度出題，一輪會輪流用到五種題型：新字用選意思、選英文、聽音選字或拼字母，學過的字再加上聽寫；不會出「你知道這個字嗎」的字卡（那是自己選的「字卡」模式）。',
         '答對升一格、答錯回第一格，第 4 格算「精熟」。一個字一天最多升一格，所以精熟看的是你好幾天的紀錄，不會在同一輪就精熟。第一次見到就答對的字代表你本來就會，直接跳到第 3 格，隔天再答對就精熟；每一輪會先排這些快精熟的字。之後在 1、5、14 天後再複習。'
       ]],
-      ['games', '遊戲', [
-        '103 款遊戲，分成單字、邏輯、益智、動作、反應、棋類、牌類、記憶和數字九類。遊戲頁一排排瀏覽，點「全部」看整類，也能搜尋或加入最愛；一局結束會推薦接著玩的遊戲。',
-        '短局一到兩分鐘；「長局」（數獨、接龍、新接龍、蜘蛛接龍、大盤踩地雷、跳棋）和找單字要十分鐘以上，玩得越好積分越多。',
-        '遊戲開始後佔滿整個畫面，不會捲動；右上角的「?」隨時看玩法。',
-        '今日挑戰：當天第一局有得分就加積分（5 XP 起，連續幾天多一點，最多 20 XP）。每款遊戲的最佳紀錄跨裝置保留。'
-      ]],
       ['missions', '每日任務與每週目標', [
         '每日任務：每天從任務池換 6 個（3 個在 Rewards：回答 20 或 50 題單字、精熟 3 個單字、答對 10 題聽音選字／拼字母／聽寫、一輪全對、玩完 1 或 3 局遊戲、玩今日挑戰；3 個在其他 App：在 Securities 打開 3 檔股票、在 Fixtures 點開 1 或 3 場比賽、打開 Orbit Class 看課表、今天打開 Securities、Fixtures 和 Rewards）。完成後按「領取」拿積分。',
         '加碼任務每天都有，要花錢：在 Securities 下一筆委託、在 Play 下 3 關以上的串關（免費投注也算）、買刮刮樂、買樂透。積分最多（40–60 XP），每天最多 2 個也算進連續紀錄；不做也沒關係。',
@@ -338,12 +332,6 @@ export const HELP = {
         'The high-school English reference list, levels 1 to 6: 6,170 words, each with a recording (Microsoft’s Jenny voice). A round is 10, 20 or 30 words, reviews and new ones mixed; a missed word comes back once at the end of the round.',
         'Smart mode asks by how well you know a word, and uses five kinds of question in a round: a new word by meaning, meaning → word, by ear or unscrambling; words you’ve learnt get dictation too. Never a “do you know it?” flash card (that’s Cards mode, if you choose it).',
         'Right moves a word up a box, wrong back to box 1; box 4 is mastered. A word moves up one box a day at most, so mastering comes from your record over days, never from a single round. A new word right the first time is one you know: it jumps to box 3, and right again tomorrow it’s mastered; rounds ask those first. After that, words return in 1, 5 and 14 days.'
-      ]],
-      ['games', 'Games', [
-        '103 games in nine kinds: words, logic, puzzles, action, reflex, board, cards, memory and numbers. Browse them row by row, open a whole kind with See all, search, or keep favourites; a finished round suggests what to play next.',
-        'Short games take a minute or two; the long ones (sudoku, solitaire, FreeCell, Spider, big minesweeper, checkers) and word search ten minutes or more. Play well and they give more points.',
-        'A game in play has the whole screen and nothing scrolls; the ? at the top shows how to play.',
-        'Today’s challenge: its first round that scores adds a bonus (from 5 XP, a little more each day in a row, up to 20 XP). Each game’s best is kept on every device.'
       ]],
       ['missions', 'Missions and weekly goals', [
         'Daily missions: six a day from a pool, three in Rewards (answer 20 or 50 word questions, master 3 words, get 10 right by ear, from letters or by dictation, a round without a miss, finish 1 or 3 games, play today’s challenge) and three in the other apps (open 3 stocks in Securities, open 1 or 3 matches in Fixtures, open Orbit Class, open Securities, Fixtures and Rewards today). Claim each for its points when done.',

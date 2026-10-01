@@ -100,10 +100,6 @@ export const MISSIONS = [
   { id: 'hard10', app: 'vocab', xp: 20, goal: 10, count: a => a.vocab?.hard || 0 },
   // A round of 10 words or more without a miss.
   { id: 'perfect', app: 'vocab', xp: 20, goal: 1, count: a => a.vocab?.perfect || 0 },
-  { id: 'game1', app: 'vocab', group: 'games', xp: 10, goal: 1, count: a => a.vocab?.game || 0 },
-  { id: 'games3', app: 'vocab', group: 'games', xp: 20, goal: 3, count: a => a.vocab?.game || 0 },
-  // Today's challenge played.
-  { id: 'challenge', app: 'vocab', xp: 15, goal: 1, count: (a, apps, day, wallet) => ((wallet?.entries || []).some(e => e.id === dailyId(day)) ? 1 : 0) },
   // The other apps: using them, nothing to spend and no personal choice
   // (a watchlist, a team to follow) needed.
   // Securities: different stocks' pages opened (each counts once a day).
@@ -258,21 +254,6 @@ export function freezeDue(wallet, now = Date.now()) {
   return gap.reverse().map(day => freezeEntry(day, now));
 }
 
-// ---- The daily challenge (games.mjs picks the game) ----------------------------------------
-export const dailyId = day => `vocab:d:${day}`;
-// Days in a row the challenge was played, up to yesterday (today counts once played).
-export function dailyStreak(wallet, now = Date.now()) {
-  const ids = new Set((wallet?.entries || []).map(e => e.id));
-  let n = 0;
-  let t = now;
-  if (!ids.has(dailyId(taipeiDay(t)))) t -= 86_400_000;
-  while (ids.has(dailyId(taipeiDay(t)))) {
-    n++;
-    t -= 86_400_000;
-  }
-  return n;
-}
-
 // ---- Weekly goals: a Taiwan week (Monday to Sunday), claimed like missions ------------------
 //
 // Claimed as missions (kind 'mission', ids 'vocab:wk:<Monday>:<goal>').
@@ -289,8 +270,8 @@ export const WEEKLY = [
   { id: 'days5', xp: 45, goal: 5, count: (list, wallet, week) => Object.entries(missionDays(wallet)).filter(([d, n]) => d >= week && n >= STREAK.missions).length },
   // Points from words and games (the id is older than the points).
   { id: 'earn1000', xp: 45, goal: 1000, count: list => Math.floor(list.filter(e => earnKinds.has(e.kind)).reduce((s, e) => s + xpOf(e), 0)) },
-  { id: 'missions10', xp: 40, goal: 10, count: list => list.filter(e => e.kind === 'mission' && e.id.startsWith('vocab:m:')).length },
-  { id: 'games10', xp: 30, goal: 10, count: list => list.filter(e => e.kind === 'game' && !e.id.startsWith('vocab:d:')).length }
+  { id: 'missions10', xp: 40, goal: 10, count: list => list.filter(e => e.kind === 'mission' && e.id.startsWith('vocab:m:')).length }
+
 ];
 export const weeklyId = (week, id) => `vocab:wk:${week}:${id}`;
 export function weeklyGoals(wallet, now = Date.now()) {
@@ -312,15 +293,11 @@ export function claimWeekly(wallet, id, now = Date.now()) {
 //
 // ctx: { wallet, mastered, bests, games } (bests from games.mjs' mergeBests).
 export const BADGES = [
-  { id: 'firstGame', icon: '🎮', test: c => (c.wallet?.entries || []).some(e => e.app === 'vocab' && e.kind === 'game') },
   { id: 'words100', icon: '📘', test: c => c.mastered >= 100 },
   { id: 'words500', icon: '📚', test: c => c.mastered >= 500 },
   { id: 'words1000', icon: '🎓', test: c => c.mastered >= 1000 },
   { id: 'streak7', icon: '🔥', test: c => longestStreak(c.wallet) >= 7 },
   { id: 'streak30', icon: '☄️', test: c => longestStreak(c.wallet) >= 30 },
-  { id: 'daily7', icon: '📅', test: c => longestStreak(c.wallet, e => e.id?.startsWith('vocab:d:')) >= 7 },
-  { id: 'allGames', icon: '🕹️', test: c => (c.games || []).every(g => c.bests?.[g]) },
-  { id: 'games20', icon: '👾', test: c => Object.keys(c.bests || {}).length >= 20 },
   { id: 'missions50', icon: '🎁', test: c => (c.wallet?.entries || []).filter(e => e.app === 'vocab' && e.kind === 'mission').length >= 50 },
   { id: 'earned10k', icon: '💰', test: c => xpAllTime(c.wallet) >= 10_000 },
   { id: 'wealthy', icon: '💎', test: c => walletRank(c.wallet).index >= RANKS.findIndex(r => r.id === 'wealthy') },

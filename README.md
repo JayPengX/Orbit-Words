@@ -23,30 +23,8 @@ monthly pay (a fixed NT$6,000) are the only money Quadra gives.
   is already known and goes straight to box 3. The sound starts inside the
   tap (iOS silences sound started later) through one reused audio element;
   without the clip, the device's best English voice.
-- **Games**: word games (word pairs, speed match, hangman) and a break from
-  words (2048, mini sudoku, colour memory, home run derby, free throws; the
-  last two came from Quadra Play's arcade), plus 35 arcade games that aren't
-  about words (`lib/arcade.mjs`, one screen each in `public/arcade/`, loaded
-  when opened): puzzles (minesweeper, lights out, sliding puzzle, code
-  breaker, nonograms, flood it, Hanoi, sokoban, mazes, six queens), action
-  (snake, falling blocks, breakout, flappy bird, dino run, stack, dodge,
-  fruit catch, whack-a-mole, pong, aim), board games against Quadra
-  (tic-tac-toe, connect four, reversi, gomoku, nim) and brain games (quick
-  maths, reaction time, Schulte table, odd colour, number and grid memory,
-  Stroop, quick count, bigger or smaller). Each gives points for its score at its
-  own rate up to its own most a round (`arcadePay`). The games list has a
-  search, categories, favourites (★) and what you played lately. A daily challenge (one game a day,
-  `dailyGame`) adds a bonus to its first round that scores, growing with the
-  days in a row (5 to 20 XP, counted as a game), and
-  each game's best round is kept in the wallet setting `bests:vocab`.
 - **Notices** (the kit's `notify`): a mission or weekly goal newly ready to
   claim, and a streak that ends tonight (after 20:00 Taiwan time).
-- **Long games** (`lib/long.mjs`, category 長局): 9×9 sudoku, Klondike
-  solitaire, a 10×14 minesweeper and checkers against Quadra, ten minutes
-  and more a game, up to 120 XP; and **word search** (your words, found
-  by their meanings). A game in play takes the whole screen: the page
-  underneath is locked and canvases size to the space left, so nothing
-  scrolls under a thumb; a round's result slides up over the game.
 - **任務 Missions** (a tab): every daily mission, the weekly goals, badges
   and wealth ranks; the tab shows how many are ready to claim. Home keeps
   the next three missions.
@@ -67,7 +45,6 @@ No daily limit (`ECONOMY` in the kit):
 | | points |
 |---|---|
 | Words | 2 XP a right answer, 15 XP more a first mastery (×2 during a bought boost) |
-| Games | about 10 XP a minute of typical play |
 | Missions | 10–30 XP each, claimed (weekly goals 30–45 XP) |
 
 Weekly goals (Monday to Sunday, ids `vocab:wk:<Monday>:<goal>`) are claimed
@@ -114,17 +91,13 @@ shared kit in `public/lib/quadra.mjs` and `public/quadra.css`, copied from
 
 ```
 public/
-  index.html, app.js, games-ui.js, styles.css, sw.js, manifest.webmanifest
+  index.html, app.js, styles.css, sw.js, manifest.webmanifest
   data/words.json    [word, part of speech, level, meaning, phonetic]
   data/audio/*.mp3   a recording of every word (Microsoft's en-US Jenny neural
                      voice; Shared-Proxy/tools/word-audio.py makes missing ones)
   lib/voice.mjs      ranking the device's voices (a fallback, or chosen)
-  lib/long.mjs       the long games' rules
   lib/words.mjs      boxes, rounds, questions, saved progress
   lib/earn.mjs       points, missions, wealth ranks
-  lib/games.mjs      game rules and points
-  lib/arcade.mjs     the arcade games' list, rules and points
-  arcade/*.js        each arcade game's screen (arcade/kit.js: shared parts)
   lib/help.mjs       the help centre's text
   lib/i18n.mjs       Traditional Chinese and English
 ```
