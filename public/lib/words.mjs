@@ -33,6 +33,15 @@
 //     while the words still being learnt are few enough to hold (`pickRound`).
 //   - New words can be studied first, as cards (`toStudy`): a batch of them,
 //     then a quiz on just that batch.
+//   - The model fits this person (`personalFactor`): FSRS's numbers are an
+//     average learner's. Every review a day or more after the last is kept
+//     (the last 300), and the one factor on stability that best explains
+//     what this person actually recalled is found (pulled to 1 while the
+//     reviews are few). Someone who remembers better than average gets
+//     longer gaps (less time on what they know), someone who forgets more,
+//     shorter ones.
+//   - Due dates are spread (`fuzz`): a few percent either way, the same on
+//     every device, so words learnt together don't all fall due on one day.
 //
 // A word's progress (the payload's `w`): { s stability (days), D difficulty,
 // b box (from s: 1 to 5), d due day, n answers, r right, t last answer (ms),
@@ -107,7 +116,7 @@ export function stateOf(p) {
 // question in a round (not a batch just studied), where right means known.
 // Returns the word's new progress and whether this answer mastered it for
 // the first time.
-export function grade(p, correct, { now = Date.now(), chose = null, type = 'meaning', ms = 0, word = '', check = false } = {}) {
+export function grade(p, correct, { now = Date.now(), chose = null, type = 'meaning', ms = 0, word = '', check = false, factor = 1 } = {}) {
   const was = p || { b: 0, d: 0, n: 0, r: 0, t: 0 };
   const today = dayNum(now);
   const g = gradeOf(correct, type, ms, word);
@@ -147,7 +156,7 @@ export function grade(p, correct, { now = Date.now(), chose = null, type = 'mean
   next.D = Math.round(D * 100) / 100;
   next.b = boxOf(next.s);
   // Missed: due again today; else when recall falls to its mark (RETAIN).
-  next.d = correct ? today + Math.max(1, Math.round(intervalOf(next.s, next.D))) : today;
+  next.d = correct ? today + fuzz(Math.max(1, Math.round(intervalOf(next.s * factor, next.D))), keyOf(word), today) : today;
   if (!correct) {
     // Forgotten after it had been learnt: a lapse.
     if ((was.b || 0) >= 2) next.l = (was.l || 0) + 1;
@@ -156,6 +165,53 @@ export function grade(p, correct, { now = Date.now(), chose = null, type = 'mean
   const firstMastery = next.b >= MASTERED && !was.m;
   if (firstMastery) next.m = 1;
   return { p: next, firstMastery };
+}
+
+// A gap of a few days or more moves by up to 5% (a day at least from a week
+// on), by the word and the day: the same on every device.
+export function fuzz(days, key = '', today = 0) {
+  if (days < 3) return days;
+  const spread = Math.max(days >= 7 ? 1 : 0, Math.round(days * 0.05));
+  if (!spread) return days;
+  return days + ((hash(`${key}:${today}`) % (2 * spread + 1)) - spread);
+}
+
+// ---- Fitting the model to this person ---------------------------------------------------
+//
+// `cal`: the latest reviews, [when (s), days since the last answer, stability
+// then, 1 right / 0 missed]. Only answers a day or more after the last count
+// (the same day says little about memory), and only words already learnt.
+const CAL_KEEP = 300;
+export function recordReview(cal = [], was, correct, now = Date.now()) {
+  if (!was?.b || !was.t) return cal;
+  const elapsed = (now - was.t) / DAY;
+  if (elapsed < 1) return cal;
+  return [...cal, [Math.round(now / 1000), Math.round(elapsed * 10) / 10, sOf(was), correct ? 1 : 0]].slice(-CAL_KEEP);
+}
+export function mergeCal(a = [], b = []) {
+  const byT = new Map();
+  for (const r of [...a, ...b]) if (Array.isArray(r) && r.length === 4) byT.set(r[0], r);
+  return [...byT.values()].sort((x, y) => x[0] - y[0]).slice(-CAL_KEEP);
+}
+// The factor on stability (0.5 to 2.5) that best explains the reviews,
+// pulled towards 1 as if CAL_PRIOR more reviews had gone as FSRS expects
+// (on a log scale: n / (n + CAL_PRIOR) of the way); 1 under CAL_MIN reviews.
+const CAL_MIN = 30;
+const CAL_PRIOR = 40;
+export function personalFactor(cal = []) {
+  if (cal.length < CAL_MIN) return 1;
+  let best = 1;
+  let top = -Infinity;
+  for (let m = 0.5; m <= 2.5001; m += 0.05) {
+    let ll = 0;
+    for (const [, t, st, ok] of cal) {
+      const R = Math.min(0.999, Math.max(0.001, retrievability(t, st * m)));
+      ll += ok ? Math.log(R) : Math.log(1 - R);
+    }
+    if (ll > top) (top = ll), (best = m);
+  }
+  const shrunk = Math.exp((Math.log(best) * cal.length) / (cal.length + CAL_PRIOR));
+  return Math.round(shrunk * 100) / 100;
 }
 
 // "Too easy": a word the person already knows, mastered and out of the way
@@ -206,7 +262,7 @@ export function smartType(p, random = Math.random, word = null, used = {}) {
 // aren't asked one after the other (interleaved, never blocked).
 // `skip`: words not to bring in new (a studied batch waiting for its quiz).
 const HOLD = 60;
-export function pickRound(words, progress, { levels = LEVELS, size = 10, now = Date.now(), random = Math.random, skip = new Set() } = {}) {
+export function pickRound(words, progress, { levels = LEVELS, size = 10, now = Date.now(), random = Math.random, skip = new Set(), factor = 1 } = {}) {
   const today = dayNum(now);
   const chosen = words.filter(w => levels.includes(w.level));
   const byKey = new Map(chosen.map(w => [w.key, w]));
@@ -214,7 +270,7 @@ export function pickRound(words, progress, { levels = LEVELS, size = 10, now = D
   // its stability cut, still ranks as the likeliest forgotten).
   const recall = w => {
     const p = progress[w.key];
-    return retrievability(Math.max(1, (now - (p.t || 0)) / DAY), sOf(p));
+    return retrievability(Math.max(1, (now - (p.t || 0)) / DAY), sOf(p) * factor);
   };
   // Weakness: the chance it's gone, raised for a word that's hard for this
   // person or keeps slipping. Easy words that are due wait behind them.
@@ -535,14 +591,14 @@ export const hardest = (words, progress, n = 5) =>
 //   mode, days, study } (a row stops after the last part it has; `study`:
 //   the studied batch waiting for its quiz)
 // (`days`: answers per Taiwan day, practice.mjs). The app gzips it.
-export function packProgress({ progress, levels, mode, days = {}, study = [] }) {
+export function packProgress({ progress, levels, mode, days = {}, study = [], cal = [] }) {
   const w = {};
   for (const [k, p] of Object.entries(progress)) {
     const row = [p.b || 0, p.d || 0, p.n || 0, p.r || 0, Math.round((p.t || 0) / 1000), p.m ? 1 : 0, p.l || 0, p.c || [], p.s ?? null, p.D ?? null];
     while (row.length > 6 && (row.at(-1) === null || row.at(-1) === 0 || (Array.isArray(row.at(-1)) && !row.at(-1).length))) row.pop();
     w[k] = row;
   }
-  return { v: 3, w, levels, mode, days, study };
+  return { v: 3, w, levels, mode, days, study, cal };
 }
 export function unpackProgress(obj) {
   if (obj?.v !== 3 || !obj.w) return null;
@@ -553,7 +609,8 @@ export function unpackProgress(obj) {
     levels: Array.isArray(obj.levels) && obj.levels.some(l => LEVELS.includes(l)) ? obj.levels.filter(l => LEVELS.includes(l)) : null,
     mode: MODES.includes(obj.mode) ? obj.mode : null,
     days: obj.days && typeof obj.days === 'object' ? obj.days : {},
-    study: Array.isArray(obj.study) ? obj.study.filter(k => typeof k === 'string') : []
+    study: Array.isArray(obj.study) ? obj.study.filter(k => typeof k === 'string') : [],
+    cal: Array.isArray(obj.cal) ? obj.cal.filter(r => Array.isArray(r) && r.length === 4 && r.every(Number.isFinite)) : []
   };
 }
 

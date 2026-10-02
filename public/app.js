@@ -5,7 +5,7 @@
 // payload on the pass, and the only wallet setting it writes is a member's
 // avatar and frame.
 import { quadraSession, tabBar, topActions, installGate, watchUpdates, settingPatch, schedulePush, notify, APPS } from './lib/quadra.mjs';
-import { LEVELS, MODES, loadWords, pickRound, toStudy, smartType, markKnown, makeQuestion, grade, sameWord, spellDiff, stats, stateOf, packProgress, unpackProgress, mergeProgress, shortMeaning, wordOfDay, clozeText, hardest, keyOf } from './lib/words.mjs';
+import { LEVELS, MODES, loadWords, pickRound, toStudy, smartType, markKnown, makeQuestion, grade, sameWord, spellDiff, stats, stateOf, packProgress, unpackProgress, mergeProgress, shortMeaning, wordOfDay, clozeText, hardest, keyOf, personalFactor, recordReview, mergeCal } from './lib/words.mjs';
 import { xpOf, answerXp, xpText, levelOf, DAILY_GOAL, logAnswer, mergeDays, todayCount, streakOf, bestStreak, streakAtRisk, lastDays, taipeiDay } from './lib/practice.mjs';
 import { HELP_ORDER, helpFor, parseHelpHash } from './lib/help.mjs';
 import { pickVoice } from './lib/voice.mjs';
@@ -33,6 +33,8 @@ const state = {
   round: null,
   // New words studied as cards, waiting for their quiz (keys).
   study: [],
+  // Reviews for fitting the memory model to this person (words.mjs personalFactor).
+  cal: [],
   studying: null,
   help: { app: 'pass', topic: null }
 };
@@ -62,7 +64,7 @@ async function decodePayload(payload) {
     return null;
   }
 }
-const encodePayload = async () => `z3:${await gzipB64(JSON.stringify(packProgress({ progress: state.progress, levels: state.levels, mode: state.mode, days: state.days, study: state.study })))}`;
+const encodePayload = async () => `z3:${await gzipB64(JSON.stringify(packProgress({ progress: state.progress, levels: state.levels, mode: state.mode, days: state.days, study: state.study, cal: state.cal })))}`;
 
 // Another copy of the progress (the pass's, or one a merge brought in): per word the newest.
 function absorb(decoded) {
@@ -72,6 +74,7 @@ function absorb(decoded) {
   if (decoded.levels && !state.levelsTouched) state.levels = decoded.levels;
   if (decoded.mode) state.mode = decoded.mode;
   state.study = [...new Set([...state.study, ...decoded.study])];
+  state.cal = mergeCal(state.cal, decoded.cal);
 }
 
 // ---- Sync: the payload and a member's looks, one write at a time ----------------------------
@@ -355,7 +358,7 @@ function renderStudy(box) {
 
 function startRound({ quiz = false } = {}) {
   // A quiz: the studied batch, look-alikes apart; else the usual round.
-  const list = quiz ? pickRound(state.study.map(k => state.byKey.get(k)).filter(Boolean), {}, { levels: LEVELS, size: state.study.length }) : pickRound(state.words, state.progress, { levels: state.levels, size: state.size, skip: new Set(state.study) });
+  const list = quiz ? pickRound(state.study.map(k => state.byKey.get(k)).filter(Boolean), {}, { levels: LEVELS, size: state.study.length }) : pickRound(state.words, state.progress, { levels: state.levels, size: state.size, skip: new Set(state.study), factor: personalFactor(state.cal) });
   if (!list.length) return toast(t('nothingLeft'));
   state.round = { list, i: 0, results: [], earned: 0, q: null, answered: false, quiz };
   nextQuestion();
@@ -392,7 +395,8 @@ function answer(correct, typed = '') {
   const word = r.q.word;
   const other = !correct && typed && keyOf(typed) !== word.key ? state.byKey.get(keyOf(typed)) || null : null;
   // How long it took counts: a quick right answer is known better than a slow one.
-  const res = grade(state.progress[word.key], correct, { chose: other?.key, type: r.q.type, ms: Date.now() - r.shownAt, word: word.word, check: r.check });
+  const res = grade(state.progress[word.key], correct, { chose: other?.key, type: r.q.type, ms: Date.now() - r.shownAt, word: word.word, check: r.check, factor: personalFactor(state.cal) });
+  state.cal = recordReview(state.cal, state.progress[word.key], correct);
   state.progress = { ...state.progress, [word.key]: res.p };
   if (other) {
     const o = state.progress[other.key] || { b: 0, d: 0, n: 0, r: 0, t: 0 };

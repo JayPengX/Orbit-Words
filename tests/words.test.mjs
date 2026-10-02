@@ -248,7 +248,7 @@ test('progress round-trips with lapses and mix-ups and merges newest per word; t
   const progress = { apple: { b: 3, d: 20000, n: 4, r: 3, t: 1_790_000_000_000, s: 5.5, D: 4.25 }, go: { b: 5, d: 20100, n: 9, r: 9, t: 1_790_000_001_000, m: 1, l: 2, c: ['do', 'so'] }, sun: { b: 2, d: 20001, n: 1, r: 1, t: 1_790_000_002_000 } };
   const days = { '2026-10-04': 25 };
   const back = unpackProgress(JSON.parse(JSON.stringify(packProgress({ progress, levels: [1, 3], mode: 'cloze', days, study: ['tree'] }))));
-  assert.deepEqual(back, { progress, levels: [1, 3], mode: 'cloze', days, study: ['tree'] });
+  assert.deepEqual(back, { progress, levels: [1, 3], mode: 'cloze', days, study: ['tree'], cal: [] });
   // Only levels that exist; none of them, none chosen.
   assert.equal(unpackProgress({ v: 3, w: {}, levels: ['toeic'] }).levels, null);
   // Anything else isn't this app's progress; an unknown mode or level is left out.
@@ -265,4 +265,25 @@ test('the word of the day changes daily and is a single word', () => {
   const a = wordOfDay(words, now);
   assert.notEqual(a.key, wordOfDay(words, now + DAY).key);
   assert.match(a.word, /^[a-z]+$/);
+});
+
+test('the model fits the person: better recall than FSRS expects, longer gaps', async () => {
+  const { personalFactor, recordReview, mergeCal, fuzz, retrievability } = await import('../public/lib/words.mjs');
+  assert.equal(personalFactor([]), 1);
+  // 200 reviews at t = s (FSRS expects 90%); this person got 98% right.
+  const strong = Array.from({ length: 200 }, (_, i) => [i, 10, 10, i % 50 === 0 ? 0 : 1]);
+  assert.ok(personalFactor(strong) > 1.4, String(personalFactor(strong)));
+  const weak = Array.from({ length: 200 }, (_, i) => [i, 10, 10, i % 3 === 0 ? 0 : 1]);
+  assert.ok(personalFactor(weak) < 0.7, String(personalFactor(weak)));
+  // Same-day answers and new words don't count.
+  const now = Date.parse('2026-10-02T00:00:00Z');
+  assert.equal(recordReview([], { b: 2, t: now - 3_600_000, s: 3 }, true, now).length, 0);
+  assert.equal(recordReview([], { b: 0, t: now - 5 * 86_400_000 }, true, now).length, 0);
+  assert.deepEqual(recordReview([], { b: 2, t: now - 5 * 86_400_000, s: 3 }, true, now)[0].slice(1), [5, 3, 1]);
+  assert.equal(mergeCal([[1, 2, 3, 1]], [[1, 2, 3, 1], [2, 2, 3, 0]]).length, 2);
+  // Spread: within 5%, the same for the same word and day.
+  for (let d = 0; d < 50; d++) assert.ok(Math.abs(fuzz(40, 'adapt', d) - 40) <= 2);
+  assert.equal(fuzz(40, 'adapt', 7), fuzz(40, 'adapt', 7));
+  assert.equal(fuzz(2, 'adapt', 7), 2);
+  assert.ok(retrievability(10, 10) > 0.89);
 });
