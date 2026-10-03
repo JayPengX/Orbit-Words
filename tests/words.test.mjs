@@ -14,9 +14,15 @@ const now = Date.parse('2026-10-05T04:00:00Z');
 const DAY = 86_400_000;
 
 test('the word list: levels 1 to 6 with meanings', () => {
-  assert.equal(words.length, 6170);
+  assert.equal(words.length, 6169);
   for (const l of [1, 2, 3, 4, 5, 6]) assert.ok(words.filter(w => w.level === l).length > 950);
   assert.equal(words.filter(w => !w.zh).length, 0);
+});
+
+// Keys ignore case, and so does a Mac's disk: internet.mp3 beside Internet.mp3
+// can't both be checked out there.
+test('one word per key', () => {
+  assert.equal(new Set(words.map(w => w.key)).size, words.length);
 });
 
 test('the memory model: recall falls to 90% at the stability; the grade from the answer and its time', () => {
