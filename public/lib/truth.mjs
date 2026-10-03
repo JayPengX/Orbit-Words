@@ -3,7 +3,7 @@
 // Securities' own rules (mirrored below: those apps don't share their
 // pricing modules), and this account's own record in the wallet. Pure
 // functions, tested directly.
-import { PLUS, VIP, FREEBET, OVERDRAFT_RATE, moneySides } from './quadra.mjs';
+import { PLUS, VIP, FREEBET, OVERDRAFT_RATE, moneySides } from '#kit/quadra.mjs';
 
 // ---- Quadra Play's prices (its lib/rules.mjs, odds.mjs, cashout.mjs) ---------------------
 //

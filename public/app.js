@@ -4,7 +4,7 @@
 // away, with its guide. It uses no money: the word progress is its own
 // payload on the pass, and the only wallet setting it writes is a member's
 // avatar and frame.
-import { quadraSession, tabBar, topActions, installGate, watchUpdates, settingPatch, schedulePush, notify, APPS } from './lib/quadra.mjs';
+import { quadraSession, tabBar, topActions, installGate, watchUpdates, settingPatch, schedulePush, notify, APPS } from '#kit/quadra.mjs';
 import { LEVELS, MODES, loadWords, pickRound, toStudy, smartType, markKnown, makeQuestion, grade, sameWord, spellDiff, stats, stateOf, packProgress, unpackProgress, mergeProgress, shortMeaning, wordOfDay, clozeText, hardest, keyOf, personalFactor, recordReview, mergeCal } from './lib/words.mjs';
 import { xpOf, answerXp, xpText, levelOf, DAILY_GOAL, logAnswer, mergeDays, todayCount, streakOf, bestStreak, streakAtRisk, lastDays, taipeiDay } from './lib/practice.mjs';
 import { HELP_ORDER, helpFor, parseHelpHash } from './lib/help.mjs';

@@ -9,7 +9,7 @@ const { xpOf, answerXp, levelOf, logAnswer, mergeDays, todayCount, streakOf, bes
 const { PLAY, houseKeep, boostedKeep, freeBetWorth, roundTrip, plusMath, record, overdraftYear, vipShare } = await import('../public/lib/truth.mjs');
 const { HELP, HELP_ORDER, parseHelpHash } = await import('../public/lib/help.mjs');
 const { STRINGS } = await import('../public/lib/i18n.mjs');
-const kit = await import('../public/lib/quadra.mjs');
+const kit = await import('#kit/quadra.mjs');
 
 const noon = day => Date.parse(`${day}T04:00:00Z`);
 

@@ -2,7 +2,7 @@
 // looks), Truth (how Quadra's money moves and how the house earns, in real
 // numbers and this account's own record) and Apps (every Quadra app, with
 // its guide). `hub`: { q, t, locale, state, wornOf, wear, openHelp } from app.js.
-import { APPS, AVATARS, FRAMES, LOOK_STREAKS, lookOpen, plusStreak, PLUS, VIP, WELCOME, money, plusMember, plusCard, openPlus, plusPerks, plusReturns, plusTenure, accountDetails, accountSheet, showNewPass, ask, formatPass, freeBets, vipStatus, vipName, worthOf, WEALTH_RANKS, OVERDRAFT_RATE, ECONOMY } from './lib/quadra.mjs';
+import { APPS, AVATARS, FRAMES, LOOK_STREAKS, lookOpen, plusStreak, PLUS, VIP, WELCOME, money, plusMember, plusCard, openPlus, plusPerks, plusReturns, plusTenure, accountDetails, accountSheet, showNewPass, ask, formatPass, freeBets, vipStatus, vipName, worthOf, WEALTH_RANKS, OVERDRAFT_RATE, ECONOMY } from '#kit/quadra.mjs';
 import { PLAY, STOCK, houseKeep, boostedKeep, freeBetWorth, roundTrip, plusMath, record, overdraftYear, vipShare } from './lib/truth.mjs';
 import { el, put, section, toast, bar } from './ui.js';
 
