@@ -1,5 +1,5 @@
 // Words: the high-school English reference list (大考中心, 108 curriculum),
-// levels 1 to 6, and how Quadra Hub teaches them. Pure functions (no DOM),
+// levels 1 to 6, and how Orbit Words teaches them. Pure functions (no DOM),
 // so they're tested directly.
 //
 // Learning is meant to be hard, because what's hard to recall is what's

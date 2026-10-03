@@ -1,4 +1,4 @@
-// Quadra Hub's service worker: keeps the page's own files so the app opens
+// Orbit Words' service worker: keeps the page's own files so the app opens
 // without a connection and can be installed. The word list and the words'
 // recordings are kept too, once fetched.
 //

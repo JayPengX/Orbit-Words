@@ -1,34 +1,29 @@
-# Quadra Hub
+# Orbit Words
 
-A related add-on of Quadra, like Quadra Fixtures and Orbit Class: a place to
-learn English words, the place to manage your Quadra Pass and Quadra Plus,
-and the plain truth about how Quadra's money moves and how the house earns
-from you. It uses no money and pays none.
+English words that stay with you. An Orbit app (Orbit: the everyday tools,
+beside Quadra's Securities and Play), signed in with the Quadra Pass like
+every app. It uses no money and pays none.
 
-**https://jaypengx.github.io/Quadra-Hub/**
+**https://jaypengx.github.io/Orbit-Words/** (was Quadra Hub, at
+`/Quadra-Hub/`, until the repo is renamed)
 
 ## What's in it
 
-- **單字 Words**: the 大考中心 high-school English reference list, levels 1
-  to 6 (6,170 words), every word recorded in Microsoft's Jenny voice. Rounds
-  of 10, 20 or 30 words, or new words studied as cards and quizzed a batch at a time; today's goal (20 answers), the streak, the level, the words you forget
-  most and the word of the day.
-- **Pass**: the Quadra Pass (balance, this month, the statement and every
-  setting through the kit's account sheet), Quadra Plus (join, go yearly,
-  stop renewing, what it gave back), a member's avatar and frame, devices
-  and security.
-- **真相 Truth**: where the money comes from (the kit's `moneySides`), the
-  house edge on singles and parlays, what the parlay boost and Plus's bigger
-  boost give back, lottery and scratch card payback, what free bets and VIP
-  cashback are really worth, why Plus exists, trading costs, margin and
-  overdraft interest, and the designs that keep people playing, worked out
-  from the real rules (`lib/truth.mjs`) and the account's own record.
-- **App Apps**: every other Quadra app, when it was last used, a line of
-  status (Securities' cash and holdings, Play's stakes this month, VIP and
-  free bets), its guide and a way in.
-- **Help**: every Quadra app's guide, in the same shape: a sheet over the
-  app, opened by the ? at the top right (the kit's `topActions`) or by other
-  apps' links, `#help=<app>` or `#help=<app>:<topic>` (`helpUrl` in the kit).
+The 大考中心 high-school English reference list, levels 1 to 6 (6,170
+words), every word recorded in Microsoft's Jenny voice. Three tabs:
+
+- **今天 Today**: the day's goal (20 answers), the streak and level, a round
+  of 10, 20 or 30 words a tap away, new words studied as cards and quizzed a
+  batch at a time, and the word of the day.
+- **練習 Practice**: the levels and the way to learn (smart, meaning, word,
+  by ear, letters, cloze, dictation).
+- **進度 Progress**: each level's mastered, learning, due and new words, and
+  the words you forget most (and what you mix them up with).
+
+What Quadra Hub also did now lives in the **Quadra Pass sheet**, behind the
+account button of every app (the kit's `pass.mjs`): the account and its
+devices, Quadra Plus and a member's looks, 真相 (how Quadra's money moves),
+every app, and every app's guide (`#help=<app>:<topic>`).
 
 ## How the words are taught (`lib/words.mjs`)
 
@@ -72,30 +67,29 @@ Hard on purpose: what takes effort to recall is what's remembered.
 Only this app's payload on the pass (`vocab-progress-sync`): `z3:` + gzip
 base64 of `{ v: 3, w: { word: [box, due day, answers, right, last answer
 (s), mastered once, lapses, [mistaken for], stability, difficulty] },
-levels, mode, days, study }` (a row stops after the last part it has;
-`study`: the studied batch waiting for its quiz). The
-only wallet settings it writes are a member's `avatar` and `frame`; it
-writes no wallet entries.
+levels, mode, days, study, cal }` (a row stops after the last part it has;
+`study`: the studied batch waiting for its quiz; `cal`: reviews for fitting
+the memory model). It writes no wallet entries or settings.
 
 ## How it works
 
-A static site (GitHub Pages), no build step, Quadra Pass required (the
-shared kit in `public/lib/quadra.mjs`, `public/quadra.css` and
-`public/boot.js`, copied from `Shared-Proxy/kit` by `node kit/sync.mjs`;
-don't edit the copies).
+A static site (GitHub Pages), no build step, Quadra Pass required. The
+shared kit isn't copied in: the page loads it from Shared-Proxy's Pages
+(`index.html`'s kit:head and kit:boot, `Shared-Proxy/kit/loader.html`), and
+modules import it as `#kit/quadra.mjs` (tests through `package.json`'s
+imports and a `.kit` link to `../Shared-Proxy/kit`, made by `npm test`).
 
 ```
 public/
-  index.html, app.js (the shell, words, help), hub-ui.js (Pass, Truth, Apps),
-  ui.js, styles.css, sw.js, manifest.webmanifest
+  index.html, app.js (the shell and the words), ui.js, styles.css, sw.js,
+  manifest.webmanifest, favicon.svg, icons/, share/ (link previews; all of
+  them written by Shared-Proxy/brand/generate.mjs)
   data/words.json    [word, part of speech, level, meaning, phonetic]
   data/audio/*.mp3   a recording of every word (Microsoft's en-US Jenny neural
                      voice; Shared-Proxy/tools/word-audio.py makes missing ones)
   lib/words.mjs      the memory model, rounds, questions and their wrong options, saved progress
   lib/practice.mjs   points, levels, the day's goal and the streak
-  lib/truth.mjs      the house's numbers and the account's own record
   lib/voice.mjs      ranking the device's voices (when a recording is missing)
-  lib/help.mjs       every app's guide
   lib/i18n.mjs       Traditional Chinese and English
 ```
 

@@ -1,27 +1,29 @@
-// Quadra Hub: a related add-on of Quadra. Words to learn (the high-school
-// list, levels 1 to 6), the Quadra Pass and Quadra Plus to
-// manage, the truth about how Quadra's money moves, and every app a tap
-// away, with its guide. It uses no money: the word progress is its own
-// payload on the pass, and the only wallet setting it writes is a member's
-// avatar and frame.
-import { quadraSession, tabBar, topActions, installGate, watchUpdates, settingPatch, schedulePush, notify, APPS } from '#kit/quadra.mjs';
+// Orbit Words: English words that stay. The high-school list (levels 1 to
+// 6, every word recorded), taught by a memory model fitted to the person.
+// Three tabs: 今天 (the goal, a round, new words, the word of the day),
+// 練習 (levels and ways to learn) and 進度 (how far, what's forgotten most).
+// It uses no money: the progress is its own payload on the Quadra Pass. The
+// pass itself (Plus, looks, the truth about money, every app's guide) is the
+// kit's Quadra Pass sheet, in every app. (It was Quadra Hub; its id stays
+// `vocab`, its storage and caches `quadra-hub`.)
+import { quadraSession, tabBar, topActions, installGate, watchUpdates, schedulePush, notify } from '#kit/quadra.mjs';
 import { LEVELS, MODES, loadWords, pickRound, toStudy, smartType, markKnown, makeQuestion, grade, sameWord, spellDiff, stats, stateOf, packProgress, unpackProgress, mergeProgress, shortMeaning, wordOfDay, clozeText, hardest, keyOf, personalFactor, recordReview, mergeCal } from './lib/words.mjs';
 import { xpOf, answerXp, xpText, levelOf, DAILY_GOAL, logAnswer, mergeDays, todayCount, streakOf, bestStreak, streakAtRisk, lastDays, taipeiDay } from './lib/practice.mjs';
-import { HELP_ORDER, helpFor, parseHelpHash } from './lib/help.mjs';
 import { pickVoice } from './lib/voice.mjs';
 import { detectLocale, makeT } from './lib/i18n.mjs';
 import { el, put, section, toast, bar, stat } from './ui.js';
-import { renderPass, renderTruth, renderApps } from './hub-ui.js';
 
 const locale = detectLocale();
 const t = makeT(locale);
 document.documentElement.lang = locale === 'zh' ? 'zh-Hant' : 'en';
 const $ = id => document.getElementById(id);
-const TABS = ['words', 'pass', 'truth', 'apps'];
+const TABS = ['today', 'practice', 'progress'];
+// Older links and notices said #words.
+const TAB_ALIAS = { words: 'today' };
 const VERSION = document.querySelector('meta[name="build-version"]')?.content || 'dev';
 
 const state = {
-  tab: 'words',
+  tab: 'today',
   wallet: null,
   words: null,
   progress: {},
@@ -35,13 +37,12 @@ const state = {
   study: [],
   // Reviews for fitting the memory model to this person (words.mjs personalFactor).
   cal: [],
-  studying: null,
-  help: { app: 'pass', topic: null }
+  studying: null
 };
 
 const q = quadraSession('vocab', { lang: locale });
 
-// ---- Saved progress (the pass's Hub payload, gzipped) -------------------------------------
+// ---- Saved progress (the pass's vocab payload, gzipped) -----------------------------------
 
 async function gzipB64(text) {
   const stream = new Blob([text]).stream().pipeThrough(new CompressionStream('gzip'));
@@ -77,12 +78,10 @@ function absorb(decoded) {
   state.cal = mergeCal(state.cal, decoded.cal);
 }
 
-// ---- Sync: the payload and a member's looks, one write at a time ----------------------------
+// ---- Sync: the payload, one write at a time -----------------------------------------------
 let chain = Promise.resolve();
 let dirty = false;
 let timer = 0;
-// Looks chosen here, waiting for the next write.
-let pendingSettings = {};
 function sync({ soon = false } = {}) {
   clearTimeout(timer);
   if (soon) return (timer = setTimeout(() => sync(), 1500));
@@ -90,18 +89,14 @@ function sync({ soon = false } = {}) {
   return chain;
 }
 async function push() {
-  if (!q.active || !state.loaded) return;
-  const settings = pendingSettings;
-  pendingSettings = {};
-  if (!dirty && !Object.keys(settings).length) return;
-  const payload = dirty && !state.unreadable ? await encodePayload() : undefined;
+  if (!q.active || !state.loaded || !dirty || state.unreadable) return;
+  const payload = await encodePayload();
   dirty = false;
   try {
-    const res = await q.write({ payload, ...(Object.keys(settings).length ? { wallet: { settings } } : {}) });
+    const res = await q.write({ payload });
     if (res?.wallet) state.wallet = res.wallet;
   } catch (error) {
-    if (payload) dirty = true;
-    pendingSettings = { ...settings, ...pendingSettings };
+    dirty = true;
     throw error;
   }
 }
@@ -191,24 +186,17 @@ function renderWords() {
       ])
     )
   );
-  put(
-    box,
-    goalCard(),
-    el('div', { class: 'q-card pad start-card' }, [
-      el('div', { class: 'start-top' }, [el('h2', { text: t('wordsTitle') }), el('p', { class: 'muted', text: chosen.length ? t('wordsSub', { due, levels: joined(chosen.map(levelName)) }) : t('pickLevel') })]),
-      el('div', { class: 'size-row' }, [
-        el('span', { class: 'muted', text: t('roundSize') }),
-        el('div', { class: 'segmented', role: 'group' }, [10, 20, 30].map(n => el('button', { type: 'button', 'aria-pressed': String(state.size === n), text: t('wordsN', { n }), onclick: () => ((state.size = n), renderWords()) })))
-      ]),
-      el('button', { class: 'q-btn primary block big-start', type: 'button', disabled: !chosen.length, text: t('startRound'), onclick: () => startRound() })
+  const start = el('div', { class: 'q-card pad start-card' }, [
+    el('div', { class: 'start-top' }, [el('h2', { text: t('wordsTitle') }), el('p', { class: 'muted', text: chosen.length ? t('wordsSub', { due, levels: joined(chosen.map(levelName)) }) : t('pickLevel') })]),
+    el('div', { class: 'size-row' }, [
+      el('span', { class: 'muted', text: t('roundSize') }),
+      el('div', { class: 'segmented', role: 'group' }, [10, 20, 30].map(n => el('button', { type: 'button', 'aria-pressed': String(state.size === n), text: t('wordsN', { n }), onclick: () => ((state.size = n), renderWords()) })))
     ]),
-    studyCard(),
-    section(t('levels'), el('div', { class: 'level-grid' }, LEVELS.map(levelCard))),
-    section(t('modes'), modes, { sub: t('modesSub') }),
-    section(t('progress'), progressCard(st)),
-    hardestCard(),
-    wordOfDayCard()
-  );
+    el('button', { class: 'q-btn primary block big-start', type: 'button', disabled: !chosen.length, text: t('startRound'), onclick: () => startRound() })
+  ]);
+  if (state.tab === 'practice') return put(box, section(t('levels'), el('div', { class: 'level-grid' }, LEVELS.map(levelCard))), section(t('modes'), modes, { sub: t('modesSub') }), start);
+  if (state.tab === 'progress') return put(box, section(t('progress'), progressCard(st)), hardestCard());
+  put(box, goalCard(), start, studyCard(), wordOfDayCard());
 }
 
 // Today: the goal, the streak, the level.
@@ -573,67 +561,16 @@ function roundSummary(r) {
 // Keys 1-4 pick a choice, Enter goes on.
 document.addEventListener('keydown', e => {
   const r = state.round;
-  if (!r || state.tab !== 'words' || r.done || e.target.tagName === 'INPUT') return;
+  if (!r || r.done || e.target.tagName === 'INPUT') return;
   if (r.answered && e.key === 'Enter') return advance();
   const i = Number(e.key) - 1;
   if (!r.answered && r.q.choices && i >= 0 && i < r.q.choices.length) answer(r.q.choices[i].key === r.q.answer, r.q.choices[i].key);
 });
 
-// ---- Looks: a Plus member's avatar and frame, written as wallet settings --------------------
-
-const wornOf = key => (key in pendingSettings ? pendingSettings[key].value?.id : state.wallet?.settings?.[key]?.value?.id) ?? null;
-function wear(key, id) {
-  pendingSettings = { ...pendingSettings, ...settingPatch(key, id ? { id } : null).settings };
-  sync();
-  toast(t(id ? `${key}Worn` : `${key}Off`), 'good');
-  refresh();
-}
-
-// ---- Help ---------------------------------------------------------------------------------
-
-// A sheet over the app (the ? in the top-right, or another app's help link):
-// one app's topics, the others a chip away.
-let helpSheet = null;
-function openHelp(app = state.help.app, topic = null) {
-  state.help = { app, topic };
-  if (!helpSheet?.open) {
-    helpSheet?.remove();
-    helpSheet = el('dialog', { class: 'q-sheet help-sheet', 'aria-label': t('helpTitle') });
-    helpSheet.addEventListener('click', e => e.target === helpSheet && helpSheet.close());
-    helpSheet.addEventListener('close', () => {
-      helpSheet.remove();
-      try {
-        history.replaceState(null, '', `#${state.tab}`);
-      } catch {}
-    });
-    document.body.append(helpSheet);
-    helpSheet.showModal();
-  }
-  renderHelp();
-}
-function renderHelp() {
-  const { app, topic } = state.help;
-  try {
-    history.replaceState(null, '', `#help=${app}${topic ? `:${topic}` : ''}`);
-  } catch {}
-  const chips = el(
-    'div',
-    { class: 'q-chips' },
-    HELP_ORDER.map(a => el('button', { class: 'q-chip', type: 'button', 'aria-pressed': String(app === a), text: a === 'pass' ? 'Quadra Pass' : APPS[a].short, onclick: () => ((state.help = { app: a, topic: null }), renderHelp(), (helpSheet.scrollTop = 0)) }))
-  );
-  const cards = helpFor(app, locale).map(([id, title, paras]) => el('article', { class: `q-card pad help-card${topic === id ? ' focus' : ''}`, id: `help-${id}` }, [el('h3', { text: title }), ...paras.map(p => el('p', { text: p }))]));
-  const open = app !== 'pass' && app !== 'vocab' ? el('button', { class: 'q-btn primary block', type: 'button', text: t('openApp', { app: APPS[app].name }), onclick: () => q.go(app) }) : null;
-  const head = el('div', { class: 'q-sheet-head' }, [el('h2', { text: t('helpTitle') }), el('button', { class: 'q-close', type: 'button', 'aria-label': t('close'), text: '×', onclick: () => helpSheet.close() })]);
-  put(helpSheet, head, chips, el('div', { class: 'help-list' }, cards), open);
-  if (topic) setTimeout(() => $(`help-${topic}`)?.scrollIntoView({ block: 'start', behavior: 'smooth' }), 50);
-}
-
 // ---- Tabs and start -------------------------------------------------------------------------
 
-const TAB_ICONS = { words: 'book', pass: 'pass', truth: 'eye', apps: 'grid' };
+const TAB_ICONS = { today: 'book', practice: 'grid', progress: 'eye' };
 const tabNav = tabBar({ tabs: TABS.map(id => ({ id, label: t(`tab_${id}`), icon: TAB_ICONS[id] })), onSelect: (tab, { again }) => !again && showTab(tab) });
-// What the other tabs need from here.
-const hub = { q, t, locale, state, wornOf, wear, openHelp };
 function showTab(tab) {
   state.tab = tab;
   tabNav.select(tab);
@@ -641,21 +578,16 @@ function showTab(tab) {
 }
 function refresh() {
   $('status').textContent = state.loaded ? t('statusLine', { n: Math.min(todayCount(state.days), DAILY_GOAL), goal: DAILY_GOAL, s: streakOf(state.days) }) : '';
-  if (state.tab === 'words') return !(state.round && !state.round.answered && document.activeElement?.tagName === 'INPUT') && renderWords();
-  const box = $(`panel-${state.tab}`);
-  if (!state.wallet) return put(box, el('div', { class: 'center-spin' }, [el('div', { class: 'spinner' })]));
-  if (state.tab === 'pass') renderPass(box, hub);
-  if (state.tab === 'truth') renderTruth(box, hub);
-  if (state.tab === 'apps') renderApps(box, hub);
+  if (!(state.round && !state.round.answered && document.activeElement?.tagName === 'INPUT')) renderWords();
 }
 // A redraw that never interrupts a question.
-const quietRefresh = () => !(state.tab === 'words' && state.round && !state.round.done) && refresh();
+const quietRefresh = () => !(state.round && !state.round.done) && refresh();
 
 window.__fxStarted = true;
 const gated = installGate('vocab', locale);
 watchUpdates({ current: VERSION, key: 'quadraHub', cachePrefix: 'quadra-hub-', busy: () => Boolean(state.round && !state.round.done) });
-// The same top-right in every Quadra app; help opens here, over the app.
-topActions(q, { help: () => openHelp('vocab') });
+// The same top-right in every app (the guide and the pass: the kit's sheet).
+topActions(q);
 tabNav.select(state.tab);
 q.on('wallet', w => {
   state.wallet = w;
@@ -670,12 +602,12 @@ q.on('active', live => live && sync());
 function checkStreak() {
   const n = streakAtRisk(state.days);
   const body = t('noticeStreakBody', { goal: DAILY_GOAL });
-  if (n && new Date(Date.now() + 8 * 3_600_000).getUTCHours() >= 20) notify(q, { title: t('noticeStreak', { n }), body, tag: `streak:${taipeiDay()}`, hash: 'words', kind: 'streak' });
+  if (n && new Date(Date.now() + 8 * 3_600_000).getUTCHours() >= 20) notify(q, { title: t('noticeStreak', { n }), body, tag: `streak:${taipeiDay()}`, hash: 'today', kind: 'streak' });
   const now = Date.now();
   const eight = day => Date.parse(`${taipeiDay(now + day * 86_400_000)}T20:00:00+08:00`);
   const items = [];
-  if (n && eight(0) > now) items.push({ at: eight(0), title: t('noticeStreak', { n }), body, tag: `streak:${taipeiDay(now)}`, hash: 'words', kind: 'streak' });
-  for (const day of [1, 2]) items.push({ at: eight(day), title: t('noticeStreakSoon'), body, tag: `streak:${taipeiDay(now + day * 86_400_000)}`, hash: 'words', kind: 'streak' });
+  if (n && eight(0) > now) items.push({ at: eight(0), title: t('noticeStreak', { n }), body, tag: `streak:${taipeiDay(now)}`, hash: 'today', kind: 'streak' });
+  for (const day of [1, 2]) items.push({ at: eight(day), title: t('noticeStreakSoon'), body, tag: `streak:${taipeiDay(now + day * 86_400_000)}`, hash: 'today', kind: 'streak' });
   schedulePush(q, items);
 }
 
@@ -698,16 +630,13 @@ async function boot() {
   setTimeout(checkStreak, 2000);
 }
 if (!gated) boot();
-// Where the address points: a tab (#pass), or a guide (#help=…). At start,
-// and whenever it changes while the app is open (a link, a notice's tap).
+// Where the address points: a tab (#practice). At start, and whenever it
+// changes while the app is open (a link, a notice's tap). A guide
+// (#help=…) is the kit's: it opens the Quadra Pass sheet.
 function openFromHash(start = false) {
   const hash = location.hash.slice(1);
-  const help = parseHelpHash(hash);
-  if (help) {
-    if (start) showTab('words');
-    return openHelp(help.app, help.topic);
-  }
-  const tab = TABS.includes(hash) ? hash : start ? 'words' : null;
+  const named = TAB_ALIAS[hash] || hash;
+  const tab = TABS.includes(named) ? named : start ? 'today' : null;
   if (tab && (tab !== state.tab || start)) showTab(tab);
 }
 window.addEventListener('hashchange', () => state.loaded && openFromHash());
