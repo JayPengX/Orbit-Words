@@ -4,8 +4,7 @@ English words that stay with you. An Orbit app (Orbit: the everyday tools,
 beside Quadra's Securities and Play), signed in with the Quadra Pass like
 every app. It uses no money and pays none.
 
-**https://jaypengx.github.io/Orbit-Words/** (was Quadra Hub, at
-`/Quadra-Hub/`, until the repo is renamed)
+**https://jaypengx.github.io/Orbit-Words/** (was Quadra Hub)
 
 ## What's in it
 
