@@ -8,16 +8,43 @@ every app. It uses no money and pays none.
 
 ## What's in it
 
-The 大考中心 high-school English reference list, levels 1 to 6 (6,170
-words), every word recorded in Microsoft's Jenny voice. Three tabs:
+The 大考中心 high-school English reference list, levels 1 to 6 (6,169
+words), every word recorded in Microsoft's Jenny voice. Five tabs:
 
-- **今天 Today**: the day's goal (20 answers), the streak and level, a round
-  of 10, 20 or 30 words a tap away, new words studied as cards and quizzed a
-  batch at a time, and the word of the day.
-- **練習 Practice**: the levels and the way to learn (smart, meaning, word,
-  by ear, letters, cloze, dictation).
-- **進度 Progress**: each level's mastered, learning, due and new words, and
-  the words you forget most (and what you mix them up with).
+- **今天 Today**: the day's goal (20 answers), the streak and level; what's
+  waiting in the chosen levels (due, not yet learnt, mastered) and a round
+  of 10, 20 or 30 a tap away; new words studied as cards and quizzed a
+  batch at a time; last time's missed words as flash cards; the word of the
+  day.
+- **練習 Practice**: the levels, the way to learn (smart, meaning, word,
+  by ear, letters, cloze, dictation) and the sound's speed (0.75×, 1×,
+  1.25×).
+- **複習 Review**: the words to go back over, one category at a time:
+  答錯 (last answer missed, with where it was misspelt), 該複習 (due),
+  學習中 (learning) and 收藏 (bookmarked); searched in English or Chinese,
+  sorted weakest, recent, most missed or A–Z. Flash cards of the weakest
+  (10, 20 or up to 50): flip, swipe, then a test on the deck, which is
+  what updates the memory model. The tab's badge counts the missed words.
+- **單字 Words**: the whole list by level and state (new, learning,
+  mastered, bookmarked), searched.
+- **進度 Progress**: the four counts; accuracy (all, last 7 days), seconds
+  an answer, days practised; each level mastered / learning / new; the
+  last 14 days' answers against the goal; reviews falling due in the next
+  7 days; how long learnt words stay remembered; how this person's memory
+  compares with FSRS's average (the fitted factor); the words forgotten
+  most.
+
+Any word anywhere opens its **sheet**: the word and sound, the whole
+meaning, a line to remember it by, the words you mixed it up with and the
+ones it's commonly confused with (a tap opens theirs), how you misspelt it,
+answers, accuracy, the chance you still know it, how long it stays, a
+bookmark (☆) and 「我會了」 to put it away. `#word=<word>` opens it from a
+link.
+
+These were 英單力's (2026-09) review tab, flash cards, bookmarks, word
+table, dashboard, speed setting and AI mnemonics, built again on the kit.
+The mnemonics and common confusions are `data/hints.json` (levels 4–6, the
+old `ai_signals.json`, written once with Gemini; nothing is generated live).
 
 What Quadra Hub also did now lives in the **Quadra Pass sheet**, behind the
 account button of every app (the kit's `pass.mjs`): the account and its
@@ -32,7 +59,8 @@ Hard on purpose: what takes effort to recall is what's remembered.
   kind of question: spelt alike (edit distance, shared start and end, the
   same length), close in meaning (the meaningful characters of the Chinese
   glosses), the same part of speech and shape (a phrase among phrases), and
-  first of all a word this person has already mixed this one up with. Two
+  first of all a word this person has already mixed this one up with,
+  then the words learners commonly confuse it with (`data/hints.json`). Two
   options are never both right (no shared meaning term) and never read the
   same.
 - **The kind of question** (`smartType`): every box allows several kinds
@@ -65,10 +93,14 @@ Hard on purpose: what takes effort to recall is what's remembered.
 
 Only this app's payload on the pass (`vocab-progress-sync`): `z3:` + gzip
 base64 of `{ v: 3, w: { word: [box, due day, answers, right, last answer
-(s), mastered once, lapses, [mistaken for], stability, difficulty] },
-levels, mode, days, study, cal }` (a row stops after the last part it has;
-`study`: the studied batch waiting for its quiz; `cal`: reviews for fitting
-the memory model). It writes no wallet entries or settings.
+(s), mastered once, lapses, [mistaken for], stability, difficulty, last
+outcome 1 right / 2 missed, [misspellings]] }, levels, mode, days, study,
+cal, log, marks, opt }` (a row stops after the last part it has; `study`:
+the studied batch waiting for its quiz; `cal`: reviews for fitting the
+memory model; `log`: `{ day: [right, seconds] }`; `marks`: `{ word: [1 on /
+0 off, when (s)] }`, the latest choice winning across devices; `opt`:
+`{ rate }`). Copies saved before `log`, `marks`, `opt` and the last two row
+parts open as before. It writes no wallet entries or settings.
 
 ## How it works
 
@@ -80,14 +112,19 @@ imports and a `.kit` link to `../Shared-Proxy/kit`, made by `npm test`).
 
 ```
 public/
-  index.html, app.js (the shell and the words), ui.js, styles.css, sw.js,
+  index.html, app.js (starting, saving, the tabs), shell.js (the shared
+  state, text and hooks), audio.js (the sound), ui.js, styles.css, sw.js,
   manifest.webmanifest, favicon.svg, icons/, share/ (link previews; all of
   them written by Shared-Proxy/brand/generate.mjs)
+  views/             today, practice, review, browse (單字), progress, the
+                     word's sheet, and session (rounds, studying, flash cards)
   data/words.json    [word, part of speech, level, meaning, phonetic]
+  data/hints.json    { word: [a line to remember it by, [often confused with]] }
   data/audio/*.mp3   a recording of every word (Microsoft's en-US Jenny neural
                      voice; Shared-Proxy/tools/word-audio.py makes missing ones)
   lib/words.mjs      the memory model, rounds, questions and their wrong options, saved progress
-  lib/practice.mjs   points, levels, the day's goal and the streak
+  lib/review.mjs     review categories, the word list, bookmarks, 進度's numbers
+  lib/practice.mjs   points, levels, the day's goal, the streak, the day's log
   lib/voice.mjs      ranking the device's voices (when a recording is missing)
   lib/i18n.mjs       Traditional Chinese and English
 ```

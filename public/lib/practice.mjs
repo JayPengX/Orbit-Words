@@ -97,3 +97,46 @@ export function lastDays(days, n = 7, now = Date.now()) {
   for (let i = 0; i < n; i++, d = dayBefore(d)) out.unshift({ day: d, answers: days?.[d] || 0, kept: kept(days, d) });
   return out;
 }
+
+// ---- How the answers went, per day ---------------------------------------------------------
+//
+// `log`: { 'YYYY-MM-DD' (Taiwan): [right answers, seconds answering] }, kept
+// beside `days` (the answers) for accuracy and time. A question's time is
+// capped at a minute (a phone put down mid-question isn't study time).
+const CAP_MS = 60_000;
+export function logResult(log, correct, ms = 0, now = Date.now()) {
+  const day = taipeiDay(now);
+  const from = taipeiDay(now - KEEP_DAYS * 86_400_000);
+  const out = Object.fromEntries(Object.entries(log || {}).filter(([d]) => d > from));
+  const [r = 0, s = 0] = out[day] || [];
+  out[day] = [r + (correct ? 1 : 0), Math.round((s + Math.min(CAP_MS, Math.max(0, ms || 0)) / 1000) * 10) / 10];
+  return out;
+}
+// Two devices' logs: the larger of each, each day (as mergeDays).
+export function mergeLog(a = {}, b = {}) {
+  const out = { ...a };
+  for (const [d, v] of Object.entries(b || {})) {
+    if (!Array.isArray(v)) continue;
+    const [r = 0, s = 0] = out[d] || [];
+    out[d] = [Math.max(r, Number(v[0]) || 0), Math.max(s, Number(v[1]) || 0)];
+  }
+  return out;
+}
+// The last `n` days together: { answers, right, seconds, accuracy (0-1 or
+// null with no answers logged), perAnswer (seconds) }. Only days with a log
+// count (answers from before the log began have no right count).
+export function periodOf(days, log, n = 7, now = Date.now()) {
+  let answers = 0;
+  let right = 0;
+  let seconds = 0;
+  let d = taipeiDay(now);
+  for (let i = 0; i < n; i++, d = dayBefore(d)) {
+    if (!log?.[d]) continue;
+    answers += days?.[d] || 0;
+    right += log[d][0] || 0;
+    seconds += log[d][1] || 0;
+  }
+  return { answers, right, seconds, accuracy: answers ? Math.min(1, right / answers) : null, perAnswer: answers ? seconds / answers : null };
+}
+// Days practised (any answers) in all the days kept.
+export const daysPractised = days => Object.values(days || {}).filter(n => n > 0).length;

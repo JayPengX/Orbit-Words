@@ -251,10 +251,15 @@ test('questions: four distinct choices with the answer, letters to unscramble, a
 });
 
 test('progress round-trips with lapses and mix-ups and merges newest per word; the hardest words', () => {
-  const progress = { apple: { b: 3, d: 20000, n: 4, r: 3, t: 1_790_000_000_000, s: 5.5, D: 4.25 }, go: { b: 5, d: 20100, n: 9, r: 9, t: 1_790_000_001_000, m: 1, l: 2, c: ['do', 'so'] }, sun: { b: 2, d: 20001, n: 1, r: 1, t: 1_790_000_002_000 } };
+  const progress = { apple: { b: 3, d: 20000, n: 4, r: 3, t: 1_790_000_000_000, s: 5.5, D: 4.25, o: 2, x: ['aple'] }, go: { b: 5, d: 20100, n: 9, r: 9, t: 1_790_000_001_000, m: 1, l: 2, c: ['do', 'so'], o: 1 }, sun: { b: 2, d: 20001, n: 1, r: 1, t: 1_790_000_002_000 } };
   const days = { '2026-10-04': 25 };
-  const back = unpackProgress(JSON.parse(JSON.stringify(packProgress({ progress, levels: [1, 3], mode: 'cloze', days, study: ['tree'] }))));
-  assert.deepEqual(back, { progress, levels: [1, 3], mode: 'cloze', days, study: ['tree'], cal: [] });
+  const log = { '2026-10-04': [20, 140.5] };
+  const marks = { sun: [1, 1_790_000_000] };
+  const back = unpackProgress(JSON.parse(JSON.stringify(packProgress({ progress, levels: [1, 3], mode: 'cloze', days, study: ['tree'], log, marks, opt: { rate: 0.75 } }))));
+  assert.deepEqual(back, { progress, levels: [1, 3], mode: 'cloze', days, study: ['tree'], cal: [], log, marks, opt: { rate: 0.75 } });
+  // A saved copy from before the log, bookmarks and outcomes still opens.
+  const old = unpackProgress({ v: 3, w: { go: [5, 20100, 9, 9, 1_790_000_001, 1] }, days });
+  assert.deepEqual([old.progress.go.o, old.log, old.marks, old.opt], [undefined, {}, {}, {}]);
   // Only levels that exist; none of them, none chosen.
   assert.equal(unpackProgress({ v: 3, w: {}, levels: ['toeic'] }).levels, null);
   // Anything else isn't this app's progress; an unknown mode or level is left out.

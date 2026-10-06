@@ -45,13 +45,16 @@
 //
 // A word's progress (the payload's `w`): { s stability (days), D difficulty,
 // b box (from s: 1 to 5), d due day, n answers, r right, t last answer (ms),
-// m mastered once, l lapses, c [keys it was mistaken for, latest first] }.
+// m mastered once, l lapses, c [keys it was mistaken for, latest first],
+// o how the last answer went (1 right, 2 missed), x [how this person
+// misspelt it, latest first] }.
 
 export const LEVELS = [1, 2, 3, 4, 5, 6];
 // Which study modes a person can choose; 'smart' picks per word.
 export const MODES = ['smart', 'meaning', 'word', 'listen', 'letters', 'cloze', 'spell'];
-// How many mix-ups are remembered per word.
+// How many mix-ups, and misspellings, are remembered per word.
 const CONFUSED_KEEP = 4;
+const SPELT_KEEP = 3;
 const DAY = 86_400_000;
 const TPE = 8 * 3_600_000;
 
@@ -62,6 +65,19 @@ export const keyOf = word => String(word || '').toLowerCase().replace(/’/g, "'
 // The raw list ([word, pos, level, zh, phonetic]) as objects.
 export function loadWords(rows) {
   return rows.map(([word, pos, level, zh, ph], i) => ({ i, word, key: keyOf(word), pos, level, zh, ph: ph || '' }));
+}
+
+// Hints (data/hints.json, levels 4 to 6): { key: [a line to remember it by,
+// [keys of words it's commonly confused with]] }, written once for every
+// learner (they were Quadra Words' AI signals). Rows that aren't that shape
+// are dropped.
+export function loadHints(raw) {
+  const out = new Map();
+  for (const [k, v] of Object.entries(raw || {})) {
+    if (!Array.isArray(v) || typeof v[0] !== 'string') continue;
+    out.set(k, { tip: v[0], common: Array.isArray(v[1]) ? v[1].filter(x => typeof x === 'string') : [] });
+  }
+  return out;
 }
 
 // ---- The memory model --------------------------------------------------------------------
@@ -112,16 +128,18 @@ export function stateOf(p) {
 }
 
 // One answer. `type`: how it was asked; `ms`: how long it took; `chose`:
-// the word picked instead, on a wrong answer; `check`: a new word's first
-// question in a round (not a batch just studied), where right means known.
+// the word picked instead, on a wrong answer; `typed`: a wrong spelling
+// that isn't another word (kept to show where it goes wrong); `check`: a
+// new word's first question in a round (not a batch just studied), where
+// right means known.
 // Returns the word's new progress and whether this answer mastered it for
 // the first time.
-export function grade(p, correct, { now = Date.now(), chose = null, type = 'meaning', ms = 0, word = '', check = false, factor = 1 } = {}) {
+export function grade(p, correct, { now = Date.now(), chose = null, typed = '', type = 'meaning', ms = 0, word = '', check = false, factor = 1 } = {}) {
   const was = p || { b: 0, d: 0, n: 0, r: 0, t: 0 };
   const today = dayNum(now);
   const g = gradeOf(correct, type, ms, word);
   const weight = TYPE_WEIGHT[type] ?? 1;
-  const next = { ...was, n: (was.n || 0) + 1, r: (was.r || 0) + (correct ? 1 : 0), t: now };
+  const next = { ...was, n: (was.n || 0) + 1, r: (was.r || 0) + (correct ? 1 : 0), t: now, o: correct ? 1 : 2 };
   let s;
   let D;
   if (!was.n && !was.b && check && correct) {
@@ -161,6 +179,8 @@ export function grade(p, correct, { now = Date.now(), chose = null, type = 'mean
     // Forgotten after it had been learnt: a lapse.
     if ((was.b || 0) >= 2) next.l = (was.l || 0) + 1;
     if (chose) next.c = [chose, ...(was.c || []).filter(k => k !== chose)].slice(0, CONFUSED_KEEP);
+    const spelt = String(typed || '').trim().toLowerCase().slice(0, 40);
+    if (spelt && !chose && spelt !== keyOf(word)) next.x = [spelt, ...(was.x || []).filter(k => k !== spelt)].slice(0, SPELT_KEEP);
   }
   const firstMastery = next.b >= MASTERED && !was.m;
   if (firstMastery) next.m = 1;
@@ -382,7 +402,7 @@ export function toStudy(words, progress, { levels = LEVELS, n = 10, skip = new S
 // word is one that doesn't look like the one before, the ones with the most
 // look-alikes still left first (so they aren't all that's left at the end).
 const ALIKE = 0.6;
-function spread(list) {
+export function spread(list) {
   const left = [...list];
   const out = [];
   while (left.length) {
@@ -477,12 +497,14 @@ const WEIGH = {
 };
 // The `n` words most likely to be picked instead of `word` in a question of
 // `type`: the ones this person has mixed it up with first (`confused`), then
+// the ones learners commonly confuse it with (`common`, the hints), then
 // the best by WEIGH, the same shape (a phrase with phrases), never one that
 // means the same, and no two options that would read the same.
-export function distractors(word, words, n = 3, { type = 'meaning', confused = [], random = Math.random } = {}) {
+export function distractors(word, words, n = 3, { type = 'meaning', confused = [], common = [], random = Math.random } = {}) {
   const w = WEIGH[type] || WEIGH.meaning;
   const phrase = /\s/.test(word.word);
-  const mistaken = new Map(confused.map((k, i) => [k, 3 - i * 0.5]));
+  const mistaken = new Map(common.map(k => [k, 1.2]));
+  confused.forEach((k, i) => mistaken.set(k, 3 - i * 0.5));
   const scored = [];
   for (const c of words) {
     if (c.key === word.key || !c.zh || /\s/.test(c.word) !== phrase || sameMeaning(c.zh, word.zh)) continue;
@@ -528,14 +550,14 @@ export function clozeGaps(word, box = 2, random = Math.random) {
 
 // A question: { type, word, choices (for choice types), letters (to
 // unscramble), gaps (a cloze's hidden letters), answer }.
-export function makeQuestion(word, type, words, { random = Math.random, p = null } = {}) {
+export function makeQuestion(word, type, words, { random = Math.random, p = null, common = [] } = {}) {
   const confused = p?.c || [];
   if (type === 'meaning') {
-    const options = shuffle([word, ...distractors(word, words, 3, { type, confused, random })], random);
+    const options = shuffle([word, ...distractors(word, words, 3, { type, confused, common, random })], random);
     return { type, word, choices: options.map(w => ({ key: w.key, text: shortMeaning(w.zh) })), answer: word.key };
   }
   if (type === 'word' || type === 'listen') {
-    const options = shuffle([word, ...distractors(word, words, 3, { type, confused, random })], random);
+    const options = shuffle([word, ...distractors(word, words, 3, { type, confused, common, random })], random);
     return { type, word, choices: options.map(w => ({ key: w.key, text: w.word })), answer: word.key };
   }
   if (type === 'letters') {
@@ -587,30 +609,37 @@ export const hardest = (words, progress, n = 5) =>
 // ---- Saved progress (this app's payload on the pass) ------------------------------
 //
 // { v: 3, w: { word: [box, due day, answers, right, last answer (s),
-//   mastered once, lapses, [mistaken for], stability, difficulty] }, levels,
-//   mode, days, study } (a row stops after the last part it has; `study`:
-//   the studied batch waiting for its quiz)
-// (`days`: answers per Taiwan day, practice.mjs). The app gzips it.
-export function packProgress({ progress, levels, mode, days = {}, study = [], cal = [] }) {
+//   mastered once, lapses, [mistaken for], stability, difficulty, last
+//   answer 1 right / 2 missed, [misspellings]] }, levels, mode, days, study,
+//   cal, log, marks, opt } (a row stops after the last part it has; `study`:
+//   the studied batch waiting for its quiz; `cal`: reviews for fitting the
+//   model; `days` and `log`: answers, and right answers and seconds, per
+//   Taiwan day, practice.mjs; `marks`: bookmarked words, review.mjs; `opt`:
+//   { rate } the speed of the sound). The app gzips it.
+export function packProgress({ progress, levels, mode, days = {}, study = [], cal = [], log = {}, marks = {}, opt = {} }) {
   const w = {};
   for (const [k, p] of Object.entries(progress)) {
-    const row = [p.b || 0, p.d || 0, p.n || 0, p.r || 0, Math.round((p.t || 0) / 1000), p.m ? 1 : 0, p.l || 0, p.c || [], p.s ?? null, p.D ?? null];
+    const row = [p.b || 0, p.d || 0, p.n || 0, p.r || 0, Math.round((p.t || 0) / 1000), p.m ? 1 : 0, p.l || 0, p.c || [], p.s ?? null, p.D ?? null, p.o || 0, p.x || []];
     while (row.length > 6 && (row.at(-1) === null || row.at(-1) === 0 || (Array.isArray(row.at(-1)) && !row.at(-1).length))) row.pop();
     w[k] = row;
   }
-  return { v: 3, w, levels, mode, days, study, cal };
+  return { v: 3, w, levels, mode, days, study, cal, log, marks, opt };
 }
 export function unpackProgress(obj) {
   if (obj?.v !== 3 || !obj.w) return null;
   const progress = {};
-  for (const [k, a] of Object.entries(obj.w)) progress[k] = { b: a[0], d: a[1], n: a[2], r: a[3], t: a[4] * 1000, ...(a[5] ? { m: 1 } : {}), ...(a[6] ? { l: a[6] } : {}), ...(Array.isArray(a[7]) && a[7].length ? { c: a[7] } : {}), ...(a[8] > 0 ? { s: a[8] } : {}), ...(a[9] > 0 ? { D: a[9] } : {}) };
+  for (const [k, a] of Object.entries(obj.w)) progress[k] = { b: a[0], d: a[1], n: a[2], r: a[3], t: a[4] * 1000, ...(a[5] ? { m: 1 } : {}), ...(a[6] ? { l: a[6] } : {}), ...(Array.isArray(a[7]) && a[7].length ? { c: a[7] } : {}), ...(a[8] > 0 ? { s: a[8] } : {}), ...(a[9] > 0 ? { D: a[9] } : {}), ...(a[10] === 1 || a[10] === 2 ? { o: a[10] } : {}), ...(Array.isArray(a[11]) && a[11].length ? { x: a[11].filter(v => typeof v === 'string') } : {}) };
+  const obj2 = v => (v && typeof v === 'object' && !Array.isArray(v) ? v : {});
   return {
     progress,
     levels: Array.isArray(obj.levels) && obj.levels.some(l => LEVELS.includes(l)) ? obj.levels.filter(l => LEVELS.includes(l)) : null,
     mode: MODES.includes(obj.mode) ? obj.mode : null,
     days: obj.days && typeof obj.days === 'object' ? obj.days : {},
     study: Array.isArray(obj.study) ? obj.study.filter(k => typeof k === 'string') : [],
-    cal: Array.isArray(obj.cal) ? obj.cal.filter(r => Array.isArray(r) && r.length === 4 && r.every(Number.isFinite)) : []
+    cal: Array.isArray(obj.cal) ? obj.cal.filter(r => Array.isArray(r) && r.length === 4 && r.every(Number.isFinite)) : [],
+    log: obj2(obj.log),
+    marks: obj2(obj.marks),
+    opt: obj2(obj.opt)
   };
 }
 

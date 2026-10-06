@@ -9,7 +9,7 @@ import { join, dirname, relative } from 'node:path';
 
 const version = process.argv[2];
 if (!version) throw new Error('usage: node scripts/stamp-version.mjs <version>');
-const root = new URL('../public/', import.meta.url).pathname;
+const root = process.argv[3] || new URL('../public/', import.meta.url).pathname;
 
 async function files(dir) {
   const out = [];
@@ -21,8 +21,10 @@ async function files(dir) {
   return out;
 }
 
-// './x.js', './lib/x.mjs', './styles.css' inside import/from/src/href/new URL.
-const LOCAL = /((?:from|import\(|src=|href=|new URL\()\s*['"])(\.\/[^'"?]+\.(?:m?js|css))(['"])/g;
+// './x.js', './lib/x.mjs', '../shell.js', './styles.css' inside
+// import/from/src/href/new URL. '../' too: a module imported unstamped by one
+// file and stamped by another is two modules, each with its own state.
+const LOCAL = /((?:from|import\(|src=|href=|new URL\()\s*['"])(\.{1,2}\/[^'"?]+\.(?:m?js|css))(['"])/g;
 
 // Every module the page imports up front (its static import graph), listed
 // in the page as modulepreload: the browser asks for them all at once instead

@@ -203,3 +203,147 @@ img { max-width: 100%; }
 .study-word .word.big { font-size: clamp(28px, 9vw, 40px); }
 .study-meaning { white-space: pre-line; font-size: 17px; line-height: 1.6; }
 .study-nav { margin-top: 12px; }
+
+/* ---- The rebuild: shared rows, bookmarks, hints ---- */
+.seg-count { margin-left: 5px; font-size: 11.5px; font-weight: 700; color: var(--q-muted); }
+.segmented button[aria-pressed='true'] .seg-count { color: var(--accent); }
+.cat-seg { margin: 6px 0 8px; }
+.cat-seg button { flex: 1 1 0; min-width: 0; padding: 7px 4px; }
+.cat-sub { margin: 0 2px 12px; }
+.star { flex: none; width: 36px; height: 36px; border: 0; border-radius: 50%; background: none; color: var(--q-muted); font-size: 21px; line-height: 1; }
+.star.on { color: #f59e0b; }
+.mini-star { color: #f59e0b; font-size: 12px; }
+.tip { display: grid; gap: 2px; padding: 10px 12px; border-radius: 12px; background: var(--accent-wash); text-align: left; justify-self: stretch; }
+.tip-label { font-size: 11.5px; font-weight: 800; color: var(--accent); }
+.tip p { font-size: 14.5px; line-height: 1.5; }
+.tip-line { font-size: 13px; margin-top: 4px; }
+.diff.small { font-size: inherit; letter-spacing: 0.02em; }
+.diff-wrap { text-align: center; }
+.diff-wrap .diff { font-size: 22px; }
+.pill.learning { background: color-mix(in srgb, var(--accent) 8%, var(--q-sunken)); }
+.pill.due { background: color-mix(in srgb, #f59e0b 16%, transparent); color: #b45309; font-weight: 700; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme='light']) .pill.due { color: #fbbf24; } }
+:root[data-theme='dark'] .pill.due { color: #fbbf24; }
+.empty { text-align: center; padding: 18px 0; font-size: 14px; }
+
+/* A word in a list: sound, word and meaning, where it stands. */
+.word-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; width: 100%; padding: 9px 14px; border: 0; border-top: 1px solid var(--q-divider, var(--q-border)); background: none; text-align: left; }
+.list > .word-row:first-child, .hard-list > .word-row:first-child { border-top: 0; }
+.word-row .speak { width: 32px; height: 32px; font-size: 14px; }
+.word-row-main { display: grid; min-width: 0; }
+.word-row-top { display: flex; align-items: center; gap: 5px; min-width: 0; }
+.word-row-top strong, .word-row-main > strong { font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.word-row-main small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hard-list .word-row-main small.muted { white-space: normal; }
+button.result-row { width: 100%; border: 0; border-top: 1px solid var(--q-divider, var(--q-border)); background: none; text-align: left; }
+button.result-row:first-child { border-top: 0; }
+.paged .more { margin-top: 10px; }
+.paged .more[hidden] { display: none; }
+.list-tools { display: grid; gap: 8px; margin: 14px 0 10px; }
+.sticky-tools { margin-top: 6px; }
+.search { width: 100%; min-width: 0; font: 600 16px/1.2 var(--q-font); padding: 11px 14px; border-radius: 12px; border: 0; background: color-mix(in srgb, var(--q-text) 7%, transparent); color: var(--q-text); -webkit-appearance: none; appearance: none; }
+.search:focus { outline: none; box-shadow: 0 0 0 2px var(--accent); }
+.list-count { margin: 4px 2px 8px; }
+
+/* 今天: what's waiting, the missed-words nudge. */
+.wait-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.wait-tile { display: grid; padding: 10px 12px; border-radius: 14px; background: color-mix(in srgb, var(--q-text) 5%, transparent); }
+.wait-tile strong { font-size: 20px; font-weight: 800; }
+.wait-tile small { font-size: 12px; color: var(--q-muted); white-space: nowrap; }
+.wait-tile.hot strong { color: var(--accent); }
+.nudge-card { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; width: 100%; margin-top: 14px; border: 0; text-align: left; }
+.nudge-card > div { display: grid; min-width: 0; }
+.nudge-card small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nudge-icon { font-size: 26px; }
+.chev { font-size: 24px; color: var(--q-muted); }
+.wotd { cursor: pointer; }
+.wotd-right { display: flex; align-items: center; gap: 2px; }
+.wotd-right .star { width: 30px; height: 30px; font-size: 19px; }
+
+/* 練習: the sound's speed. */
+.rate-card { display: grid; gap: 10px; }
+.rate-row { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px; }
+.rate-row .segmented { margin: 0; }
+.rate-row .segmented button { flex: 1 1 0; min-width: 0; }
+
+/* 複習: flash cards. */
+.flash-launch { display: grid; gap: 12px; }
+.flash-launch .two-btn { margin-top: 0; }
+.flash-top { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px; }
+.flash-top > div { display: grid; }
+.empty-card { display: grid; justify-items: center; gap: 4px; text-align: center; padding-block: 22px; }
+.empty-icon { font-size: 28px; color: var(--accent); }
+.study-word { position: relative; }
+.card-corner { position: absolute; top: 8px; right: 8px; left: 12px; display: flex; justify-content: space-between; align-items: center; }
+.card-corner:has(> :only-child) { justify-content: flex-end; }
+.flash-card { min-height: 300px; align-content: center; cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: pan-y; }
+.flash-card .tip { margin-top: 4px; }
+.flip-hint { margin-top: 18px; }
+.flash-test { display: grid; gap: 6px; justify-items: center; text-align: center; margin-top: 12px; }
+.spelt { display: grid; gap: 4px; }
+.spelt.center { justify-items: center; }
+.spelt-row { display: flex; align-items: baseline; gap: 8px; font-size: 18px; font-weight: 700; }
+.spelt-row .diff { font-size: 18px; }
+
+/* The word's sheet. */
+.word-sheet .q-sheet-head { align-items: center; }
+.sheet-title { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.sheet-actions { display: flex; align-items: center; gap: 6px; }
+.sheet-word { display: grid; gap: 4px; }
+.sheet-meaning { margin: 12px 0; font-size: 16px; }
+.word-sheet .tip { margin-bottom: 4px; }
+.link-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.link-chip { display: grid; max-width: 100%; padding: 7px 12px; border: 0; border-radius: 12px; background: var(--q-surface); text-align: left; }
+.link-chip small { color: var(--q-muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sheet-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; padding: 12px; border-radius: 14px; background: var(--q-surface); text-align: center; }
+.sheet-stats > div { display: grid; }
+.sheet-stats strong { font-size: 18px; font-weight: 800; white-space: nowrap; }
+.sheet-stats small { font-size: 11.5px; color: var(--q-muted); white-space: nowrap; }
+.word-sheet > .q-btn.block { margin-top: 14px; }
+.word-sheet > p.muted.small { margin-top: 8px; }
+.fb-right { display: flex; align-items: center; gap: 4px; }
+
+/* 進度: levels, bars, memory. */
+.stat-row.four .stat strong { font-size: 18px; }
+.stat-row .stat small { white-space: nowrap; }
+.levels-card { display: grid; gap: 10px; }
+.lv-row { display: grid; grid-template-columns: 4.6em minmax(0, 1fr) 3em; align-items: center; gap: 10px; font-size: 13px; }
+.lv-name { white-space: nowrap; color: var(--q-text-2); }
+.lv-num { text-align: right; font-weight: 700; }
+/* One hue: mastered darkest, learning lighter, new the track. 2px gaps. */
+.stack { display: flex; gap: 2px; height: 12px; }
+.stack .seg { display: block; min-width: 3px; height: 100%; border-radius: 4px; }
+.seg.mastered, .key.mastered { background: var(--accent); }
+.seg.learning, .key.learning { background: color-mix(in srgb, var(--accent) 40%, var(--q-surface)); }
+.seg.new, .key.new { background: var(--q-sunken); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--q-muted); }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.key { display: inline-block; width: 10px; height: 10px; border-radius: 3px; }
+.chart-card { display: grid; gap: 8px; }
+.bars { position: relative; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 4px; height: 132px; }
+.bar-col { display: grid; grid-template-rows: 16px minmax(0, 1fr) 16px; justify-items: center; min-width: 0; }
+.bar-val { font-size: 11px; color: var(--q-text-2); }
+.bar-track { position: relative; width: 100%; max-width: 22px; height: 100%; }
+.bar { position: absolute; left: 0; right: 0; bottom: 0; display: block; min-height: 2px; border-radius: 4px 4px 0 0; background: color-mix(in srgb, var(--accent) 40%, var(--q-surface)); }
+.bar.hot { background: var(--accent); }
+.bar-label { font-size: 10.5px; color: var(--q-muted); white-space: nowrap; }
+.goal-line { position: absolute; left: 0; right: 0; border-top: 1px dashed color-mix(in srgb, var(--q-text) 25%, transparent); pointer-events: none; }
+.memory-card { display: grid; gap: 10px; }
+.mem-rows { display: grid; gap: 8px; }
+.mem-row { display: grid; grid-template-columns: 6.2em minmax(0, 1fr) 3em; align-items: center; gap: 10px; font-size: 13px; }
+.mem-row > span:first-child { white-space: nowrap; color: var(--q-text-2); }
+.mem-row > span:last-child { text-align: right; font-weight: 700; }
+.mem-track { height: 10px; border-radius: 4px; background: var(--q-sunken); overflow: hidden; }
+.mem-bar { display: block; height: 100%; border-radius: 4px; }
+.mem-bar.m0 { background: color-mix(in srgb, var(--accent) 25%, var(--q-surface)); }
+.mem-bar.m1 { background: color-mix(in srgb, var(--accent) 50%, var(--q-surface)); }
+.mem-bar.m2 { background: color-mix(in srgb, var(--accent) 75%, var(--q-surface)); }
+.mem-bar.m3 { background: var(--accent); }
+
+.q-section + .q-card, .q-card + .q-section { margin-top: 12px; }
+/* A headline word stays on one line: smaller the longer it is (--len, wordEl). */
+.word-line:has(> .word) { flex-wrap: nowrap; }
+.word-line > .word { min-width: 0; white-space: nowrap; overflow-wrap: normal; font-size: min(clamp(26px, 8vw, 36px), calc((100vw - 150px) / (var(--len, 8) * 0.6))); }
+.word-line > .word.big { font-size: min(clamp(28px, 9vw, 40px), calc((100vw - 190px) / (var(--len, 8) * 0.6))); }
+@media (min-width: 560px) { .word-line > .word { font-size: min(36px, calc(400px / (var(--len, 8) * 0.6))); } .word-line > .word.big { font-size: min(40px, calc(380px / (var(--len, 8) * 0.6))); } }
+.pill.missed { background: color-mix(in srgb, var(--loss) 14%, transparent); color: var(--loss); font-weight: 700; }
