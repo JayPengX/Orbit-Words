@@ -298,3 +298,13 @@ test('the model fits the person: better recall than FSRS expects, longer gaps', 
   assert.equal(fuzz(2, 'adapt', 7), 2);
   assert.ok(retrievability(10, 10) > 0.89);
 });
+
+test("a word's sound mixes with the phone's music and is never its Now Playing", async () => {
+  const { readFileSync } = await import('node:fs');
+  const src = readFileSync(new URL('../public/audio.js', import.meta.url), 'utf8');
+  // Web Audio in the ambient session, never an <audio> element (which took
+  // the phone's audio over and showed on the Dynamic Island).
+  assert.match(src, /navigator\.audioSession\.type = 'ambient'/);
+  assert.doesNotMatch(src, /new Audio\(/);
+  assert.match(src, /createBufferSource\(\)/);
+});
