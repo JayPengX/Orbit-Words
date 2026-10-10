@@ -613,11 +613,41 @@ export const clozeText = (word, gaps) => [...word].map((ch, i) => (gaps.includes
 export const sameWord = (typed, word) => keyOf(typed).replace(/\s+/g, ' ') === keyOf(word).replace(/\s+/g, ' ');
 
 // Where a typed answer goes wrong, letter by letter, for the feedback:
-// [{ ch, ok }] over the right spelling.
+// [{ ch, ok }] over the right spelling. The same length: letter against
+// letter (a swap, "studnet", marks both). Letters left out or put in
+// ("distin", "extracricular"): lined up by their longest common run, so
+// only the letters missed are marked (letter by letter marked everything
+// after the first one missed).
 export function spellDiff(typed, word) {
-  const a = keyOf(typed);
-  const b = String(word);
-  return [...b].map((ch, i) => ({ ch, ok: a[i] === ch.toLowerCase() }));
+  const b = [...String(word)];
+  if ([...keyOf(typed)].length === b.length) return b.map((ch, i) => ({ ch, ok: [...keyOf(typed)][i] === ch.toLowerCase() }));
+  // (Lined up from the end: a run missed sits where it was left out, extrac[ur]ricular, not extrac[u]r[r]icular.)
+  const a = [...keyOf(typed)].reverse();
+  const low = b.map(ch => ch.toLowerCase()).reverse();
+  const n = a.length;
+  const m = b.length;
+  const L = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
+  for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) L[i][j] = a[i] === low[j] ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
+  // (Ties go to a letter missed, so a gap reads as one run. A letter put in
+  // that isn't there marks the letter beside it: defensi[b]le.)
+  const ok = new Array(m).fill(false);
+  const extra = new Array(m).fill(false);
+  let i = 0;
+  let j = 0;
+  while (i < n && j < m) {
+    if (a[i] === low[j]) {
+      ok[j] = true;
+      i++;
+      j++;
+    } else if (L[i + 1][j] > L[i][j + 1]) {
+      extra[Math.max(0, j - 1)] = true;
+      i++;
+    }
+    else j++;
+  }
+  if (i < n) extra[m - 1] = true;
+  const good = ok.map((x, k) => x && !extra[k]).reverse();
+  return b.map((ch, k) => ({ ch, ok: good[k] }));
 }
 
 // Counts per level: { 1: { total, seen, learning, mastered, due }, …, all: {…} }.

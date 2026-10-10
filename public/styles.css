@@ -355,7 +355,8 @@ button.result-row:first-child { border-top: 0; }
 .miss-tag { font-size: 0.7rem; font-weight: 750; padding: 0 6px; border-radius: 999px; line-height: 1.6; color: var(--q-bad, #d70015); background: color-mix(in srgb, var(--q-bad, #d70015) 13%, transparent); }
 .miss-count { margin-left: auto; font-size: 0.7rem; font-weight: 700; color: var(--q-muted); }
 .flash-why { display: grid; justify-items: center; gap: 6px; margin-top: 14px; }
-.flash-why .miss-note { justify-content: center; font-size: 0.95rem; max-width: 100%; }
+.flash-why .miss-note { flex-direction: column; align-items: center; gap: 3px; font-size: 0.95rem; max-width: 100%; white-space: normal; }
+.flash-why .miss-note > * { max-width: 100%; overflow-wrap: anywhere; }
 .flash-mixed { display: grid; gap: 6px; margin-top: 10px; }
 .flash-mixed > small { text-align: center; }
 .mixed-row { display: flex; justify-content: center; align-items: baseline; gap: 8px; padding: 8px 12px; border: 1px solid transparent; border-radius: 12px; background: var(--q-fill, rgba(120, 120, 128, 0.12)); color: inherit; font: inherit; }

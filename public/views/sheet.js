@@ -20,12 +20,17 @@ export function missNote(word, p, { small = true } = {}) {
   const other = p.c?.[0] ? state.byKey.get(p.c[0]) : null;
   const spelt = p.x?.[0];
   const how = p.h || (spelt ? 's' : other ? 'm' : '');
-  const count = misses > 1 ? el('span', { class: 'miss-count', text: t('missesN', { n: misses }) }) : null;
+  // A list's row (small): the count in the tag ("拼錯 ×2") and a misspelling as
+  // the word itself with the letters missed marked (the row's title already
+  // says the word; the typed one beside it ran out of the row). A card: the
+  // tag, the typed one struck, the word under it, each on its own line.
+  const tag = key => el('span', { class: 'miss-tag', text: `${t(key)}${small && misses > 1 ? ` ×${misses}` : ''}` });
+  const count = !small && misses > 1 ? el('span', { class: 'miss-count', text: t('missesN', { n: misses }) }) : null;
   let body;
-  if (how === 's' && spelt) body = [el('span', { class: 'miss-tag', text: t('missSpelt') }), el('s', { class: 'muted', text: spelt }), document.createTextNode(' → '), diffLine(spellDiff(spelt, word.word), small ? 'small' : '')];
-  else if ((how === 'm' || how === 'w' || how === 'e') && other) body = [el('span', { class: 'miss-tag', text: t(how === 'e' ? 'missHeard' : 'missMixed') }), el('strong', { text: other.word }), el('span', { class: 'muted miss-mean', text: ` ${shortMeaning(other.zh)}` })];
-  else if (how === 'u') body = [el('span', { class: 'miss-tag', text: t('missUnknown') }), el('span', { class: 'muted miss-mean', text: shortMeaning(word.zh) })];
-  else body = [el('span', { class: 'miss-tag', text: t(how === 'e' ? 'missEar' : 'missWrong') }), el('span', { class: 'muted miss-mean', text: shortMeaning(word.zh) })];
+  if (how === 's' && spelt) body = small ? [tag('missSpelt'), diffLine(spellDiff(spelt, word.word), 'small')] : [tag('missSpelt'), el('s', { class: 'muted', text: spelt }), el('span', { class: 'miss-to' }, [document.createTextNode('→ '), diffLine(spellDiff(spelt, word.word), 'small')])];
+  else if ((how === 'm' || how === 'w' || how === 'e') && other) body = [tag(how === 'e' ? 'missHeard' : 'missMixed'), el('strong', { text: other.word }), el('span', { class: 'muted miss-mean', text: ` ${shortMeaning(other.zh)}` })];
+  else if (how === 'u') body = [tag('missUnknown'), el('span', { class: 'muted miss-mean', text: shortMeaning(word.zh) })];
+  else body = [tag(how === 'e' ? 'missEar' : 'missWrong'), el('span', { class: 'muted miss-mean', text: shortMeaning(word.zh) })];
   return el(small ? 'small' : 'p', { class: 'miss-note' }, [...body, count]);
 }
 

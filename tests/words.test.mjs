@@ -266,6 +266,11 @@ test('questions: four distinct choices with the answer, letters to unscramble, a
   assert.ok(sameWord(' Student ', 'student'));
   assert.ok(sameWord('o’clock', "o'clock"));
   assert.deepEqual(spellDiff('studnet', 'student').map(d => d.ok), [true, true, true, true, false, false, true]);
+  // Letters left out or put in: only those marked, a run left out as one.
+  const marked = (typed, word) => spellDiff(typed, word).map(d => (d.ok ? d.ch : `[${d.ch}]`)).join('');
+  assert.equal(marked('extracricular', 'extracurricular'), 'extrac[u][r]ricular');
+  assert.equal(marked('distin', 'distinguished'), 'distin[g][u][i][s][h][e][d]');
+  assert.equal(marked('defensiable', 'defensible'), 'defensi[b]le');
 });
 
 test('progress round-trips with lapses and mix-ups and merges newest per word; the hardest words', () => {
