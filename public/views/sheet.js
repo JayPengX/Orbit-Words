@@ -10,6 +10,25 @@ import { speakButton } from '../audio.js';
 import { shortMeaning, spellDiff, markKnown, personalFactor } from '../lib/words.mjs';
 import { isMarked, toggleMark, wordInfo } from '../lib/review.mjs';
 
+// How a word went wrong the last time, in one line (複習's rows, the flash
+// cards): misspelt (crossed out, then where it differs), taken for another
+// word (選成 · that word and its meaning), not known, or missed by ear;
+// with how many misses all told. Null when it hasn't been missed.
+export function missNote(word, p, { small = true } = {}) {
+  if (!p || !((p.n || 0) > (p.r || 0))) return null;
+  const misses = (p.n || 0) - (p.r || 0);
+  const other = p.c?.[0] ? state.byKey.get(p.c[0]) : null;
+  const spelt = p.x?.[0];
+  const how = p.h || (spelt ? 's' : other ? 'm' : '');
+  const count = misses > 1 ? el('span', { class: 'miss-count', text: t('missesN', { n: misses }) }) : null;
+  let body;
+  if (how === 's' && spelt) body = [el('span', { class: 'miss-tag', text: t('missSpelt') }), el('s', { class: 'muted', text: spelt }), document.createTextNode(' → '), diffLine(spellDiff(spelt, word.word), small ? 'small' : '')];
+  else if ((how === 'm' || how === 'w' || how === 'e') && other) body = [el('span', { class: 'miss-tag', text: t(how === 'e' ? 'missHeard' : 'missMixed') }), el('strong', { text: other.word }), el('span', { class: 'muted miss-mean', text: ` ${shortMeaning(other.zh)}` })];
+  else if (how === 'u') body = [el('span', { class: 'miss-tag', text: t('missUnknown') }), el('span', { class: 'muted miss-mean', text: shortMeaning(word.zh) })];
+  else body = [el('span', { class: 'miss-tag', text: t(how === 'e' ? 'missEar' : 'missWrong') }), el('span', { class: 'muted miss-mean', text: shortMeaning(word.zh) })];
+  return el(small ? 'small' : 'p', { class: 'miss-note' }, [...body, count]);
+}
+
 let dialog = null;
 const buzz = () => globalThis.quadraHaptic?.();
 

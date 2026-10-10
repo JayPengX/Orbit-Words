@@ -7,7 +7,7 @@ import { speakButton } from '../audio.js';
 import { shortMeaning, spellDiff, stateOf } from '../lib/words.mjs';
 import { CATS, SORTS, catCounts, reviewList, flashDeck, wordInfo, isMarked } from '../lib/review.mjs';
 import { startFlash, startRound } from './session.js';
-import { openWord } from './sheet.js';
+import { openWord, missNote } from './sheet.js';
 
 const view = { cat: 'wrong', sort: 'weak', query: '', deck: 20, picked: false };
 export const DECKS = [10, 20, 50];
@@ -60,13 +60,13 @@ function list() {
 export function wordRow(w) {
   const p = state.progress[w.key];
   const info = wordInfo(p);
-  const spelt = p?.o === 2 && p.x?.[0];
   const side = info.state === 'new' ? t('state_new') : info.dueIn != null && info.dueIn <= 0 ? dueText(info.dueIn) : t(`state_${stateOf(p)}`);
   return el('button', { class: 'word-row', type: 'button', onclick: () => openWord(w) }, [
     speakButton(w),
     el('div', { class: 'word-row-main' }, [
       el('div', { class: 'word-row-top' }, [el('strong', { text: w.word }), isMarked(state.marks, w.key) ? el('span', { class: 'mini-star', text: '★' }) : null]),
-      spelt ? el('small', { class: 'row-diff' }, [el('s', { class: 'muted', text: spelt }), ' → ', diffLine(spellDiff(spelt, w.word), 'small')]) : el('small', { class: 'muted', text: shortMeaning(w.zh) })
+      // How it went wrong last time where it was missed (misspelt, taken for another word, not known); else its meaning.
+      (p?.o === 2 && missNote(w, p)) || el('small', { class: 'muted', text: shortMeaning(w.zh) })
     ]),
     el('small', { class: `pill ${info.state}${info.dueIn != null && info.dueIn <= 0 ? ' due' : ''}`, text: side })
   ]);

@@ -63,13 +63,26 @@ Hard on purpose: what takes effort to recall is what's remembered.
   then the words learners commonly confuse it with (`data/hints.json`). Two
   options are never both right (no shared meaning term) and never read the
   same.
-- **The kind of question** (`smartType`): every box allows several kinds
-  and a round takes the one it has asked least, so one round goes through
-  them all; recognising (meaning, English, by ear) leads for new words,
-  producing (unscramble, fill in the missing letters, dictation) as a word
-  is learnt; a new word is never dictated, and a word that keeps slipping
-  is asked as if it were two boxes on. A word missed in a round comes back
-  at its end to be written, not picked.
+- **The kind of question** (`smartType`, 2026-10-11): what a word is being
+  trained in, not a rotation. A new word's first question in a round is a
+  **check**: the word (and its sound) and four meanings, with 不認識 under
+  them (no guessing). At a glance (3.5 s) it's known and away for six
+  weeks, steady for three, slow back in days; missed, it's learnt. While a
+  word is learnt (boxes 0-2): knowing it both ways and by ear (meaning,
+  word, listen); held (box 2 on): dictation. Cloze and unscrambling are no
+  longer asked in smart mode (a word known well but not spelt from memory
+  failed); they stay as modes of their own. A word that keeps slipping is
+  asked as if it were two boxes on; a phrase is never dictated. A word
+  missed in a round comes back at its end the other way round (picked
+  wrong: from the other side; misspelt: dictated).
+- **Finding the words not known** (`missChance`, `toStudy`): new words the
+  person is likeliest to miss come first, by their misses at each level,
+  part of speech and length and look-alikes of their latest misses. Levels
+  start from a prior that a harder list is never easier (pooled where they
+  say otherwise: knowing level 5's words makes level 2's likelier known),
+  which a level's own answers soon outweigh. A round gives new words up to
+  60% of its places when little is due (40% with a round's worth, 20% past
+  two).
 - **The memory model** (`grade`): FSRS-5 with its published defaults. Each
   word has a stability (days until recall falls to 90%, when it's due) and
   a difficulty (1-10). The grade comes from the answer and its time (slow
@@ -79,8 +92,13 @@ Hard on purpose: what takes effort to recall is what's remembered.
   stability; 10 days and up (box 4) is mastered.
 - **A round** (`pickRound`): the words likeliest forgotten by now first,
   the words they were mixed up with, new words only while fewer than 60
-  are still being learnt (fewer the closer, and fewer when much is due),
-  and never two look-alikes side by side.
+  are still being learnt (fewer the closer, more when little is due), and
+  never two look-alikes side by side.
+- **How a word went wrong** (`grade`'s `how`): misspelt, taken for another
+  word (its meaning, or the word from its meaning), by ear, or not known,
+  kept with the word and shown in 複習's rows and on the flash cards (the
+  front says why it's in the deck; the back each misspelling, each word it
+  was taken for, a tap to it, and the line to remember it by).
 - **Studying** (`toStudy`): new words as cards (word, sound, meaning), the
   next ones in the same order a round would bring them; a batch (a round's
   size) unlocks a quiz on it, and the quiz's answers start their schedule.
@@ -94,7 +112,7 @@ Hard on purpose: what takes effort to recall is what's remembered.
 Only this app's payload on the pass (`vocab-progress-sync`): `z3:` + gzip
 base64 of `{ v: 3, w: { word: [box, due day, answers, right, last answer
 (s), mastered once, lapses, [mistaken for], stability, difficulty, last
-outcome 1 right / 2 missed, [misspellings]] }, levels, mode, days, study,
+outcome 1 right / 2 missed, [misspellings], how last missed u / m / w / e / s] }, levels, mode, days, study,
 cal, log, marks, opt }` (a row stops after the last part it has; `study`:
 the studied batch waiting for its quiz; `cal`: reviews for fitting the
 memory model; `log`: `{ day: [right, seconds] }`; `marks`: `{ word: [1 on /

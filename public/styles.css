@@ -347,3 +347,15 @@ button.result-row:first-child { border-top: 0; }
 .word-line > .word.big { font-size: min(clamp(28px, 9vw, 40px), calc((100vw - 190px) / (var(--len, 8) * 0.6))); }
 @media (min-width: 560px) { .word-line > .word { font-size: min(36px, calc(400px / (var(--len, 8) * 0.6))); } .word-line > .word.big { font-size: min(40px, calc(380px / (var(--len, 8) * 0.6))); } }
 .pill.missed { background: color-mix(in srgb, var(--loss) 14%, transparent); color: var(--loss); font-weight: 700; }
+.unknown-btn { display: block; margin: 12px auto 0; color: var(--q-muted); }
+/* How a word went wrong: a small tag, then the misspelling or the word it was taken for. */
+.miss-note { display: flex; align-items: baseline; gap: 6px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.miss-note > * { flex: none; }
+.miss-note > .miss-mean { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.miss-tag { font-size: 0.7rem; font-weight: 750; padding: 0 6px; border-radius: 999px; line-height: 1.6; color: var(--q-bad, #d70015); background: color-mix(in srgb, var(--q-bad, #d70015) 13%, transparent); }
+.miss-count { margin-left: auto; font-size: 0.7rem; font-weight: 700; color: var(--q-muted); }
+.flash-why { display: grid; justify-items: center; gap: 6px; margin-top: 14px; }
+.flash-why .miss-note { justify-content: center; font-size: 0.95rem; max-width: 100%; }
+.flash-mixed { display: grid; gap: 6px; margin-top: 10px; }
+.flash-mixed > small { text-align: center; }
+.mixed-row { display: flex; justify-content: center; align-items: baseline; gap: 8px; padding: 8px 12px; border: 1px solid transparent; border-radius: 12px; background: var(--q-fill, rgba(120, 120, 128, 0.12)); color: inherit; font: inherit; }

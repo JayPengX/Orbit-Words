@@ -109,9 +109,13 @@ export function gradeOf(correct, type, ms, word = '') {
 const RETAIN = D => (D >= 7 ? 0.9 : D >= 4 ? 0.85 : 0.8);
 export const intervalOf = (s, D = 5) => s * ((RETAIN(D) ** (1 / DECAY) - 1) / FACTOR);
 // A word answered right at its check (first sight in a round, not just
-// studied): known already. Stability by how it went: quick or steady, about
-// three weeks (mastered); slow, a few days.
-const CHECK_S = { 3: 21, 4: 30, 2: 4 };
+// studied: its meaning picked from four): known already, and how well by how
+// quickly. At a glance (CHECK_QUICK), six weeks; steady, three; slow, a few
+// days (a guess or half-known: back soon to be sure). The time a person
+// spends goes to the words they don't know.
+const CHECK_QUICK = 3_500;
+const CHECK_STEADY = 7_000;
+export const checkStability = ms => (ms > 0 && ms <= CHECK_QUICK ? 42 : !(ms > CHECK_STEADY) ? 21 : 4);
 // Stability to box: 1 (under 2 days) to 5 (a month or more); box 4 and up
 // is mastered (remembered for more than ten days).
 const BOX_FROM = [0, 2, 4, 10, 30];
@@ -134,7 +138,10 @@ export function stateOf(p) {
 // right means known.
 // Returns the word's new progress and whether this answer mastered it for
 // the first time.
-export function grade(p, correct, { now = Date.now(), chose = null, typed = '', type = 'meaning', ms = 0, word = '', check = false, factor = 1 } = {}) {
+// `how` (a miss): how it went wrong, kept to show it again in 複習: 'u' not
+// known (不認識), 'm' the wrong meaning picked, 'w' the wrong word picked
+// from its meaning, 'e' by ear, 's' misspelt.
+export function grade(p, correct, { now = Date.now(), chose = null, typed = '', type = 'meaning', ms = 0, word = '', check = false, factor = 1, how = '' } = {}) {
   const was = p || { b: 0, d: 0, n: 0, r: 0, t: 0 };
   const today = dayNum(now);
   const g = gradeOf(correct, type, ms, word);
@@ -143,9 +150,9 @@ export function grade(p, correct, { now = Date.now(), chose = null, typed = '', 
   let s;
   let D;
   if (!was.n && !was.b && check && correct) {
-    // Known already: out of the way at once, easy for this person.
-    s = CHECK_S[g];
-    D = g === 2 ? initD(3) : clampD(initD(g) - 1);
+    // Known already: out of the way at once, easy for this person (slow: a middling one).
+    s = checkStability(ms);
+    D = s < 10 ? initD(3) : clampD(initD(4) - 1);
   } else if (!was.n && !was.b) {
     // First sight: stability by the grade, and a right pick proves less.
     s = FSRS[g - 1] * (correct ? weight : 1);
@@ -176,6 +183,7 @@ export function grade(p, correct, { now = Date.now(), chose = null, typed = '', 
   // Missed: due again today; else when recall falls to its mark (RETAIN).
   next.d = correct ? today + fuzz(Math.max(1, Math.round(intervalOf(next.s * factor, next.D))), keyOf(word), today) : today;
   if (!correct) {
+    next.h = how || { meaning: 'm', word: 'w', listen: 'e' }[type] || 's';
     // Forgotten after it had been learnt: a lapse.
     if ((was.b || 0) >= 2) next.l = (was.l || 0) + 1;
     if (chose) next.c = [chose, ...(was.c || []).filter(k => k !== chose)].slice(0, CONFUSED_KEEP);
@@ -243,33 +251,42 @@ export function markKnown(p, now = Date.now()) {
 
 // ---- How a word is asked -----------------------------------------------------------
 //
-// Smart mode, per word by its box: from recognising to producing it. Every
-// box has several ways, and a round takes the one it has asked least so
-// far, so one round goes through all of them. A word that keeps slipping
-// (lapses) is asked as if it were further on: recognising it isn't the
-// problem. A new word is never dictated (it was never heard).
+// Smart mode, per word by its box: what it's being trained in, not a
+// rotation. Learning (boxes 0 to 2): knowing it when it's seen or heard, both
+// ways (its meaning from the word, the word from its meaning, by ear); held
+// (box 2 on), saying it from its sound: dictation. Cloze and unscrambling
+// aren't asked here (2026-10-11, the owner: a word known well but spelt half
+// from memory failed, "not how we memorize words"); they stay as modes of
+// their own. A word that keeps slipping is asked as if it were further on:
+// recognising it isn't the problem. A new word is never dictated (it was
+// never heard). Each box's ways in turn: the one a round has asked least.
 export const SMART_TYPES = [
-  ['meaning', 'word', 'listen', 'letters', 'cloze'],
-  ['word', 'listen', 'letters', 'cloze', 'spell', 'meaning'],
-  ['listen', 'letters', 'cloze', 'spell', 'word'],
-  ['letters', 'cloze', 'spell', 'listen'],
-  ['cloze', 'spell', 'letters'],
-  ['spell', 'cloze']
+  ['meaning', 'listen'],
+  ['word', 'listen', 'meaning'],
+  ['word', 'listen', 'spell'],
+  ['spell', 'listen', 'word'],
+  ['spell', 'word'],
+  ['spell']
 ];
 export const isLong = word => Boolean(word) && (/\s/.test(word.word) || word.word.length > 11);
 export function smartType(p, random = Math.random, word = null, used = {}) {
   const box = Math.min(5, (p?.b || 0) + Math.min(2, p?.l || 0));
   let kinds = SMART_TYPES[box];
-  // A phrase or a long word is never unscrambled (too many tiles for a phone).
-  if (isLong(word)) kinds = kinds.filter(k => k !== 'letters');
+  // A phrase is never dictated whole (a choice instead).
+  if (word && /\s/.test(word.word)) kinds = kinds.filter(k => k !== 'spell').concat(kinds.includes('spell') ? ['word'] : []);
   let best = null;
   let low = Infinity;
-  for (const k of kinds) {
+  for (const k of [...new Set(kinds)]) {
     const score = (used[k] || 0) + random() * 0.9;
     if (score < low) (low = score), (best = k);
   }
   return best;
 }
+// A word missed in a round comes back at its end the other way round:
+// picked wrong, asked from the other side (its meaning was picked: now the
+// word from its meaning; the word, or by ear: its meaning); misspelt,
+// dictated again.
+export const retryType = (type, word = null) => (type === 'meaning' ? 'word' : type === 'word' || type === 'listen' ? 'meaning' : word && /\s/.test(word.word) ? 'word' : 'spell');
 
 // ---- A round ---------------------------------------------------------------------------
 //
@@ -304,9 +321,10 @@ export function pickRound(words, progress, { levels = LEVELS, size = 10, now = D
   const learning = seen.filter(w => progress[w.key].b <= 2).length;
   // New words, a little shuffled within the next few.
   const window = toStudy(words, progress, { levels, n: 60, skip }).sort(() => random() - 0.5);
-  // New words: up to 40% of a round, less as the words being learnt pile up
-  // and when more than two rounds are due.
-  const newShare = Math.max(0, (due.length > size * 2 ? 0.2 : 0.4) * (1 - learning / HOLD));
+  // New words: where words not known are found, so up to 60% of a round
+  // when little is due, 40% with a round's worth, 20% past two rounds; less
+  // as the words being learnt pile up.
+  const newShare = Math.max(0, (due.length > size * 2 ? 0.2 : due.length >= size ? 0.4 : 0.6) * (1 - learning / HOLD));
   let dueCount = Math.min(due.length, window.length ? Math.round(size * (1 - newShare)) : size);
   const newCount = Math.min(window.length, size - dueCount, learning >= HOLD ? 0 : size);
   dueCount = Math.min(due.length, size - newCount);
@@ -355,6 +373,13 @@ export function missChance(words, progress, { alike: lookAlikes = true } = {}) {
     return all;
   };
   const byLevel = rate(w => w.level);
+  // Each level's chance of a miss: its own answers, over a prior that a
+  // harder list is never easier (the levels' rates pooled where they say
+  // otherwise), so knowing level 5's words makes level 2's, little asked
+  // yet, likelier known too; a level's own answers soon outweigh it.
+  const counts = LEVELS.map(l => byLevel.get(l) || { n: 0, m: 0 });
+  const shaped = monotone(LEVELS.map((l, i) => [(counts[i].m + LEVEL_PRIOR(l) * PRIOR_WEIGHT) / (counts[i].n + PRIOR_WEIGHT), counts[i].n + PRIOR_WEIGHT]));
+  const levelRate = counts.map((c, i) => (c.m + shaped[i] * PRIOR_WEIGHT * 2) / (c.n + PRIOR_WEIGHT * 2));
   const byPos = rate(posOf);
   const byLen = rate(lenOf);
   // A group's own rate against the usual, pulled to 1 while it's seen little.
@@ -366,8 +391,7 @@ export function missChance(words, progress, { alike: lookAlikes = true } = {}) {
   // The latest misses (the look-alikes of these are the likeliest next).
   const recent = missed.sort((a, b) => (progress[b.key].t || 0) - (progress[a.key].t || 0)).slice(0, 40).map(w => w.key);
   return w => {
-    const c = byLevel.get(w.level) || { n: 0, m: 0 };
-    const level = (c.m + LEVEL_PRIOR(w.level) * PRIOR_WEIGHT) / (c.n + PRIOR_WEIGHT);
+    const level = levelRate[LEVELS.indexOf(w.level)] ?? LEVEL_PRIOR(w.level);
     let odds = (level / (1 - level)) * ratio(byPos, posOf(w)) * ratio(byLen, lenOf(w));
     if (lookAlikes && recent.length) {
       let alike = 0;
@@ -378,6 +402,19 @@ export function missChance(words, progress, { alike: lookAlikes = true } = {}) {
   };
 }
 
+// [[rate, weight]] made non-decreasing (pool adjacent violators): the rates.
+export function monotone(pairs) {
+  const blocks = [];
+  for (const [r, w] of pairs) {
+    blocks.push({ r, w, n: 1 });
+    while (blocks.length > 1 && blocks.at(-2).r > blocks.at(-1).r) {
+      const b = blocks.pop();
+      const a = blocks.pop();
+      blocks.push({ r: (a.r * a.w + b.r * b.w) / (a.w + b.w), w: a.w + b.w, n: a.n + b.n });
+    }
+  }
+  return blocks.flatMap(b => Array(b.n).fill(b.r));
+}
 // The next `n` new words: the ones this person is likeliest to miss first
 // (missChance), from the chosen levels; a fixed nudge per word keeps the
 // order from being one group at a time. The same words each time until
@@ -619,7 +656,7 @@ export const hardest = (words, progress, n = 5) =>
 export function packProgress({ progress, levels, mode, days = {}, study = [], cal = [], log = {}, marks = {}, opt = {} }) {
   const w = {};
   for (const [k, p] of Object.entries(progress)) {
-    const row = [p.b || 0, p.d || 0, p.n || 0, p.r || 0, Math.round((p.t || 0) / 1000), p.m ? 1 : 0, p.l || 0, p.c || [], p.s ?? null, p.D ?? null, p.o || 0, p.x || []];
+    const row = [p.b || 0, p.d || 0, p.n || 0, p.r || 0, Math.round((p.t || 0) / 1000), p.m ? 1 : 0, p.l || 0, p.c || [], p.s ?? null, p.D ?? null, p.o || 0, p.x || [], p.h || 0];
     while (row.length > 6 && (row.at(-1) === null || row.at(-1) === 0 || (Array.isArray(row.at(-1)) && !row.at(-1).length))) row.pop();
     w[k] = row;
   }
@@ -628,7 +665,7 @@ export function packProgress({ progress, levels, mode, days = {}, study = [], ca
 export function unpackProgress(obj) {
   if (obj?.v !== 3 || !obj.w) return null;
   const progress = {};
-  for (const [k, a] of Object.entries(obj.w)) progress[k] = { b: a[0], d: a[1], n: a[2], r: a[3], t: a[4] * 1000, ...(a[5] ? { m: 1 } : {}), ...(a[6] ? { l: a[6] } : {}), ...(Array.isArray(a[7]) && a[7].length ? { c: a[7] } : {}), ...(a[8] > 0 ? { s: a[8] } : {}), ...(a[9] > 0 ? { D: a[9] } : {}), ...(a[10] === 1 || a[10] === 2 ? { o: a[10] } : {}), ...(Array.isArray(a[11]) && a[11].length ? { x: a[11].filter(v => typeof v === 'string') } : {}) };
+  for (const [k, a] of Object.entries(obj.w)) progress[k] = { b: a[0], d: a[1], n: a[2], r: a[3], t: a[4] * 1000, ...(a[5] ? { m: 1 } : {}), ...(a[6] ? { l: a[6] } : {}), ...(Array.isArray(a[7]) && a[7].length ? { c: a[7] } : {}), ...(a[8] > 0 ? { s: a[8] } : {}), ...(a[9] > 0 ? { D: a[9] } : {}), ...(a[10] === 1 || a[10] === 2 ? { o: a[10] } : {}), ...(Array.isArray(a[11]) && a[11].length ? { x: a[11].filter(v => typeof v === 'string') } : {}), ...(typeof a[12] === 'string' && /^[umwes]$/.test(a[12]) ? { h: a[12] } : {}) };
   const obj2 = v => (v && typeof v === 'object' && !Array.isArray(v) ? v : {});
   return {
     progress,

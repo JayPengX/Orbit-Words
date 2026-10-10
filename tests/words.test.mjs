@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { loadWords, toStudy, grade, gradeOf, retrievability, boxOf, pickRound, makeQuestion, distractors, lookAlike, meaningAlike, sameMeaning, editDistance, clozeGaps, clozeText, sameWord, spellDiff, stats, hardest, packProgress, unpackProgress, mergeProgress, dayNum, smartType, shortMeaning, wordOfDay, MASTERED, intervalOf, missChance } from '../public/lib/words.mjs';
+import { loadWords, toStudy, grade, gradeOf, retrievability, boxOf, pickRound, makeQuestion, distractors, lookAlike, meaningAlike, sameMeaning, editDistance, clozeGaps, clozeText, sameWord, spellDiff, stats, hardest, packProgress, unpackProgress, mergeProgress, dayNum, smartType, shortMeaning, wordOfDay, MASTERED, intervalOf, missChance, retryType, monotone } from '../public/lib/words.mjs';
 
 const read = f => JSON.parse(readFileSync(new URL(`../public/data/${f}`, import.meta.url)));
 const words = loadWords(read('words.json'));
@@ -134,24 +134,42 @@ test('new words this person is likely to miss come first: by level, part of spee
 });
 const posOf = w => String(w.pos || '').split('/')[0];
 
-test('smart mode mixes every kind in a round, producing more the better a word is known, never unscrambling a long word', () => {
+test('smart mode asks what a word is being trained in: knowing it both ways and by ear while it is learnt, dictation once held; no cloze or unscrambling', () => {
   const kinds = p => {
     const seen = new Set();
     for (let i = 0; i < 60; i++) seen.add(smartType(p, random, { word: 'apple' }, {}));
     return [...seen].sort();
   };
-  assert.deepEqual(kinds({ b: 0 }), ['cloze', 'letters', 'listen', 'meaning', 'word']);
-  assert.deepEqual(kinds({ b: 5 }), ['cloze', 'spell']);
+  assert.deepEqual(kinds({ b: 0 }), ['listen', 'meaning']);
+  assert.deepEqual(kinds({ b: 1 }), ['listen', 'meaning', 'word']);
+  assert.deepEqual(kinds({ b: 5 }), ['spell']);
   // A word that keeps slipping is asked as if it were two boxes on.
-  assert.deepEqual(kinds({ b: 3, l: 2 }), ['cloze', 'spell']);
-  for (let i = 0; i < 30; i++) assert.notEqual(smartType({ b: 2 }, random, { word: 'responsibility' }, {}), 'letters');
-  // A round of new and learning words goes through all six kinds.
-  const used = {};
-  for (let i = 0; i < 12; i++) {
-    const k = smartType({ b: i % 2 }, random, { word: 'apple' }, used);
-    used[k] = (used[k] || 0) + 1;
-  }
-  assert.deepEqual(Object.keys(used).sort(), ['cloze', 'letters', 'listen', 'meaning', 'spell', 'word']);
+  assert.deepEqual(kinds({ b: 3, l: 2 }), ['spell']);
+  // A phrase is never dictated whole.
+  for (let i = 0; i < 30; i++) assert.notEqual(smartType({ b: 4 }, random, { word: 'take part in' }, {}), 'spell');
+  for (const b of [0, 1, 2, 3, 4, 5]) for (const k of kinds({ b })) assert.ok(!['cloze', 'letters'].includes(k));
+  // Missed: back the other way round, or dictated when misspelt.
+  assert.equal(retryType('meaning'), 'word');
+  assert.equal(retryType('listen'), 'meaning');
+  assert.equal(retryType('spell', { word: 'apple' }), 'spell');
+});
+
+test("a new word's check is its meaning picked: at a glance it's known for six weeks, slow it's back in days, missed it's learnt", () => {
+  assert.equal(grade(null, true, { now, type: 'meaning', ms: 2_000, word: 'apple', check: true }).p.s, 42);
+  assert.equal(grade(null, true, { now, type: 'meaning', ms: 5_000, word: 'apple', check: true }).p.s, 21);
+  assert.equal(grade(null, true, { now, type: 'meaning', ms: 9_000, word: 'apple', check: true }).p.s, 4);
+  assert.ok(grade(null, false, { now, type: 'meaning', ms: 2_000, word: 'apple', check: true }).p.s < 1);
+});
+
+test('levels: a harder list is taken to be no easier until answers say so', () => {
+  assert.deepEqual(monotone([[0.1, 1], [0.3, 1], [0.2, 1]]).map(x => Math.round(x * 100)), [10, 25, 25]);
+  // Level 5 known throughout: level 2's words, unasked, rank as likelier known than before.
+  const progress = {};
+  const right = { b: 4, s: 20, D: 3, d: dayNum(now) + 20, n: 2, r: 2, t: now - 5 * DAY };
+  words.filter(w => w.level === 5).slice(0, 40).forEach(w => (progress[w.key] = right));
+  const before = missChance(words, {})(words.find(w => w.level === 2));
+  const after = missChance(words, progress)(words.find(w => w.level === 2));
+  assert.ok(after < before, `${after} ${before}`);
 });
 
 test('a round leads with the likeliest forgotten, brings their mix-ups, holds new words back while many are being learnt, and keeps look-alikes apart', () => {

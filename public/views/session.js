@@ -11,9 +11,9 @@
 import { el, put, toast, diffLine } from '../ui.js';
 import { state, t, hooks, hintOf, metaLine, levelName, wordEl } from '../shell.js';
 import { speak, speakButton, prefetch } from '../audio.js';
-import { LEVELS, pickRound, spread, toStudy, smartType, markKnown, makeQuestion, grade, sameWord, spellDiff, stateOf, shortMeaning, clozeText, keyOf, personalFactor, recordReview } from '../lib/words.mjs';
+import { LEVELS, pickRound, spread, toStudy, smartType, retryType, markKnown, makeQuestion, grade, sameWord, spellDiff, stateOf, shortMeaning, clozeText, keyOf, personalFactor, recordReview } from '../lib/words.mjs';
 import { answerXp, xpText, logAnswer, logResult } from '../lib/practice.mjs';
-import { openWord, starButton } from './sheet.js';
+import { openWord, starButton, missNote } from './sheet.js';
 
 const buzz = () => globalThis.quadraHaptic?.();
 export const busy = () => Boolean(state.session && !(state.session.kind === 'round' && state.session.done));
@@ -58,12 +58,14 @@ function nextQuestion() {
   for (const x of r.results) used[x.type] = (used[x.type] || 0) + 1;
   const p = state.progress[word.key];
   // A new word in a round (not a batch just studied or a deck) is checked
-  // first: a cloze with half its letters gone. Right without hesitating,
-  // it's known and out of the way for weeks; only what's missed is learnt.
+  // first: its meaning picked from four, 不認識 beside them (no guessing).
+  // At a glance it's known and out of the way for weeks; only what's missed
+  // or slow is learnt. (It was a cloze with half its letters gone: a word
+  // known well but not spelt from memory failed, and took the longest.)
   r.check = !r.from && !p?.b && !r.retry?.has(word.key) && ['smart', 'cloze', 'spell'].includes(state.mode);
-  // A word missed this round comes back the hard way: written, not picked.
-  const type = r.retry?.has(word.key) ? (/\s/.test(word.word) ? 'cloze' : 'spell') : r.check && state.mode === 'smart' ? 'cloze' : state.mode === 'smart' ? smartType(p, Math.random, word, used) : state.mode;
-  r.q = makeQuestion(word, type, state.words, { p: r.check ? { b: 3 } : p, common: hintOf(word.key)?.common || [] });
+  // A word missed this round comes back the other way round (retryType): picked wrong, from the other side; misspelt, dictated.
+  const type = r.retry?.has(word.key) ? retryType(r.retry.get(word.key), word) : r.check && state.mode === 'smart' ? 'meaning' : state.mode === 'smart' ? smartType(p, Math.random, word, used) : state.mode;
+  r.q = makeQuestion(word, type, state.words, { p, common: hintOf(word.key)?.common || [] });
   r.answered = false;
   r.typed = '';
   r.built = [];
@@ -78,6 +80,7 @@ function nextQuestion() {
 // One answer: graded, logged for the day, and a mix-up remembered both ways
 // (a wrong choice, or a typed word that's another word on the list); a
 // wrong spelling that's no word is kept to show where it goes wrong.
+const UNKNOWN = '\u0000unknown';
 function answer(correct, typed = '') {
   const r = state.session;
   if (!r || r.kind !== 'round' || r.answered) return;
@@ -85,10 +88,11 @@ function answer(correct, typed = '') {
   buzz();
   const word = r.q.word;
   const ms = Date.now() - r.shownAt;
-  const other = !correct && typed && keyOf(typed) !== word.key ? state.byKey.get(keyOf(typed)) || null : null;
-  const spelt = !correct && !other && !r.q.choices ? typed : '';
+  const other = !correct && typed && typed !== UNKNOWN && keyOf(typed) !== word.key ? state.byKey.get(keyOf(typed)) || null : null;
+  const spelt = !correct && !other && !r.q.choices && typed !== UNKNOWN ? typed : '';
   // How long it took counts: a quick right answer is known better than a slow one.
-  const res = grade(state.progress[word.key], correct, { chose: other?.key, typed: spelt, type: r.q.type, ms, word: word.word, check: r.check, factor: personalFactor(state.cal) });
+  const how = typed === UNKNOWN ? 'u' : '';
+  const res = grade(state.progress[word.key], correct, { chose: other?.key, typed: spelt, type: r.q.type, ms, word: word.word, check: r.check, factor: personalFactor(state.cal), how });
   state.cal = recordReview(state.cal, state.progress[word.key], correct);
   state.progress = { ...state.progress, [word.key]: res.p };
   if (other) {
@@ -99,11 +103,11 @@ function answer(correct, typed = '') {
   state.log = logResult(state.log, correct, ms);
   const pay = answerXp({ correct, firstMastery: res.firstMastery });
   r.earned += pay;
-  r.results.push({ word, correct, type: r.q.type, after: stateOf(res.p), pay, typed, mixed: other, mastered: res.firstMastery });
+  r.results.push({ word, correct, type: r.q.type, after: stateOf(res.p), pay, typed, mixed: other, mastered: res.firstMastery, check: r.check, unknown: typed === UNKNOWN, ms });
   // A missed word comes back once at the end of the round, to fix it while it's fresh.
   if (!correct && !r.retry?.has(word.key)) {
-    r.retry ||= new Set();
-    r.retry.add(word.key);
+    r.retry ||= new Map();
+    r.retry.set(word.key, r.q.type);
     r.list = [...r.list, word];
   }
   hooks.changed();
@@ -166,7 +170,9 @@ function questionView(r) {
         return el('button', { class: `choice${cls}`, type: 'button', disabled: done, onclick: () => answer(c.key === question.answer, c.key) }, [el('small', { class: 'choice-n', text: String(i + 1) }), el('span', { text: c.text })]);
       })
     );
-    put(card, prompt, top, choices);
+    // A new word's check: 不認識 rather than a guess (a lucky pick put an unknown word away for weeks).
+    const unknown = r.check && !done ? el('button', { class: 'q-btn small ghost unknown-btn', type: 'button', text: t('dontKnow'), onclick: () => answer(false, UNKNOWN) }) : null;
+    put(card, prompt, top, choices, unknown);
   } else if (question.type === 'letters') {
     const built = r.built;
     const used = new Set(built.map(b => b.i));
@@ -388,14 +394,19 @@ function swipeable(card) {
 function renderFlash(box, s) {
   const word = s.deck[s.i];
   const p = state.progress[word.key];
+  // Its back: the meaning, then everything about how it's gone wrong (each
+  // misspelling and where it differs, each word it was taken for with that
+  // word's meaning, a tap to it), and the line to remember it by. Its front:
+  // how it went wrong last time (so the card says why it's in the deck).
+  const mixed = (p?.c || []).map(k => state.byKey.get(k)).filter(Boolean);
   const back = s.flipped
     ? [
         el('p', { class: 'meaning study-meaning', text: word.zh }),
         (p?.x || []).length ? el('div', { class: 'spelt center' }, [el('small', { class: 'muted', text: t('youSpelt') }), ...p.x.slice(0, 2).map(x => el('div', { class: 'spelt-row' }, [el('s', { class: 'muted', text: x }), el('span', { class: 'muted', text: '→' }), diffLine(spellDiff(x, word.word))]))]) : null,
-        (p?.c || []).length ? el('small', { class: 'muted', text: t('mixedWith', { words: p.c.map(k => state.byKey.get(k)?.word).filter(Boolean).join(', ') }) }) : null,
+        mixed.length ? el('div', { class: 'flash-mixed' }, [el('small', { class: 'muted', text: t('mixedYours') }), ...mixed.slice(0, 3).map(o => el('button', { class: 'mixed-row', type: 'button', onclick: e => (e.stopPropagation(), openWord(o)) }, [el('strong', { text: o.word }), el('span', { class: 'muted', text: shortMeaning(o.zh) })]))]) : null,
         tipBox(word)
       ]
-    : [el('small', { class: 'flip-hint muted', text: t('tapToFlip') })];
+    : [missNote(word, p, { small: false }) ? el('div', { class: 'flash-why' }, [el('small', { class: 'muted', text: t('lastMiss') }), missNote(word, p, { small: false })]) : null, el('small', { class: 'flip-hint muted', text: t('tapToFlip') })];
   const card = el('div', { class: `q-card pad study-word flash-card${s.flipped ? ' flipped' : ''}`, role: 'button', tabindex: '0', 'aria-label': t('tapToFlip') }, [
     el('div', { class: 'card-corner' }, [el('small', { class: 'pill', text: levelName(word.level) }), starButton(word, hooks.render)]),
     el('div', { class: 'word-line' }, [wordEl(word, true), speakButton(word, true)]),
