@@ -151,12 +151,50 @@ Levels 4–6 meanings come from Quadra Words' list; levels 1–3 from ECDICT
 (MIT), converted to Traditional Chinese with OpenCC; the word list and
 levels are the 108-curriculum reference list.
 
-## Develop
+## Notices
 
-```
+One kind, the kit's `vocab:streak` (its switch follows the pass): at
+20:00 Taiwan time, when today has no practice yet and the streak would end
+tonight. It is scheduled with the Worker (`schedulePush`), so it arrives
+with the app closed.
+
+## Where it sits in the family
+
+- **Data.** It reads nothing through the data proxy: the words, hints and
+  recordings are this site's own files, kept offline by `sw.js`. It is the
+  one Orbit app with no live data.
+- **The Pass.** The sign-in, the one-app-at-a-time session, the account
+  button and the Quadra Pass sheet are the kit's (`#kit/quadra.mjs`,
+  `pass.mjs`). Its guide is `help.mjs`'s `vocab` entry.
+- **Money.** None. It writes no wallet entries (the Worker's `ENTRY_APPS`
+  excludes `vocab`) and is outside the pool.
+- **Storage.** Only its payload on the pass (above) and the kit's own
+  device copies.
+
+## Develop, test, deploy
+
+```bash
 npm test
-python3 -m http.server -d public
 ```
 
-Pushing to `main` runs the tests, stamps a cache-busting version on every
-file and deploys `public/` to Pages.
+```bash
+node ../Shared-Proxy/tools/preview.mjs words --webkit
+```
+
+- **Tests**: the memory model and rounds (`words.test.mjs`), review
+  categories and numbers (`review.test.mjs`), the app shell
+  (`hub.test.mjs`), version stamping (`stamp.test.mjs`).
+- **Recordings**: `python3 ../Shared-Proxy/tools/word-audio.py` makes any
+  missing ones.
+- **Deploy**: a push to `main` runs the tests, stamps a cache-busting
+  version on every file and deploys `public/` to Pages; the kit puts a new
+  deploy in place at once.
+
+## What depends on what
+
+| If you change… | Also check |
+| --- | --- |
+| The saved row's shape (`lib/words.mjs`) | Older copies must still open (each part optional, `z3:` prefix); merging across devices (the latest mark wins) |
+| `data/words.json` | `data/audio/` (a recording per word), `data/hints.json` keys, tests |
+| The grade or FSRS weights | 進度's numbers (`review.mjs`), the fitted factor, rounds (`pickRound`) |
+| The streak's rules (`practice.mjs`) | The 20:00 notice's schedule |
