@@ -178,6 +178,19 @@ async function boot() {
   if (first?.payload && !theirs) state.unreadable = true;
   absorb(theirs);
   for (const item of first?.inbox || []) absorb(await decodePayload(item.payload));
+  // One time: the old Orbit Vocab's progress merged in (per word the newest,
+  // as another device's copy), its levels added. To be removed.
+  if (!state.unreadable) {
+    try {
+      const old = unpackProgress(await fetch(`./data/restore-2026-09-15.json?v=${VERSION}`).then(r => r.json()));
+      if (old) {
+        const levels = [...new Set([...(theirs?.levels || []), ...(old.levels || [])])].sort();
+        absorb({ ...old, levels: null, mode: null });
+        if (levels.length) state.levels = levels;
+        dirty = true;
+      }
+    } catch {}
+  }
   state.loaded = true;
   $('loading').hidden = true;
   openFromHash(true);
