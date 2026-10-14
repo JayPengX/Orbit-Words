@@ -54,16 +54,8 @@ img { max-width: 100%; }
 .tab-panel > .q-chips { margin-bottom: 6px; }
 .q-chips.small .q-chip { min-height: 30px; padding: 0 12px; font-size: 13px; }
 .q-chip.small { min-height: 28px; padding: 0 11px; font-size: 12.5px; }
-.q-chip.on { background: var(--accent-wash); color: var(--accent); border-color: transparent; }
 
-/* A row of choices (the round size). */
-.segmented { display: flex; gap: 2px; padding: 3px; background: var(--q-fill, var(--q-sunken)); border-radius: 999px; margin: 12px 0; }
-.segmented button { flex: 1 0 auto; border: 0; background: none; padding: 7px 14px; border-radius: 999px; font-size: 13.5px; font-weight: 650; color: var(--q-text-2); white-space: nowrap; }
-.segmented button[aria-pressed='true'] { background: var(--q-surface); color: var(--accent); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08), 0 3px 8px rgba(0, 0, 0, 0.08); }
 
-/* ---- Toasts ---- */
-.toasts { position: fixed; left: 50%; bottom: calc(20px + var(--q-nav)); transform: translateX(-50%); z-index: 100; display: grid; gap: 8px; width: min(420px, calc(100vw - 32px)); pointer-events: none; }
-.toast { background: var(--q-text); color: var(--q-page); border-radius: 12px; padding: 10px 14px; font-size: 14px; box-shadow: var(--q-shadow); }
 
 /* ---- Shared bits ---- */
 .meter { height: 8px; border-radius: 99px; background: var(--q-sunken); overflow: hidden; }
@@ -73,7 +65,6 @@ img { max-width: 100%; }
 .note { font-size: 13px; color: var(--q-muted); margin-top: 8px; }
 .note:empty { display: none; }
 .two-btn { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
-.q-btn.ghost { background: none; border-color: transparent; }
 .q-btn.primary.block, .q-btn.block { width: 100%; }
 
 /* ---- Words ---- */
@@ -167,8 +158,7 @@ img { max-width: 100%; }
 /* ---- Words: today, the round's extras ---- */
 .size-row { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; }
 .size-row > span { white-space: nowrap; }
-.size-row .segmented { margin: 0; }
-.size-row .segmented button { flex: 1 1 0; min-width: 0; padding: 7px 6px; }
+.size-row .q-seg { margin: 0; }
 .goal-card { display: grid; gap: 10px; margin-top: 6px; }
 .goal-top { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; }
 .xp-badge { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; background: color-mix(in srgb, var(--accent) 14%, var(--q-surface)); color: var(--accent); font-size: 18px; font-weight: 800; }
@@ -206,9 +196,8 @@ img { max-width: 100%; }
 
 /* ---- The rebuild: shared rows, bookmarks, hints ---- */
 .seg-count { margin-left: 5px; font-size: 11.5px; font-weight: 700; color: var(--q-muted); }
-.segmented button[aria-pressed='true'] .seg-count { color: var(--accent); }
 .cat-seg { margin: 6px 0 8px; }
-.cat-seg button { flex: 1 1 0; min-width: 0; padding: 7px 4px; }
+.cat-seg button { padding: 0 4px; }
 .cat-sub { margin: 0 2px 12px; }
 .star { flex: none; width: 36px; height: 36px; border: 0; border-radius: 50%; background: none; color: var(--q-muted); font-size: 21px; line-height: 1; }
 .star.on { color: #f59e0b; }
@@ -241,8 +230,6 @@ button.result-row:first-child { border-top: 0; }
 .paged .more[hidden] { display: none; }
 .list-tools { display: grid; gap: 8px; margin: 14px 0 10px; }
 .sticky-tools { margin-top: 6px; }
-.search { width: 100%; min-width: 0; font: 600 16px/1.2 var(--q-font); padding: 11px 14px; border-radius: 12px; border: 0; background: color-mix(in srgb, var(--q-text) 7%, transparent); color: var(--q-text); -webkit-appearance: none; appearance: none; }
-.search:focus { outline: none; box-shadow: 0 0 0 2px var(--accent); }
 .list-count { margin: 4px 2px 8px; }
 
 /* 今天: what's waiting, the missed-words nudge. */
@@ -263,8 +250,7 @@ button.result-row:first-child { border-top: 0; }
 /* 練習: the sound's speed. */
 .rate-card { display: grid; gap: 10px; }
 .rate-row { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px; }
-.rate-row .segmented { margin: 0; }
-.rate-row .segmented button { flex: 1 1 0; min-width: 0; }
+.rate-row .q-seg { margin: 0; }
 
 /* 複習: flash cards. */
 .flash-launch { display: grid; gap: 12px; }
@@ -360,3 +346,7 @@ button.result-row:first-child { border-top: 0; }
 .flash-mixed { display: grid; gap: 6px; margin-top: 10px; }
 .flash-mixed > small { text-align: center; }
 .mixed-row { display: flex; justify-content: center; align-items: baseline; gap: 8px; padding: 8px 12px; border: 1px solid transparent; border-radius: 12px; background: var(--q-fill, rgba(120, 120, 128, 0.12)); color: inherit; font: inherit; }
+
+/* The kit's segmented control, a little air around it in a tab. */
+.tab-panel .q-seg { margin: 12px 0; }
+.size-row .q-seg, .rate-row .q-seg { margin: 0; }

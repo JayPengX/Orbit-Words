@@ -1,4 +1,5 @@
-// The small pieces every tab draws with.
+// The small pieces every tab draws with (the kit's controls, kit/ui.mjs and quadra.css).
+import { toast as kitToast, settleSegs } from '#kit/ui.mjs';
 
 export function el(tag, props = {}, children = []) {
   const node = document.createElement(tag);
@@ -15,26 +16,33 @@ export function el(tag, props = {}, children = []) {
 export const put = (node, ...kids) => node.replaceChildren(...kids.filter(k => k != null && k !== false));
 export const section = (title, content, { sub = '', action = null } = {}) =>
   el('section', { class: 'q-section' }, [el('div', { class: 'q-section-head' }, [el('h2', { text: title }), action]), sub ? el('p', { class: 'section-sub', text: sub }) : null, content]);
-export function toast(text, kind = '') {
-  const box = el('div', { class: `toast ${kind}`, text });
-  document.getElementById('toasts').append(box);
-  setTimeout(() => box.remove(), 2600);
-}
+export const toast = (text, kind = '') => kitToast(text, { tone: kind === 'bad' ? 'bad' : '', ms: 2600 });
 export const bar = (value, max, cls = '') => el('div', { class: `meter ${cls}` }, [el('i', { style: `width:${Math.min(100, max ? (value / max) * 100 : 0)}%` })]);
 export const stat = (label, value) => el('div', { class: 'stat' }, [el('strong', { class: 'num', text: value }), el('small', { text: label })]);
-// A capsule of choices, one on: [{ id, label }].
-export const segmented = (options, current, onPick, cls = '') =>
-  el('div', { class: `segmented ${cls}`.trim(), role: 'group' }, options.map(o => el('button', { type: 'button', 'aria-pressed': String(o.id === current), onclick: () => o.id !== current && onPick(o.id) }, [o.label, o.count != null ? el('small', { class: 'seg-count num', text: String(o.count) }) : null])));
+// A capsule of choices, one on: [{ id, label }] (the kit's segmented
+// control; drawn again after a pick, its thumb slides from the last one).
+const lastPick = new Map();
+export function segmented(options, current, onPick, cls = '') {
+  const key = cls || options.map(o => o.id).join('|');
+  const at = id => Math.max(0, options.findIndex(o => o.id === id));
+  const from = lastPick.has(key) ? lastPick.get(key) : current;
+  lastPick.set(key, current);
+  const seg = el('div', { class: `q-seg ${cls}`.trim(), role: 'group', style: `--q-seg-n:${options.length};--q-seg-i:${at(from)}`, 'data-to': String(at(current)) }, options.map(o => el('button', { type: 'button', 'aria-pressed': String(o.id === current), onclick: () => o.id !== current && onPick(o.id) }, [o.label, o.count != null ? el('small', { class: 'seg-count num', text: String(o.count) }) : null])));
+  queueMicrotask(() => settleSegs(seg.parentNode || document));
+  return seg;
+}
 // A row of chips, one on: [{ id, label }] (the kit's q-chips; it slides sideways).
 export const chips = (options, current, onPick, cls = '') =>
   el('div', { class: `q-chips ${cls}`.trim(), role: 'group' }, options.map(o => el('button', { class: `q-chip${o.id === current ? ' on' : ''}`, type: 'button', 'aria-pressed': String(o.id === current), text: o.label, onclick: () => o.id !== current && onPick(o.id) })));
 // A search field that calls back as it's typed (not on every redraw).
+// (The kit's search capsule: a magnifier, a clear button.)
 export function searchField(value, placeholder, onInput) {
-  const input = el('input', { class: 'search', type: 'search', value, placeholder, 'aria-label': placeholder, autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false', enterkeyhint: 'search' });
+  const input = el('input', { type: 'search', value, placeholder, 'aria-label': placeholder, autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false', enterkeyhint: 'search' });
   let timer = 0;
   input.addEventListener('input', () => (clearTimeout(timer), (timer = setTimeout(() => onInput(input.value), 120))));
   input.addEventListener('keydown', e => e.key === 'Enter' && input.blur());
-  return input;
+  const clear = el('button', { class: 'q-search-clear', type: 'button', 'aria-label': '清除', text: '✕', onclick: () => ((input.value = ''), onInput(''), input.focus()) });
+  return el('label', { class: 'q-search' }, [input, clear]);
 }
 // A typed spelling against the right one: the right letters, each wrong one
 // marked (spellDiff's [{ ch, ok }]).
