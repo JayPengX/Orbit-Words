@@ -13,6 +13,49 @@ export function el(tag, props = {}, children = []) {
   for (const child of [].concat(children)) if (child != null && child !== false) node.append(child);
   return node;
 }
+// A word's meaning that doesn't fit its one line drops its last senses (、)
+// rather than ending in an ellipsis; one sense still too wide, smaller.
+export const FIT_SENSES = '.word-row-main small.muted, .miss-mean';
+export function fitSenses(nodes) {
+  for (const n of nodes) {
+    if (!n.isConnected || !n.clientWidth) continue;
+    n.dataset.full ??= n.textContent;
+    n.textContent = n.dataset.full;
+    n.style.fontSize = '';
+    const parts = n.dataset.full.split('、');
+    while (parts.length > 1 && n.scrollWidth > n.clientWidth + 0.5) {
+      parts.pop();
+      n.textContent = parts.join('、');
+    }
+    if (n.scrollWidth > n.clientWidth + 0.5) {
+      const base = parseFloat(getComputedStyle(n).fontSize);
+      n.style.fontSize = `${Math.max(base * 0.75, (base * n.clientWidth) / n.scrollWidth - 0.3)}px`;
+    }
+  }
+}
+// A category's name and count that don't fit its button (four-digit counts
+// on a narrow phone): the button's text a little smaller, never cut.
+// (Measured as the text itself: Safari's scrollWidth of a button doesn't
+// count what overflows its inner box.)
+export function fitButtons(nodes) {
+  for (const n of nodes) {
+    n.style.fontSize = '';
+    const cs = getComputedStyle(n);
+    const room = n.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    const range = document.createRange();
+    range.selectNodeContents(n);
+    const need = range.getBoundingClientRect().width;
+    if (room <= 0 || need <= room + 0.5) continue;
+    const base = parseFloat(cs.fontSize);
+    n.style.fontSize = `${Math.max(base * 0.75, Math.floor(((base * room) / need) * 10) / 10 - 0.2)}px`;
+  }
+  // One size across a control (its smallest), not one option smaller than the next.
+  for (const seg of new Set(nodes.map(n => n.parentElement))) {
+    const kids = [...seg.children];
+    const sizes = kids.map(k => k.style.fontSize).filter(Boolean);
+    if (sizes.length) kids.forEach(k => (k.style.fontSize = `${Math.min(...sizes.map(parseFloat))}px`));
+  }
+}
 export const put = (node, ...kids) => node.replaceChildren(...kids.filter(k => k != null && k !== false));
 export const section = (title, content, { sub = '', action = null } = {}) =>
   el('section', { class: 'q-section' }, [el('div', { class: 'q-section-head' }, [el('h2', { text: title }), action]), sub ? el('p', { class: 'section-sub', text: sub }) : null, content]);

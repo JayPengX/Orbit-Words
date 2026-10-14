@@ -22,7 +22,7 @@ import { renderReview } from './views/review.js';
 import { renderBrowse } from './views/browse.js';
 import { renderProgress } from './views/progress.js';
 import { openWord, closeWord } from './views/sheet.js';
-import { el, put } from './ui.js';
+import { el, put, fitSenses, fitButtons, FIT_SENSES } from './ui.js';
 
 document.documentElement.lang = locale === 'zh' ? 'zh-Hant' : 'en';
 const $ = id => document.getElementById(id);
@@ -205,3 +205,16 @@ function openFromHash(start = false) {
 window.addEventListener('hashchange', () => state.loaded && openFromHash());
 
 if ('serviceWorker' in navigator && window.isSecureContext) navigator.serviceWorker.register('./sw.js').catch(() => {});
+
+// Meanings and the categories' buttons fitted to their line after any redraw (ui.js), once a frame.
+let sensesDue = false;
+new MutationObserver(() => {
+  if (sensesDue) return;
+  sensesDue = true;
+  requestAnimationFrame(() => {
+    sensesDue = false;
+    fitSenses([...document.querySelectorAll(FIT_SENSES)].filter(n => !n.dataset.full));
+    fitButtons([...document.querySelectorAll('.cat-seg > button')]);
+  });
+}).observe(document.body, { childList: true, subtree: true });
+addEventListener('resize', () => (fitSenses([...document.querySelectorAll(FIT_SENSES)]), fitButtons([...document.querySelectorAll('.cat-seg > button')])));

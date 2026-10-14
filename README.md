@@ -25,6 +25,9 @@ words), every word recorded in Microsoft's Jenny voice. Five tabs:
   sorted weakest, recent, most missed or A–Z. Flash cards of the weakest
   (10, 20 or up to 50): flip, swipe, then a test on the deck, which is
   what updates the memory model. The tab's badge counts the missed words.
+  The categories' counts stay whole (a narrow phone's bar a little smaller,
+  one size across it); a word's meaning in a list keeps the senses that fit
+  its line, never cut with an ellipsis (`fitSenses` in `ui.js`).
 - **單字 Words**: the whole list by level and state (new, learning,
   mastered, bookmarked), searched.
 - **進度 Progress**: the four counts; accuracy (all, last 7 days), seconds
