@@ -10,7 +10,7 @@
 // on the Quadra Pass. The pass itself (Plus, looks, the truth about money,
 // every app's guide) is the kit's Quadra Pass sheet, in every app. (It was
 // Quadra Hub; its id stays `vocab`, its storage and caches `quadra-hub`.)
-import { quadraSession, tabBar, topActions, installGate, watchUpdates, schedulePush, notify } from '#kit/quadra.mjs';
+import { quadraSession, tabBar, topActions, installGate, watchUpdates, schedulePush, notify, keepOffline, storedAccount, cachedPayload } from '#kit/quadra.mjs';
 import { loadWords, loadHints, packProgress, unpackProgress, mergeProgress, mergeCal, keyOf } from './lib/words.mjs';
 import { DAILY_GOAL, mergeDays, mergeLog, todayCount, streakOf, streakAtRisk, taipeiDay } from './lib/practice.mjs';
 import { mergeMarks, catCounts } from './lib/review.mjs';
@@ -84,8 +84,41 @@ function sync({ soon = false } = {}) {
   chain = chain.then(push).catch(() => {});
   return chain;
 }
+// The progress kept on this phone too (under the account), at every change:
+// what's learned with no connection stays when the app is closed, and the app
+// opens on it at once, not after the sign-in. Merged with the pass's copy,
+// never in its place: nothing is written to the pass before the pass's own
+// copy has been read and merged in (`pulled`), so a phone that was offline
+// never writes its older progress over another device's newer.
+const LOCAL_KEY = 'orbit-words.progress.v1';
+let pulled = false;
+async function keepLocal() {
+  try {
+    localStorage.setItem(LOCAL_KEY, JSON.stringify({ account: storedAccount(), payload: await encodePayload() }));
+  } catch {}
+}
+function localCopy() {
+  try {
+    const kept = JSON.parse(localStorage.getItem(LOCAL_KEY) || 'null');
+    return kept && kept.account === storedAccount() ? kept.payload : null;
+  } catch {
+    return null;
+  }
+}
+// The pass's copy read and merged (after an opening with no connection, once it's back).
+async function pull() {
+  const res = await q.read({ data: true });
+  const theirs = await decodePayload(res?.payload);
+  if (res?.payload && !theirs) state.unreadable = true;
+  absorb(theirs);
+  pulled = true;
+  dirty = true;
+  keepLocal();
+  quietRefresh();
+}
 async function push() {
   if (!q.active || !state.loaded || !dirty || state.unreadable) return;
+  if (!pulled) return pull();
   const payload = await encodePayload();
   dirty = false;
   try {
@@ -97,7 +130,7 @@ async function push() {
 }
 document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && sync());
 
-hooks.changed = () => ((dirty = true), sync({ soon: true }));
+hooks.changed = () => ((dirty = true), keepLocal(), sync({ soon: true }));
 hooks.sync = () => sync();
 hooks.render = render;
 
@@ -171,16 +204,34 @@ async function loadHintList() {
 
 async function boot() {
   const words = loadWordList().catch(() => null);
-  const first = await q.start();
+  const starting = q.start();
+  // A phone that has studied here: its own copy up at once (no wait on the
+  // sign-in, nor on a connection at all), the pass's merged in when it comes.
+  const mine = await decodePayload(localCopy() || cachedPayload('vocab'));
+  const show = () => {
+    if (state.loaded) return render();
+    state.loaded = true;
+    $('loading').hidden = true;
+    openFromHash(true);
+  };
+  if (mine) {
+    await words;
+    absorb(mine);
+    show();
+  }
+  const first = await starting;
   await words;
   const theirs = await decodePayload(first?.payload);
   // A copy on the pass that can't be read is never saved over.
   if (first?.payload && !theirs) state.unreadable = true;
   absorb(theirs);
   for (const item of first?.inbox || []) absorb(await decodePayload(item.payload));
-  state.loaded = true;
-  $('loading').hidden = true;
-  openFromHash(true);
+  // (Opened with no connection: the pass's copy is read once it's back, before anything is written.)
+  if (!first?.offline) pulled = true;
+  // What this phone learned that the pass hasn't got yet: written up.
+  if (pulled && mine && (await encodePayload()) !== first?.payload) dirty = true;
+  keepLocal();
+  show();
   if (first?.inbox?.length) dirty = true;
   loadHintList();
   await sync();
@@ -204,7 +255,8 @@ function openFromHash(start = false) {
 }
 window.addEventListener('hashchange', () => state.loaded && openFromHash());
 
-if ('serviceWorker' in navigator && window.isSecureContext) navigator.serviceWorker.register('./sw.js').catch(() => {});
+// Opens without a connection: the kit registers the worker and has it keep every file loaded.
+keepOffline();
 
 // Meanings and the categories' buttons fitted to their line after any redraw (ui.js), once a frame.
 let sensesDue = false;

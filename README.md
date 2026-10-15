@@ -6,6 +6,8 @@ every app. It uses no money and pays none.
 
 **https://jaypengx.github.io/Orbit-Words/** (was Quadra Hub)
 
+**Without a connection**: everything works (the word list and recordings are this site's files, kept by `sw.js`). Progress is kept on the phone at every change (`orbit-words.progress.v1`) and the app opens on it at once, not after the sign-in; the pass's copy is read and merged before anything is written to it, so a phone that was offline never writes over another device's newer progress.
+
 ## What's in it
 
 The 大考中心 high-school English reference list, levels 1 to 6 (6,169
