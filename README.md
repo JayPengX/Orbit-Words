@@ -192,7 +192,7 @@ node ../Shared-Proxy/tools/preview.mjs words --webkit
 - **Recordings**: `python3 ../Shared-Proxy/tools/word-audio.py` makes any
   missing ones.
 - **Deploy**: a push to `main` runs the tests, stamps a cache-busting
-  version on every file and deploys `public/` to Pages; the kit puts a new
+  version on every file (the kit modules its first screen imports are listed as modulepreload (the kit's `preload.mjs`)) and deploys `public/` to Pages; the kit puts a new
   deploy in place at once.
 
 ## What depends on what

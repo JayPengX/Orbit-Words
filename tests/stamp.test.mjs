@@ -24,7 +24,11 @@ test('every relative module import is stamped with the version, ../ included', (
       }
     }
     assert.ok(checked > 20, String(checked));
-    assert.match(readFileSync(join(dir, 'index.html'), 'utf8'), /modulepreload" href="\.\/views\/session\.js\?v=T1"/);
+    const html = readFileSync(join(dir, 'index.html'), 'utf8');
+    assert.match(html, /modulepreload" href="\.\/views\/session\.js\?v=T1"/);
+    // The kit modules too, all asked for with the page (kit/preload.mjs): the
+    // ones imported as #kit/… always, the kit's own relative ones once the kit's version is noted.
+    assert.match(html, /<!-- \/kit:head -->\n<script>\[[^\]]*'ui\.mjs'[^\]]*\]\.concat\(QUADRA_KIT\.version\?\[[^\]]*'mirror\.mjs'/);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
