@@ -15,40 +15,75 @@ export function el(tag, props = {}, children = []) {
 }
 // A word's meaning that doesn't fit its one line drops its last senses (、)
 // rather than ending in an ellipsis; one sense still too wide, smaller.
+// In passes, so a list of 80 lays out three times, not once a row: every
+// line's whole meaning written, every width read, the senses that fit found
+// with the canvas (no layout), then those lines read once more to check.
 export const FIT_SENSES = '.word-row-main small.muted, .miss-mean';
+const SLACK = 0.5;
+let pen, penFont;
+// (Spaces as a line lays them out: runs one, none at its ends.)
+const textWidth = (text, font) => {
+  pen ??= document.createElement('canvas').getContext('2d');
+  if (penFont !== font) pen.font = penFont = font;
+  return pen.measureText(text.replace(/\s+/g, ' ').trim()).width;
+};
+const shrunk = (base, cw, sw) => `${Math.max(base * 0.75, (base * cw) / sw - 0.3)}px`;
 export function fitSenses(nodes) {
-  for (const n of nodes) {
-    if (!n.isConnected || !n.clientWidth) continue;
+  const live = nodes.filter(n => n.isConnected && n.clientWidth);
+  for (const n of live) {
     n.dataset.full ??= n.textContent;
-    n.textContent = n.dataset.full;
-    n.style.fontSize = '';
-    const parts = n.dataset.full.split('、');
-    while (parts.length > 1 && n.scrollWidth > n.clientWidth + 0.5) {
-      parts.pop();
-      n.textContent = parts.join('、');
-    }
-    if (n.scrollWidth > n.clientWidth + 0.5) {
-      const base = parseFloat(getComputedStyle(n).fontSize);
-      n.style.fontSize = `${Math.max(base * 0.75, (base * n.clientWidth) / n.scrollWidth - 0.3)}px`;
-    }
+    if (n.textContent !== n.dataset.full) n.textContent = n.dataset.full;
+    if (n.style.fontSize) n.style.fontSize = '';
+  }
+  // (Every width and style read before any line is written: a read after a
+  // write lays the page out again. A computed style is live: copied out.)
+  const over = live
+    .map(n => ({ n, cw: n.clientWidth, sw: n.scrollWidth }))
+    .filter(row => row.sw > row.cw + SLACK)
+    .map(row => {
+      const cs = getComputedStyle(row.n);
+      return Object.assign(row, {
+        base: parseFloat(cs.fontSize),
+        font: `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`,
+        room: row.cw - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight),
+        parts: row.n.dataset.full.split('、'),
+      });
+    });
+  for (const { n, font, room, parts } of over) {
+    if (parts.length < 2) continue;
+    while (parts.length > 1 && textWidth(parts.join('、'), font) > room + SLACK) parts.pop();
+    n.textContent = parts.join('、');
+  }
+  for (const row of over) if (row.n.dataset.full.includes('、')) Object.assign(row, { cw: row.n.clientWidth, sw: row.n.scrollWidth });
+  for (const { n, cw, sw, base, parts } of over) {
+    if (sw <= cw + SLACK) continue;
+    if (parts.length > 1) {
+      // (The canvas said it fit and the line says not: the old way, one sense at a time.)
+      while (parts.length > 1 && n.scrollWidth > n.clientWidth + SLACK) {
+        parts.pop();
+        n.textContent = parts.join('、');
+      }
+      if (n.scrollWidth > n.clientWidth + SLACK) n.style.fontSize = shrunk(base, n.clientWidth, n.scrollWidth);
+    } else n.style.fontSize = shrunk(base, cw, sw);
   }
 }
 // A category's name and count that don't fit its button (four-digit counts
 // on a narrow phone): the button's text a little smaller, never cut.
 // (Measured as the text itself: Safari's scrollWidth of a button doesn't
-// count what overflows its inner box.)
+// count what overflows its inner box.) All written, then all read, then sized.
 export function fitButtons(nodes) {
-  for (const n of nodes) {
-    n.style.fontSize = '';
+  for (const n of nodes) if (n.style.fontSize) n.style.fontSize = '';
+  const sizes = nodes.map(n => {
     const cs = getComputedStyle(n);
     const room = n.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
     const range = document.createRange();
     range.selectNodeContents(n);
     const need = range.getBoundingClientRect().width;
-    if (room <= 0 || need <= room + 0.5) continue;
+    if (room <= 0 || need <= room + 0.5) return 0;
     const base = parseFloat(cs.fontSize);
-    n.style.fontSize = `${Math.max(base * 0.75, Math.floor(((base * room) / need) * 10) / 10 - 0.2)}px`;
-  }
+    return Math.max(base * 0.75, Math.floor(((base * room) / need) * 10) / 10 - 0.2);
+  });
+  nodes.forEach((n, i) => sizes[i] && (n.style.fontSize = `${sizes[i]}px`));
   // One size across a control (its smallest), not one option smaller than the next.
   for (const seg of new Set(nodes.map(n => n.parentElement))) {
     const kids = [...seg.children];

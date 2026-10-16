@@ -29,7 +29,9 @@ words), every word recorded in Microsoft's Jenny voice. Five tabs:
   what updates the memory model. The tab's badge counts the missed words.
   The categories' counts stay whole (a narrow phone's bar a little smaller,
   one size across it); a word's meaning in a list keeps the senses that fit
-  its line, never cut with an ellipsis (`fitSenses` in `ui.js`).
+  its line, never cut with an ellipsis (`fitSenses` in `ui.js`: all lines
+  written, then all widths read, the senses that fit found with the canvas,
+  then checked once, so a long list lays out three times, not once a row).
 - **單字 Words**: the whole list by level and state (new, learning,
   mastered, bookmarked), searched.
 - **進度 Progress**: the four counts; accuracy (all, last 7 days), seconds
