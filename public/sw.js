@@ -4,9 +4,12 @@
 //
 // A file with a ?v= version (every deploy stamps one) is served from the
 // cache first, since that exact version never changes; the page itself from
-// the cache too, refreshed behind it (pageFirst); anything else from the
-// network first, the cache only when offline.
-// One copy per file is kept: a new version replaces the old one.
+// the cache too, refreshed behind it (pageFirst); a word's recording
+// (data/audio/, never re-recorded) from the cache first too, so a word heard
+// before plays without asking the network; anything else from the network
+// first, the cache only when offline.
+// One copy per file is kept: a new version replaces the old one. Saving a
+// copy never holds up the answer (it runs on after it, under waitUntil).
 // Pictures from other sites: the shared kit's (sw-images.js).
 importScripts('../Shared-Proxy/kit/sw-images.js');
 
@@ -27,15 +30,14 @@ self.addEventListener('activate', event => {
   );
 });
 
+const isAudio = url => url.pathname.includes('/data/audio/');
 async function keep(request, response) {
   if (!response || response.status !== 200 || response.type === 'opaque') return;
   const cache = await caches.open(CACHE);
   const url = new URL(request.url);
-  // Drop older versions of the same file.
-  for (const old of await cache.keys()) {
-    const o = new URL(old.url);
-    if (o.pathname === url.pathname && o.search !== url.search) await cache.delete(old);
-  }
+  // Drop older versions of the same file (only that file's copies are listed,
+  // not the whole cache: it holds every recording heard). A recording has none.
+  if (!isAudio(url)) for (const old of await cache.keys(url.origin + url.pathname, { ignoreSearch: true })) if (old.url !== url.href) await cache.delete(old);
   await cache.put(request, response);
 }
 
@@ -43,23 +45,25 @@ async function keep(request, response) {
 // (the network's copy still saved for next time). It had no limit: on a slow
 // connection each file the page imports waited out the network in turn.
 const PATIENCE_MS = 2500;
-async function networkFirst(request) {
+// `later` takes what may run on after the answer (saving a copy).
+async function networkFirst(request, later) {
   const kept = request.mode === 'navigate' ? null : await caches.match(request);
   if (kept) {
-    const fresh = networkFirstNow(request);
+    const fresh = networkFirstNow(request, later);
+    later(fresh);
     const late = new Promise(done => setTimeout(() => done(kept), PATIENCE_MS));
     return Promise.race([fresh.catch(() => kept), late]);
   }
-  return networkFirstNow(request);
+  return networkFirstNow(request, later);
 }
-async function networkFirstNow(request) {
+async function networkFirstNow(request, later) {
   try {
     // The page itself is checked with the server every time (a cheap 304
     // when unchanged): GitHub Pages lets browsers keep it 10 minutes, which
     // would open the last deploy's page right after a new one. By address,
     // since a navigation can't be re-sent with options.
     const response = request.mode === 'navigate' ? await fetch(request.url, { cache: 'no-cache', credentials: 'same-origin', redirect: 'manual' }) : await fetch(request);
-    await keep(request, response.clone());
+    later(keep(request, response.clone()));
     return response;
   } catch (error) {
     // Offline: this file as kept, else any version of it kept (the kit's ?v= changes with each of its deploys).
@@ -73,20 +77,20 @@ async function networkFirstNow(request) {
 // even on a poor connection), refreshed in the background for next time.
 // A newer deploy is caught by the kit's watchUpdates right after opening,
 // which reloads under a ?v= address: that one always asks the network.
-async function pageFirst(event) {
-  const kept = await caches.match(event.request, { ignoreSearch: true });
-  const fresh = networkFirst(event.request);
+async function pageFirst(request, later) {
+  const kept = await caches.match(request, { ignoreSearch: true });
+  const fresh = networkFirst(request, later);
   if (!kept) return fresh;
-  event.waitUntil(fresh.catch(() => {}));
+  later(fresh);
   return kept;
 }
 
-async function cacheFirst(request) {
+async function cacheFirst(request, later) {
   const cached = await caches.match(request);
   if (cached) return cached;
   try {
     const response = await fetch(request);
-    await keep(request, response.clone());
+    later(keep(request, response.clone()));
     return response;
   } catch (error) {
     // Offline with another version kept (the kit noted a newer one): that one, rather than no app at all.
@@ -100,8 +104,23 @@ self.addEventListener('fetch', event => {
   const request = event.request;
   const url = new URL(request.url);
   if (request.method !== 'GET' || url.origin !== self.location.origin || url.pathname.endsWith('/version.json')) return;
-  if (request.mode === 'navigate' && !url.searchParams.has('v')) return event.respondWith(pageFirst(event));
-  event.respondWith(url.searchParams.has('v') && request.mode !== 'navigate' ? cacheFirst(request) : networkFirst(request));
+  // What runs on after the answer: the event is kept alive until it's all done
+  // (a save started while another was awaited is waited for too).
+  const tail = [];
+  const later = work => tail.push(Promise.resolve(work).catch(() => {}));
+  const route = request.mode === 'navigate' ? (url.searchParams.has('v') ? networkFirst : pageFirst) : url.searchParams.has('v') || isAudio(url) ? cacheFirst : networkFirst;
+  const answer = route(request, later);
+  event.respondWith(answer);
+  event.waitUntil(
+    (async () => {
+      await answer.catch(() => {});
+      for (let done = 0; done < tail.length; ) {
+        const upTo = tail.length;
+        await Promise.all(tail.slice(done, upTo));
+        done = upTo;
+      }
+    })()
+  );
 });
 
 // The page lists the files it loaded before this worker was in charge, so

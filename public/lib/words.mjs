@@ -466,13 +466,19 @@ function hash(text) {
 //
 // How alike two spellings are, 0 to 1: the edit distance against the
 // longer one, more for a shared start and end and the same length.
+// (Two rows reused across calls: a question compares a word with every other.)
+let rowA = new Uint16Array(64);
+let rowB = new Uint16Array(64);
 export function editDistance(a, b) {
   if (a === b) return 0;
-  let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
+  if (b.length >= rowA.length) (rowA = new Uint16Array(b.length * 2)), (rowB = new Uint16Array(b.length * 2));
+  let prev = rowA;
+  let row = rowB;
+  for (let j = 0; j <= b.length; j++) prev[j] = j;
   for (let i = 1; i <= a.length; i++) {
-    const row = [i];
+    row[0] = i;
     for (let j = 1; j <= b.length; j++) row[j] = Math.min(prev[j] + 1, row[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
-    prev = row;
+    [prev, row] = [row, prev];
   }
   return prev[b.length];
 }
@@ -516,13 +522,21 @@ export function meaningAlike(a, b) {
   for (const c of x) if (y.has(c)) both++;
   return both / Math.min(x.size, y.size, 4);
 }
-const posSet = pos => new Set(String(pos || '').split('/').map(p => p.replace(/\.$/, '').trim()).filter(Boolean));
-const samePos = (a, b) => {
-  const x = posSet(a);
-  const y = posSet(b);
-  if (!x.size || !y.size) return 0;
-  if ([...x][0] === [...y][0]) return 1;
-  return [...x].some(p => y.has(p)) ? 0.5 : 0;
+// A word's parts of speech (n./v. → n, v), found once per word.
+const shapeOf = new WeakMap();
+function posSet(word) {
+  let hit = shapeOf.get(word);
+  if (!hit) {
+    const list = [...new Set(String(word.pos || '').split('/').map(p => p.replace(/\.$/, '').trim()).filter(Boolean))];
+    shapeOf.set(word, (hit = { set: new Set(list), first: list[0], phrase: /\s/.test(word.word) }));
+  }
+  return hit;
+}
+const samePos = (x, y) => {
+  if (!x.set.size || !y.set.size) return 0;
+  if (x.first === y.first) return 1;
+  for (const p of x.set) if (y.set.has(p)) return 0.5;
+  return 0;
 };
 // How each kind of question weighs the ways to be confused: by meaning
 // when the options are meanings, by spelling when they're spellings, by
@@ -542,17 +556,26 @@ export function distractors(word, words, n = 3, { type = 'meaning', confused = [
   const phrase = /\s/.test(word.word);
   const mistaken = new Map(common.map(k => [k, 1.2]));
   confused.forEach((k, i) => mistaken.set(k, 3 - i * 0.5));
-  const scored = [];
+  const me = posSet(word);
+  // The best TOP kept as they come (sorted, ties in the list's order), not
+  // every word sorted: the options are found among the first few.
+  const top = [];
+  let floor = -Infinity;
   for (const c of words) {
-    if (c.key === word.key || !c.zh || /\s/.test(c.word) !== phrase || sameMeaning(c.zh, word.zh)) continue;
+    const it = posSet(c);
+    if (c.key === word.key || !c.zh || it.phrase !== phrase || sameMeaning(c.zh, word.zh)) continue;
     const look = lookAlike(c.key, word.key);
     const mean = meaningAlike(c.zh, word.zh);
-    const s = w.look * look + w.mean * mean + w.pos * samePos(c.pos, word.pos) + 0.2 * (c.level === word.level) + (mistaken.get(c.key) || 0) + random() * 0.15;
-    scored.push([s, c]);
+    const s = w.look * look + w.mean * mean + w.pos * samePos(it, me) + 0.2 * (c.level === word.level) + (mistaken.get(c.key) || 0) + random() * 0.15;
+    if (top.length === TOP && s <= floor) continue;
+    let i = top.length;
+    while (i > 0 && top[i - 1][0] < s) i--;
+    top.splice(i, 0, [s, c]);
+    if (top.length > TOP) top.pop();
+    floor = top[top.length - 1][0];
   }
-  scored.sort((a, b) => b[0] - a[0]);
   const out = [];
-  for (const [, c] of scored) {
+  for (const [, c] of top) {
     if (out.length >= n) break;
     const shown = type === 'meaning' ? shortMeaning(c.zh) : c.key;
     if (out.some(o => (type === 'meaning' ? shortMeaning(o.zh) === shown || sameMeaning(o.zh, c.zh) : o.key === shown))) continue;
@@ -560,6 +583,7 @@ export function distractors(word, words, n = 3, { type = 'meaning', confused = [
   }
   return out;
 }
+const TOP = 48;
 
 // The first meaning line, short (for choices).
 export function shortMeaning(zh) {
