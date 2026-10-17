@@ -351,3 +351,24 @@ button.result-row:first-child { border-top: 0; }
 /* The kit's segmented control, a little air around it in a tab. */
 .tab-panel .q-seg { margin: 12px 0; }
 .size-row .q-seg, .rate-row .q-seg { margin: 0; }
+
+/* ---- An answer, once (session.js .just: the drawing right after it) ----
+   The right choice springs, a wrong one shakes, the spelling's slots with
+   them; the verdict rises in under the card and its XP pops. */
+.choice { transition: transform var(--q-dur-snappy, 0.35s) var(--q-spring-snappy, ease), border-color 0.2s, background-color 0.2s, opacity 0.2s; }
+.choice:active:not(:disabled) { transform: scale(0.97); }
+.just .choice.right, .just .slot.right { animation: w-right var(--q-dur-bouncy, 0.55s) var(--q-spring-bouncy, ease); }
+.just .choice.wrong, .just .slots .slot.wrong { animation: w-shake 0.42s ease; }
+/* (The card fades; what's in it rises. A transform on the card itself would
+   carry its pinned 下一題 bar with it for the moment.) */
+.answered.just > .feedback { animation: w-fade 0.25s ease both; }
+.answered.just > .feedback > :not(.next-bar) { animation: w-rise var(--q-dur-smooth, 0.45s) var(--q-spring-smooth, ease) both; }
+.answered.just .fb-pay { display: inline-block; animation: w-right var(--q-dur-bouncy, 0.55s) var(--q-spring-bouncy, ease) 0.15s both; }
+@keyframes w-right { 35% { transform: scale(1.05); } }
+@keyframes w-shake { 15% { transform: translateX(-6px); } 35% { transform: translateX(5px); } 55% { transform: translateX(-3px); } 75% { transform: translateX(2px); } }
+@keyframes w-rise { from { opacity: 0; transform: translateY(14px); } }
+@keyframes w-fade { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .choice { transition: none; }
+  .just .choice.right, .just .slot.right, .just .choice.wrong, .just .slots .slot.wrong, .answered.just > .feedback, .answered.just > .feedback > *, .answered.just .fb-pay { animation: none; }
+}

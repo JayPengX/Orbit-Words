@@ -85,6 +85,8 @@ function answer(correct, typed = '') {
   const r = state.session;
   if (!r || r.kind !== 'round' || r.answered) return;
   r.answered = true;
+  // (Its answer moves once, on the drawing right after: a star tapped later redraws it still.)
+  r.justAnswered = true;
   buzz();
   const word = r.q.word;
   const ms = Date.now() - r.shownAt;
@@ -158,7 +160,9 @@ function questionView(r) {
   const word = question.word;
   const done = r.answered;
   const last = done ? r.results.at(-1) : null;
-  const card = el('div', { class: `q-card pad question type-${question.type}` });
+  const just = done && r.justAnswered;
+  r.justAnswered = false;
+  const card = el('div', { class: `q-card pad question type-${question.type}${just ? ' just' : ''}` });
   const prompt = el('p', { class: 'q-prompt', text: t(`ask_${question.type}`) });
   if (question.choices) {
     const top = question.type === 'meaning' ? wordHead(word) : question.type === 'word' ? meaningHead(word) : el('div', { class: 'word-head center' }, [speakButton(word, true), el('small', { class: 'muted', text: t('tapToHear') })]);
@@ -211,7 +215,7 @@ function questionView(r) {
     put(card, prompt, top, form, done && !last.correct ? el('p', { class: 'diff-wrap' }, [diffLine(spellDiff(last.typed, word.word))]) : null);
   }
   if (!done) return el('div', {}, [card, el('button', { class: 'q-btn small ghost too-easy', type: 'button', text: t('tooEasy'), onclick: tooEasy })]);
-  return el('div', { class: 'answered' }, [card, feedback(last)]);
+  return el('div', { class: `answered${just ? ' just' : ''}` }, [card, feedback(last)]);
 }
 
 function feedback(res) {
