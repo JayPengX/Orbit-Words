@@ -100,7 +100,7 @@ function draw(word) {
         el('div', {}, [el('strong', { class: 'num', text: percent(info.recall) }), el('small', { text: t('stRecall') })]),
         el('div', {}, [el('strong', { class: 'num', text: info.stability ? t('daysShort', { n: info.stability >= 10 ? Math.round(info.stability) : Math.round(info.stability * 10) / 10 }) : '—' }), el('small', { text: t('stStability') })])
       ])
-    : el('p', { class: 'muted small', text: t('neverAsked') });
+    : el('p', { class: 'muted small sheet-never', text: t('neverAsked') });
   const known =
     info.state !== 'mastered'
       ? el('button', {

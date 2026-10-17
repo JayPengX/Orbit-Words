@@ -283,6 +283,8 @@ button.result-row:first-child { border-top: 0; }
 .link-chip { display: grid; max-width: 100%; padding: 7px 12px; border: 0; border-radius: 12px; background: var(--q-surface); text-align: left; }
 .link-chip small { color: var(--q-muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sheet-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; padding: 12px; border-radius: 14px; background: var(--q-surface); text-align: center; }
+/* Not asked yet: under its heading, at the heading's inset (it sat 16px left of it). */
+.sheet-never { margin: 0 16px; }
 .sheet-stats > div { display: grid; }
 .sheet-stats strong { font-size: 18px; font-weight: 800; white-space: nowrap; }
 .sheet-stats small { font-size: 11.5px; color: var(--q-muted); white-space: nowrap; }
