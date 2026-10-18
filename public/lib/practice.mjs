@@ -90,6 +90,11 @@ export function bestStreak(days) {
 }
 // The streak would end tonight: there is one, and today's goal isn't met.
 export const streakAtRisk = (days, now = Date.now()) => (kept(days, taipeiDay(now)) ? 0 : streakOf(days, now));
+// The goal line on 今天: answers still to give today, and the streak that
+// answering them keeps (0 when there is none to lose).
+export function goalStatus(days, now = Date.now()) {
+  return { left: Math.max(0, DAILY_GOAL - todayCount(days, now)), keeps: streakAtRisk(days, now) };
+}
 // The last `n` days, oldest first: [{ day, answers, kept }].
 export function lastDays(days, n = 7, now = Date.now()) {
   const out = [];

@@ -172,6 +172,7 @@ img { max-width: 100%; }
 .week-dot { flex: 1; height: 8px; border-radius: 99px; background: var(--q-sunken); }
 .week-dot.some { background: color-mix(in srgb, var(--accent) 35%, var(--q-sunken)); }
 .week-dot.kept { background: var(--accent); }
+.goal-keep { color: var(--q-warn, #c2410c); font-weight: 600; }
 .goal-foot { font-size: 12px; }
 .cloze { font-size: clamp(26px, 8vw, 34px); font-weight: 800; letter-spacing: 0.18em; overflow-wrap: anywhere; }
 .mixed { display: grid; gap: 2px; padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--loss) 8%, var(--q-surface)); }
