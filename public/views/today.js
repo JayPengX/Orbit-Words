@@ -2,7 +2,7 @@
 // round a tap away, studying new words, the missed words as flash cards,
 // and the word of the day.
 import { el, put, section, bar, segmented } from '../ui.js';
-import { state, t, hooks, locale, levelName, joined, hintOf, metaLine, wordEl } from '../shell.js';
+import { state, t, hooks, settingsChanged, locale, levelName, joined, hintOf, metaLine, wordEl } from '../shell.js';
 import { speakButton } from '../audio.js';
 import { LEVELS, stats, toStudy, stateOf, shortMeaning, wordOfDay } from '../lib/words.mjs';
 import { xpOf, xpText, levelOf, DAILY_GOAL, todayCount, streakOf, bestStreak, lastDays } from '../lib/practice.mjs';
@@ -43,7 +43,7 @@ export function startCard() {
   return el('div', { class: 'q-card pad start-card' }, [
     el('div', { class: 'start-top' }, [el('h2', { text: t('wordsTitle') }), el('p', { class: 'muted', text: chosen.length ? joined(chosen.map(levelName)) : t('pickLevel') })]),
     el('div', { class: 'wait-row' }, [tile(due, t('stDue'), due ? 'hot' : ''), tile(fresh, t('stLeft')), tile(mastered, t('stMastered'))]),
-    el('div', { class: 'size-row' }, [el('span', { class: 'muted', text: t('roundSize') }), segmented([10, 20, 30].map(n => ({ id: n, label: t('wordsN', { n }) })), state.size, n => ((state.size = n), hooks.render()))]),
+    el('div', { class: 'size-row' }, [el('span', { class: 'muted', text: t('roundSize') }), segmented([10, 20, 30].map(n => ({ id: n, label: t('wordsN', { n }) })), state.size, n => ((state.size = n), settingsChanged(), hooks.render()))]),
     el('button', { class: 'q-btn primary block big-start', type: 'button', disabled: !chosen.length, text: due ? t('startDue', { n: Math.min(due, state.size) }) : t('startRound'), onclick: () => startRound() })
   ]);
 }

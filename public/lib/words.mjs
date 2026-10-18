@@ -706,15 +706,15 @@ export const hardest = (words, progress, n = 5) =>
 //   the studied batch waiting for its quiz; `cal`: reviews for fitting the
 //   model; `days` and `log`: answers, and right answers and seconds, per
 //   Taiwan day, practice.mjs; `marks`: bookmarked words, review.mjs; `opt`:
-//   { rate } the speed of the sound). The app gzips it.
-export function packProgress({ progress, levels, mode, days = {}, study = [], cal = [], log = {}, marks = {}, opt = {}, st = 0 }) {
+//   { rate, size } the speed of the sound, the words per round when not 10). The app gzips it.
+export function packProgress({ progress, levels, mode, days = {}, study = [], cal = [], log = {}, marks = {}, opt = {}, size = 10, st = 0 }) {
   const w = {};
   for (const [k, p] of Object.entries(progress)) {
     const row = [p.b || 0, p.d || 0, p.n || 0, p.r || 0, Math.round((p.t || 0) / 1000), p.m ? 1 : 0, p.l || 0, p.c || [], p.s ?? null, p.D ?? null, p.o || 0, p.x || [], p.h || 0];
     while (row.length > 6 && (row.at(-1) === null || row.at(-1) === 0 || (Array.isArray(row.at(-1)) && !row.at(-1).length))) row.pop();
     w[k] = row;
   }
-  return { v: 3, w, levels, mode, days, study, cal, log, marks, opt, ...(st ? { st } : {}) };
+  return { v: 3, w, levels, mode, days, study, cal, log, marks, opt: size !== 10 ? { ...opt, size } : opt, ...(st ? { st } : {}) };
 }
 export function unpackProgress(obj) {
   if (obj?.v !== 3 || !obj.w) return null;

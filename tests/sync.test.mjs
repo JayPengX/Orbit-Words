@@ -266,3 +266,14 @@ test('no reply to the claim on return (offline): read after a wait, and before a
   assert.equal(w.reads, reads + 2);
   assert.deepEqual(Object.keys((await decodePayload(w.payload)).progress).sort(), ['apple', 'banana', 'cherry']);
 });
+
+test('the words per round (10, 20, 30) is kept in the saved copy and follows the newer settings', async () => {
+  const mine = { ...blank(), size: 30, st: 200 };
+  // Saved and read back: still 30.
+  const back = await decodePayload(await encodePayload(mine));
+  assert.equal(mergeCopy({ ...blank(), size: 10 }, back).size, 30);
+  // Another device's newer setting wins; an older one does not; a size that isn't one of the three is ignored.
+  assert.equal(mergeCopy(mine, { ...blank(), st: 300, opt: { size: 20 } }).size, 20);
+  assert.equal(mergeCopy(mine, { ...blank(), st: 100, opt: { size: 20 } }).size, undefined);
+  assert.equal(mergeCopy(mine, { ...blank(), st: 300, opt: { size: 7 } }).size, 10);
+});

@@ -55,6 +55,9 @@ export function mergeCopy(state, theirs) {
     if (theirs.levels) out.levels = theirs.levels;
     if (theirs.mode) out.mode = theirs.mode;
     if (theirs.opt?.rate) out.opt = { ...state.opt, rate: theirs.opt.rate };
+    // (A newer copy without a size means the usual 10.)
+    if ([10, 20, 30].includes(theirs.opt?.size)) out.size = theirs.opt.size;
+    else if ((theirs.st || 0) > (state.st || 0)) out.size = 10;
     out.st = Math.max(state.st || 0, theirs.st || 0);
   }
   return out;
