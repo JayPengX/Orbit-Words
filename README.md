@@ -33,6 +33,8 @@ Live: https://jaypengx.github.io/Orbit-Words/ (was Quadra Hub)
   read again before a write whenever another device may have written
   (back on screen, the live session changed, a write refused):
   `lib/pass-sync.mjs`. A copy that can't be read is never written over.
+  A return reads it once, after the kit's claim; not at all after under
+  10 s away; a copy the same as the last one merged isn't merged again.
 - **Saved:** the payload `vocab-progress-sync`, `z3:` + gzip of
   `{ v: 3, w: { word: [box, due, answers, right, …] }, … }`. Every row part
   is optional, so older copies open. Settings carry their own time (`st`):
