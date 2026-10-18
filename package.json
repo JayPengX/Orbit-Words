@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test",
+    "test": "node --test && PASS_SYNC=kit node --test tests/sync.test.mjs",
     "pretest": "test -e .kit || ln -s ../Shared-Proxy/kit .kit"
   },
   "imports": {

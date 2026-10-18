@@ -3,7 +3,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { decodePayload, encodePayload, mergeCopy } from '../public/lib/copy.mjs';
-import { passSync, CLAIM_WAIT_MS } from '../public/lib/pass-sync.mjs';
+// PASS_SYNC=kit runs these against the kit's shared module instead of this app's own copy (the fallback).
+const { passSync, CLAIM_WAIT_MS } = await import(process.env.PASS_SYNC === 'kit' ? '#kit/pass-sync.mjs' : '../public/lib/pass-sync.mjs');
 
 const T = Date.parse('2026-10-05T04:00:00Z');
 const blank = () => ({ progress: {}, days: {}, log: {}, marks: {}, cal: [], study: [], levels: [1, 2, 3], mode: 'smart', opt: {}, st: 0 });

@@ -15,7 +15,7 @@ import { loadWords, loadHints, keyOf } from './lib/words.mjs';
 import { DAILY_GOAL, todayCount, streakOf, streakAtRisk, taipeiDay } from './lib/practice.mjs';
 import { catCounts } from './lib/review.mjs';
 import { decodePayload, encodePayload, mergeCopy } from './lib/copy.mjs';
-import { passSync } from './lib/pass-sync.mjs';
+import { passSync as localPassSync } from './lib/pass-sync.mjs';
 import { state, hooks, t, locale } from './shell.js';
 import { renderSession, busy } from './views/session.js';
 import { renderToday } from './views/today.js';
@@ -62,6 +62,8 @@ function localCopy() {
     return null;
   }
 }
+// The kit's shared Pass sync; this app's own copy (lib/pass-sync.mjs) when an older kit lacks it.
+const passSync = (await import('#kit/pass-sync.mjs').catch(() => null))?.passSync ?? localPassSync;
 const pass = passSync(q, {
   decode: decodePayload,
   encode: () => encodePayload(state),
