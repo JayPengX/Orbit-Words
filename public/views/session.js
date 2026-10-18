@@ -275,7 +275,10 @@ document.addEventListener('keydown', e => {
     return;
   }
   if (s.kind !== 'round' || s.done) return;
-  if (s.answered && e.key === 'Enter') return advance();
+  // (Enter on a focused button is that button's own press: the 下一題 button
+  // has the focus after an answer, and taking Enter here too went on twice,
+  // past the next question unasked.)
+  if (s.answered && e.key === 'Enter' && !e.target.closest?.('button')) return advance();
   const i = Number(e.key) - 1;
   if (!s.answered && s.q.choices && i >= 0 && i < s.q.choices.length) answer(s.q.choices[i].key === s.q.answer, s.q.choices[i].key);
 });

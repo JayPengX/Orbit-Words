@@ -279,7 +279,7 @@ test('progress round-trips with lapses and mix-ups and merges newest per word; t
   const log = { '2026-10-04': [20, 140.5] };
   const marks = { sun: [1, 1_790_000_000] };
   const back = unpackProgress(JSON.parse(JSON.stringify(packProgress({ progress, levels: [1, 3], mode: 'cloze', days, study: ['tree'], log, marks, opt: { rate: 0.75 } }))));
-  assert.deepEqual(back, { progress, levels: [1, 3], mode: 'cloze', days, study: ['tree'], cal: [], log, marks, opt: { rate: 0.75 } });
+  assert.deepEqual(back, { progress, levels: [1, 3], mode: 'cloze', days, study: ['tree'], cal: [], log, marks, opt: { rate: 0.75 }, st: 0 });
   // A saved copy from before the log, bookmarks and outcomes still opens.
   const old = unpackProgress({ v: 3, w: { go: [5, 20100, 9, 9, 1_790_000_001, 1] }, days });
   assert.deepEqual([old.progress.go.o, old.log, old.marks, old.opt], [undefined, {}, {}, {}]);
@@ -330,4 +330,54 @@ test("a word's sound mixes with the phone's music and is never its Now Playing",
   assert.match(src, /navigator\.audioSession\.type = 'ambient'/);
   assert.doesNotMatch(src, /new Audio\(/);
   assert.match(src, /createBufferSource\(\)/);
+});
+
+test('Enter after an answer goes on once: a focused button keeps its own Enter', () => {
+  const src = readFileSync(new URL('../public/views/session.js', import.meta.url), 'utf8');
+  // The feedback's 下一題 is focused after an answer; the page's Enter key
+  // leaves a focused button alone (both went on: a question skipped).
+  assert.match(src, /next\.focus\(/);
+  assert.match(src, /e\.key === 'Enter' && !e\.target\.closest\?\.\('button'\)\) return advance\(\)/);
+});
+
+test('edge cases: no levels, nothing new left, everything mastered, an empty list', () => {
+  assert.deepEqual(pickRound([], {}, { now }), []);
+  assert.deepEqual(pickRound(words, {}, { levels: [], now }), [], 'no level chosen: nothing');
+  const l1 = words.filter(w => w.level === 1);
+  // Every level-1 word mastered and not due: the round is the ones slipping most, never a new word.
+  const all = Object.fromEntries(l1.map((w, i) => [w.key, { b: 5, d: dayNum(now) + 30, n: 3, r: 3, t: now - (i % 50) * DAY, s: 40, D: 3 }]));
+  const r = pickRound(words, all, { levels: [1], size: 10, now, random });
+  assert.equal(r.length, 10);
+  assert.ok(r.every(w => all[w.key]), 'only words already learnt');
+  assert.deepEqual(toStudy(words, all, { levels: [1], n: 5 }), [], 'nothing new to study');
+  // A size bigger than the list: the whole list once.
+  const few = l1.slice(0, 3);
+  const r3 = pickRound(few, {}, { levels: [1], size: 10, now, random });
+  assert.equal(new Set(r3.map(w => w.key)).size, r3.length);
+  assert.equal(r3.length, 3);
+});
+
+test('the memory model stays in bounds over a long, mixed history', () => {
+  let p = null;
+  let t = now;
+  let s = 7;
+  const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < 400; i++) {
+    t += Math.floor(rnd() * 20) * DAY + Math.floor(rnd() * DAY);
+    const correct = rnd() < 0.75;
+    const out = grade(p, correct, { now: t, type: ['meaning', 'word', 'listen', 'spell'][i % 4], ms: rnd() * 20_000, word: 'adapt', check: i === 0, chose: correct ? null : 'adopt' });
+    p = out.p;
+    assert.ok(p.s >= 0.1 && p.s <= 3650, `stability ${p.s}`);
+    assert.ok(p.D >= 1 && p.D <= 10, `difficulty ${p.D}`);
+    assert.ok(p.b >= 1 && p.b <= 5);
+    assert.equal(p.b, boxOf(p.s));
+    assert.ok(p.d >= dayNum(t), 'never due in the past');
+    if (!correct) assert.equal(p.d, dayNum(t), 'missed: due again today');
+    assert.ok((p.c || []).length <= 4 && (p.x || []).length <= 3);
+    assert.ok(p.r <= p.n);
+  }
+  // Packed and unpacked: the same schedule.
+  const back = unpackProgress(JSON.parse(JSON.stringify(packProgress({ progress: { adapt: p } })))).progress.adapt;
+  for (const k of ['b', 'd', 'n', 'r', 's', 'D', 'c']) assert.deepEqual(back[k], p[k], k);
+  assert.ok(Math.abs(back.t - p.t) < 1000);
 });

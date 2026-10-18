@@ -1,7 +1,7 @@
 // 練習: which levels, which way to learn, how fast the words are said, and
 // the round.
 import { el, put, section, bar, segmented } from '../ui.js';
-import { state, t, hooks, levelName } from '../shell.js';
+import { state, t, hooks, levelName, settingsChanged } from '../shell.js';
 import { speak, RATES } from '../audio.js';
 import { LEVELS, MODES, stats, wordOfDay } from '../lib/words.mjs';
 import { startCard } from './today.js';
@@ -20,7 +20,7 @@ export function renderPractice(box) {
     'div',
     { class: 'mode-grid' },
     MODES.map(m =>
-      el('button', { class: `mode${state.mode === m ? ' on' : ''}`, type: 'button', 'aria-pressed': String(state.mode === m), onclick: () => ((state.mode = m), hooks.changed(), hooks.render()) }, [
+      el('button', { class: `mode${state.mode === m ? ' on' : ''}`, type: 'button', 'aria-pressed': String(state.mode === m), onclick: () => ((state.mode = m), settingsChanged(), hooks.render()) }, [
         el('span', { class: 'mode-icon', text: MODE_ICON[m] }),
         el('strong', { text: t(`mode_${m}`) }),
         el('small', { text: t(`modeHint_${m}`) })
@@ -37,7 +37,7 @@ export function renderPractice(box) {
         rate,
         r => {
           state.opt = { ...state.opt, rate: r };
-          hooks.changed();
+          settingsChanged();
           hooks.render();
           speak(wordOfDay(state.words));
         }
@@ -49,8 +49,7 @@ export function renderPractice(box) {
 }
 
 function toggleLevel(l) {
-  state.levelsTouched = true;
   state.levels = state.levels.includes(l) ? state.levels.filter(x => x !== l) : [...state.levels, l].sort((a, b) => a - b);
-  hooks.changed();
+  settingsChanged();
   hooks.render();
 }

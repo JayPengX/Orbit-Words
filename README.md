@@ -29,10 +29,14 @@ Live: https://jaypengx.github.io/Orbit-Words/ (was Quadra Hub)
   day), a 20:00 notice when it's about to end. Points buy nothing.
 - **Offline:** everything works. Words and recordings are the site's own
   files, kept by `sw.js`. Progress is saved on the phone at every change,
-  and merged with the Pass before anything is written.
+  and merged with the Pass before anything is written. The Pass's copy is
+  read again before a write whenever another device may have written
+  (back on screen, the live session changed, a write refused):
+  `lib/pass-sync.mjs`. A copy that can't be read is never written over.
 - **Saved:** the payload `vocab-progress-sync`, `z3:` + gzip of
   `{ v: 3, w: { word: [box, due, answers, right, …] }, … }`. Every row part
-  is optional, so older copies open.
+  is optional, so older copies open. Settings carry their own time (`st`):
+  the newer settings win a merge (`lib/copy.mjs` `mergeCopy`).
 
 ## Decisions in force
 
@@ -50,6 +54,7 @@ Live: https://jaypengx.github.io/Orbit-Words/ (was Quadra Hub)
 | `app.js`, `shell.js`, `ui.js`, `audio.js` | Start, saving, tabs; shared state; drawing; sound |
 | `views/` | Each tab, the word sheet, rounds and flash cards |
 | `lib/words.mjs` | Memory model, rounds, questions, wrong options, saved progress |
+| `lib/copy.mjs`, `pass-sync.mjs` | The payload (encode, decode, merge); keeping it in step with the Pass |
 | `lib/review.mjs`, `practice.mjs` | Review lists and 進度's numbers; points and streak |
 | `data/words.json`, `hints.json`, `audio/` | The list, the hints, a recording per word |
 
@@ -70,6 +75,7 @@ to `main` tests, stamps versions and deploys to Pages.
 
 | This | Also check |
 | --- | --- |
-| The saved row's shape | Older copies still open; merging across devices |
+| The saved row's shape | Older copies still open; merging across devices (`tests/sync.test.mjs`) |
+| `lib/pass-sync.mjs` | Its twin in Orbit Weather (the same file) |
 | `data/words.json` | A recording per word, `hints.json` keys |
 | The grade or FSRS weights | 進度's numbers, rounds |

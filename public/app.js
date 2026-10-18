@@ -11,9 +11,11 @@
 // every app's guide) is the kit's Quadra Pass sheet, in every app. (It was
 // Quadra Hub; its id stays `vocab`, its storage and caches `quadra-hub`.)
 import { quadraSession, tabBar, topActions, installGate, watchUpdates, schedulePush, notify, keepOffline, storedAccount, cachedPayload } from '#kit/quadra.mjs';
-import { loadWords, loadHints, packProgress, unpackProgress, mergeProgress, mergeCal, keyOf } from './lib/words.mjs';
-import { DAILY_GOAL, mergeDays, mergeLog, todayCount, streakOf, streakAtRisk, taipeiDay } from './lib/practice.mjs';
-import { mergeMarks, catCounts } from './lib/review.mjs';
+import { loadWords, loadHints, keyOf } from './lib/words.mjs';
+import { DAILY_GOAL, todayCount, streakOf, streakAtRisk, taipeiDay } from './lib/practice.mjs';
+import { catCounts } from './lib/review.mjs';
+import { decodePayload, encodePayload, mergeCopy } from './lib/copy.mjs';
+import { passSync } from './lib/pass-sync.mjs';
 import { state, hooks, t, locale } from './shell.js';
 import { renderSession, busy } from './views/session.js';
 import { renderToday } from './views/today.js';
@@ -34,67 +36,22 @@ const VERSION = document.querySelector('meta[name="build-version"]')?.content ||
 
 const q = quadraSession('vocab', { lang: locale });
 
-// ---- Saved progress (the pass's vocab payload, gzipped) -----------------------------------
+// ---- Saved progress (the pass's vocab payload, gzipped: lib/copy.mjs) ----------------------
 
-async function gzipB64(text) {
-  const stream = new Blob([text]).stream().pipeThrough(new CompressionStream('gzip'));
-  const bytes = new Uint8Array(await new Response(stream).arrayBuffer());
-  let bin = '';
-  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
-  return btoa(bin);
-}
-async function gunzipB64(b64) {
-  const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-  const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
-  return new Response(stream).text();
-}
-// 'z3:' + gzip of the progress (words.mjs packProgress).
-async function decodePayload(payload) {
-  if (!payload?.startsWith('z3:')) return null;
-  try {
-    return unpackProgress(JSON.parse(await gunzipB64(payload.slice(3))));
-  } catch {
-    return null;
-  }
-}
-const encodePayload = async () => `z3:${await gzipB64(JSON.stringify(packProgress(state)))}`;
+// Another copy of the progress (the pass's, the phone's, one a merge brought in) into this one.
+const absorb = decoded => Object.assign(state, mergeCopy(state, decoded));
 
-// Another copy of the progress (the pass's, or one a merge brought in): per
-// word the newest; days and logs the larger; bookmarks the latest choice.
-function absorb(decoded) {
-  if (!decoded) return;
-  state.progress = mergeProgress(state.progress, decoded.progress);
-  state.days = mergeDays(state.days, decoded.days);
-  state.log = mergeLog(state.log, decoded.log);
-  state.marks = mergeMarks(state.marks, decoded.marks);
-  if (decoded.levels && !state.levelsTouched) state.levels = decoded.levels;
-  if (decoded.mode) state.mode = decoded.mode;
-  if (decoded.opt?.rate) state.opt = { ...state.opt, rate: decoded.opt.rate };
-  state.study = [...new Set([...state.study, ...decoded.study])];
-  state.cal = mergeCal(state.cal, decoded.cal);
-}
-
-// ---- Sync: the payload, one write at a time -----------------------------------------------
-let chain = Promise.resolve();
-let dirty = false;
-let timer = 0;
-function sync({ soon = false } = {}) {
-  clearTimeout(timer);
-  if (soon) return (timer = setTimeout(() => sync(), 1500));
-  chain = chain.then(push).catch(() => {});
-  return chain;
-}
 // The progress kept on this phone too (under the account), at every change:
 // what's learned with no connection stays when the app is closed, and the app
 // opens on it at once, not after the sign-in. Merged with the pass's copy,
-// never in its place: nothing is written to the pass before the pass's own
-// copy has been read and merged in (`pulled`), so a phone that was offline
-// never writes its older progress over another device's newer.
+// never in its place: the pass's copy is read and merged in before anything
+// is written over it, whenever it may have changed (lib/pass-sync.mjs), so a
+// phone that was offline, or another device's newer progress, is never
+// written over.
 const LOCAL_KEY = 'orbit-words.progress.v1';
-let pulled = false;
 async function keepLocal() {
   try {
-    localStorage.setItem(LOCAL_KEY, JSON.stringify({ account: storedAccount(), payload: await encodePayload() }));
+    localStorage.setItem(LOCAL_KEY, JSON.stringify({ account: storedAccount(), payload: await encodePayload(state) }));
   } catch {}
 }
 function localCopy() {
@@ -105,32 +62,26 @@ function localCopy() {
     return null;
   }
 }
-// The pass's copy read and merged (after an opening with no connection, once it's back).
-async function pull() {
-  const res = await q.read({ data: true });
-  const theirs = await decodePayload(res?.payload);
-  if (res?.payload && !theirs) state.unreadable = true;
-  absorb(theirs);
-  pulled = true;
-  dirty = true;
-  keepLocal();
-  quietRefresh();
-}
-async function push() {
-  if (!q.active || !state.loaded || !dirty || state.unreadable) return;
-  if (!pulled) return pull();
-  const payload = await encodePayload();
-  dirty = false;
-  try {
-    await q.write({ payload });
-  } catch (error) {
-    dirty = true;
-    throw error;
+const pass = passSync(q, {
+  decode: decodePayload,
+  encode: () => encodePayload(state),
+  // The pass's copy read (after an opening with no connection, once it's back; on coming back to the app).
+  apply: theirs => {
+    absorb(theirs);
+    keepLocal();
+    quietRefresh();
   }
+});
+// One write at a time; a change goes up 1.5 s later (or at once when the app is put away).
+let timer = 0;
+function sync({ soon = false } = {}) {
+  clearTimeout(timer);
+  if (soon) return (timer = setTimeout(() => sync(), 1500));
+  return state.loaded ? pass.sync() : Promise.resolve();
 }
 document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && sync());
 
-hooks.changed = () => ((dirty = true), keepLocal(), sync({ soon: true }));
+hooks.changed = () => (pass.changed(), keepLocal(), sync({ soon: true }));
 hooks.sync = () => sync();
 hooks.render = render;
 
@@ -169,7 +120,6 @@ watchUpdates({ current: VERSION, key: 'quadraHub', cachePrefix: 'quadra-hub-', b
 topActions(q);
 tabNav.select(state.tab);
 q.on('wallet', quietRefresh);
-q.on('active', live => live && sync());
 
 // Notices (the kit's: a banner on screen, a system notice in the background
 // once turned on in the account sheet): a streak that ends tonight, now
@@ -221,18 +171,14 @@ async function boot() {
   }
   const first = await starting;
   await words;
-  const theirs = await decodePayload(first?.payload);
-  // A copy on the pass that can't be read is never saved over.
-  if (first?.payload && !theirs) state.unreadable = true;
-  absorb(theirs);
+  // The pass's copy merged (one that can't be read is never saved over); what
+  // this phone learned that the pass hasn't got yet goes up.
+  await pass.first(first, { local: Boolean(mine) });
   for (const item of first?.inbox || []) absorb(await decodePayload(item.payload));
-  // (Opened with no connection: the pass's copy is read once it's back, before anything is written.)
-  if (!first?.offline) pulled = true;
-  // What this phone learned that the pass hasn't got yet: written up.
-  if (pulled && mine && (await encodePayload()) !== first?.payload) dirty = true;
+  if (first?.inbox?.length) pass.changed();
   keepLocal();
   show();
-  if (first?.inbox?.length) dirty = true;
+  pass.watch();
   loadHintList();
   await sync();
   for (const item of first?.inbox || []) q.dropInbox(item.id).catch(() => {});

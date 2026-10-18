@@ -37,13 +37,17 @@ export function renderReview(box) {
 
 // Flash cards of the category's weakest words; a round on what's due.
 function flashCard(n) {
-  const size = Math.min(n, 50);
+  // The deck sizes: 10, 20, 50 under the count, and all of them (up to 50);
+  // the one picked, or the nearest there is when the count has moved since.
+  const sizes = DECKS.filter(d => d < n).concat(n <= 50 ? [n] : []);
+  const size = sizes.includes(view.deck) ? view.deck : sizes.filter(d => d <= view.deck).at(-1) ?? sizes[0];
+  const deck = () => flashDeck(state.words, state.progress, view.cat, { n: size, marks: state.marks });
   return el('div', { class: 'q-card pad flash-launch' }, [
     el('div', { class: 'flash-top' }, [el('span', { class: 'nudge-icon', text: '🎴' }), el('div', {}, [el('strong', { text: t('flashTitle') }), el('small', { class: 'muted', text: t('flashSub') })])]),
-    n > 10 ? el('div', { class: 'size-row' }, [el('span', { class: 'muted', text: t('deckSize') }), segmented(DECKS.filter(d => d < n).concat(n <= 50 ? [n] : []).map(d => ({ id: d, label: d === n ? t('allN', { n }) : String(d) })), Math.min(view.deck, size), d => ((view.deck = d), hooks.render()))]) : null,
+    n > 10 ? el('div', { class: 'size-row' }, [el('span', { class: 'muted', text: t('deckSize') }), segmented(sizes.map(d => ({ id: d, label: d === n ? t('allN', { n }) : String(d) })), size, d => ((view.deck = d), hooks.render()))]) : null,
     el('div', { class: 'two-btn' }, [
-      el('button', { class: 'q-btn primary', type: 'button', text: t('flashStart'), onclick: () => startFlash(flashDeck(state.words, state.progress, view.cat, { n: Math.min(view.deck, size), marks: state.marks }), t(`cat_${view.cat}`)) }),
-      el('button', { class: 'q-btn', type: 'button', text: t('testThese'), onclick: () => startRound({ from: 'flash', list: flashDeck(state.words, state.progress, view.cat, { n: Math.min(view.deck, size), marks: state.marks }) }) })
+      el('button', { class: 'q-btn primary', type: 'button', text: t('flashStart'), onclick: () => startFlash(deck(), t(`cat_${view.cat}`)) }),
+      el('button', { class: 'q-btn', type: 'button', text: t('testThese'), onclick: () => startRound({ from: 'flash', list: deck() }) })
     ])
   ]);
 }

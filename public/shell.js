@@ -29,6 +29,9 @@ export const state = {
   study: [],
   // Reviews for fitting the memory model to this person (words.mjs personalFactor).
   cal: [],
+  // When the settings (levels, mode, the sound's speed) were last set, in
+  // seconds: the newer copy's win across devices (copy.mjs mergeCopy).
+  st: 0,
   // What's running in a tab, over its usual screen: { kind: 'round' |
   // 'study' | 'flash', home: the tab it runs in, … }.
   session: null
@@ -37,6 +40,8 @@ export const state = {
 // Filled in by app.js: changed() saves soon, render() redraws the open tab,
 // sync() saves now.
 export const hooks = { changed() {}, render() {}, sync() {} };
+// A setting changed here: dated, so it wins over an older copy's, and saved.
+export const settingsChanged = () => ((state.st = Math.round(Date.now() / 1000)), hooks.changed());
 
 export const levelName = l => t('level', { n: l });
 export const joined = items => items.join(locale === 'en' ? ', ' : '、');

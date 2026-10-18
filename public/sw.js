@@ -137,7 +137,7 @@ self.addEventListener('message', event => {
   );
 });
 
-// A tap on a price alert's notification opens (or focuses) the page.
+// A tap on a notice opens (or focuses) the page where it points.
 self.addEventListener('notificationclick', event => {
   // A Quadra notice (quadra.mjs notify): open the app where it points.
   event.notification.close();
