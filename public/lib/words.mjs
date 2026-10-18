@@ -339,8 +339,8 @@ export function pickRound(words, progress, { levels = LEVELS, size = 10, now = D
     }
   }
   for (const w of window) if (round.length < dueCount + newCount && !inRound.has(w.key)) (round.push(w), inRound.add(w.key));
-  // Nothing due and no room for new words: the ones slipping most.
-  for (const w of ranked) if (round.length < Math.min(size, dueCount + newCount || size) && !inRound.has(w.key)) (round.push(w), inRound.add(w.key));
+  // Too few due and no new words to bring in: the ones slipping most fill the round.
+  for (const w of ranked) if (round.length < size && !inRound.has(w.key)) (round.push(w), inRound.add(w.key));
   return spread(round.sort(() => random() - 0.5));
 }
 // ---- Which new words this person is likely to get wrong --------------------------------

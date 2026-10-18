@@ -381,3 +381,19 @@ test('the memory model stays in bounds over a long, mixed history', () => {
   for (const k of ['b', 'd', 'n', 'r', 's', 'D', 'c']) assert.deepEqual(back[k], p[k], k);
   assert.ok(Math.abs(back.t - p.t) < 1000);
 });
+
+test('a round is the size asked when a few words are due and no new ones are brought in', () => {
+  const l1 = words.filter(w => w.level === 1);
+  const today = dayNum(now);
+  // Every level-1 word learnt, three of them due: the round is still 10 or 30 (the weakest ones fill it).
+  const all = Object.fromEntries(l1.map((w, i) => [w.key, { b: i < 60 ? 2 : 4, d: i < 3 ? today : today + 20, n: 3, r: 3, t: now - 5 * DAY, s: i < 60 ? 3 : 20, D: 5 }]));
+  for (const size of [10, 30]) {
+    const r = pickRound(words, all, { levels: [1], size, now, random });
+    assert.equal(r.length, size);
+    assert.equal(new Set(r.map(w => w.key)).size, size);
+    assert.ok([0, 1, 2].every(i => r.some(w => w.key === l1[i].key)), 'the due ones are in it');
+  }
+  // Sixty still being learnt (no new words allowed) and three due: the same.
+  const busy = Object.fromEntries(l1.slice(0, 60).map((w, i) => [w.key, { b: 1, s: 1, D: 6, d: i < 3 ? today : today + 1, n: 1, r: 1, t: now - DAY }]));
+  assert.equal(pickRound(words, busy, { levels: [1], size: 10, now, random }).length, 10);
+});
