@@ -5,7 +5,7 @@ import { el, put, section, bar, segmented } from '../ui.js';
 import { state, t, hooks, settingsChanged, locale, levelName, joined, hintOf, metaLine, wordEl } from '../shell.js';
 import { speakButton } from '../audio.js';
 import { LEVELS, stats, toStudy, stateOf, shortMeaning, wordOfDay } from '../lib/words.mjs';
-import { xpOf, xpText, levelOf, DAILY_GOAL, todayCount, streakOf, bestStreak, lastDays } from '../lib/practice.mjs';
+import { xpOf, xpText, levelOf, DAILY_GOAL, todayCount, goalStatus, streakOf, bestStreak, lastDays } from '../lib/practice.mjs';
 import { catCounts, flashDeck, recentMisses } from '../lib/review.mjs';
 import { startRound, startStudy, startFlash } from './session.js';
 import { openWord, starButton } from './sheet.js';
@@ -19,13 +19,14 @@ function goalCard() {
   const lv = levelOf(xpOf(state.progress), locale);
   const today = todayCount(state.days);
   const streak = streakOf(state.days);
+  const { left, keeps } = goalStatus(state.days);
   return el('div', { class: 'q-card pad goal-card' }, [
     el('div', { class: 'goal-top' }, [
       el('span', { class: 'xp-badge num', text: String(lv.level) }),
       el('div', { class: 'goal-name' }, [el('small', { text: t('levelWord') }), el('strong', { text: lv.title })]),
       el('div', { class: 'goal-streak' }, [el('small', { text: t('streakWord') }), el('strong', { class: `num${streak ? ' on' : ''}`, text: t('daysN', { n: streak }) })])
     ]),
-    el('div', { class: 'goal-row' }, [el('span', { text: today >= DAILY_GOAL ? t('goalDone') : t('goalLeft', { n: DAILY_GOAL - today }) }), el('strong', { class: 'num', text: `${Math.min(today, DAILY_GOAL)} / ${DAILY_GOAL}` })]),
+    el('div', { class: 'goal-row' }, [el('span', { class: keeps ? 'goal-keep' : '', text: today >= DAILY_GOAL ? t('goalDone') : keeps ? t('goalKeep', { n: left, d: keeps }) : t('goalLeft', { n: left }) }), el('strong', { class: 'num', text: `${Math.min(today, DAILY_GOAL)} / ${DAILY_GOAL}` })]),
     bar(today, DAILY_GOAL, 'accent'),
     el('div', { class: 'week-dots', role: 'img', 'aria-label': t('weekDots') }, lastDays(state.days, 7).map(d => el('span', { class: `week-dot${d.kept ? ' kept' : d.answers ? ' some' : ''}`, title: `${d.day.slice(5)} · ${d.answers}` }))),
     el('small', { class: 'muted goal-foot', text: `${xpText(xpOf(state.progress))} · ${t('levelNext', { v: xpText(lv.toNext), n: lv.level + 1 })} · ${t('bestStreak', { n: bestStreak(state.days) })}` })

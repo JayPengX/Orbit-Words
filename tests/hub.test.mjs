@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 
 globalThis.localStorage = { getItem: () => null, setItem() {}, removeItem() {} };
-const { xpOf, answerXp, levelOf, logAnswer, mergeDays, todayCount, streakOf, bestStreak, streakAtRisk, lastDays, DAILY_GOAL } = await import('../public/lib/practice.mjs');
+const { xpOf, answerXp, levelOf, logAnswer, mergeDays, todayCount, streakOf, bestStreak, streakAtRisk, goalStatus, lastDays, DAILY_GOAL } = await import('../public/lib/practice.mjs');
 const { STRINGS } = await import('../public/lib/i18n.mjs');
 const kit = await import('#kit/quadra.mjs');
 
@@ -63,4 +63,11 @@ test('Orbit Words is an Orbit app that moves no money, with no games, missions, 
   // It writes its payload, never an entry or a setting.
   const app = readFileSync(new URL('../public/app.js', import.meta.url), 'utf8');
   assert.doesNotMatch(app, /entries:|settings/);
+});
+
+test('goalStatus: answers left today, and the streak they keep', () => {
+  const days = { '2026-10-03': DAILY_GOAL, '2026-10-04': DAILY_GOAL, '2026-10-05': 5 };
+  assert.deepEqual(goalStatus(days, noon('2026-10-05')), { left: DAILY_GOAL - 5, keeps: 2 });
+  assert.deepEqual(goalStatus({ ...days, '2026-10-05': DAILY_GOAL }, noon('2026-10-05')), { left: 0, keeps: 0 });
+  assert.deepEqual(goalStatus({}, noon('2026-10-05')), { left: DAILY_GOAL, keeps: 0 });
 });
