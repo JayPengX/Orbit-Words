@@ -42,6 +42,20 @@ export function catCounts(words, progress, { marks = {}, now = Date.now() } = {}
   return out;
 }
 
+// Today's weak words: learnt words whose last answer was a miss, within the
+// last `days` Taiwan days (today and the days before), the newest miss
+// first; at most `n`. A quick round on just these.
+export function recentMisses(words, progress, { n = 10, days = 3, now = Date.now() } = {}) {
+  const from = dayNum(now) - (days - 1);
+  return words
+    .filter(w => {
+      const p = progress[w.key];
+      return p?.b && p.o === 2 && dayNum(p.t || 0) >= from;
+    })
+    .sort((a, b) => progress[b.key].t - progress[a.key].t || a.key.localeCompare(b.key))
+    .slice(0, n);
+}
+
 // The chance this person still recalls a word now, 0 to 1 (null for a new word).
 export function recallNow(p, now = Date.now(), factor = 1) {
   if (!p?.b || !p.t) return null;
