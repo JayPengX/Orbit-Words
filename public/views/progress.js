@@ -3,7 +3,8 @@
 // days' answers; reviews due in the next 7 days; how long learnt words stay
 // remembered; how this person's memory compares (the model's fit); and the
 // words forgotten most.
-import { el, put, section, stat } from '../ui.js';
+import { el, put, section } from '../ui.js';
+import { pageHead, heroEyebrow, heroTag, heroBar, statsRow, row, rowCard } from './chrome.js';
 import { state, t, joined, percent, levelName } from '../shell.js';
 import { speakButton } from '../audio.js';
 import { stats, hardest, shortMeaning, personalFactor } from '../lib/words.mjs';
@@ -14,13 +15,21 @@ import { openWord } from './sheet.js';
 export function renderProgress(box) {
   const st = stats(state.words, state.progress);
   const a = st.all;
+  const hero = el('div', { class: 'q-hero-card words-hero' }, [
+    heroEyebrow('chart', t('stMastered')),
+    el('strong', { class: 'q-hc-big' }, [a.mastered.toLocaleString(), el('span', { class: 'dim', text: ` / ${a.total.toLocaleString()}` })]),
+    heroBar(a.mastered, a.total),
+    el('div', { class: 'q-hc-row' }, [heroTag('flame', t('bestStreak', { n: bestStreak(state.days) })), heroTag('', `${t('stLearning')} ${a.learning.toLocaleString()}`)])
+  ]);
   put(
     box,
-    section(t('progress'), el('div', { class: 'q-card pad stat-row' }, [stat(t('stMastered'), a.mastered.toLocaleString()), stat(t('stLearning'), a.learning.toLocaleString()), stat(t('stDue'), a.due.toLocaleString()), stat(t('stLeft'), (a.total - a.seen).toLocaleString())])),
-    howWell(),
+    pageHead(t('tab_progress')),
+    hero,
+    el('div', { class: 'q-section' }, [statsRow([{ label: t('stLearning'), value: a.learning.toLocaleString(), icon: 'spark', color: 'var(--q-indigo)' }, { label: t('stDue'), value: a.due.toLocaleString(), icon: 'clock', color: 'var(--q-orange)', tint: a.due > 0 }, { label: t('stLeft'), value: (a.total - a.seen).toLocaleString(), icon: 'book', color: 'var(--q-blue)' }])]),
+    el('div', { class: 'q-section' }, [howWell()]),
     section(t('levelsTitle'), levelsCard()),
     section(t('activityTitle'), activityCard()),
-    section(t('forecastTitle'), forecastCard(), { sub: t('forecastSub') }),
+    section(t('forecastTitle'), forecastCard()),
     section(t('memoryTitle'), memoryCard()),
     hardestCard()
   );
@@ -31,7 +40,7 @@ function howWell() {
   const all = totals(state.progress);
   const week = periodOf(state.days, state.log, 7);
   const sec = week.perAnswer == null ? '—' : t('secN', { n: week.perAnswer.toFixed(1) });
-  return el('div', { class: 'q-card pad stat-row four' }, [stat(t('stAccuracyAll'), percent(all.accuracy)), stat(t('stAccuracyWeek'), percent(week.accuracy)), stat(t('stPerAnswer'), sec), stat(t('stDaysPractised'), daysPractised(state.days).toLocaleString())]);
+  return statsRow([{ label: t('stAccuracyAll'), value: percent(all.accuracy), icon: 'target', color: 'var(--q-green)' }, { label: t('stAccuracyWeek'), value: percent(week.accuracy), icon: 'chart', color: 'var(--q-teal)' }, { label: t('stPerAnswer'), value: sec, icon: 'clock', color: 'var(--q-purple)' }, { label: t('stDaysPractised'), value: daysPractised(state.days).toLocaleString(), icon: 'calendar', color: 'var(--q-pink)' }]);
 }
 
 // Each level: mastered, learning, new, as one bar (darkest = mastered),
@@ -105,11 +114,11 @@ function hardestCard() {
     t('hardTitle'),
     el(
       'div',
-      { class: 'q-card list hard-list' },
+      { class: 'q-rowcard list hard-list' },
       list.map(w => {
         const p = state.progress[w.key];
         const mixed = (p.c || []).map(k => state.byKey.get(k)?.word).filter(Boolean);
-        return el('button', { class: 'word-row', type: 'button', onclick: () => openWord(w) }, [speakButton(w), el('div', { class: 'word-row-main' }, [el('strong', { text: w.word }), el('small', { class: 'muted', text: [shortMeaning(w.zh), mixed.length ? t('mixedWith', { words: joined(mixed) }) : ''].filter(Boolean).join(' · ') })]), el('small', { class: 'pill', text: t('lapsesN', { n: p.l }) })]);
+        return el('button', { class: 'word-row q-ritem', type: 'button', onclick: () => openWord(w) }, [speakButton(w), el('div', { class: 'word-row-main' }, [el('strong', { text: w.word }), el('small', { class: 'muted', text: [shortMeaning(w.zh), mixed.length ? t('mixedWith', { words: joined(mixed) }) : ''].filter(Boolean).join(' · ') })]), el('small', { class: 'q-tag red', text: t('lapsesN', { n: p.l }) })]);
       })
     ),
     { sub: t('hardSub') }

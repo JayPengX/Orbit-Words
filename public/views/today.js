@@ -1,7 +1,8 @@
 // 今天: the day's goal and streak, what's waiting (due, missed, new) with a
 // round a tap away, studying new words, the missed words as flash cards,
 // and the word of the day.
-import { el, put, section, bar, segmented } from '../ui.js';
+import { el, put, section } from '../ui.js';
+import { pageHead, dayLine, heroEyebrow, heroTag, tag, heroBar, statsRow, row, rowCard, miniBar, ico, SIZES } from './chrome.js';
 import { state, t, hooks, settingsChanged, locale, levelName, joined, hintOf, metaLine, wordEl } from '../shell.js';
 import { speakButton } from '../audio.js';
 import { LEVELS, stats, toStudy, stateOf, shortMeaning, wordOfDay } from '../lib/words.mjs';
@@ -11,83 +12,85 @@ import { startRound, startStudy, startFlash } from './session.js';
 import { openWord, starButton } from './sheet.js';
 
 export function renderToday(box) {
-  put(box, goalCard(), startCard(), studyCard(), weakCard(), missedCard(), wordOfDayCard());
+  const fix = [weakRow(), missedRow()].filter(Boolean);
+  put(box, pageHead(t('tab_today'), dayLine()), goalHero(), waitingStats(), section(t('studyTitle'), rowCard([studyRow()])), fix.length ? section(t('fixTitle'), rowCard(fix)) : null, wordOfDayCard());
 }
 
-// The goal, the streak, the level.
-function goalCard() {
+const chosenLevels = () => LEVELS.filter(l => state.levels.includes(l));
+const waiting = () => {
+  const st = stats(state.words, state.progress);
+  const chosen = chosenLevels();
+  return { due: chosen.reduce((s, l) => s + st[l].due, 0), fresh: chosen.reduce((s, l) => s + st[l].total - st[l].seen, 0), mastered: chosen.reduce((s, l) => s + st[l].mastered, 0) };
+};
+
+// The round's two buttons, shared with 練習: start it, and how many words it holds.
+export function roundActions() {
+  const { due } = waiting();
+  const chosen = chosenLevels();
+  const next = SIZES[(SIZES.indexOf(state.size) + 1) % SIZES.length];
+  const start = el('button', { class: 'q-hc-btn q-press', type: 'button', disabled: !chosen.length, onclick: () => startRound() }, [due ? t('startDue', { n: Math.min(due, state.size) }) : t('startRound')]);
+  const size = el('button', { class: 'q-hc-btn ghost q-press', type: 'button', 'aria-label': t('roundSize'), onclick: () => ((state.size = next), settingsChanged(), hooks.render()) });
+  size.innerHTML = ico('swap');
+  size.append(el('span', { text: t('wordsN', { n: state.size }) }));
+  size.title = t('roundSizeBtn', { n: state.size });
+  return el('div', { class: 'q-hc-row round-row' }, [start, size]);
+}
+
+// Today's goal: the count, the streak, the level, and the round.
+function goalHero() {
   const lv = levelOf(xpOf(state.progress), locale);
   const today = todayCount(state.days);
   const streak = streakOf(state.days);
   const { left, keeps } = goalStatus(state.days);
-  return el('div', { class: 'q-card pad goal-card' }, [
-    el('div', { class: 'goal-top' }, [
-      el('span', { class: 'xp-badge num', text: String(lv.level) }),
-      el('div', { class: 'goal-name' }, [el('small', { text: t('levelWord') }), el('strong', { text: lv.title })]),
-      el('div', { class: 'goal-streak' }, [el('small', { text: t('streakWord') }), el('strong', { class: `num${streak ? ' on' : ''}`, text: t('daysN', { n: streak }) })])
-    ]),
-    el('div', { class: 'goal-row' }, [el('span', { class: keeps ? 'goal-keep' : '', text: today >= DAILY_GOAL ? t('goalDone') : keeps ? t('goalKeep', { n: left, d: keeps }) : t('goalLeft', { n: left }) }), el('strong', { class: 'num', text: `${Math.min(today, DAILY_GOAL)} / ${DAILY_GOAL}` })]),
-    bar(today, DAILY_GOAL, 'accent'),
+  const chosen = chosenLevels();
+  const big = el('strong', { class: 'q-hc-big' }, [String(Math.min(today, DAILY_GOAL)), el('span', { class: 'dim', text: ` / ${DAILY_GOAL}` })]);
+  return el('div', { class: 'q-hero-card words-hero' }, [
+    heroEyebrow('target', chosen.length ? joined(chosen.map(levelName)) : t('pickLevel')),
+    big,
+    heroBar(today, DAILY_GOAL),
+    el('p', { class: 'q-hc-sub', text: today >= DAILY_GOAL ? t('goalDone') : keeps ? t('goalKeep', { n: left, d: keeps }) : t('goalLeft', { n: left }) }),
+    el('div', { class: 'q-hc-row' }, [heroTag('flame', t('daysN', { n: streak })), heroTag('', `Lv ${lv.level} ${lv.title}`), heroTag('', xpText(xpOf(state.progress)))]),
     el('div', { class: 'week-dots', role: 'img', 'aria-label': t('weekDots') }, lastDays(state.days, 7).map(d => el('span', { class: `week-dot${d.kept ? ' kept' : d.answers ? ' some' : ''}`, title: `${d.day.slice(5)} · ${d.answers}` }))),
-    el('small', { class: 'muted goal-foot', text: `${xpText(xpOf(state.progress))} · ${t('levelNext', { v: xpText(lv.toNext), n: lv.level + 1 })} · ${t('bestStreak', { n: bestStreak(state.days) })}` })
+    roundActions()
   ]);
 }
 
-// What's waiting in the chosen levels, and the round.
-export function startCard() {
-  const st = stats(state.words, state.progress);
-  const chosen = LEVELS.filter(l => state.levels.includes(l));
-  const due = chosen.reduce((s, l) => s + st[l].due, 0);
-  const fresh = chosen.reduce((s, l) => s + st[l].total - st[l].seen, 0);
-  const mastered = chosen.reduce((s, l) => s + st[l].mastered, 0);
-  const tile = (n, label, cls = '') => el('div', { class: `wait-tile ${cls}`.trim() }, [el('strong', { class: 'num', text: n.toLocaleString() }), el('small', { text: label })]);
-  return el('div', { class: 'q-card pad start-card' }, [
-    el('div', { class: 'start-top' }, [el('h2', { text: t('wordsTitle') }), el('p', { class: 'muted', text: chosen.length ? joined(chosen.map(levelName)) : t('pickLevel') })]),
-    el('div', { class: 'wait-row' }, [tile(due, t('stDue'), due ? 'hot' : ''), tile(fresh, t('stLeft')), tile(mastered, t('stMastered'))]),
-    el('div', { class: 'size-row' }, [el('span', { class: 'muted', text: t('roundSize') }), segmented([10, 20, 30].map(n => ({ id: n, label: t('wordsN', { n }) })), state.size, n => ((state.size = n), settingsChanged(), hooks.render()))]),
-    el('button', { class: 'q-btn primary block big-start', type: 'button', disabled: !chosen.length, text: due ? t('startDue', { n: Math.min(due, state.size) }) : t('startRound'), onclick: () => startRound() })
-  ]);
+// What's waiting in the chosen levels.
+function waitingStats() {
+  const { due, fresh, mastered } = waiting();
+  return el('div', { class: 'q-section' }, [statsRow([{ label: t('stDue'), value: due.toLocaleString(), icon: 'clock', color: 'var(--q-orange)', tint: due > 0 }, { label: t('stLeft'), value: fresh.toLocaleString(), icon: 'book', color: 'var(--q-blue)' }, { label: t('stMastered'), value: mastered.toLocaleString(), icon: 'check', color: 'var(--q-green)' }])]);
 }
 
 // New words as cards, a batch at a time, then a quiz on the batch.
-function studyCard() {
+function studyRow() {
   const n = state.study.length;
   const full = n >= state.size;
   const next = toStudy(state.words, state.progress, { levels: state.levels, n: 1, skip: new Set(state.study) }).length > 0;
-  return section(
-    t('studyTitle'),
-    el('div', { class: 'q-card pad study-card' }, [
-      el('div', { class: 'goal-row' }, [el('span', { text: full ? t('studyReady') : t('studyLeft', { n: state.size - n }) }), el('strong', { class: 'num', text: `${Math.min(n, state.size)} / ${state.size}` })]),
-      bar(n, state.size, 'accent'),
-      full
-        ? el('button', { class: 'q-btn primary block', type: 'button', text: t('studyQuiz', { n }), onclick: () => startRound({ from: 'study' }) })
-        : el('button', { class: 'q-btn block', type: 'button', disabled: !next || !state.levels.length, text: !next ? t('studyNone') : n ? t('studyMore') : t('studyStart'), onclick: startStudy })
-    ]),
-    { sub: t('studySub', { n: state.size }) }
-  );
+  return row({
+    icon: 'pencil',
+    color: 'var(--q-accent)',
+    title: full ? t('studyQuiz', { n }) : !next ? t('studyNone') : n ? t('studyMore') : t('studyStart'),
+    sub: full ? t('studyReady') : t('studyLeft', { n: state.size - n }),
+    value: `${Math.min(n, state.size)} / ${state.size}`,
+    body: miniBar(n, state.size),
+    disabled: !full && (!next || !state.levels.length),
+    onClick: full ? () => startRound({ from: 'study' }) : startStudy
+  });
 }
 
 // Today's weak words: a quick round on what was missed in the last 3 days.
-function weakCard() {
+function weakRow() {
   const list = recentMisses(state.words, state.progress, { n: state.size });
   if (!list.length) return null;
-  return el('button', { class: 'q-card pad nudge-card', type: 'button', onclick: () => startRound({ list }) }, [
-    el('span', { class: 'nudge-icon', text: '⚡' }),
-    el('div', {}, [el('strong', { text: t('weakCardTitle', { n: list.length }) }), el('small', { class: 'muted', text: t('weakCardSub') })]),
-    el('span', { class: 'chev', text: '›' })
-  ]);
+  return row({ icon: 'target', color: 'var(--q-red)', title: t('weakCardTitle', { n: list.length }), sub: t('weakCardSub'), onClick: () => startRound({ list }) });
 }
 
 // The words missed last time, as flash cards: a look before they come back.
-function missedCard() {
+function missedRow() {
   const n = catCounts(state.words, state.progress, { marks: state.marks }).wrong;
   if (!n) return null;
   const deck = () => flashDeck(state.words, state.progress, 'wrong', { n: 20, marks: state.marks });
-  return el('button', { class: 'q-card pad nudge-card', type: 'button', onclick: () => startFlash(deck(), t('cat_wrong')) }, [
-    el('span', { class: 'nudge-icon', text: '🎴' }),
-    el('div', {}, [el('strong', { text: t('missedCardTitle', { n }) }), el('small', { class: 'muted', text: t('missedCardSub') })]),
-    el('span', { class: 'chev', text: '›' })
-  ]);
+  return row({ icon: 'history', color: 'var(--q-indigo)', title: t('missedCardTitle', { n }), sub: t('missedCardSub'), onClick: () => startFlash(deck(), t('cat_wrong')) });
 }
 
 // The word of the day: the same for everyone today; a tap opens its sheet.
@@ -95,11 +98,15 @@ function wordOfDayCard() {
   const w = wordOfDay(state.words);
   if (!w) return null;
   const tip = hintOf(w.key)?.tip;
-  return el('div', { class: 'q-card pad wotd', role: 'button', tabindex: '0', onclick: e => !e.target.closest('button') && openWord(w) }, [
-    el('div', { class: 'wotd-top' }, [el('small', { class: 'wotd-label', text: t('wotd') }), el('div', { class: 'wotd-right' }, [el('small', { class: 'muted', text: t(`state_${stateOf(state.progress[w.key])}`) }), starButton(w, hooks.render)])]),
-    el('div', { class: 'word-line' }, [wordEl(w), speakButton(w)]),
-    el('small', { class: 'muted', text: metaLine(w) }),
-    el('p', { class: 'meaning', text: shortMeaning(w.zh) }),
-    tip ? el('p', { class: 'tip-line muted', text: `💡 ${tip}` }) : null
-  ]);
+  const st = stateOf(state.progress[w.key]);
+  return section(
+    t('wotd'),
+    el('div', { class: 'q-ambient wotd', role: 'button', tabindex: '0', onclick: e => !e.target.closest('button') && openWord(w) }, [
+      el('div', { class: 'wotd-top' }, [tag(t(`state_${st}`), st === 'mastered' ? 'green' : st === 'new' ? '' : 'tint'), starButton(w, hooks.render)]),
+      el('div', { class: 'word-line' }, [wordEl(w), speakButton(w)]),
+      el('small', { class: 'muted', text: metaLine(w) }),
+      el('p', { class: 'meaning', text: shortMeaning(w.zh) }),
+      tip ? el('p', { class: 'tip-line muted', text: tip }) : null
+    ])
+  );
 }

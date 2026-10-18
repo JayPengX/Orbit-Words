@@ -5,20 +5,23 @@ import { state, t, hooks, levelName } from '../shell.js';
 import { LEVELS } from '../lib/words.mjs';
 import { STATES, browse } from '../lib/review.mjs';
 import { wordRow } from './review.js';
+import { pageHead } from './chrome.js';
 
 const view = { level: 0, state: 'all', query: '' };
 
 export function renderBrowse(box) {
   const listBox = el('div', { class: 'review-list' });
-  const count = el('p', { class: 'section-sub list-count num' });
+  const count = el('p', { class: 'q-over list-count num' });
   const drawList = () => {
     const items = browse(state.words, state.progress, { ...view, marks: state.marks });
     count.textContent = t('wordsCount', { n: items.length.toLocaleString() });
-    put(listBox, pagedList(items, wordRow, { more: t('showMore'), empty: t('noMatch') }));
+    count.hidden = items.length === state.words?.length;
+    put(listBox, pagedList(items, wordRow, { more: t('showMore'), empty: t('noMatch'), cls: 'q-rowcard list' }));
   };
   const search = searchField(view.query, state.words?.length ? t('searchWords', { n: state.words.length.toLocaleString() }) : t('searchReview'), q => ((view.query = q), drawList()));
   put(
     box,
+    pageHead(t('tab_list'), state.words?.length ? t('wordsCount', { n: state.words.length.toLocaleString() }) : ''),
     el('div', { class: 'list-tools sticky-tools' }, [
       search,
       chips([{ id: 0, label: t('allLevels') }, ...LEVELS.map(l => ({ id: l, label: levelName(l) }))], view.level, l => ((view.level = l), hooks.render()), 'small'),

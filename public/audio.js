@@ -1,3 +1,4 @@
+import * as kitUI from '#kit/ui.mjs';
 // Pronunciation: every word has a recording in Microsoft's neural voice
 // (data/audio, en-US Jenny), played through Web Audio in iOS's "ambient"
 // audio session: it mixes with whatever is playing (music goes on) and is
@@ -112,4 +113,11 @@ export function prefetch(word) {
   if (ctx && ctx.state !== 'closed') decoded(ctx, clipUrl(word)).catch(() => fetched.delete(word.key));
   else fetch(clipUrl(word), { priority: 'low' }).catch(() => fetched.delete(word.key));
 }
-export const speakButton = (word, big = false) => el('button', { class: `speak${big ? ' big' : ''}`, type: 'button', 'aria-label': t('listen'), text: '🔊', onclick: e => (e.stopPropagation(), speak(word)) });
+export const speakButton = (word, big = false) => {
+  const b = el('button', { class: `speak${big ? ' big' : ''}`, type: 'button', 'aria-label': t('listen'), onclick: e => (e.stopPropagation(), speak(word)) });
+  // (The kit's glyph where it has one; the emoji on an older kit.)
+  const icon = kitUI.icons?.live;
+  if (icon) b.innerHTML = icon;
+  else b.textContent = '🔊';
+  return b;
+};

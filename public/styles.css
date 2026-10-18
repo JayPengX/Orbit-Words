@@ -218,7 +218,7 @@ img { max-width: 100%; }
 .empty { text-align: center; padding: 18px 0; font-size: 14px; }
 
 /* A word in a list: sound, word and meaning, where it stands. */
-.word-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; width: 100%; padding: 9px 14px; border: 0; border-top: 1px solid var(--q-divider, var(--q-border)); background: none; text-align: left; }
+.word-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; width: 100%; padding: 9px 12px; border: 0; border-top: 0; background: none; text-align: left; }
 .list > .word-row:first-child, .hard-list > .word-row:first-child { border-top: 0; }
 .word-row .speak { width: 32px; height: 32px; font-size: 14px; }
 .word-row-main { display: grid; min-width: 0; }
@@ -374,4 +374,61 @@ button.result-row:first-child { border-top: 0; }
 @media (prefers-reduced-motion: reduce) {
   .choice { transition: none; }
   .just .choice.right, .just .slot.right, .just .choice.wrong, .just .slots .slot.wrong, .answered.just > .feedback, .answered.just > .feedback > *, .answered.just .fb-pay { animation: none; }
+}
+
+/* ---- The premium look (the kit's Premium layer, in this app's rose) ---- */
+.tab-panel > .q-page-head { padding-top: 4px; }
+.tab-panel > * + .q-hero-card, .tab-panel > .q-hero-card + * { margin-top: 12px; }
+.tab-panel > .q-section { margin-top: 24px; }
+.tab-panel > .q-hero-card + .q-section { margin-top: 12px; }
+.tab-panel > .q-section:first-child { margin-top: 0; }
+.words-hero { gap: 12px; }
+.words-hero .q-hc-eyebrow { min-width: 0; }
+.words-hero .q-hc-eyebrow > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hc-ico { display: inline-grid; font-style: normal; }
+.words-hero .q-hc-big .dim { font-size: 0.6em; opacity: 0.7; }
+.hc-bar { height: 8px; border-radius: 99px; background: rgba(255, 255, 255, 0.25); overflow: hidden; }
+.hc-bar > i { display: block; height: 100%; border-radius: inherit; background: #fff; transition: width 0.4s ease; }
+.hc-tag { display: inline-flex; align-items: center; gap: 4px; min-height: 26px; padding: 0 10px; border-radius: 99px; background: rgba(255, 255, 255, 0.18); color: #fff; font: 600 13px/1 var(--q-font); white-space: nowrap; }
+.hc-tag > i { display: inline-grid; font-style: normal; }
+.hc-tag svg { width: 14px; height: 14px; }
+.words-hero .week-dots { gap: 6px; }
+.words-hero .week-dot { height: 6px; background: rgba(255, 255, 255, 0.25); }
+.words-hero .week-dot.some { background: rgba(255, 255, 255, 0.55); }
+.words-hero .week-dot.kept { background: #fff; }
+.q-hc-btn:disabled { opacity: 0.55; }
+.q-hc-btn svg { width: 16px; height: 16px; }
+.q-hc-btn > span { white-space: nowrap; }
+.q-stats .q-stat strong { font-size: 24px; }
+.q-ritem:disabled { opacity: 0.5; cursor: default; }
+.q-ritem-text > .mini-bar { margin-top: 6px; }
+.mini-bar { --t: var(--q-accent); height: 5px; border-radius: 99px; background: var(--q-fill-3); overflow: hidden; }
+.mini-bar > i { display: block; height: 100%; border-radius: inherit; background: var(--t); transition: width 0.4s ease; }
+.q-ritem .q-tags { margin-top: 0; }
+.pick-dot { flex: none; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--q-label-3); color: #fff; }
+.pick-dot.on { border-color: var(--q-accent); background: var(--q-accent); }
+.pick-dot svg { width: 14px; height: 14px; stroke-width: 3; }
+.q-tile.soft { --t: var(--q-gray); }
+.rate-item .q-ritem-text { gap: 8px; }
+.rate-item .q-seg { margin: 0; }
+.wotd { display: grid; gap: 4px; cursor: pointer; padding: 16px; }
+.wotd-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.empty-card { display: grid; justify-items: center; gap: 8px; text-align: center; padding: 24px 16px; }
+.tab-panel > .empty-card { margin-top: 12px; }
+.q-rowcard.list .word-row { grid-template-columns: auto minmax(0, 1fr) auto; }
+.q-rowcard.list .word-row + .word-row::before { left: 56px; }
+.q-rowcard.list .word-row .q-tag { flex: none; }
+.list-count { margin: 4px 2px 8px; }
+.tab-panel > .q-hero-card + .list-tools { margin-top: 12px; }
+.review-list, .paged { min-width: 0; }
+.q-rowcard .word-row, .q-rowcard button.word-row { border: 0; min-height: 56px; }
+.q-rowcard .word-row-main { flex: 1; min-width: 0; }
+.speak svg { width: 55%; height: 55%; }
+.speak:has(svg) { display: grid; place-items: center; padding: 0; }
+@media (max-width: 350px) { .q-stats .q-stat { padding: 12px; } .q-stats .q-stat strong { font-size: 19px; } .q-stats { gap: 8px; } }
+@media (max-width: 350px) {
+  .round-row { flex-wrap: nowrap; }
+  .round-row .q-hc-btn { min-width: 0; padding: 0 12px; font-size: 14px; }
+  .round-row .q-hc-btn:not(.ghost) { flex: 1 1 auto; }
+  .round-row .q-hc-btn svg { display: none; }
 }

@@ -6,7 +6,7 @@ export const STRINGS = {
    
     statusLine: '今天 {n}/{goal} 題 · 🔥 {s} 天', close: '關閉',
     // Words
-    wordsTitle: '背單字', pickLevel: '先選要練習的級別', roundSize: '一回', wordsN: '{n} 個字', startRound: '開始這一輪', studyTitle: '背新字', studySub: '先一張一張背新字，背滿一批（{n} 個）就考這批字。', studyLeft: '再背 {n} 個就能測驗', studyReady: '這批背好了，趁還記得考一下', studyQuiz: '測驗這 {n} 個字', studyStart: '開始背', studyMore: '繼續背', studyNone: '這些級別沒有新字可以背', studyGot: '記住了', studyPrev: '上一個', studySaved: '背到這裡，下次接著背', nothingLeft: '這些級別現在沒有要練的字',
+    wordsTitle: '背單字', fixTitle: '補強', roundSizeBtn: '一回 {n} 個字', pickLevel: '先選要練習的級別', roundSize: '一回', wordsN: '{n} 個字', startRound: '開始這一輪', studyTitle: '背新字', studySub: '先一張一張背新字，背滿一批（{n} 個）就考這批字。', studyLeft: '再背 {n} 個就能測驗', studyReady: '這批背好了，趁還記得考一下', studyQuiz: '測驗這 {n} 個字', studyStart: '開始背', studyMore: '繼續背', studyNone: '這些級別沒有新字可以背', studyGot: '記住了', studyPrev: '上一個', studySaved: '背到這裡，下次接著背', nothingLeft: '這些級別現在沒有要練的字',
     levels: '級別', level: '第 {n} 級', dueN: '{n} 個該複習',
     levelHint1: '最基本', levelHint2: '基礎', levelHint3: '國中到高一', levelHint4: '高中', levelHint5: '學測', levelHint6: '進階',
     modes: '學習方式', modesSub: '題目故意出得難：錯的選項都是最容易搞混的字。',
@@ -50,7 +50,7 @@ export const STRINGS = {
     tab_today: 'Today', tab_practice: 'Practice', tab_progress: 'Progress',
    
     statusLine: 'Today {n}/{goal} · 🔥 {s} days', close: 'Close',
-    wordsTitle: 'Words', pickLevel: 'Pick the levels to practise', roundSize: 'Words per round', wordsN: '{n}', startRound: 'Start a round', studyTitle: 'Study new words', studySub: 'Learn new words card by card; a full batch ({n}) unlocks a quiz on them.', studyLeft: '{n} more to unlock the quiz', studyReady: 'Batch learnt: quiz it while it’s fresh', studyQuiz: 'Quiz these {n} words', studyStart: 'Start studying', studyMore: 'Keep studying', studyNone: 'No new words left in these levels', studyGot: 'Got it', studyPrev: 'Back', studySaved: 'Saved: carry on next time', nothingLeft: 'Nothing to practise in these levels right now',
+    wordsTitle: 'Words', fixTitle: 'Patch up', roundSizeBtn: '{n} per round', pickLevel: 'Pick the levels to practise', roundSize: 'Words per round', wordsN: '{n}', startRound: 'Start a round', studyTitle: 'Study new words', studySub: 'Learn new words card by card; a full batch ({n}) unlocks a quiz on them.', studyLeft: '{n} more to unlock the quiz', studyReady: 'Batch learnt: quiz it while it’s fresh', studyQuiz: 'Quiz these {n} words', studyStart: 'Start studying', studyMore: 'Keep studying', studyNone: 'No new words left in these levels', studyGot: 'Got it', studyPrev: 'Back', studySaved: 'Saved: carry on next time', nothingLeft: 'Nothing to practise in these levels right now',
     levels: 'Levels', level: 'Level {n}', dueN: '{n} to review',
     levelHint1: 'The basics', levelHint2: 'Foundation', levelHint3: 'Grades 7–10', levelHint4: 'High school', levelHint5: 'College entrance', levelHint6: 'Advanced',
     modes: 'Ways to learn', modesSub: 'Questions are hard on purpose: every wrong option is the word you’re most likely to mix it up with.',
