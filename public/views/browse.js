@@ -16,7 +16,7 @@ export function renderBrowse(box) {
     count.textContent = t('wordsCount', { n: items.length.toLocaleString() });
     put(listBox, pagedList(items, wordRow, { more: t('showMore'), empty: t('noMatch') }));
   };
-  const search = searchField(view.query, t('searchWords'), q => ((view.query = q), drawList()));
+  const search = searchField(view.query, state.words?.length ? t('searchWords', { n: state.words.length.toLocaleString() }) : t('searchReview'), q => ((view.query = q), drawList()));
   put(
     box,
     el('div', { class: 'list-tools sticky-tools' }, [
