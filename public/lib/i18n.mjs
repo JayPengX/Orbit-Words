@@ -25,6 +25,7 @@ export const STRINGS = {
     // The rebuilt tabs: review, the word list, the sheet, flash cards, progress
     tab_review: '複習', tab_list: '單字',
     done: '完成', startDue: '開始：先複習 {n} 個字', tipLabel: '💡 記憶小撇步', mark: '加入收藏', unmark: '取消收藏',
+    weakCardTitle: '弱點快測：{n} 個字', weakCardSub: '最近 3 天答錯的，現在就考',
     missedCardTitle: '上次答錯的 {n} 個字', missedCardSub: '先用卡片看一遍，再考就記得住',
     cat_wrong: '答錯', cat_due: '該複習', cat_learning: '學習中', cat_marked: '收藏',
     catHint_wrong: '最後一次答錯的字，你拼錯的地方標成紅色。', catHint_due: '記憶模型算出快要忘的字，今天複習最划算。', catHint_learning: '學過、上次答對，但還沒精熟的字。', catHint_marked: '你按了 ☆ 的字，在題目、卡片或單字表都能收藏。',
@@ -67,7 +68,8 @@ export const STRINGS = {
     noticeStreak: 'Your {n}-day streak ends tonight', noticeStreakSoon: 'No words practised today', noticeStreakBody: '{goal} answers keep it going',
     tab_review: 'Review', tab_list: 'Words',
     done: 'Done', startDue: 'Start: {n} reviews first', tipLabel: '💡 A way to remember it', mark: 'Bookmark', unmark: 'Remove bookmark',
-    missedCardTitle: '{n} words you missed last time', missedCardSub: 'Look them over as cards before they come back',
+    weakCardTitle: 'Weak-word quiz: {n}', weakCardSub: 'Missed in the last 3 days: quiz now',
+    missedCardTitle: '{n} words you missed last time', missedCardSub: 'Look them over as cards first',
     cat_wrong: 'Missed', cat_due: 'Due', cat_learning: 'Learning', cat_marked: 'Saved',
     catHint_wrong: 'Words whose last answer was wrong; where you misspelt them is in red.', catHint_due: 'Words the memory model says you’re about to forget: today is the best day to review them.', catHint_learning: 'Learnt and last answered right, not yet mastered.', catHint_marked: 'Words you starred ☆, in a question, a card or the word list.',
     catEmpty_wrong: 'Nothing missed. Keep it up!', catEmpty_due: 'Nothing is due today.', catEmpty_learning: 'No words being learnt yet: start a round.', catEmpty_marked: 'No saved words yet. Tap ☆ on a word to save it.',

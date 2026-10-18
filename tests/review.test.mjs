@@ -138,3 +138,21 @@ test('the meanings: no field tags or stray escapes left in them', () => {
   for (const w of words) assert.doesNotMatch(w.zh, /\[[^\]]*\]|\\r/, w.word);
   assert.ok(existsSync(new URL('../public/data/hints.json', import.meta.url)));
 });
+
+test('today\'s weak words: missed in the last 3 Taiwan days, newest first, capped', async () => {
+  const { recentMisses } = await import('../public/lib/review.mjs');
+  const w = [...'abcdefg'].map((k, i) => ({ key: k, word: k, zh: k, level: 1, i }));
+  const now = Date.parse('2026-10-05T17:00:00Z'); // 01:00 on the 6th in Taipei
+  const at = (iso, o = 2, b = 2) => ({ b, o, t: Date.parse(iso), d: 0, n: 2, r: 1 });
+  const progress = {
+    a: at('2026-10-05T16:30:00Z'), // 00:30 today
+    b: at('2026-10-03T16:00:00Z'), // 00:00 on the 4th: 3rd day back (6, 5, 4): in
+    c: at('2026-10-03T15:59:00Z'), // 23:59 on the 3rd: out
+    d: at('2026-10-05T10:00:00Z', 1), // last answer right: out
+    e: at('2026-10-05T12:00:00Z', 2, 0), // never learnt: out
+    f: at('2026-10-05T14:00:00Z')
+  };
+  assert.deepEqual(recentMisses(w, progress, { now }).map(x => x.key), ['a', 'f', 'b']);
+  assert.deepEqual(recentMisses(w, progress, { now, n: 2 }).map(x => x.key), ['a', 'f']);
+  assert.deepEqual(recentMisses(w, {}, { now }), []);
+});

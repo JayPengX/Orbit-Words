@@ -6,12 +6,12 @@ import { state, t, hooks, settingsChanged, locale, levelName, joined, hintOf, me
 import { speakButton } from '../audio.js';
 import { LEVELS, stats, toStudy, stateOf, shortMeaning, wordOfDay } from '../lib/words.mjs';
 import { xpOf, xpText, levelOf, DAILY_GOAL, todayCount, streakOf, bestStreak, lastDays } from '../lib/practice.mjs';
-import { catCounts, flashDeck } from '../lib/review.mjs';
+import { catCounts, flashDeck, recentMisses } from '../lib/review.mjs';
 import { startRound, startStudy, startFlash } from './session.js';
 import { openWord, starButton } from './sheet.js';
 
 export function renderToday(box) {
-  put(box, goalCard(), startCard(), studyCard(), missedCard(), wordOfDayCard());
+  put(box, goalCard(), startCard(), studyCard(), weakCard(), missedCard(), wordOfDayCard());
 }
 
 // The goal, the streak, the level.
@@ -64,6 +64,17 @@ function studyCard() {
     ]),
     { sub: t('studySub', { n: state.size }) }
   );
+}
+
+// Today's weak words: a quick round on what was missed in the last 3 days.
+function weakCard() {
+  const list = recentMisses(state.words, state.progress, { n: state.size });
+  if (!list.length) return null;
+  return el('button', { class: 'q-card pad nudge-card', type: 'button', onclick: () => startRound({ list }) }, [
+    el('span', { class: 'nudge-icon', text: '⚡' }),
+    el('div', {}, [el('strong', { text: t('weakCardTitle', { n: list.length }) }), el('small', { class: 'muted', text: t('weakCardSub') })]),
+    el('span', { class: 'chev', text: '›' })
+  ]);
 }
 
 // The words missed last time, as flash cards: a look before they come back.
