@@ -25,6 +25,7 @@ Live: https://jaypengx.github.io/Orbit-Words/ (was Quadra Hub)
   - New words most likely to be missed come first.
   - Memory model: FSRS-5 (stability, difficulty); 10 days' stability is
     mastered.
+- **Weak-word round** (今天): a quick round on the words missed in the last 3 days, up to the round size.
 - **Points** (`lib/practice.mjs`): XP, levels, the streak (20 answers a
   day), a 20:00 notice when it's about to end. Points buy nothing.
 - **Offline:** everything works. Words and recordings are the site's own
