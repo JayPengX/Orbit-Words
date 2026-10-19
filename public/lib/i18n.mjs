@@ -63,6 +63,8 @@ export const STRINGS = {
     chartNext: 'Next 7 days', roundDone: 'This round', masteredN: '{n} mastered', roundWords: 'The words', theseWords: 'The words',
   }
 };
+Object.assign(STRINGS.zh, { continueTitle: '繼續', dueCard: '該複習', dueCardSub: '到期的字', weakWords: '弱點字', allBtn: '全部', streakTitle: '連續天數', streakDays: '連續 {n} 天', streakBest: '最長 {n} 天', todayN: '今天 {n} 題', decksTitle: '單字卡', deckN: '{n} 張', recentTitle: '最近練習的字', wkDays: '日一二三四五六', ringDone: '完成' });
+Object.assign(STRINGS.en, { continueTitle: 'Continue', dueCard: 'Due now', dueCardSub: 'Words to review', weakWords: 'Weak words', allBtn: 'All', streakTitle: 'Streak', streakDays: '{n}-day streak', streakBest: 'Best {n} days', todayN: '{n} today', decksTitle: 'Flash cards', deckN: '{n} cards', recentTitle: 'Recently practised', wkDays: 'SMTWTFS', ringDone: 'Done' });
 export function detectLocale() {
   try {
     const saved = localStorage.getItem('quadra.lang');

@@ -47,7 +47,11 @@ export const heroBtn = (text, onclick, { ghost = false, disabled = false, icon =
 export const big = (value, rest = '') => el('strong', { class: 'q-hc-big' }, [value, rest ? el('span', { class: 'dim', text: rest }) : null]);
 
 // A section: a 20px head (and a button on its right), then its body.
-export const section = (title, body, action = null) => el('section', { class: 'q-section' }, [el('div', { class: 'q-section-head' }, [el('h2', { text: title }), action]), ...[].concat(body)]);
+export const section = (title, body, action = null) => {
+  const head = kitUI.sectionHead?.(title) ?? el('div', { class: 'q-section-head' }, [el('h2', { text: title })]);
+  if (action) head.append(action);
+  return el('section', { class: 'q-section' }, [head, ...[].concat(body)]);
+};
 // A button in a section's head that opens a menu of choices (the kit's;
 // on a kit without one, each tap moves to the next choice).
 export function menuButton(options, current, onPick) {

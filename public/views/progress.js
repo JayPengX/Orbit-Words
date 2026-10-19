@@ -103,7 +103,12 @@ function memoryCard() {
 
 // The words forgotten most, each with what it was mistaken for.
 let dialog = null;
-function openHardest(list) {
+export function hardRow(w) {
+  const p = state.progress[w.key];
+  const mixed = (p.c || []).map(k => state.byKey.get(k)?.word).filter(Boolean);
+  return el('button', { class: 'q-ritem wr', type: 'button', onclick: () => openWord(w) }, [speakButton(w), el('span', { class: 'wr-main' }, [el('strong', { text: w.word }), el('small', { class: 'muted wrap', text: [shortMeaning(w.zh), mixed.length ? t('mixedWith', { words: joined(mixed) }) : ''].filter(Boolean).join(' · ') })]), el('small', { class: 'q-tag red', text: t('lapsesN', { n: p.l }) })]);
+}
+export function openHardest(list) {
   dialog?.remove();
   const close = el('button', { class: 'q-close', type: 'button', 'aria-label': t('close'), onclick: () => dialog.close() });
   close.innerHTML = ico('x');
@@ -112,11 +117,7 @@ function openHardest(list) {
     el(
       'div',
       { class: 'q-rowcard words' },
-      list.map(w => {
-        const p = state.progress[w.key];
-        const mixed = (p.c || []).map(k => state.byKey.get(k)?.word).filter(Boolean);
-        return el('button', { class: 'q-ritem wr', type: 'button', onclick: () => openWord(w) }, [speakButton(w), el('span', { class: 'wr-main' }, [el('strong', { text: w.word }), el('small', { class: 'muted wrap', text: [shortMeaning(w.zh), mixed.length ? t('mixedWith', { words: joined(mixed) }) : ''].filter(Boolean).join(' · ') })]), el('small', { class: 'q-tag red', text: t('lapsesN', { n: p.l }) })]);
-      })
+      list.map(hardRow)
     )
   ]);
   document.body.append(dialog);
