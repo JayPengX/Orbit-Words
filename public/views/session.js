@@ -102,7 +102,7 @@ function answer(correct, typed = '') {
   state.log = logResult(state.log, correct, ms);
   const pay = answerXp({ correct, firstMastery: res.firstMastery });
   r.earned += pay;
-  r.results.push({ word, correct, type: r.q.type, after: stateOf(res.p), pay, typed, mixed: other, mastered: res.firstMastery, check: r.check, unknown: typed === UNKNOWN, ms });
+  r.results.push({ word, correct, type: r.q.type, after: stateOf(res.p), pay, typed, mixed: other, mastered: res.firstMastery, check: r.check, unknown: typed === UNKNOWN, written: !r.q.choices, ms });
   // A missed word comes back once at the end of the round, to fix it while it's fresh.
   if (!correct && !r.retry?.has(word.key)) {
     r.retry ||= new Map();
@@ -233,7 +233,7 @@ function feedback(res) {
     res.type === 'meaning' ? null : el('div', { class: 'word-line' }, [el('strong', { class: 'v-word', text: word.word }), speakButton(word)]),
     el('p', { class: 'meaning', text: word.zh }),
     // What it was mistaken for, side by side: the difference is the lesson.
-    res.mixed ? el('button', { class: 'mixed', type: 'button', onclick: () => openWord(res.mixed) }, [el('small', { class: 'muted', text: t('youPicked') }), el('strong', { text: res.mixed.word }), el('span', { class: 'muted', text: shortMeaning(res.mixed.zh) })]) : null,
+    res.mixed ? el('button', { class: 'mixed', type: 'button', onclick: () => openWord(res.mixed) }, [el('small', { class: 'muted', text: t(res.written ? 'youWrote' : 'youPicked') }), el('strong', { text: res.mixed.word }), el('span', { class: 'muted', text: shortMeaning(res.mixed.zh) })]) : null,
     res.correct ? null : tipBox(word),
     el('div', { class: 'next-bar' }, [next])
   ]);
