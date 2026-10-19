@@ -1,4 +1,3 @@
-import * as kitUI from '#kit/ui.mjs';
 // Pronunciation: every word has a recording in Microsoft's neural voice
 // (data/audio, en-US Jenny), played through Web Audio in iOS's "ambient"
 // audio session: it mixes with whatever is playing (music goes on) and is
@@ -12,6 +11,7 @@ import * as kitUI from '#kit/ui.mjs';
 // The speed is the person's (state.opt.rate, 0.75 to 1.25).
 import { pickVoice } from './lib/voice.mjs';
 import { el } from './ui.js';
+import { ico } from './views/chrome.js';
 import { state, t } from './shell.js';
 
 export const RATES = [0.75, 1, 1.25];
@@ -115,9 +115,6 @@ export function prefetch(word) {
 }
 export const speakButton = (word, big = false) => {
   const b = el('button', { class: `speak${big ? ' big' : ''}`, type: 'button', 'aria-label': t('listen'), onclick: e => (e.stopPropagation(), speak(word)) });
-  // (The kit's glyph where it has one; the emoji on an older kit.)
-  const icon = kitUI.icons?.live;
-  if (icon) b.innerHTML = icon;
-  else b.textContent = '🔊';
+  b.innerHTML = ico('sound');
   return b;
 };

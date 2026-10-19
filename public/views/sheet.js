@@ -7,6 +7,7 @@
 import { el, put, diffLine } from '../ui.js';
 import { state, t, hooks, hintOf, metaLine, percent, dueText, wordEl } from '../shell.js';
 import { speakButton } from '../audio.js';
+import { tag, ico } from './chrome.js';
 import { shortMeaning, spellDiff, markKnown, personalFactor } from '../lib/words.mjs';
 import { isMarked, toggleMark, wordInfo } from '../lib/review.mjs';
 
@@ -51,12 +52,11 @@ export const closeWord = () => dialog?.open && dialog.close();
 
 export function starButton(word, after = () => {}) {
   const on = isMarked(state.marks, word.key);
-  return el('button', {
+  const b = el('button', {
     class: `star${on ? ' on' : ''}`,
     type: 'button',
     'aria-pressed': String(on),
     'aria-label': on ? t('unmark') : t('mark'),
-    text: on ? '★' : '☆',
     onclick: e => {
       e.stopPropagation();
       buzz();
@@ -65,15 +65,25 @@ export function starButton(word, after = () => {}) {
       after();
     }
   });
+  b.innerHTML = ico('star');
+  return b;
 }
 
+const block = (label, body) => el('section', { class: 'sheet-block' }, [el('h3', { class: 'q-sheet-h', text: label }), ...[].concat(body)]);
 function wordChips(keys, label) {
   const list = keys.map(k => state.byKey.get(k)).filter(Boolean);
   if (!list.length) return null;
-  return el('div', { class: 'sheet-block' }, [
-    el('h3', { class: 'q-sheet-h', text: label }),
-    el('div', { class: 'link-chips' }, list.map(w => el('button', { class: 'link-chip', type: 'button', onclick: () => (buzz(), draw(w), dialog.scrollTo?.(0, 0)) }, [el('strong', { text: w.word }), el('small', { text: shortMeaning(w.zh) })])))
-  ]);
+  return block(label, el('div', { class: 'link-chips' }, list.map(w => el('button', { class: 'link-chip q-press', type: 'button', onclick: () => (buzz(), draw(w), dialog.scrollTo?.(0, 0)) }, [el('strong', { text: w.word }), el('small', { text: shortMeaning(w.zh) })]))));
+}
+// A misspelling: what was typed, struck, then the word with the letters missed marked.
+export const speltRow = (s, word) => el('div', { class: 'spelt-row' }, [el('s', { class: 'muted', text: s }), el('span', { class: 'muted', text: '→' }), diffLine(spellDiff(s, word.word))]);
+// The line to remember a word by (data/hints.json), when there is one.
+export function tipBox(word) {
+  const tip = hintOf(word.key)?.tip;
+  if (!tip) return null;
+  const mark = el('i', { class: 'gl', 'aria-hidden': 'true' });
+  mark.innerHTML = ico('spark');
+  return el('div', { class: 'tip' }, [mark, el('p', { text: tip })]);
 }
 
 function draw(word) {
@@ -81,30 +91,27 @@ function draw(word) {
   const info = wordInfo(p, Date.now(), personalFactor(state.cal));
   const hint = hintOf(word.key);
   const redraw = () => (draw(word), hooks.render());
+  const close = el('button', { class: 'q-close', type: 'button', 'aria-label': t('close'), onclick: () => dialog.close() });
+  close.innerHTML = ico('x');
+  const tone = info.state === 'mastered' ? 'green' : info.state === 'learning' ? 'tint' : '';
   const head = el('div', { class: 'q-sheet-head' }, [
-    el('div', { class: 'sheet-title' }, [el('span', { class: `pill ${info.state}`, text: t(`state_${info.state}`) }), p?.o === 2 ? el('span', { class: 'pill missed', text: t('lastMissed') }) : null, info.dueIn != null ? el('small', { class: 'muted', text: dueText(info.dueIn) }) : null]),
-    el('div', { class: 'sheet-actions' }, [starButton(word, redraw), el('button', { class: 'q-close', type: 'button', 'aria-label': t('close'), text: '×', onclick: () => dialog.close() })])
+    el('div', { class: 'q-tags' }, [tag(t(`state_${info.state}`), tone), p?.o === 2 ? tag(t('lastMissed'), 'red') : null, info.dueIn != null ? tag(dueText(info.dueIn), info.dueIn <= 0 ? 'orange' : '') : null]),
+    el('div', { class: 'sheet-actions' }, [starButton(word, redraw), close])
   ]);
-  const top = el('div', { class: 'sheet-word' }, [el('div', { class: 'word-line' }, [wordEl(word), speakButton(word)]), el('small', { class: 'muted', text: metaLine(word) })]);
-  const meaning = el('p', { class: 'meaning sheet-meaning', text: word.zh });
-  const tip = hint?.tip ? el('div', { class: 'tip' }, [el('small', { class: 'tip-label', text: t('tipLabel') }), el('p', { text: hint.tip })]) : null;
-  const spelt = (p?.x || []).length
-    ? el('div', { class: 'sheet-block' }, [el('h3', { class: 'q-sheet-h', text: t('youSpelt') }), el('div', { class: 'spelt' }, p.x.map(s => el('div', { class: 'spelt-row' }, [el('s', { class: 'muted', text: s }), el('span', { class: 'muted', text: '→' }), diffLine(spellDiff(s, word.word))])))])
-    : null;
-  const yours = wordChips(p?.c || [], t('mixedYours'));
-  const common = wordChips((hint?.common || []).filter(k => !(p?.c || []).includes(k)), t('mixedCommon'));
+  const top = el('div', { class: 'sheet-word' }, [el('div', { class: 'word-line' }, [wordEl(word), speakButton(word)]), el('small', { class: 'muted', text: metaLine(word) }), el('p', { class: 'meaning', text: word.zh })]);
+  const spelt = (p?.x || []).length ? block(t('youSpelt'), el('div', { class: 'q-card spelt' }, p.x.map(s => speltRow(s, word)))) : null;
   const numbers = info.answers
     ? el('div', { class: 'sheet-stats' }, [
-        el('div', {}, [el('strong', { class: 'num', text: String(info.answers) }), el('small', { text: t('stAnswers') })]),
-        el('div', {}, [el('strong', { class: 'num', text: percent(info.accuracy) }), el('small', { text: t('stAccuracy') })]),
-        el('div', {}, [el('strong', { class: 'num', text: percent(info.recall) }), el('small', { text: t('stRecall') })]),
-        el('div', {}, [el('strong', { class: 'num', text: info.stability ? t('daysShort', { n: info.stability >= 10 ? Math.round(info.stability) : Math.round(info.stability * 10) / 10 }) : '—' }), el('small', { text: t('stStability') })])
-      ])
-    : el('p', { class: 'muted small sheet-never', text: t('neverAsked') });
+        [String(info.answers), t('stAnswers')],
+        [percent(info.accuracy), t('stAccuracy')],
+        [percent(info.recall), t('stRecall')],
+        [info.stability ? t('daysShort', { n: info.stability >= 10 ? Math.round(info.stability) : Math.round(info.stability * 10) / 10 }) : '—', t('stStability')]
+      ].map(([v, l]) => el('div', {}, [el('strong', { class: 'num', text: v }), el('small', { text: l })])))
+    : el('p', { class: 'none', text: t('neverAsked') });
   const known =
     info.state !== 'mastered'
       ? el('button', {
-          class: 'q-btn block',
+          class: 'q-btn block tinted',
           type: 'button',
           text: t('iKnowIt'),
           onclick: () => {
@@ -116,5 +123,15 @@ function draw(word) {
           }
         })
       : null;
-  put(dialog, head, top, meaning, tip, spelt, yours, common, el('h3', { class: 'q-sheet-h', text: t('howItGoes') }), numbers, info.lapses ? el('p', { class: 'muted small', text: t('lapsesLine', { n: info.lapses }) }) : null, known);
+  put(
+    dialog,
+    head,
+    top,
+    tipBox(word),
+    spelt,
+    wordChips(p?.c || [], t('mixedYours')),
+    wordChips((hint?.common || []).filter(k => !(p?.c || []).includes(k)), t('mixedCommon')),
+    block(t('howItGoes'), [numbers, info.lapses ? el('div', { class: 'q-tags lapses' }, [tag(t('lapsesLine', { n: info.lapses }), 'red')]) : null]),
+    known
+  );
 }

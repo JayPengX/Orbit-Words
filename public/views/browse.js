@@ -1,34 +1,32 @@
-// 單字: the whole list (6,000-odd words), by level and state, searched in
-// English or Chinese. Each row opens the word's sheet.
+// 單字: the whole list (6,000-odd words), searched in English or Chinese,
+// by level (the chips) and by where each stands (the menu in the list's
+// head). Each row opens the word's sheet.
 import { el, put, chips, searchField, pagedList } from '../ui.js';
 import { state, t, hooks, levelName } from '../shell.js';
 import { LEVELS } from '../lib/words.mjs';
 import { STATES, browse } from '../lib/review.mjs';
 import { wordRow } from './review.js';
-import { pageHead } from './chrome.js';
+import { pageHead, section, menuButton } from './chrome.js';
 
 const view = { level: 0, state: 'all', query: '' };
 
 export function renderBrowse(box) {
-  const listBox = el('div', { class: 'review-list' });
-  const count = el('p', { class: 'q-over list-count num' });
-  const drawList = () => {
+  const total = state.words.length;
+  const listBox = el('div');
+  const head = el('h2');
+  const draw = () => {
     const items = browse(state.words, state.progress, { ...view, marks: state.marks });
-    count.textContent = t('wordsCount', { n: items.length.toLocaleString() });
-    count.hidden = items.length === state.words?.length;
-    put(listBox, pagedList(items, wordRow, { more: t('showMore'), empty: t('noMatch'), cls: 'q-rowcard list' }));
+    head.textContent = items.length === total ? t('listAll') : t('wordsCount', { n: items.length.toLocaleString() });
+    put(listBox, pagedList(items, wordRow, { more: t('showMore'), empty: t('noMatch') }));
   };
-  const search = searchField(view.query, state.words?.length ? t('searchWords', { n: state.words.length.toLocaleString() }) : t('searchReview'), q => ((view.query = q), drawList()));
+  const list = section('', listBox, menuButton(STATES.map(s => ({ id: s, label: t(`filter_${s}`) })), view.state, s => ((view.state = s), hooks.render())));
+  list.querySelector('h2').replaceWith(head);
+  draw();
   put(
     box,
-    pageHead(t('tab_list'), state.words?.length ? t('wordsCount', { n: state.words.length.toLocaleString() }) : ''),
-    el('div', { class: 'list-tools sticky-tools' }, [
-      search,
-      chips([{ id: 0, label: t('allLevels') }, ...LEVELS.map(l => ({ id: l, label: levelName(l) }))], view.level, l => ((view.level = l), hooks.render()), 'small'),
-      chips(STATES.map(s => ({ id: s, label: t(`filter_${s}`) })), view.state, s => ((view.state = s), hooks.render()), 'small')
-    ]),
-    count,
-    listBox
+    pageHead(t('tab_list')),
+    searchField(view.query, t('searchWords', { n: total.toLocaleString() }), q => ((view.query = q), draw())),
+    chips([{ id: 0, label: t('allLevels') }, ...LEVELS.map(l => ({ id: l, label: levelName(l) }))], view.level, l => ((view.level = l), hooks.render()), 'level-chips'),
+    list
   );
-  drawList();
 }

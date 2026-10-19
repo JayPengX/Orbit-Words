@@ -8,11 +8,12 @@ Live: https://jaypengx.github.io/Orbit-Words/ (was Quadra Hub)
 
 ## How it works
 
-- **Tabs:** 今天 (the day's goal of 20, streak, a round of 10/20/30, new
-  words as cards, word of the day) · 練習 (levels, the way to learn, sound
-  speed) · 複習 (答錯, 該複習, 學習中, 收藏; flash cards then a test) · 單字
-  (the whole list) · 進度 (accuracy, levels, the 14 days, what's due, the
-  memory fit).
+- **Tabs:** 今天 (the day's goal of 20 and the streak, the round; its
+  choices are a sheet from the hero: 10/20/30 words, levels, the way to
+  learn, sound speed; new words as cards, the weak words, word of the day)
+  · 複習 (答錯, 該複習, 學習中, 收藏; flash cards then a test) · 單字 (the
+  whole list) · 進度 (level and points, accuracy, the 14 days and what's
+  due, each level, the memory fit, the words forgotten most).
 - **A word's sheet** (from anywhere, or `#word=<word>`): sound, meaning, a
   line to remember it by, what you mixed it up with, your misspellings,
   the chance you still know it.
@@ -55,7 +56,7 @@ Live: https://jaypengx.github.io/Orbit-Words/ (was Quadra Hub)
 | File | What |
 | --- | --- |
 | `app.js`, `shell.js`, `ui.js`, `audio.js` | Start, saving, tabs; shared state; drawing; sound |
-| `views/` | Each tab, the word sheet, rounds and flash cards |
+| `views/` | Each tab, the round's choices, the word sheet, rounds and flash cards; `chrome.js` the shared pieces |
 | `lib/words.mjs` | Memory model, rounds, questions, wrong options, saved progress |
 | `lib/copy.mjs`, `pass-sync.mjs` | The payload (encode, decode, merge); keeping it in step with the Pass |
 | `lib/review.mjs`, `practice.mjs` | Review lists and 進度's numbers; points and streak |

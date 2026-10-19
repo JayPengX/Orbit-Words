@@ -1,9 +1,10 @@
 // Orbit Words: English words that stay. The high-school list (levels 1 to
 // 6, every word recorded), taught by a memory model fitted to the person.
-// Five tabs: 今天 (the goal, a round, new words, the word of the day), 練習
-// (levels, ways to learn, the sound's speed), 複習 (missed, due, learning
-// and bookmarked words, flash cards), 單字 (the whole list, searched) and
-// 進度 (how far, how well, what's coming). Any word opens its sheet.
+// Four tabs: 今天 (the goal and the round, whose choices are a sheet: levels,
+// ways to learn, the sound's speed; new words, the word of the day), 複習
+// (missed, due, learning and bookmarked words, flash cards), 單字 (the whole
+// list, searched) and 進度 (how far, how well, what's coming). Any word
+// opens its sheet.
 //
 // This file starts the app, saves and opens tabs; the screens are views/*.js,
 // the teaching lib/*.mjs. It uses no money: the progress is its own payload
@@ -12,26 +13,26 @@
 // Quadra Hub; its id stays `vocab`, its storage and caches `quadra-hub`.)
 import { quadraSession, tabBar, topActions, installGate, watchUpdates, schedulePush, notify, keepOffline, storedAccount, cachedPayload } from '#kit/quadra.mjs';
 import { loadWords, loadHints, keyOf } from './lib/words.mjs';
-import { DAILY_GOAL, todayCount, streakOf, streakAtRisk, taipeiDay } from './lib/practice.mjs';
+import { DAILY_GOAL, streakAtRisk, taipeiDay } from './lib/practice.mjs';
 import { catCounts } from './lib/review.mjs';
 import { decodePayload, encodePayload, mergeCopy } from './lib/copy.mjs';
 import { passSync as localPassSync } from './lib/pass-sync.mjs';
 import { state, hooks, t, locale } from './shell.js';
 import { renderSession, busy } from './views/session.js';
 import { renderToday } from './views/today.js';
-import { renderPractice } from './views/practice.js';
 import { renderReview } from './views/review.js';
 import { renderBrowse } from './views/browse.js';
 import { renderProgress } from './views/progress.js';
 import { openWord, closeWord } from './views/sheet.js';
-import { el, put, fitSenses, fitButtons, FIT_SENSES } from './ui.js';
+import { openPrefs } from './views/prefs.js';
+import { el, put, fitSenses, FIT_SENSES } from './ui.js';
 
 document.documentElement.lang = locale === 'zh' ? 'zh-Hant' : 'en';
 const $ = id => document.getElementById(id);
-const TABS = ['today', 'practice', 'review', 'list', 'progress'];
-// Older links and notices said #words for 今天.
-const TAB_ALIAS = { words: 'today' };
-const VIEWS = { today: renderToday, practice: renderPractice, review: renderReview, list: renderBrowse, progress: renderProgress };
+const TABS = ['today', 'review', 'list', 'progress'];
+// Older links and notices said #words for 今天; #practice was a tab, now 今天's sheet.
+const TAB_ALIAS = { words: 'today', practice: 'today' };
+const VIEWS = { today: renderToday, review: renderReview, list: renderBrowse, progress: renderProgress };
 const VERSION = document.querySelector('meta[name="build-version"]')?.content || 'dev';
 
 const q = quadraSession('vocab', { lang: locale });
@@ -91,7 +92,6 @@ hooks.render = render;
 
 // The open tab: what's running in it (a round, cards), else its screen.
 function render() {
-  $('status').textContent = state.loaded ? t('statusLine', { n: Math.min(todayCount(state.days), DAILY_GOAL), goal: DAILY_GOAL, s: streakOf(state.days) }) : '';
   const box = $(`panel-${state.tab}`);
   if (!box) return;
   if (!state.words) return put(box, el('div', { class: 'center-spin' }, [el('div', { class: 'spinner' })]));
@@ -101,7 +101,7 @@ function render() {
   tabNav.badge('review', catCounts(state.words, state.progress, { marks: state.marks }).wrong, { tone: 'accent' });
 }
 
-const TAB_ICONS = { today: 'home', practice: 'grid', review: 'history', list: 'book', progress: 'chart' };
+const TAB_ICONS = { today: 'home', review: 'history', list: 'book', progress: 'chart' };
 const tabNav = tabBar({ tabs: TABS.map(id => ({ id, label: t(`tab_${id}`), icon: TAB_ICONS[id] })), onSelect: (tab, { again }) => (again ? resetTab(tab) : showTab(tab)) });
 function showTab(tab) {
   state.tab = tab;
@@ -200,13 +200,14 @@ function openFromHash(start = false) {
   if (tab && (tab !== state.tab || start)) showTab(tab);
   if (word) openWord(word);
   else if (tab) closeWord();
+  if (hash === 'practice') openPrefs();
 }
 window.addEventListener('hashchange', () => state.loaded && openFromHash());
 
 // Opens without a connection: the kit registers the worker and has it keep every file loaded.
 keepOffline();
 
-// Meanings and the categories' buttons fitted to their line after any redraw (ui.js), once a frame.
+// Meanings fitted to their line after any redraw (ui.js), once a frame.
 let sensesDue = false;
 new MutationObserver(() => {
   if (sensesDue) return;
@@ -214,7 +215,6 @@ new MutationObserver(() => {
   requestAnimationFrame(() => {
     sensesDue = false;
     fitSenses([...document.querySelectorAll(FIT_SENSES)].filter(n => !n.dataset.full));
-    fitButtons([...document.querySelectorAll('.cat-seg > button')]);
   });
 }).observe(document.body, { childList: true, subtree: true });
-addEventListener('resize', () => (fitSenses([...document.querySelectorAll(FIT_SENSES)]), fitButtons([...document.querySelectorAll('.cat-seg > button')])));
+addEventListener('resize', () => fitSenses([...document.querySelectorAll(FIT_SENSES)]));
