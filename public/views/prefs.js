@@ -1,6 +1,7 @@
 // The round's choices, in a sheet from 今天's hero (and #practice): how
 // many words a round holds, which levels, which way to learn, and how fast
 // the words are said. Each change is saved at once (shell.js settingsChanged).
+import * as kitUI from '#kit/ui.mjs';
 import { el, put, segmented } from '../ui.js';
 import { state, t, hooks, levelName, settingsChanged, locale } from '../shell.js';
 import { speak, RATES } from '../audio.js';
@@ -20,21 +21,18 @@ export function levelsText(levels) {
 }
 
 let dialog = null;
+let box = null;
 export function openPrefs() {
-  if (!dialog) {
-    dialog = el('dialog', { class: 'q-sheet prefs-sheet', 'aria-label': t('prefsTitle') });
-    dialog.addEventListener('click', e => e.target === dialog && dialog.close());
-    document.body.append(dialog);
+  if (!dialog?.isConnected) {
+    box = el('div', { class: 'prefs-body' });
+    dialog = kitUI.sheet({ title: t('prefsTitle'), body: [box], cls: 'prefs-sheet', detent: 'large', closeLabel: t('close'), onClose: () => (dialog = null) }).el;
   }
   draw();
-  if (!dialog.open) dialog.showModal();
 }
 const changed = () => (settingsChanged(), hooks.render(), draw());
 
 function draw() {
   const st = stats(state.words, state.progress);
-  const close = el('button', { class: 'q-close', type: 'button', 'aria-label': t('close'), onclick: () => dialog.close() });
-  close.innerHTML = ico('x');
   const size = segmented(SIZES.map(n => ({ id: n, label: t('wordsN', { n }) })), state.size, n => ((state.size = n), changed()), 'size-seg');
   const levels = rowCard(
     LEVELS.map(l => {
@@ -64,10 +62,10 @@ function draw() {
       segmented(RATES.map(r => ({ id: r, label: `${r}×` })), rate, r => {
         state.opt = { ...state.opt, rate: r };
         changed();
-        speak(wordOfDay(state.words));
+        speak(wordOfDay(state.words, Date.now(), state.levels));
       }),
-      el('button', { class: 'q-btn small tinted', type: 'button', onclick: () => speak(wordOfDay(state.words)) }, [t('rateTry')])
+      el('button', { class: 'q-btn small tinted', type: 'button', onclick: () => speak(wordOfDay(state.words, Date.now(), state.levels)) }, [t('rateTry')])
     ])
   ]);
-  put(dialog, el('div', { class: 'q-sheet-head' }, [el('span'), el('h2', { text: t('prefsTitle') }), close]), el('h3', { class: 'q-sheet-h', text: t('roundSize') }), size, el('h3', { class: 'q-sheet-h', text: t('levels') }), levels, el('h3', { class: 'q-sheet-h', text: t('modes') }), modes, el('h3', { class: 'q-sheet-h', text: t('rateLabel') }), sound);
+  put(box, el('h3', { class: 'q-sheet-h', text: t('roundSize') }), size, el('h3', { class: 'q-sheet-h', text: t('levels') }), levels, el('h3', { class: 'q-sheet-h', text: t('modes') }), modes, el('h3', { class: 'q-sheet-h', text: t('rateLabel') }), sound);
 }

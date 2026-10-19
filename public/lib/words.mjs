@@ -748,8 +748,11 @@ export function mergeProgress(a = {}, b = {}) {
 
 // The word of the day: the same for everyone on a Taiwan day, from levels 3-6
 // (a single word, not a phrase), a different one each day.
-export function wordOfDay(words, now = Date.now()) {
-  const pool = words.filter(w => w.level >= 3 && /^[a-z]+$/.test(w.word) && w.zh);
+export function wordOfDay(words, now = Date.now(), levels = null) {
+  const ok = w => /^[a-z]+$/.test(w.word) && w.zh;
+  // Within the levels chosen (as the lists are), else the harder words as before.
+  let pool = levels?.length ? words.filter(w => levels.includes(w.level) && ok(w)) : [];
+  if (!pool.length) pool = words.filter(w => w.level >= 3 && ok(w));
   if (!pool.length) return null;
   const n = dayNum(now);
   // A fixed stride coprime with the pool size walks the list without repeats.

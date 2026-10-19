@@ -260,8 +260,6 @@ h1, h2, h3, p { margin: 0; }
 }
 
 /* ---- The word's sheet ---- */
-.word-sheet .q-sheet-head .q-tags { margin: 0; min-width: 0; }
-.sheet-actions { display: flex; align-items: center; gap: 4px; flex: none; }
 .sheet-word { display: grid; gap: 4px; margin: 4px 4px 16px; }
 .sheet-word .meaning { margin-top: 10px; font-size: 17px; }
 .sheet-word .word-line > .word { font-size: min(36px, calc((100vw - 110px) / (var(--len, 8) * 0.6))); }

@@ -4,6 +4,7 @@
 // theirs), how you've misspelt it, how it's going (answers, accuracy, the
 // chance you still know it, when it's next asked), a bookmark, and "I know
 // it" to put it away.
+import * as kitUI from '#kit/ui.mjs';
 import { el, put, diffLine } from '../ui.js';
 import { state, t, hooks, hintOf, metaLine, percent, dueText, wordEl } from '../shell.js';
 import { speakButton } from '../audio.js';
@@ -36,19 +37,22 @@ export function missNote(word, p, { small = true } = {}) {
 }
 
 let dialog = null;
+let shell = null;
+let box = null;
+let lead = null;
 const buzz = () => globalThis.quadraHaptic?.();
 
 export function openWord(word) {
   if (!word) return;
-  if (!dialog) {
-    dialog = el('dialog', { class: 'q-sheet word-sheet', 'aria-label': word.word });
-    dialog.addEventListener('click', e => e.target === dialog && dialog.close());
-    document.body.append(dialog);
+  if (!dialog?.isConnected) {
+    box = el('div', { class: 'word-body' });
+    lead = el('span', { class: 'sheet-lead' });
+    shell = kitUI.sheet({ title: '', lead, body: [box], cls: 'word-sheet', detent: 'large', closeLabel: t('close'), onClose: () => (dialog = null) });
+    dialog = shell.el;
   }
   draw(word);
-  if (!dialog.open) dialog.showModal();
 }
-export const closeWord = () => dialog?.open && dialog.close();
+export const closeWord = () => dialog?.open && shell.close();
 
 export function starButton(word, after = () => {}) {
   const on = isMarked(state.marks, word.key);
@@ -91,13 +95,9 @@ function draw(word) {
   const info = wordInfo(p, Date.now(), personalFactor(state.cal));
   const hint = hintOf(word.key);
   const redraw = () => (draw(word), hooks.render());
-  const close = el('button', { class: 'q-close', type: 'button', 'aria-label': t('close'), onclick: () => dialog.close() });
-  close.innerHTML = ico('x');
   const tone = info.state === 'mastered' ? 'green' : info.state === 'learning' ? 'tint' : '';
-  const head = el('div', { class: 'q-sheet-head' }, [
-    el('div', { class: 'q-tags' }, [tag(t(`state_${info.state}`), tone), p?.o === 2 ? tag(t('lastMissed'), 'red') : null, info.dueIn != null ? tag(dueText(info.dueIn), info.dueIn <= 0 ? 'orange' : '') : null]),
-    el('div', { class: 'sheet-actions' }, [starButton(word, redraw), close])
-  ]);
+  const head = el('div', { class: 'q-tags' }, [tag(t(`state_${info.state}`), tone), p?.o === 2 ? tag(t('lastMissed'), 'red') : null, info.dueIn != null ? tag(dueText(info.dueIn), info.dueIn <= 0 ? 'orange' : '') : null]);
+  lead.replaceChildren(starButton(word, redraw));
   const top = el('div', { class: 'sheet-word' }, [el('div', { class: 'word-line' }, [wordEl(word), speakButton(word)]), el('small', { class: 'muted', text: metaLine(word) }), el('p', { class: 'meaning', text: word.zh })]);
   const spelt = (p?.x || []).length ? block(t('youSpelt'), el('div', { class: 'q-card spelt' }, p.x.map(s => speltRow(s, word)))) : null;
   const numbers = info.answers
@@ -124,7 +124,7 @@ function draw(word) {
         })
       : null;
   put(
-    dialog,
+    box,
     head,
     top,
     tipBox(word),

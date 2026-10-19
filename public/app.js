@@ -11,6 +11,7 @@
 // on the Quadra Pass. The pass itself (Plus, looks, the truth about money,
 // every app's guide) is the kit's Quadra Pass sheet, in every app. (It was
 // Quadra Hub; its id stays `vocab`, its storage and caches `quadra-hub`.)
+import * as kitUI from '#kit/ui.mjs';
 import { quadraSession, tabBar, topActions, installGate, watchUpdates, schedulePush, notify, keepOffline, storedAccount, cachedPayload } from '#kit/quadra.mjs';
 import { loadWords, loadHints, keyOf } from './lib/words.mjs';
 import { DAILY_GOAL, streakAtRisk, taipeiDay } from './lib/practice.mjs';
@@ -95,7 +96,12 @@ function render() {
   if (!box) return;
   if (!state.words) return put(box, el('div', { class: 'center-spin' }, [el('div', { class: 'spinner' })]));
   if (state.session?.home === state.tab) renderSession(box);
-  else VIEWS[state.tab](box);
+  else {
+    VIEWS[state.tab](box);
+    // Every tab but the first opens on the kit's large title (今天 has none).
+    const title = state.tab === TABS[0] ? null : kitUI.navTitle?.(t(`tab_${state.tab}`));
+    if (title) box.prepend(title);
+  }
   // 複習's count on its tab: the words missed last time.
   tabNav.badge('review', catCounts(state.words, state.progress, { marks: state.marks }).wrong, { tone: 'accent' });
 }

@@ -1,6 +1,7 @@
 // 今天, the home: the day's goal and the round (the hero; its pill opens the
 // round's choices), then what else there is to do (new words as cards, the
 // weak words, the missed words as flash cards), and the word of the day.
+import * as kitUI from '#kit/ui.mjs';
 import { el, put } from '../ui.js';
 import { hero, heroPill, heroBtn, big, bar, iconText, section, row, rowCard, tag, tile, ico } from './chrome.js';
 import { state, t, hooks, hintOf, metaLine, wordEl } from '../shell.js';
@@ -65,7 +66,7 @@ function missedRow() {
 
 // The same word for everyone today; a tap opens its sheet.
 function wordOfDayCard() {
-  const w = wordOfDay(state.words);
+  const w = wordOfDay(state.words, Date.now(), state.levels);
   if (!w) return null;
   const tip = hintOf(w.key)?.tip;
   const st = stateOf(state.progress[w.key]);
@@ -85,6 +86,8 @@ function wordOfDayCard() {
 
 // Fitness's ring: today's answers of the goal; a check when it's met.
 function ring(value, max) {
+  const kit = kitUI.progressRing?.(Math.min(1, value / max), { size: 76, stroke: 8, tint: '#fff', label: value >= max ? '✓' : `${Math.round((Math.min(value, max) / max) * 100)}%` });
+  if (kit) return kit;
   const r = 34;
   const c = 2 * Math.PI * r;
   const done = value >= max;
@@ -131,12 +134,15 @@ function streakPanel() {
   const lead = new Date(`${days[0].day}T00:00:00Z`).getUTCDay();
   const names = [...t('wkDays')];
   const cells = [...Array.from({ length: lead }, () => el('i', { class: 'cal-pad', 'aria-hidden': 'true' })), ...days.map((d, i) => el('i', { class: `cal-day${d.kept ? ' kept' : d.answers ? ' some' : ''}${i === days.length - 1 ? ' today' : ''}`, title: `${d.day.slice(5)} · ${d.answers}`, text: String(Number(d.day.slice(8))) }))];
+  const month = days.at(-1).day;
+  const marks = Object.fromEntries(days.map(d => [d.day, d.kept ? 'done' : d.answers ? 'part' : '']).filter(([, m]) => m));
+  const kitCal = kitUI.monthCalendar?.({ year: Number(month.slice(0, 4)), month: Number(month.slice(5, 7)), marks, today: month, lang: t('wkDays')[0] === 'S' ? 'en' : 'zh' });
   return section(
     t('streakTitle'),
     el('div', { class: 'q-card streak-card' }, [
       el('div', { class: 'streak-top' }, [tile('flame', 'var(--q-orange)'), el('div', { class: 'streak-text' }, [el('strong', { class: 'num', text: t('streakDays', { n: streak }) }), el('small', { text: [t('bestStreak', { n: bestStreak(state.days) }), t('todayN', { n: todayCount(state.days) })].join(' · ') })])]),
-      el('div', { class: 'cal-head' }, names.map(n => el('span', { text: n }))),
-      el('div', { class: 'cal-grid' }, cells)
+      kitCal ?? el('div', { class: 'cal-head' }, names.map(n => el('span', { text: n }))),
+      kitCal ? null : el('div', { class: 'cal-grid' }, cells)
     ])
   );
 }

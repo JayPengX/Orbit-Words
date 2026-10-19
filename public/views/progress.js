@@ -2,6 +2,7 @@
 // streak), how well (accuracy, time, days), what's been done and what's
 // coming (one chart, two ways), each level by state, and how long words
 // stay remembered: the model's fit, and the words forgotten most (a sheet).
+import * as kitUI from '#kit/ui.mjs';
 import { el, put, segmented } from '../ui.js';
 import { hero, big, bar, stats, section, row, rowCard, tag, ico } from './chrome.js';
 import { state, t, joined, percent, levelName, locale } from '../shell.js';
@@ -48,7 +49,8 @@ function chartCard() {
     ? lastDays(state.days, 14).map(d => ({ n: d.answers, hot: d.kept, short: String(Number(d.day.slice(8))), name: d.day.slice(5) }))
     : forecast(state.progress, 7).map(f => ({ n: f.n, hot: f.day === 0, short: f.day === 0 ? t('todayShort') : `+${f.day}`, name: f.day === 0 ? t('todayShort') : `+${f.day}` }));
   const pick = segmented([{ id: 'past', label: t('chartPast') }, { id: 'next', label: t('chartNext') }], view.chart, id => ((view.chart = id), box.replaceWith(chartCard())), 'chart-seg');
-  const box = el('div', { class: 'q-card chart-card' }, [pick, bars(items, past ? DAILY_GOAL : 0), past ? el('div', { class: 'q-tags' }, [tag(t('bestStreak', { n: bestStreak(state.days) }), 'tint'), tag(t('goalLine', { n: DAILY_GOAL }))]) : null]);
+  const quiet = past && items.every(x => !x.n);
+  const box = el('div', { class: 'q-card chart-card' }, [pick, quiet ? kitUI.empty?.({ icon: 'chart', title: t('chartNone') }) ?? el('p', { class: 'none', text: t('chartNone') }) : bars(items, past ? DAILY_GOAL : 0), past ? el('div', { class: 'q-tags' }, [tag(t('bestStreak', { n: bestStreak(state.days) }), 'tint'), tag(t('goalLine', { n: DAILY_GOAL }))]) : null]);
   return box;
 }
 // A row of bars; the largest and the last say their number.
@@ -110,16 +112,5 @@ export function hardRow(w) {
 }
 export function openHardest(list) {
   dialog?.remove();
-  const close = el('button', { class: 'q-close', type: 'button', 'aria-label': t('close'), onclick: () => dialog.close() });
-  close.innerHTML = ico('x');
-  dialog = el('dialog', { class: 'q-sheet', onclick: e => e.target === dialog && dialog.close() }, [
-    el('div', { class: 'q-sheet-head' }, [el('span'), el('h2', { text: t('hardTitle') }), close]),
-    el(
-      'div',
-      { class: 'q-rowcard words' },
-      list.map(hardRow)
-    )
-  ]);
-  document.body.append(dialog);
-  dialog.showModal();
+  dialog = kitUI.sheet({ title: t('hardTitle'), body: [el('div', { class: 'q-rowcard words' }, list.map(hardRow))], closeLabel: t('close') }).el;
 }
