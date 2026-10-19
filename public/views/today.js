@@ -86,7 +86,7 @@ function wordOfDayCard() {
 
 // Fitness's ring: today's answers of the goal; a check when it's met.
 function ring(value, max) {
-  const kit = kitUI.progressRing?.(Math.min(1, value / max), { size: 76, stroke: 8, tint: '#fff', label: value >= max ? '✓' : `${Math.round((Math.min(value, max) / max) * 100)}%` });
+  const kit = kitUI.progressRing?.(Math.min(1, value / max), { size: 76, stroke: 8, tint: '#fff', done: value >= max, label: `${Math.round((Math.min(value, max) / max) * 100)}%` });
   if (kit) return kit;
   const r = 34;
   const c = 2 * Math.PI * r;
@@ -136,7 +136,7 @@ function streakPanel() {
   const cells = [...Array.from({ length: lead }, () => el('i', { class: 'cal-pad', 'aria-hidden': 'true' })), ...days.map((d, i) => el('i', { class: `cal-day${d.kept ? ' kept' : d.answers ? ' some' : ''}${i === days.length - 1 ? ' today' : ''}`, title: `${d.day.slice(5)} · ${d.answers}`, text: String(Number(d.day.slice(8))) }))];
   const month = days.at(-1).day;
   const marks = Object.fromEntries(days.map(d => [d.day, d.kept ? 'done' : d.answers ? 'part' : '']).filter(([, m]) => m));
-  const kitCal = kitUI.monthCalendar?.({ year: Number(month.slice(0, 4)), month: Number(month.slice(5, 7)), marks, today: month, lang: t('wkDays')[0] === 'S' ? 'en' : 'zh' });
+  const kitCal = kitUI.monthCalendar?.({ last: 35, marks, today: month, lang: t('wkDays')[0] === 'S' ? 'en' : 'zh' });
   return section(
     t('streakTitle'),
     el('div', { class: 'q-card streak-card' }, [
