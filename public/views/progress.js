@@ -27,6 +27,8 @@ export function renderProgress(box) {
 // Accuracy and time: every answer, and the last 7 days.
 function howWell() {
   const all = totals(state.progress);
+  // No stat tiles before the first answer: four dashes say nothing.
+  if (!all.answers) return null;
   const week = periodOf(state.days, state.log, 7);
   return el('div', { class: 'q-section' }, [
     stats([

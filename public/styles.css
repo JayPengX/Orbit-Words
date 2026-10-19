@@ -5,34 +5,17 @@
    進度, a round / study / flash cards, the word's sheet. */
 :root {
   color-scheme: light;
-  --accent: #db2777;
-  --accent-wash: rgba(219, 39, 119, 0.1);
-  --accent-ink: #ffffff;
-  --q-accent: var(--accent);
-  --q-accent-ink: var(--accent-ink);
+  /* Kit colours: <html data-app="vocab"> sets --q-accent; win/loss are the kit's meaning tokens. */
+  --accent: var(--q-accent);
+  --accent-wash: color-mix(in srgb, var(--q-accent) 14%, transparent);
+  --accent-ink: var(--q-accent-ink, #fff);
   --q-accent-wash: var(--accent-wash);
-  --win: #059669;
-  --loss: #dc2626;
+  --win: var(--q-win, #059669);
+  --loss: var(--q-loss, #dc2626);
   font-family: var(--q-font);
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    color-scheme: dark;
-    --accent: #f472b6;
-    --accent-wash: rgba(244, 114, 182, 0.16);
-    --accent-ink: #500724;
-    --win: #34d399;
-    --loss: #f87171;
-  }
-}
-:root[data-theme='dark'] {
-  color-scheme: dark;
-  --accent: #f472b6;
-  --accent-wash: rgba(244, 114, 182, 0.16);
-  --accent-ink: #500724;
-  --win: #34d399;
-  --loss: #f87171;
-}
+:root[data-theme='dark'] { color-scheme: dark; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme='light']) { color-scheme: dark; } }
 
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }

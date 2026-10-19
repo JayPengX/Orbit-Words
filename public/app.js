@@ -16,7 +16,6 @@ import { loadWords, loadHints, keyOf } from './lib/words.mjs';
 import { DAILY_GOAL, streakAtRisk, taipeiDay } from './lib/practice.mjs';
 import { catCounts } from './lib/review.mjs';
 import { decodePayload, encodePayload, mergeCopy } from './lib/copy.mjs';
-import { passSync as localPassSync } from './lib/pass-sync.mjs';
 import { state, hooks, t, locale } from './shell.js';
 import { renderSession, busy } from './views/session.js';
 import { renderToday } from './views/today.js';
@@ -46,7 +45,7 @@ const absorb = decoded => Object.assign(state, mergeCopy(state, decoded));
 // what's learned with no connection stays when the app is closed, and the app
 // opens on it at once, not after the sign-in. Merged with the pass's copy,
 // never in its place: the pass's copy is read and merged in before anything
-// is written over it, whenever it may have changed (lib/pass-sync.mjs), so a
+// is written over it, whenever it may have changed (the kit's pass-sync.mjs), so a
 // phone that was offline, or another device's newer progress, is never
 // written over.
 const LOCAL_KEY = 'orbit-words.progress.v1';
@@ -63,8 +62,8 @@ function localCopy() {
     return null;
   }
 }
-// The kit's shared Pass sync; this app's own copy (lib/pass-sync.mjs) when an older kit lacks it.
-const passSync = (await import('#kit/pass-sync.mjs').catch(() => null))?.passSync ?? localPassSync;
+// The kit's shared Pass sync (an older kit without it: this device's progress stays on this device).
+const passSync = (await import('#kit/pass-sync.mjs').catch(() => null))?.passSync ?? (() => ({ first: async () => {}, watch() {}, sync: async () => {}, changed() {} }));
 const pass = passSync(q, {
   decode: decodePayload,
   encode: () => encodePayload(state),
