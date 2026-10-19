@@ -414,6 +414,6 @@ function renderFlash(box, s) {
   swipeable(card);
   const all = s.seen.size >= s.deck.length;
   const nav = el('div', { class: 'card-nav' }, [navBtn('left', t('flashPrev'), () => flashStep(-1), { disabled: s.i === 0 }), navBtn('right', t('flashNext'), () => flashStep(1), { disabled: s.i + 1 >= s.deck.length, after: true })]);
-  const test = el('button', { class: `q-btn large block${all ? ' primary' : ' tinted'}`, type: 'button', disabled: !all, text: all ? t('flashTest', { n: s.deck.length }) : t('flashSeeAll', { n: s.deck.length - s.seen.size }), onclick: () => startRound({ from: 'flash', list: s.deck }) });
+  const test = el('button', { class: `q-btn large block flash-test${all ? ' primary' : ' tinted'}`, type: 'button', disabled: !all, text: all ? t('flashTest', { n: s.deck.length }) : t('flashSeeAll', { n: s.deck.length - s.seen.size }), onclick: () => startRound({ from: 'flash', list: s.deck }) });
   put(box, head(end, s.i + 1, s.deck.length, `${s.i + 1} / ${s.deck.length}`), card, nav, test);
 }

@@ -253,6 +253,8 @@ h1, h2, h3, p { margin: 0; }
 .flip-hint { display: inline-flex; align-items: center; gap: 6px; margin-top: auto; color: var(--q-label-2); font: var(--q-t-footnote); }
 .flip-hint .gl { width: 15px; height: 15px; }
 .flash-mixed { display: grid; gap: 6px; justify-self: stretch; }
+/* 測驗 stays in reach above the floating tab bar on a long flipped card. */
+.flash-test { position: sticky; bottom: calc(var(--q-bar-gap, 12px) + 72px); z-index: 2; box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.35); }
 .spelt { display: grid; justify-items: center; gap: 4px; }
 .spelt-row { display: flex; align-items: baseline; gap: 8px; font-size: 18px; font-weight: 700; }
 .card-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0 12px; }
