@@ -9,7 +9,7 @@ import { shortMeaning, stateOf } from '../lib/words.mjs';
 import { CATS, SORTS, catCounts, reviewList, flashDeck, wordInfo, isMarked } from '../lib/review.mjs';
 import { startFlash, startRound } from './session.js';
 import { openWord, missNote } from './sheet.js';
-import { pageHead, hero, heroPill, heroBtn, big, section, menuButton, tile, ico } from './chrome.js';
+import { hero, heroPill, heroBtn, big, section, menuButton, tile, ico } from './chrome.js';
 
 const view = { cat: 'wrong', sort: 'weak', query: '', deck: 20, picked: false };
 export const DECKS = [10, 20, 50];
@@ -21,7 +21,7 @@ export function renderReview(box) {
   if (!view.picked && !counts[view.cat]) view.cat = CATS.find(c => counts[c]) || 'wrong';
   const n = counts[view.cat];
   const cats = segmented(CATS.map(c => ({ id: c, label: t(`cat_${c}`) })), view.cat, c => ((view.cat = c), (view.picked = true), hooks.render()), 'cat-seg');
-  put(box, pageHead(t('tab_review')), cats, n ? deckHero(n) : emptyCard(), n ? wordsSection() : null);
+  put(box, cats, n ? deckHero(n) : emptyCard(), n ? wordsSection() : null);
 }
 
 // The category: its count, its flash cards (10, 20, 50 or all of them, up

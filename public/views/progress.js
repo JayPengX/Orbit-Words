@@ -3,7 +3,7 @@
 // coming (one chart, two ways), each level by state, and how long words
 // stay remembered: the model's fit, and the words forgotten most (a sheet).
 import { el, put, segmented } from '../ui.js';
-import { pageHead, hero, big, bar, stats, section, row, rowCard, tag, ico } from './chrome.js';
+import { hero, big, bar, stats, section, row, rowCard, tag, ico } from './chrome.js';
 import { state, t, joined, percent, levelName, locale } from '../shell.js';
 import { speakButton } from '../audio.js';
 import { stats as wordStats, hardest, shortMeaning, personalFactor } from '../lib/words.mjs';
@@ -21,7 +21,7 @@ export function renderProgress(box) {
     bar(a.mastered, a.total, 'hero-bar'),
     el('div', { class: 'hero-tags' }, [el('span', { class: 'hero-tag', text: `Lv ${lv.level} ${lv.title}` }), el('span', { class: 'hero-tag', text: xpText(xpOf(state.progress)) })])
   ]);
-  put(box, pageHead(t('tab_progress')), top, howWell(), section(t('activityTitle'), chartCard()), section(t('levelsTitle'), levelsCard()), section(t('memoryTitle'), memoryCard()));
+  put(box, top, howWell(), section(t('activityTitle'), chartCard()), section(t('levelsTitle'), levelsCard()), section(t('memoryTitle'), memoryCard()));
 }
 
 // Accuracy and time: every answer, and the last 7 days.

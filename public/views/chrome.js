@@ -4,7 +4,6 @@
 // the app; plus this app's own few glyphs (a speaker, cards, sliders).
 import * as kitUI from '#kit/ui.mjs';
 import { el } from '../ui.js';
-import { locale } from '../shell.js';
 
 const svg = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const OWN = {
@@ -26,8 +25,6 @@ const glyph = (node, name) => {
   return node;
 };
 
-export const dayLine = () => new Date().toLocaleDateString(locale === 'en' ? 'en-US' : 'zh-TW', { month: 'long', day: 'numeric', weekday: 'long', timeZone: 'Asia/Taipei' });
-export const pageHead = (title, over = '') => el('header', { class: 'q-page-head' }, [over ? el('p', { class: 'q-over', text: over }) : null, el('h1', { text: title })]);
 
 // A colour tile: a glyph's name, or a short text (a level's number).
 export function tile(icon, color = '', size = '', soft = false) {

@@ -2,7 +2,7 @@
 // round's choices), then what else there is to do (new words as cards, the
 // weak words, the missed words as flash cards), and the word of the day.
 import { el, put } from '../ui.js';
-import { pageHead, dayLine, hero, heroPill, heroBtn, big, bar, iconText, section, row, rowCard, tag } from './chrome.js';
+import { hero, heroPill, heroBtn, big, bar, iconText, section, row, rowCard, tag } from './chrome.js';
 import { state, t, hooks, hintOf, metaLine, wordEl } from '../shell.js';
 import { speakButton } from '../audio.js';
 import { LEVELS, stats, toStudy, stateOf, shortMeaning, wordOfDay } from '../lib/words.mjs';
@@ -13,7 +13,7 @@ import { openWord, starButton } from './sheet.js';
 import { openPrefs, levelsText } from './prefs.js';
 
 export function renderToday(box) {
-  put(box, pageHead('Orbit Words', dayLine()), goalHero(), section(t('practiceTitle'), rowCard([studyRow(), weakRow(), missedRow()])), wordOfDayCard());
+  put(box, goalHero(), section(t('practiceTitle'), rowCard([studyRow(), weakRow(), missedRow()])), wordOfDayCard());
 }
 
 // The goal: today's answers of 20, the streak they keep, and the round.

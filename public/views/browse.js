@@ -6,7 +6,7 @@ import { state, t, hooks, levelName } from '../shell.js';
 import { LEVELS } from '../lib/words.mjs';
 import { STATES, browse } from '../lib/review.mjs';
 import { wordRow } from './review.js';
-import { pageHead, section, menuButton } from './chrome.js';
+import { section, menuButton } from './chrome.js';
 
 const view = { level: 0, state: 'all', query: '' };
 
@@ -24,7 +24,6 @@ export function renderBrowse(box) {
   draw();
   put(
     box,
-    pageHead(t('tab_list')),
     searchField(view.query, t('searchWords', { n: total.toLocaleString() }), q => ((view.query = q), draw())),
     chips([{ id: 0, label: t('allLevels') }, ...LEVELS.map(l => ({ id: l, label: levelName(l) }))], view.level, l => ((view.level = l), hooks.render()), 'level-chips'),
     list
