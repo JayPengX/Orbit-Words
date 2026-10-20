@@ -28,7 +28,7 @@ h1, h2, h3, p { margin: 0; }
 .muted { color: var(--q-label-2); }
 .num { font-variant-numeric: tabular-nums; }
 .none { padding: 20px 4px; color: var(--q-label-2); font: var(--q-t-subhead); text-align: center; }
-.memory-card .none { padding: 16px 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.memory-card .none { padding: 16px 0; font-size: 14px; text-wrap: balance; }
 .center-spin { display: grid; place-items: center; padding: 40px 0; }
 
 /* ---- The page (this file comes after the kit's, so its rules win a tie) ---- */

@@ -61,7 +61,7 @@ function goCard({ icon, color, title, value, sub, progress, onClick, disabled = 
   return el('button', { class: 'go-card q-press', type: 'button', disabled: disabled || null, onclick: onClick }, [
     tile(icon, color, 'sm'),
     el('strong', { class: 'go-val num', text: String(value) }),
-    el('span', { class: 'go-title', text: title }),
+    el('span', { class: 'go-title q-fit-wrap', text: title }),
     sub ? el('small', { class: 'go-sub', text: sub }) : null,
     progress ? bar(progress[0], progress[1], 'mini-bar') : null
   ]);
