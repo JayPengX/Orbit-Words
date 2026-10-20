@@ -3,6 +3,8 @@
 // right answers and masteries in the word progress, the answers per Taiwan
 // day in `days`. Nothing here is money or touches the Quadra wallet.
 
+import { taipeiDay } from '#kit/quadra.mjs';
+
 // Points: a right answer, and a word mastered the first time.
 export const POINTS = { right: 2, mastered: 15 };
 // A day counts for the streak once this many answers were given.
@@ -25,8 +27,8 @@ export function xpText(v, { sign = false } = {}) {
 // Level L starts at 100·(L−1)² points: 100 for level 2, 1,600 for 5, 8,100
 // for 10, 36,100 for 20 (about 18,000 right answers), 240,100 for 50.
 // A title every few levels.
-export const xpForLevel = L => 100 * (L - 1) ** 2;
-export const TITLES = [
+const xpForLevel = L => 100 * (L - 1) ** 2;
+const TITLES = [
   [1, '新手', 'Rookie'],
   [5, '學徒', 'Apprentice'],
   [10, '好手', 'Skilled'],
@@ -50,7 +52,6 @@ export function levelOf(xp, lang = 'zh') {
 // ---- Days ------------------------------------------------------------------------------
 //
 // `days`: { 'YYYY-MM-DD' (Taiwan): answers }.
-export const taipeiDay = (t = Date.now()) => new Date(t + 8 * 3_600_000).toISOString().slice(0, 10);
 const dayBefore = d => new Date(Date.parse(`${d}T12:00:00Z`) - 86_400_000).toISOString().slice(0, 10);
 
 // One more answer today; old days dropped.

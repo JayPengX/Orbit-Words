@@ -7,7 +7,7 @@
 // Samantha…), Google's. They're ranked and the best is kept; that one is used
 // when a recording is missing.
 
-export function voiceScore(v) {
+function voiceScore(v) {
   if (!v || !/^en([-_]|$)/i.test(v.lang || '')) return -1;
   const name = v.name || '';
   let s = 0;
@@ -25,7 +25,7 @@ export function voiceScore(v) {
   return s;
 }
 
-export function rankVoices(voices) {
+function rankVoices(voices) {
   return [...(voices || [])].filter(v => voiceScore(v) >= 0).sort((a, b) => voiceScore(b) - voiceScore(a) || String(a.name).localeCompare(String(b.name)));
 }
 

@@ -19,7 +19,6 @@ export function mergeMarks(a = {}, b = {}) {
   for (const [k, v] of Object.entries(b || {})) if (Array.isArray(v) && (!out[k] || (v[1] || 0) > (out[k][1] || 0))) out[k] = v;
   return out;
 }
-export const markedCount = marks => Object.values(marks || {}).filter(v => v?.[0] === 1).length;
 
 // ---- What to go back over -----------------------------------------------------------------
 //
@@ -57,7 +56,7 @@ export function recentMisses(words, progress, { n = 10, days = 3, now = Date.now
 }
 
 // The chance this person still recalls a word now, 0 to 1 (null for a new word).
-export function recallNow(p, now = Date.now(), factor = 1) {
+function recallNow(p, now = Date.now(), factor = 1) {
   if (!p?.b || !p.t) return null;
   return retrievability((now - p.t) / DAY, (p.s || 0.1) * factor);
 }

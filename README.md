@@ -4,7 +4,7 @@ English words that stay with you: the 大考中心 list, levels 1–6 (6,169
 words), each recorded in Microsoft's Jenny voice. Signs in with the Quadra
 Pass; no money in or out.
 
-Live: https://jaypengx.github.io/Orbit-Words/ (was Quadra Hub)
+Live: https://jaypengx.github.io/Orbit-Words/
 
 ## How it works
 
@@ -34,7 +34,7 @@ Live: https://jaypengx.github.io/Orbit-Words/ (was Quadra Hub)
   and merged with the Pass before anything is written. The Pass's copy is
   read again before a write whenever another device may have written
   (back on screen, the live session changed, a write refused):
-  `lib/pass-sync.mjs`. A copy that can't be read is never written over.
+  the kit's `pass-sync.mjs`. A copy that can't be read is never written over.
   A return reads it once, after the kit's claim; not at all after under
   10 s away; a copy the same as the last one merged isn't merged again.
 - **Saved:** the payload `vocab-progress-sync`, `z3:` + gzip of
@@ -58,7 +58,7 @@ Live: https://jaypengx.github.io/Orbit-Words/ (was Quadra Hub)
 | `app.js`, `shell.js`, `ui.js`, `audio.js` | Start, saving, tabs; shared state; drawing; sound |
 | `views/` | Each tab, the round's choices, the word sheet, rounds and flash cards; `chrome.js` the shared pieces |
 | `lib/words.mjs` | Memory model, rounds, questions, wrong options, saved progress |
-| `lib/copy.mjs`, `pass-sync.mjs` | The payload (encode, decode, merge); keeping it in step with the Pass |
+| `lib/copy.mjs` | The payload (encode, decode, merge); the kit's `pass-sync.mjs` keeps it in step with the Pass |
 | `lib/review.mjs`, `practice.mjs` | Review lists and 進度's numbers; points and streak |
 | `data/words.json`, `hints.json`, `audio/` | The list, the hints, a recording per word |
 
@@ -80,6 +80,5 @@ to `main` tests, stamps versions and deploys to Pages.
 | This | Also check |
 | --- | --- |
 | The saved row's shape | Older copies still open; merging across devices (`tests/sync.test.mjs`) |
-| `lib/pass-sync.mjs` | Its twin in Orbit Weather (the same file) |
 | `data/words.json` | A recording per word, `hints.json` keys |
 | The grade or FSRS weights | 進度's numbers, rounds |

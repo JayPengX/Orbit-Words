@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import { loadWords, loadHints, grade, distractors, dayNum, markKnown } from '../public/lib/words.mjs';
-import { inCat, catCounts, reviewList, browse, flashDeck, toggleMark, mergeMarks, isMarked, markedCount, wordInfo, totals, forecast, levelBreakdown, memorySpread, matches } from '../public/lib/review.mjs';
+import { inCat, catCounts, reviewList, browse, flashDeck, toggleMark, mergeMarks, isMarked, wordInfo, totals, forecast, levelBreakdown, memorySpread, matches } from '../public/lib/review.mjs';
 import { logResult, mergeLog, periodOf, logAnswer, daysPractised } from '../public/lib/practice.mjs';
 
 const read = f => JSON.parse(readFileSync(new URL(`../public/data/${f}`, import.meta.url)));
@@ -64,7 +64,7 @@ test('bookmarks: the latest choice wins on every device, unmarking included', ()
   assert.equal(isMarked(mergeMarks(b, a), 'apple'), false);
   a = toggleMark(b, 'apple', now + 5000);
   assert.equal(isMarked(mergeMarks(b, a), 'apple'), true);
-  assert.equal(markedCount(mergeMarks(a, toggleMark({}, 'go', now))), 2);
+  assert.equal(Object.keys(mergeMarks(a, toggleMark({}, 'go', now))).length, 2);
 });
 
 test('the word list: by level and state, searched in English (its start first) or Chinese', () => {

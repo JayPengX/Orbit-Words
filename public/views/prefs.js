@@ -11,7 +11,7 @@ import { row, rowCard, checkDot, bar } from './chrome.js';
 export const SIZES = [10, 20, 30];
 const MODE_ICON = { smart: 'spark', meaning: 'book', word: 'list', listen: 'sound', letters: 'grid', cloze: 'search', spell: 'pencil' };
 const MODE_COLOR = { smart: 'var(--q-accent)', meaning: 'var(--q-blue)', word: 'var(--q-indigo)', listen: 'var(--q-orange)', letters: 'var(--q-teal)', cloze: 'var(--q-purple)', spell: 'var(--q-green)' };
-export const LEVEL_COLOR = ['', 'var(--q-green)', 'var(--q-mint)', 'var(--q-blue)', 'var(--q-indigo)', 'var(--q-purple)', 'var(--q-pink)'];
+const LEVEL_COLOR = ['', 'var(--q-green)', 'var(--q-mint)', 'var(--q-blue)', 'var(--q-indigo)', 'var(--q-purple)', 'var(--q-pink)'];
 
 // 第 1–3 級, 第 2 級, 第 1、3、5 級 (Levels 1–3 …).
 export function levelsText(levels) {

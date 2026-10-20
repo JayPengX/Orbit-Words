@@ -13,9 +13,9 @@
 // Quadra Hub; its id stays `vocab`, its storage and caches `quadra-hub`.)
 import * as kitUI from '#kit/ui.mjs';
 import { passSync } from '#kit/pass-sync.mjs';
-import { quadraSession, tabBar, topActions, installGate, watchUpdates, schedulePush, notify, keepOffline, storedAccount, cachedPayload } from '#kit/quadra.mjs';
+import { quadraSession, taipeiDay, tabBar, topActions, installGate, watchUpdates, schedulePush, notify, keepOffline, storedAccount, cachedPayload } from '#kit/quadra.mjs';
 import { loadWords, loadHints, keyOf } from './lib/words.mjs';
-import { DAILY_GOAL, streakAtRisk, taipeiDay } from './lib/practice.mjs';
+import { DAILY_GOAL, streakAtRisk } from './lib/practice.mjs';
 import { catCounts } from './lib/review.mjs';
 import { decodePayload, encodePayload, mergeCopy } from './lib/copy.mjs';
 import { state, hooks, t, locale } from './shell.js';

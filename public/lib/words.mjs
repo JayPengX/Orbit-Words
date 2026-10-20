@@ -91,7 +91,7 @@ const FACTOR = 19 / 81;
 export const retrievability = (days, s) => (1 + (FACTOR * Math.max(0, days)) / Math.max(0.01, s)) ** DECAY;
 // How much a right answer is worth by how it was asked: recall from nothing
 // (dictation) proves the most, picking from four the least.
-export const TYPE_WEIGHT = { meaning: 0.55, word: 0.7, listen: 0.75, letters: 0.85, cloze: 0.95, spell: 1.1 };
+const TYPE_WEIGHT = { meaning: 0.55, word: 0.7, listen: 0.75, letters: 0.85, cloze: 0.95, spell: 1.1 };
 // Grades, as FSRS has them: 1 missed, 2 right but slow, 3 right, 4 right and quick.
 // Quick and slow, by how it was asked (ms): a choice, or per letter typed.
 export function gradeOf(correct, type, ms, word = '') {
@@ -115,7 +115,7 @@ export const intervalOf = (s, D = 5) => s * ((RETAIN(D) ** (1 / DECAY) - 1) / FA
 // spends goes to the words they don't know.
 const CHECK_QUICK = 3_500;
 const CHECK_STEADY = 7_000;
-export const checkStability = ms => (ms > 0 && ms <= CHECK_QUICK ? 42 : !(ms > CHECK_STEADY) ? 21 : 4);
+const checkStability = ms => (ms > 0 && ms <= CHECK_QUICK ? 42 : !(ms > CHECK_STEADY) ? 21 : 4);
 // Stability to box: 1 (under 2 days) to 5 (a month or more); box 4 and up
 // is mastered (remembered for more than ten days).
 const BOX_FROM = [0, 2, 4, 10, 30];
@@ -260,7 +260,7 @@ export function markKnown(p, now = Date.now()) {
 // their own. A word that keeps slipping is asked as if it were further on:
 // recognising it isn't the problem. A new word is never dictated (it was
 // never heard). Each box's ways in turn: the one a round has asked least.
-export const SMART_TYPES = [
+const SMART_TYPES = [
   ['meaning', 'listen'],
   ['word', 'listen', 'meaning'],
   ['word', 'listen', 'spell'],
