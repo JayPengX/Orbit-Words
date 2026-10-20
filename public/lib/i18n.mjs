@@ -24,7 +24,7 @@ export const STRINGS = {
     iKnowIt: '我會了，不用再考', rateLabel: '發音語速', rateTry: '試聽', levelsTitle: '各級別', activityTitle: '活動', goalLine: '目標 {n} 題', todayShort: '今天', memoryTitle: '記憶',
     mem0: '不到 2 天', mem1: '2–10 天', mem2: '10–30 天', mem3: '一個月以上', memoryEmpty: '學過的字會照記得多久分組顯示在這裡。', fitSoon: '再複習 {n} 次就會調整成你的記憶力', fitBetter: '記性比一般好 ×{f}，間隔拉長',
     fitWorse: '比一般容易忘 ×{f}，複習排密', fitAverage: '記性跟一般差不多', stAccuracyAll: '總正確率', stAccuracyWeek: '7 天正確率', stPerAnswer: '每題平均', stDaysPractised: '練習天數', secN: '{n} 秒',
-    practiceTitle: '練習', goalTitle: '今日目標', prefsTitle: '練習設定', weakTitle: '弱點快測', lastDays3: '最近 3 天答錯', missedTitle: '上次答錯的字', cardsN: '{n} 張', wordsUnit: '個字',
+    goalTitle: '今日目標', prefsTitle: '練習設定', weakTitle: '弱點快測', lastDays3: '最近 3 天答錯', missedTitle: '上次答錯的字', cardsN: '{n} 張', wordsUnit: '個字',
     listAll: '全部單字', chartPast: '最近 14 天', chartNext: '接下來 7 天', roundDone: '這一輪', masteredN: '精熟 {n} 個', roundWords: '這一輪的字', theseWords: '這些字',
   },
   en: {
@@ -58,22 +58,10 @@ export const STRINGS = {
     todayShort: 'Today', memoryTitle: 'Memory', mem0: 'Under 2 days', mem1: '2–10 days', mem2: '10–30 days', mem3: 'A month+',
     memoryEmpty: 'Learnt words show here by how long they stay remembered.', fitSoon: '{n} more reviews to fit your memory', fitBetter: 'Better than average ×{f}',
     fitWorse: 'Forgets faster ×{f}', fitAverage: 'About average memory', stAccuracyAll: 'Accuracy', stAccuracyWeek: 'Last 7 days', stPerAnswer: 'Per answer',
-    stDaysPractised: 'Days', secN: '{n} s', practiceTitle: 'Practice', goalTitle: 'Today’s goal', prefsTitle: 'Practice', weakTitle: 'Weak-word quiz',
+    stDaysPractised: 'Days', secN: '{n} s', goalTitle: 'Today’s goal', prefsTitle: 'Practice', weakTitle: 'Weak-word quiz',
     lastDays3: 'Missed in 3 days', missedTitle: 'Missed last time', cardsN: '{n} cards', wordsUnit: 'words', listAll: 'All words', chartPast: 'Last 14 days',
     chartNext: 'Next 7 days', roundDone: 'This round', masteredN: '{n} mastered', roundWords: 'The words', theseWords: 'The words',
   }
 };
-Object.assign(STRINGS.zh, { chartNone: '還沒有作答紀錄', continueTitle: '繼續', dueCard: '該複習', dueCardSub: '到期的字', weakWords: '弱點字', allBtn: '全部', streakTitle: '連續天數', streakDays: '連續 {n} 天', streakBest: '最長 {n} 天', todayN: '今天 {n} 題', decksTitle: '單字卡', deckN: '{n} 張', recentTitle: '最近練習的字', wkDays: '日一二三四五六', ringDone: '完成' });
-Object.assign(STRINGS.en, { chartNone: 'No answers yet', continueTitle: 'Continue', dueCard: 'Due now', dueCardSub: 'Words to review', weakWords: 'Weak words', allBtn: 'All', streakTitle: 'Streak', streakDays: '{n}-day streak', streakBest: 'Best {n} days', todayN: '{n} today', decksTitle: 'Flash cards', deckN: '{n} cards', recentTitle: 'Recently practised', wkDays: 'SMTWTFS', ringDone: 'Done' });
-export function detectLocale() {
-  try {
-    const saved = localStorage.getItem('quadra.lang');
-    if (saved === 'zh' || saved === 'en') return saved;
-  } catch {}
-  const langs = globalThis.navigator?.languages || [globalThis.navigator?.language || 'zh-TW'];
-  return langs.some(l => /^zh/i.test(l)) || !langs.some(l => /^en/i.test(l)) ? 'zh' : 'en';
-}
-export function makeT(locale) {
-  const dict = STRINGS[locale] || STRINGS.zh;
-  return (key, vars = {}) => String(dict[key] ?? STRINGS.zh[key] ?? key).replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
-}
+Object.assign(STRINGS.zh, { chartNone: '還沒有作答紀錄', continueTitle: '繼續', dueCard: '該複習', dueCardSub: '到期的字', weakWords: '弱點字', allBtn: '全部', streakTitle: '連續天數', streakDays: '連續 {n} 天', todayN: '今天 {n} 題', decksTitle: '單字卡', deckN: '{n} 張', recentTitle: '最近練習的字' });
+Object.assign(STRINGS.en, { chartNone: 'No answers yet', continueTitle: 'Continue', dueCard: 'Due now', dueCardSub: 'Words to review', weakWords: 'Weak words', allBtn: 'All', streakTitle: 'Streak', streakDays: '{n}-day streak', todayN: '{n} today', decksTitle: 'Flash cards', deckN: '{n} cards', recentTitle: 'Recently practised' });

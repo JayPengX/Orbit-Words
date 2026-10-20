@@ -1,7 +1,7 @@
 // The pieces every screen is drawn with: the kit's premium classes
 // (quadra.css "Premium layer": q-page-head, q-hero-card, q-tile, q-rowcard,
-// q-tag, q-stats, q-ambient) written as markup, so an older kit still runs
-// the app; plus this app's own few glyphs (a speaker, cards, sliders).
+// q-tag, q-stats, q-ambient) written as markup; plus this app's own few
+// glyphs (a speaker, cards, sliders).
 import * as kitUI from '#kit/ui.mjs';
 import { el } from '../ui.js';
 
@@ -16,8 +16,8 @@ const OWN = {
   right: svg('<path d="m9.5 6 6 6-6 6"/>'),
   flip: svg('<path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3M18 3v4h-4M6 21v-4h4"/>')
 };
-// A glyph by name: this app's own, else the kit's (empty on a kit without it).
-export const ico = name => OWN[name] ?? kitUI.icons?.[name] ?? '';
+// A glyph by name: this app's own, else the kit's.
+export const ico = name => OWN[name] ?? kitUI.icons[name] ?? '';
 const glyph = (node, name) => {
   const g = ico(name);
   if (g) node.innerHTML = g;
@@ -48,19 +48,15 @@ export const big = (value, rest = '') => el('strong', { class: 'q-hc-big' }, [va
 
 // A section: a 20px head (and a button on its right), then its body.
 export const section = (title, body, action = null) => {
-  const head = kitUI.sectionHead?.(title) ?? el('div', { class: 'q-section-head' }, [el('h2', { text: title })]);
+  const head = kitUI.sectionHead(title);
   if (action) head.append(action);
   return el('section', { class: 'q-section' }, [head, ...[].concat(body)]);
 };
-// A button in a section's head that opens a menu of choices (the kit's;
-// on a kit without one, each tap moves to the next choice).
+// A button in a section's head that opens a menu of choices (the kit's).
 export function menuButton(options, current, onPick) {
   const now = options.find(o => o.id === current) || options[0];
   const b = el('button', { class: 'head-menu', type: 'button', 'aria-haspopup': 'menu' }, [el('span', { text: now.label }), glyph(el('i', { class: 'gl' }), 'down')]);
-  b.addEventListener('click', () => {
-    if (kitUI.menu) kitUI.menu(b, options.map(o => ({ label: o.label, icon: o.id === current ? '✓' : '', onClick: () => o.id !== current && onPick(o.id) })));
-    else onPick(options[(options.indexOf(now) + 1) % options.length].id);
-  });
+  b.addEventListener('click', () => kitUI.menu(b, options.map(o => ({ label: o.label, icon: o.id === current ? '✓' : '', onClick: () => o.id !== current && onPick(o.id) }))));
   return b;
 }
 

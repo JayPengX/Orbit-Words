@@ -8,10 +8,11 @@
 //
 // This file starts the app, saves and opens tabs; the screens are views/*.js,
 // the teaching lib/*.mjs. It uses no money: the progress is its own payload
-// on the Quadra Pass. The pass itself (Plus, looks, the truth about money,
+// on the Quadra Pass. The pass itself (looks, the truth about money,
 // every app's guide) is the kit's Quadra Pass sheet, in every app. (It was
 // Quadra Hub; its id stays `vocab`, its storage and caches `quadra-hub`.)
 import * as kitUI from '#kit/ui.mjs';
+import { passSync } from '#kit/pass-sync.mjs';
 import { quadraSession, tabBar, topActions, installGate, watchUpdates, schedulePush, notify, keepOffline, storedAccount, cachedPayload } from '#kit/quadra.mjs';
 import { loadWords, loadHints, keyOf } from './lib/words.mjs';
 import { DAILY_GOAL, streakAtRisk, taipeiDay } from './lib/practice.mjs';
@@ -24,14 +25,11 @@ import { renderReview } from './views/review.js';
 import { renderBrowse } from './views/browse.js';
 import { renderProgress } from './views/progress.js';
 import { openWord, closeWord } from './views/sheet.js';
-import { openPrefs } from './views/prefs.js';
 import { el, put, fitSenses, FIT_SENSES } from './ui.js';
 
 document.documentElement.lang = locale === 'zh' ? 'zh-Hant' : 'en';
 const $ = id => document.getElementById(id);
 const TABS = ['today', 'review', 'list', 'progress'];
-// Older links and notices said #words for 今天; #practice was a tab, now 今天's sheet.
-const TAB_ALIAS = { words: 'today', practice: 'today' };
 const VIEWS = { today: renderToday, review: renderReview, list: renderBrowse, progress: renderProgress };
 const VERSION = document.querySelector('meta[name="build-version"]')?.content || 'dev';
 
@@ -63,8 +61,6 @@ function localCopy() {
     return null;
   }
 }
-// The kit's shared Pass sync (an older kit without it: this device's progress stays on this device).
-const passSync = (await import('#kit/pass-sync.mjs').catch(() => null))?.passSync ?? (() => ({ first: async () => {}, watch() {}, sync: async () => {}, changed() {} }));
 const pass = passSync(q, {
   decode: decodePayload,
   encode: () => encodePayload(state),
@@ -99,8 +95,7 @@ function render() {
   else {
     VIEWS[state.tab](box);
     // Every tab but the first opens on the kit's large title (今天 has none).
-    const title = state.tab === TABS[0] ? null : kitUI.navTitle?.(t(`tab_${state.tab}`));
-    if (title) box.prepend(title);
+    if (state.tab !== TABS[0]) box.prepend(kitUI.navTitle(t(`tab_${state.tab}`)));
   }
   // 複習's count on its tab: the words missed last time.
   tabNav.badge('review', catCounts(state.words, state.progress, { marks: state.marks }).wrong, { tone: 'accent' });
@@ -200,12 +195,10 @@ if (!gated) boot();
 function openFromHash(start = false) {
   const hash = decodeURIComponent(location.hash.slice(1));
   const word = hash.startsWith('word=') ? state.byKey.get(keyOf(hash.slice(5))) : null;
-  const named = TAB_ALIAS[hash] || hash;
-  const tab = TABS.includes(named) ? named : start ? 'today' : null;
+  const tab = TABS.includes(hash) ? hash : start ? 'today' : null;
   if (tab && (tab !== state.tab || start)) showTab(tab);
   if (word) openWord(word);
   else if (tab) closeWord();
-  if (hash === 'practice') openPrefs();
 }
 window.addEventListener('hashchange', () => state.loaded && openFromHash());
 

@@ -3,8 +3,8 @@
 // weak words, the missed words as flash cards), and the word of the day.
 import * as kitUI from '#kit/ui.mjs';
 import { el, put } from '../ui.js';
-import { hero, heroPill, heroBtn, big, bar, iconText, section, row, rowCard, tag, tile, ico } from './chrome.js';
-import { state, t, hooks, hintOf, metaLine, wordEl } from '../shell.js';
+import { hero, heroPill, heroBtn, big, bar, iconText, section, tag, tile } from './chrome.js';
+import { state, t, hooks, hintOf, metaLine, wordEl, locale } from '../shell.js';
 import { speakButton } from '../audio.js';
 import { LEVELS, stats, toStudy, stateOf, shortMeaning, wordOfDay, hardest } from '../lib/words.mjs';
 import { DAILY_GOAL, todayCount, goalStatus, streakOf, bestStreak, lastDays } from '../lib/practice.mjs';
@@ -33,37 +33,6 @@ function goalHero() {
   ]);
 }
 
-// New words as cards, a batch at a time; a full batch is quizzed.
-function studyRow() {
-  const n = state.study.length;
-  const full = n >= state.size;
-  const next = toStudy(state.words, state.progress, { levels: state.levels, n: 1, skip: new Set(state.study) }).length > 0;
-  return row({
-    icon: 'pencil',
-    color: 'var(--q-accent)',
-    title: full ? t('studyQuiz', { n }) : t('studyTitle'),
-    body: full ? null : bar(n, state.size, 'mini-bar'),
-    tags: full ? [tag(t('studyReady'), 'green')] : !next ? [tag(t('studyNone'))] : null,
-    value: full ? '' : `${n} / ${state.size}`,
-    disabled: !full && (!next || !state.levels.length),
-    onClick: full ? () => startRound({ from: 'study' }) : startStudy
-  });
-}
-
-// What was missed in the last 3 days, asked again now.
-function weakRow() {
-  const list = recentMisses(state.words, state.progress, { n: state.size });
-  if (!list.length) return null;
-  return row({ icon: 'target', color: 'var(--q-red)', title: t('weakTitle'), tags: [tag(t('lastDays3'), 'red')], value: list.length, onClick: () => startRound({ list }) });
-}
-
-// The words missed last time, as flash cards first.
-function missedRow() {
-  const n = catCounts(state.words, state.progress, { marks: state.marks }).wrong;
-  if (!n) return null;
-  return row({ icon: 'cards', color: 'var(--q-indigo)', title: t('missedTitle'), value: n, onClick: () => startFlash(flashDeck(state.words, state.progress, 'wrong', { n: 20, marks: state.marks }), t('cat_wrong')) });
-}
-
 // The same word for everyone today; a tap opens its sheet.
 function wordOfDayCard() {
   const w = wordOfDay(state.words, Date.now(), state.levels);
@@ -85,16 +54,7 @@ function wordOfDayCard() {
 // ---- The shelves under the hero (each a kit section head and a rail or a panel) -------------------
 
 // Fitness's ring: today's answers of the goal; a check when it's met.
-function ring(value, max) {
-  const kit = kitUI.progressRing?.(Math.min(1, value / max), { size: 76, stroke: 8, tint: '#fff', done: value >= max, label: `${Math.round((Math.min(value, max) / max) * 100)}%` });
-  if (kit) return kit;
-  const r = 34;
-  const c = 2 * Math.PI * r;
-  const done = value >= max;
-  const box = el('div', { class: `goal-ring${done ? ' done' : ''}`, role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': String(max), 'aria-valuenow': String(Math.min(value, max)) });
-  box.innerHTML = `<svg viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="${r}" class="rt"/><circle cx="40" cy="40" r="${r}" class="rp" stroke-dasharray="${(c * Math.min(1, value / max)).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 40 40)"/></svg><span class="rc">${done ? ico('check') : `${Math.round((Math.min(value, max) / max) * 100)}%`}</span>`;
-  return box;
-}
+const ring = (value, max) => kitUI.progressRing(Math.min(1, value / max), { size: 76, stroke: 8, tint: '#fff', done: value >= max, label: `${Math.round((Math.min(value, max) / max) * 100)}%` });
 
 // A card of the rail: a colour tile, a big number, its name, one line under.
 function goCard({ icon, color, title, value, sub, progress, onClick, disabled = false }) {
@@ -131,18 +91,14 @@ function continueShelf() {
 function streakPanel() {
   const streak = streakOf(state.days);
   const days = lastDays(state.days, 35);
-  const lead = new Date(`${days[0].day}T00:00:00Z`).getUTCDay();
-  const names = [...t('wkDays')];
-  const cells = [...Array.from({ length: lead }, () => el('i', { class: 'cal-pad', 'aria-hidden': 'true' })), ...days.map((d, i) => el('i', { class: `cal-day${d.kept ? ' kept' : d.answers ? ' some' : ''}${i === days.length - 1 ? ' today' : ''}`, title: `${d.day.slice(5)} · ${d.answers}`, text: String(Number(d.day.slice(8))) }))];
   const month = days.at(-1).day;
   const marks = Object.fromEntries(days.map(d => [d.day, d.kept ? 'done' : d.answers ? 'part' : '']).filter(([, m]) => m));
-  const kitCal = kitUI.monthCalendar?.({ last: 35, marks, today: month, lang: t('wkDays')[0] === 'S' ? 'en' : 'zh' });
+  const cal = kitUI.monthCalendar({ last: 35, marks, today: month, lang: locale });
   return section(
     t('streakTitle'),
     el('div', { class: 'q-card streak-card' }, [
       el('div', { class: 'streak-top' }, [tile('flame', 'var(--q-orange)'), el('div', { class: 'streak-text' }, [el('strong', { class: 'num', text: t('streakDays', { n: streak }) }), el('small', { text: [t('bestStreak', { n: bestStreak(state.days) }), t('todayN', { n: todayCount(state.days) })].join(' · ') })])]),
-      kitCal ?? el('div', { class: 'cal-head' }, names.map(n => el('span', { text: n }))),
-      kitCal ? null : el('div', { class: 'cal-grid' }, cells)
+      cal
     ])
   );
 }

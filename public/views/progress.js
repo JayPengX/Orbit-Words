@@ -4,7 +4,7 @@
 // stay remembered: the model's fit, and the words forgotten most (a sheet).
 import * as kitUI from '#kit/ui.mjs';
 import { el, put, segmented } from '../ui.js';
-import { hero, big, bar, stats, section, row, rowCard, tag, ico } from './chrome.js';
+import { hero, big, bar, stats, section, row, rowCard, tag } from './chrome.js';
 import { state, t, joined, percent, levelName, locale } from '../shell.js';
 import { speakButton } from '../audio.js';
 import { stats as wordStats, hardest, shortMeaning, personalFactor } from '../lib/words.mjs';
@@ -50,7 +50,7 @@ function chartCard() {
     : forecast(state.progress, 7).map(f => ({ n: f.n, hot: f.day === 0, short: f.day === 0 ? t('todayShort') : `+${f.day}`, name: f.day === 0 ? t('todayShort') : `+${f.day}` }));
   const pick = segmented([{ id: 'past', label: t('chartPast') }, { id: 'next', label: t('chartNext') }], view.chart, id => ((view.chart = id), box.replaceWith(chartCard())), 'chart-seg');
   const quiet = past && items.every(x => !x.n);
-  const box = el('div', { class: 'q-card chart-card' }, [pick, quiet ? kitUI.empty?.({ icon: 'chart', title: t('chartNone') }) ?? el('p', { class: 'none', text: t('chartNone') }) : bars(items, past ? DAILY_GOAL : 0), past ? el('div', { class: 'q-tags' }, [tag(t('bestStreak', { n: bestStreak(state.days) }), 'tint'), tag(t('goalLine', { n: DAILY_GOAL }))]) : null]);
+  const box = el('div', { class: 'q-card chart-card' }, [pick, quiet ? kitUI.empty({ icon: 'chart', title: t('chartNone') }) : bars(items, past ? DAILY_GOAL : 0), past ? el('div', { class: 'q-tags' }, [tag(t('bestStreak', { n: bestStreak(state.days) }), 'tint'), tag(t('goalLine', { n: DAILY_GOAL }))]) : null]);
   return box;
 }
 // A row of bars; the largest and the last say their number.

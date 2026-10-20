@@ -1,4 +1,4 @@
-// The round's choices, in a sheet from 今天's hero (and #practice): how
+// The round's choices, in a sheet from 今天's hero: how
 // many words a round holds, which levels, which way to learn, and how fast
 // the words are said. Each change is saved at once (shell.js settingsChanged).
 import * as kitUI from '#kit/ui.mjs';
@@ -6,7 +6,7 @@ import { el, put, segmented } from '../ui.js';
 import { state, t, hooks, levelName, settingsChanged, locale } from '../shell.js';
 import { speak, RATES } from '../audio.js';
 import { LEVELS, MODES, stats, wordOfDay } from '../lib/words.mjs';
-import { row, rowCard, checkDot, ico, bar } from './chrome.js';
+import { row, rowCard, checkDot, bar } from './chrome.js';
 
 export const SIZES = [10, 20, 30];
 const MODE_ICON = { smart: 'spark', meaning: 'book', word: 'list', listen: 'sound', letters: 'grid', cloze: 'search', spell: 'pencil' };

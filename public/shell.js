@@ -1,13 +1,13 @@
 // What every screen shares: the state, the text, and the hooks app.js fills
 // in (save, redraw). The screens (views/*.js) draw from here; app.js owns
 // starting, saving and the tabs.
-import { STRINGS, detectLocale, makeT } from './lib/i18n.mjs';
+import { lang as locale, makeT } from '#kit/lang.mjs';
+import { STRINGS } from './lib/i18n.mjs';
 import { el } from './ui.js';
 
-// The kit's lang.mjs (the language and the string table's t); an older cached kit without it: this app's own two helpers.
-const kitLang = await import('#kit/lang.mjs').catch(() => null);
-export const locale = kitLang?.lang ?? detectLocale();
-export const t = kitLang ? kitLang.makeT(STRINGS, locale) : makeT(locale);
+// The kit's lang.mjs: the language and the string table's t.
+export { locale };
+export const t = makeT(STRINGS, locale);
 
 export const state = {
   tab: 'today',

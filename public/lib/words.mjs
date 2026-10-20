@@ -268,7 +268,6 @@ export const SMART_TYPES = [
   ['spell', 'word'],
   ['spell']
 ];
-export const isLong = word => Boolean(word) && (/\s/.test(word.word) || word.word.length > 11);
 export function smartType(p, random = Math.random, word = null, used = {}) {
   const box = Math.min(5, (p?.b || 0) + Math.min(2, p?.l || 0));
   let kinds = SMART_TYPES[box];
