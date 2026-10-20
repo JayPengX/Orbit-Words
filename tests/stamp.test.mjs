@@ -9,7 +9,7 @@ import { cpSync, mkdtempSync, readFileSync, readdirSync, statSync, rmSync } from
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-test('every relative module import is stamped with the version, ../ included', () => {
+test("every relative module import is stamped with its file's hash, ../ included", () => {
   const dir = mkdtempSync(join(tmpdir(), 'stamp-'));
   try {
     const src = new URL('../public/', import.meta.url).pathname;
@@ -19,16 +19,17 @@ test('every relative module import is stamped with the version, ../ included', (
     let checked = 0;
     for (const file of walk(dir)) {
       for (const m of readFileSync(file, 'utf8').matchAll(/(?:from|import\()\s*['"](\.{1,2}\/[^'"]+)['"]/g)) {
-        assert.match(m[1], /\?v=T1$/, `${file}: ${m[1]}`);
+        assert.match(m[1], /\?v=[0-9a-f]{10}$/, `${file}: ${m[1]}`);
         checked++;
       }
     }
     assert.ok(checked > 20, String(checked));
     const html = readFileSync(join(dir, 'index.html'), 'utf8');
-    assert.match(html, /modulepreload" href="\.\/views\/session\.js\?v=T1"/);
-    // The kit modules too, all asked for with the page (kit/preload.mjs): the
-    // ones imported as #kit/… always, the kit's own relative ones once the kit's version is noted.
-    assert.match(html, /<!-- \/kit:head -->\n<script>\[[^\]]*'ui\.mjs'[^\]]*\]\.concat\(QUADRA_KIT\.version\?\[[^\]]*'loan\.mjs'/);
+    assert.match(html, /content="T1"/);
+    assert.match(html, /modulepreload" href="\.\/views\/session\.js\?v=[0-9a-f]{10}"/);
+    // The kit modules too, all asked for with the page (kit/preload.mjs), the
+    // kit's own imports included (the built kit's go through the import map).
+    assert.match(html, /<!-- \/kit:head -->\n<script>\[[^\]]*'loan\.mjs'[^\]]*'ui\.mjs'[^\]]*\]\.forEach/);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
