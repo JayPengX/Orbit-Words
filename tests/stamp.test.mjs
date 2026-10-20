@@ -28,7 +28,7 @@ test('every relative module import is stamped with the version, ../ included', (
     assert.match(html, /modulepreload" href="\.\/views\/session\.js\?v=T1"/);
     // The kit modules too, all asked for with the page (kit/preload.mjs): the
     // ones imported as #kit/… always, the kit's own relative ones once the kit's version is noted.
-    assert.match(html, /<!-- \/kit:head -->\n<script>\[[^\]]*'ui\.mjs'[^\]]*\]\.concat\(QUADRA_KIT\.version\?\[[^\]]*'mirror\.mjs'/);
+    assert.match(html, /<!-- \/kit:head -->\n<script>\[[^\]]*'ui\.mjs'[^\]]*\]\.concat\(QUADRA_KIT\.version\?\[[^\]]*'loan\.mjs'/);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

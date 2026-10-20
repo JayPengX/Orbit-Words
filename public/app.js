@@ -117,7 +117,7 @@ const quietRefresh = () => !busy() && !(document.activeElement?.tagName === 'INP
 
 window.__fxStarted = true;
 const gated = installGate('vocab', locale);
-watchUpdates({ current: VERSION, key: 'quadraHub', cachePrefix: 'quadra-hub-', busy });
+watchUpdates({ current: VERSION, key: 'quadraHub', cachePrefix: 'quadra-hub-' });
 // The same top-right in every app (the guide and the pass: the kit's sheet).
 topActions(q);
 tabNav.select(state.tab);
