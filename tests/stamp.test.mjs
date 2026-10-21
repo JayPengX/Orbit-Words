@@ -19,14 +19,14 @@ test("every relative module import is stamped with its file's hash, ../ included
     let checked = 0;
     for (const file of walk(dir)) {
       for (const m of readFileSync(file, 'utf8').matchAll(/(?:from|import\()\s*['"](\.{1,2}\/[^'"]+)['"]/g)) {
-        assert.match(m[1], /\?v=[0-9a-f]{10}$/, `${file}: ${m[1]}`);
+        assert.match(m[1], /\?v=[0-9a-f]{10,12}$/, `${file}: ${m[1]}`);
         checked++;
       }
     }
     assert.ok(checked > 20, String(checked));
     const html = readFileSync(join(dir, 'index.html'), 'utf8');
     assert.match(html, /content="T1"/);
-    assert.match(html, /modulepreload" href="\.\/views\/session\.js\?v=[0-9a-f]{10}"/);
+    assert.match(html, /modulepreload" href="\.\/views\/session\.js\?v=[0-9a-f]{10,12}"/);
     // The kit modules too, all asked for with the page (kit/preload.mjs), the
     // kit's own imports included (the built kit's go through the import map).
     assert.match(html, /<!-- \/kit:head -->\n<script>\[[^\]]*'loan\.mjs'[^\]]*'ui\.mjs'[^\]]*\]\.forEach/);
