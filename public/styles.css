@@ -297,3 +297,36 @@ h1, h2, h3, p { margin: 0; }
 .streak-text strong { font: 700 22px/26px var(--q-font-rounded, var(--q-font)); }
 .streak-text small { color: var(--q-label-2); font: 13px/18px var(--q-font); }
 .q-section-head .q-sh-more { margin-left: auto; }
+
+/* ==== iPad (700+): the kit's column (the screen's width, 32/40 px in);
+   the short rails show all their cards. From 1100 px (landscape): 今天 and
+   進度 go two columns, word lists run in two columns. ==== */
+@media (min-width: 700px) {
+  .page { --q-margin: var(--q-gutter); max-width: var(--q-col); padding-inline: max(var(--q-gutter), env(safe-area-inset-left)) max(var(--q-gutter), env(safe-area-inset-right)); }
+  .go-rail, .deck-rail { --q-rail-n: 4; }
+  .recent-rail { --q-rail-n: var(--q-rail-small-n); }
+  /* A round or cards: a book's width in the middle, the question centred in the screen's height, the card taller. */
+  .tab-panel:has(> .run-head) { display: flex; flex-direction: column; max-width: 760px; min-height: calc(100dvh - var(--q-nav) - 120px); margin-inline: auto; }
+  .tab-panel:has(> .run-head) > .question { display: flex; flex: 1; flex-direction: column; justify-content: center; padding-bottom: 6vh; }
+  .tab-panel:has(> .run-head) .ask-card { min-height: 30vh; align-content: center; }
+  .tab-panel:has(> .run-head) > .word-card { min-height: 46vh; align-content: center; }
+}
+@media (min-width: 1100px) {
+  .tab-panel:is(#panel-today, #panel-progress):not(:has(> .run-head)) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 28px; align-items: start; }
+  .tab-panel:is(#panel-today, #panel-progress) > * { grid-column: 1 / -1; }
+  /* 今天: the goal and 繼續 beside the streak; 弱點字 beside the word of the day; the rails across under them. */
+  #panel-today > * { order: 4; }
+  #panel-today > .hero { grid-column: 1; order: 0; }
+  #panel-today > :has(> .go-rail) { grid-column: 1; order: 1; }
+  #panel-today > :has(> .streak-card) { grid-column: 2; grid-row: 1 / span 2; order: 1; margin-top: 0; }
+  #panel-today > :has(> .words) { grid-column: 1; order: 2; }
+  #panel-today > :has(> .wotd) { grid-column: 2; order: 3; }
+  #panel-today:not(:has(> * > .words)) > :has(> .wotd) { grid-column: 1 / -1; }
+  #panel-today .go-rail { margin-inline: 0; padding-inline: 0; scroll-padding-inline: 0; }
+  /* 進度: the activity beside the levels. */
+  #panel-progress > :has(> .chart-card) { grid-column: 1; }
+  #panel-progress > :has(> .levels-card) { grid-column: 2; }
+  /* A long list of words: two to a row. */
+  .paged > .q-rowcard.words { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .paged > .q-rowcard.words > :nth-child(2)::before { display: none; }
+}
