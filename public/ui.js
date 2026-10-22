@@ -1,18 +1,7 @@
 // The small pieces every tab draws with (the kit's controls, kit/ui.mjs and quadra.css).
-import { toast as kitToast, settleSegs } from '#kit/ui.mjs';
+import { toast as kitToast, settleSegs, h } from '#kit/ui.mjs';
 
-export function el(tag, props = {}, children = []) {
-  const node = document.createElement(tag);
-  for (const [k, v] of Object.entries(props)) {
-    if (v == null || v === false) continue;
-    if (k === 'class') node.className = v;
-    else if (k === 'text') node.textContent = v;
-    else if (k.startsWith('on')) node.addEventListener(k.slice(2), v);
-    else node.setAttribute(k, v === true ? '' : v);
-  }
-  for (const child of [].concat(children)) if (child != null && child !== false) node.append(child);
-  return node;
-}
+export const el = h;
 // A word's meaning that doesn't fit its one line drops its last senses (、)
 // rather than ending in an ellipsis; one sense still too wide, smaller.
 // In passes, so a list of 80 lays out three times, not once a row: every

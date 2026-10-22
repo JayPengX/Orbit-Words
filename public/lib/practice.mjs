@@ -4,6 +4,7 @@
 // day in `days`. Nothing here is money or touches the Quadra wallet.
 
 import { taipeiDay } from '#kit/quadra.mjs';
+import { addDays } from '#kit/format.mjs';
 
 // Points: a right answer, and a word mastered the first time.
 export const POINTS = { right: 2, mastered: 15 };
@@ -52,7 +53,7 @@ export function levelOf(xp, lang = 'zh') {
 // ---- Days ------------------------------------------------------------------------------
 //
 // `days`: { 'YYYY-MM-DD' (Taiwan): answers }.
-const dayBefore = d => new Date(Date.parse(`${d}T12:00:00Z`) - 86_400_000).toISOString().slice(0, 10);
+const dayBefore = d => addDays(d, -1);
 
 // One more answer today; old days dropped.
 export function logAnswer(days, now = Date.now()) {
