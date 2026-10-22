@@ -40,7 +40,7 @@ let dialog = null;
 let shell = null;
 let box = null;
 let lead = null;
-const buzz = () => globalThis.quadraHaptic?.();
+const buzz = () => globalThis.orbitHaptic?.();
 
 export function openWord(word) {
   if (!word) return;

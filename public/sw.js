@@ -7,8 +7,8 @@
 // each one kept, so a word heard before plays without asking the network.
 // Pictures from other sites: the kit's shared picture cache (sw-images.js).
 const isAudio = url => url.pathname.includes('/data/audio/');
-self.QUADRA_SW = {
-  cache: 'quadra-hub-v1',
+self.ORBIT_SW = {
+  cache: 'orbit-words-v1',
   title: 'Orbit Words',
   route: (request, url) => (isAudio(url) ? 'cacheFirst' : null),
   prune: url => !isAudio(url)

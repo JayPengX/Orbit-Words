@@ -16,7 +16,7 @@ import { LEVELS, pickRound, spread, toStudy, smartType, retryType, markKnown, ma
 import { answerXp, xpText, logAnswer, logResult } from '../lib/practice.mjs';
 import { openWord, starButton, missNote, tipBox, speltRow } from './sheet.js';
 
-const buzz = () => globalThis.quadraHaptic?.();
+const buzz = () => globalThis.orbitHaptic?.();
 export const busy = () => Boolean(state.session && !(state.session.kind === 'round' && state.session.done));
 const end = () => ((state.session = null), hooks.sync(), hooks.render());
 

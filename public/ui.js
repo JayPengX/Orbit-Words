@@ -1,4 +1,4 @@
-// The small pieces every tab draws with (the kit's controls, kit/ui.mjs and quadra.css).
+// The small pieces every tab draws with (the kit's controls, kit/ui.mjs and orbit.css).
 import { toast as kitToast, pickSeg, h } from '#kit/ui.mjs';
 
 export const el = h;

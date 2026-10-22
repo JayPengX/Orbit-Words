@@ -1,9 +1,9 @@
 // What practice adds up to: points (XP) and the level, the day's goal and
 // the streak. All of it comes from this app's own payload (words.mjs): the
 // right answers and masteries in the word progress, the answers per Taiwan
-// day in `days`. Nothing here is money or touches the Quadra wallet.
+// day in `days`. Nothing here is money or touches the Orbit wallet.
 
-import { taipeiDay } from '#kit/quadra.mjs';
+import { taipeiDay } from '#kit/orbit.mjs';
 import { addDays } from '#kit/format.mjs';
 
 // Points: a right answer, and a word mastered the first time.

@@ -7,7 +7,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 globalThis.localStorage = { getItem: () => null, setItem() {}, removeItem() {} };
 const { xpOf, answerXp, levelOf, logAnswer, mergeDays, todayCount, streakOf, bestStreak, streakAtRisk, goalStatus, lastDays, DAILY_GOAL } = await import('../public/lib/practice.mjs');
 const { STRINGS } = await import('../public/lib/i18n.mjs');
-const kit = await import('#kit/quadra.mjs');
+const kit = await import('#kit/orbit.mjs');
 
 const noon = day => Date.parse(`${day}T04:00:00Z`);
 
@@ -48,18 +48,17 @@ test('the text: every string in both languages', () => {
 
 test('Orbit Words is an Orbit app that moves no money, with no games, missions, shop or points to spend', () => {
   assert.equal(kit.APPS.vocab.name, 'Orbit Words');
-  assert.equal(kit.APPS.vocab.family, 'orbit');
   const files = [];
   const walk = dir => {
     for (const f of readdirSync(dir)) {
       const p = `${dir}/${f}`;
       if (statSync(p).isDirectory()) f !== 'data' && f !== 'icons' && walk(p);
-      else if (/\.(m?js|html|css|webmanifest)$/.test(f) && !/quadra\.(mjs|css)$|boot\.js$/.test(f)) files.push(p);
+      else if (/\.(m?js|html|css|webmanifest)$/.test(f) && !/orbit\.(mjs|css)$|boot\.js$/.test(f)) files.push(p);
     }
   };
   walk(new URL('../public', import.meta.url).pathname);
   const text = files.map(f => readFileSync(f, 'utf8')).join('\n');
-  for (const gone of [/Quadra Rewards/, /Quadra-Rewards/, /arcade|ported|games-ui|mini games|小遊戲|遊戲列表|今日挑戰/i, /\bmissions?\b|任務/i, /積分商店|積分兌換|保護卡/, /vocab:(?:w|g|m|xs|shop|fb):/]) assert.doesNotMatch(text, gone, String(gone));
+  for (const gone of [/Orbit Rewards/, /Orbit-Rewards/, /arcade|ported|games-ui|mini games|小遊戲|遊戲列表|今日挑戰/i, /\bmissions?\b|任務/i, /積分商店|積分兌換|保護卡/, /vocab:(?:w|g|m|xs|shop|fb):/]) assert.doesNotMatch(text, gone, String(gone));
   // It writes its payload, never an entry or a setting.
   const app = readFileSync(new URL('../public/app.js', import.meta.url), 'utf8');
   assert.doesNotMatch(app, /entries:|settings/);

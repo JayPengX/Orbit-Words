@@ -1,5 +1,5 @@
 // The pieces every screen is drawn with: the kit's premium classes
-// (quadra.css "Premium layer": q-page-head, q-hero-card, q-tile, q-rowcard,
+// (orbit.css "Premium layer": q-page-head, q-hero-card, q-tile, q-rowcard,
 // q-tag, q-stats, q-ambient) written as markup; plus this app's own few
 // glyphs (a speaker, cards, sliders).
 import * as kitUI from '#kit/ui.mjs';

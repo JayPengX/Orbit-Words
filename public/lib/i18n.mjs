@@ -1,5 +1,5 @@
 // Orbit Words' text, Traditional Chinese and English (the page follows the
-// browser's language, or the language picked in any Quadra app).
+// browser's language, or the language picked in any Orbit app).
 export const STRINGS = {
   zh: {
     missSpelt: '拼錯', missMixed: '選成', missHeard: '聽成', missUnknown: '不認識', missEar: '沒聽出來', missWrong: '答錯', levelsN: '第 {n} 級',

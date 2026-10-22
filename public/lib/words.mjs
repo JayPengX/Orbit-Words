@@ -69,7 +69,7 @@ export function loadWords(rows) {
 
 // Hints (data/hints.json, levels 4 to 6): { key: [a line to remember it by,
 // [keys of words it's commonly confused with]] }, written once for every
-// learner (they were Quadra Words' AI signals). Rows that aren't that shape
+// learner (they were Orbit Words' AI signals). Rows that aren't that shape
 // are dropped.
 export function loadHints(raw) {
   const out = new Map();

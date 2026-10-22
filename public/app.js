@@ -8,12 +8,12 @@
 //
 // This file starts the app, saves and opens tabs; the screens are views/*.js,
 // the teaching lib/*.mjs. It uses no money: the progress is its own payload
-// on the Quadra Pass. The pass itself (looks, the truth about money,
-// every app's guide) is the kit's Quadra Pass sheet, in every app. (It was
-// Quadra Hub; its id stays `vocab`, its storage and caches `quadra-hub`.)
+// on the Orbit Pass. The pass itself (looks, the truth about money,
+// every app's guide) is the kit's Orbit Pass sheet, in every app. (It was
+// Orbit Words; its id stays `vocab`, its storage and caches `orbit-words`.)
 import * as kitUI from '#kit/ui.mjs';
 import { passSync } from '#kit/pass-sync.mjs';
-import { quadraSession, taipeiDay, tabBar, topActions, installGate, watchUpdates, schedulePush, notify, keepOffline, storedAccount, cachedPayload } from '#kit/quadra.mjs';
+import { orbitSession, taipeiDay, tabBar, topActions, installGate, watchUpdates, schedulePush, notify, keepOffline, storedAccount, cachedPayload } from '#kit/orbit.mjs';
 import { loadWords, loadHints, keyOf } from './lib/words.mjs';
 import { DAILY_GOAL, streakAtRisk } from './lib/practice.mjs';
 import { catCounts } from './lib/review.mjs';
@@ -33,7 +33,7 @@ const TABS = ['today', 'review', 'list', 'progress'];
 const VIEWS = { today: renderToday, review: renderReview, list: renderBrowse, progress: renderProgress };
 const VERSION = document.querySelector('meta[name="build-version"]')?.content || 'dev';
 
-const q = quadraSession('vocab', { lang: locale });
+const q = orbitSession('vocab', { lang: locale });
 
 // ---- Saved progress (the pass's vocab payload, gzipped: lib/copy.mjs) ----------------------
 
@@ -117,7 +117,7 @@ const quietRefresh = () => !busy() && !(document.activeElement?.tagName === 'INP
 
 window.__fxStarted = true;
 const gated = installGate('vocab', locale);
-watchUpdates({ current: VERSION, key: 'quadraHub', cachePrefix: 'quadra-hub-' });
+watchUpdates({ current: VERSION, key: 'orbitWords', cachePrefix: 'orbit-words-' });
 // The same top-right in every app (the guide and the pass: the kit's sheet).
 topActions(q);
 tabNav.select(state.tab);
@@ -191,7 +191,7 @@ if (!gated) boot();
 // Where the address points: a tab (#review), or a word (#word=abandon, its
 // sheet over the open tab). At start, and whenever it changes while the app
 // is open (a link, a notice's tap). A guide (#help=…) is the kit's: it opens
-// the Quadra Pass sheet.
+// the Orbit Pass sheet.
 function openFromHash(start = false) {
   const hash = decodeURIComponent(location.hash.slice(1));
   const word = hash.startsWith('word=') ? state.byKey.get(keyOf(hash.slice(5))) : null;
