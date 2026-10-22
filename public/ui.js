@@ -1,5 +1,5 @@
 // The small pieces every tab draws with (the kit's controls, kit/ui.mjs and quadra.css).
-import { toast as kitToast, settleSegs, h } from '#kit/ui.mjs';
+import { toast as kitToast, pickSeg, h } from '#kit/ui.mjs';
 
 export const el = h;
 // A word's meaning that doesn't fit its one line drops its last senses (、)
@@ -62,19 +62,9 @@ export const put = (node, ...kids) => node.replaceChildren(...kids.filter(k => k
 export const toast = (text, kind = '') => kitToast(text, { tone: kind === 'bad' ? 'bad' : '', ms: 2600 });
 // A capsule of choices, one on: [{ id, label }] (the kit's segmented
 // control; drawn again after a pick, its thumb slides from the last one).
-const lastPick = new Map();
-export function segmented(options, current, onPick, cls = '') {
-  const key = cls || options.map(o => o.id).join('|');
-  const at = id => Math.max(0, options.findIndex(o => o.id === id));
-  const from = lastPick.has(key) ? lastPick.get(key) : current;
-  lastPick.set(key, current);
-  const seg = el('div', { class: `q-seg ${cls}`.trim(), role: 'group', style: `--q-seg-n:${options.length};--q-seg-i:${at(from)}`, 'data-to': String(at(current)) }, options.map(o => el('button', { type: 'button', 'aria-pressed': String(o.id === current), onclick: () => o.id !== current && onPick(o.id) }, [o.label, o.count != null ? el('small', { class: 'num', text: String(o.count) }) : null])));
-  queueMicrotask(() => settleSegs(seg.parentNode || document));
-  return seg;
-}
+export const segmented = (options, current, onPick, cls = '') => pickSeg(options, current, onPick, { cls });
 // A row of chips, one on: [{ id, label }] (the kit's q-chips; it slides sideways).
-export const chips = (options, current, onPick, cls = '') =>
-  el('div', { class: `q-chips ${cls}`.trim(), role: 'group' }, options.map(o => el('button', { class: `q-chip${o.id === current ? ' on' : ''}`, type: 'button', 'aria-pressed': String(o.id === current), text: o.label, onclick: () => o.id !== current && onPick(o.id) })));
+export const chips = (options, current, onPick, cls = '') => pickSeg(options, current, onPick, { cls, chips: true });
 // A search field that calls back as it's typed (not on every redraw).
 // (The kit's search capsule: a magnifier, a clear button.)
 export function searchField(value, placeholder, onInput) {
