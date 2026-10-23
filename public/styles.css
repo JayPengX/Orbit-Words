@@ -32,7 +32,7 @@ h1, h2, h3, p { margin: 0; }
 .center-spin { display: grid; place-items: center; padding: 40px 0; }
 
 /* ---- The page (this file comes after the kit's, so its rules win a tie) ---- */
-.page { max-width: 720px; margin: 0 auto; padding: 0 max(16px, env(safe-area-inset-right)) calc(40px + var(--q-nav)) max(16px, env(safe-area-inset-left)); }
+.page { padding: 0 max(16px, env(safe-area-inset-right)) calc(40px + var(--q-nav)) max(16px, env(safe-area-inset-left)); }
 .tab-panel .q-section { margin-top: 28px; }
 .tab-panel .q-section-head { margin-bottom: 10px; }
 .tab-panel .q-section-head h2 { font: 700 20px/25px var(--q-font); }
@@ -86,7 +86,7 @@ h1, h2, h3, p { margin: 0; }
 /* A word as a headline, on one line beside its sound, never broken: the longer, the smaller (--len,
    shell.js wordEl), then the kit's .q-fit trims it to the exact room. Every headword is a wordEl. */
 .word-line { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.word { min-width: 0; font-weight: 800; letter-spacing: -0.01em; white-space: nowrap; font-size: min(34px, calc((100vw - 150px) / (var(--len, 8) * 0.6))); line-height: 1.15; }
+.word { min-width: 0; font-weight: 800; letter-spacing: -0.01em; white-space: nowrap; font-size: min(34px, calc((var(--q-vw, 100vw) - 150px) / (var(--len, 8) * 0.6))); line-height: 1.15; }
 .meaning { font-size: 16px; line-height: 1.5; }
 .tip { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border-radius: 16px; background: var(--accent-wash); text-align: left; }
 .tip .gl { width: 18px; height: 18px; margin-top: 2px; color: var(--accent); }
@@ -175,13 +175,12 @@ h1, h2, h3, p { margin: 0; }
 .ask { color: var(--q-label-2); font: 600 13px/18px var(--q-font); letter-spacing: 0.02em; }
 .card-word { display: grid; justify-items: center; gap: 6px; min-width: 0; max-width: 100%; }
 .card-word .word-line { justify-content: center; max-width: 100%; }
-.ask-card .word.big { font-size: min(40px, calc((100vw - 170px) / (var(--len, 8) * 0.6))); }
+.ask-card .word.big { font-size: min(40px, calc((var(--q-vw, 100vw) - 170px) / (var(--len, 8) * 0.6))); }
 .meaning.big { font-size: 22px; font-weight: 700; line-height: 1.35; }
-.cloze { font-size: min(34px, calc((100vw - 110px) / (var(--len, 8) * 0.8))); font-weight: 800; letter-spacing: 0.18em; }
-.diff-wrap { max-width: 100%; font-size: min(22px, calc((100vw - 110px) / (var(--len, 8) * 0.7))); }
+.cloze { font-size: min(34px, calc((var(--q-vw, 100vw) - 110px) / (var(--len, 8) * 0.8))); font-weight: 800; letter-spacing: 0.18em; }
+.diff-wrap { max-width: 100%; font-size: min(22px, calc((var(--q-vw, 100vw) - 110px) / (var(--len, 8) * 0.7))); }
 /* The answers. */
 .choices { display: grid; gap: 10px; margin-top: 16px; }
-@media (min-width: 560px) { .choices:not(.long) { grid-template-columns: 1fr 1fr; } }
 .choice { display: flex; align-items: center; gap: 12px; min-height: 58px; padding: 10px 16px 10px 12px; border: 2px solid transparent; border-radius: 18px; background: var(--q-surface); text-align: left; font: 600 17px/1.3 var(--q-font); transition: transform var(--q-dur-snappy) var(--q-spring-snappy), border-color 0.2s, background-color 0.2s, opacity 0.2s; }
 .choice:active:not(:disabled) { transform: scale(0.97); }
 .choice:disabled { cursor: default; }
@@ -217,10 +216,10 @@ h1, h2, h3, p { margin: 0; }
 .verdict-top { display: flex; align-items: center; gap: 8px; min-width: 0; margin-right: -8px; }
 .verdict-top > strong { flex: 1; min-width: 0; font: 700 18px/22px var(--q-font); white-space: nowrap; }
 .verdict-top .q-tile svg { stroke-width: 3; }
-.word.v-word { font-size: min(24px, calc((100vw - 120px) / (var(--len, 8) * 0.6))); line-height: 1.2; }
+.word.v-word { font-size: min(24px, calc((var(--q-vw, 100vw) - 120px) / (var(--len, 8) * 0.6))); line-height: 1.2; }
 .mixed { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center; gap: 4px 8px; padding: 10px 14px; border: 0; border-radius: 14px; background: var(--q-fill-3); color: inherit; text-align: center; }
 .verdict .mixed { justify-content: flex-start; text-align: left; }
-.next-bar { position: fixed; left: 0; right: 0; bottom: calc(var(--q-nav) + 10px); z-index: 50; display: flex; justify-content: center; padding: 0 16px; pointer-events: none; }
+.next-bar { position: fixed; left: var(--q-side, 0px); right: var(--q-side, 0px); bottom: calc(var(--q-nav) + 10px); z-index: 50; display: flex; justify-content: center; padding: 0 16px; pointer-events: none; }
 .next-bar .q-btn { width: min(560px, 100%); pointer-events: auto; box-shadow: 0 10px 24px -10px rgb(0 0 0 / 0.45); }
 /* The round's end. */
 .round-end { padding-top: 12px; }
@@ -230,7 +229,7 @@ h1, h2, h3, p { margin: 0; }
 .word-card { display: grid; justify-items: center; gap: 12px; min-height: 340px; align-content: start; padding: 18px 20px 22px; text-align: center; }
 .word-card .card-top { justify-self: stretch; }
 .word-card .card-word { gap: 10px; margin-top: 8px; }
-.word-card .word.big { font-size: min(44px, calc((100vw - 104px) / (var(--len, 8) * 0.6))); }
+.word-card .word.big { font-size: min(44px, calc((var(--q-vw, 100vw) - 104px) / (var(--len, 8) * 0.6))); }
 .word-card .tip { justify-self: stretch; }
 .meaning.full { white-space: pre-line; font-size: 17px; line-height: 1.6; }
 .flash-card { cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: pan-y; }
@@ -265,7 +264,7 @@ h1, h2, h3, p { margin: 0; }
 /* ---- The word's sheet ---- */
 .sheet-word { display: grid; gap: 4px; margin: 4px 4px 16px; }
 .sheet-word .meaning { margin-top: 10px; font-size: 17px; }
-.sheet-word .word-line > .word { font-size: min(36px, calc((100vw - 110px) / (var(--len, 8) * 0.6))); }
+.sheet-word .word-line > .word { font-size: min(36px, calc((var(--q-vw, 100vw) - 110px) / (var(--len, 8) * 0.6))); }
 .sheet-block .q-sheet-h { margin: 22px 4px 8px; }
 .link-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .link-chip { display: grid; max-width: 100%; padding: 8px 14px; border: 0; border-radius: 14px; background: var(--q-surface); text-align: left; }
@@ -301,36 +300,3 @@ h1, h2, h3, p { margin: 0; }
 .streak-text strong { font: 700 22px/26px var(--q-font-rounded, var(--q-font)); }
 .streak-text small { color: var(--q-label-2); font: 13px/18px var(--q-font); }
 .q-section-head .q-sh-more { margin-left: auto; }
-
-/* ==== iPad (700+): the kit's column (the screen's width, 32/40 px in);
-   the short rails show all their cards. From 1100 px (landscape): 今天 and
-   進度 go two columns, word lists run in two columns. ==== */
-@media (min-width: 700px) {
-  .page { --q-margin: var(--q-gutter); max-width: var(--q-col); padding-inline: max(var(--q-gutter), env(safe-area-inset-left)) max(var(--q-gutter), env(safe-area-inset-right)); }
-  .go-rail, .deck-rail { --q-rail-n: 4; }
-  .recent-rail { --q-rail-n: var(--q-rail-small-n); }
-  /* A round or cards: a book's width in the middle, the question centred in the screen's height, the card taller. */
-  .tab-panel:has(> .run-head) { display: flex; flex-direction: column; max-width: 760px; min-height: calc(100dvh - var(--q-nav) - 120px); margin-inline: auto; }
-  .tab-panel:has(> .run-head) > .question { display: flex; flex: 1; flex-direction: column; justify-content: center; padding-bottom: 6vh; }
-  .tab-panel:has(> .run-head) .ask-card { min-height: 30vh; align-content: center; }
-  .tab-panel:has(> .run-head) > .word-card { min-height: 46vh; align-content: center; }
-}
-@media (min-width: 1100px) {
-  .tab-panel:is(#panel-today, #panel-progress):not(:has(> .run-head)) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 28px; align-items: start; }
-  .tab-panel:is(#panel-today, #panel-progress) > * { grid-column: 1 / -1; }
-  /* 今天: the goal and 繼續 beside the streak; 弱點字 beside the word of the day; the rails across under them. */
-  #panel-today > * { order: 4; }
-  #panel-today > .hero { grid-column: 1; order: 0; }
-  #panel-today > :has(> .go-rail) { grid-column: 1; order: 1; }
-  #panel-today > :has(> .streak-card) { grid-column: 2; grid-row: 1 / span 2; order: 1; margin-top: 0; }
-  #panel-today > :has(> .words) { grid-column: 1; order: 2; }
-  #panel-today > :has(> .wotd) { grid-column: 2; order: 3; }
-  #panel-today:not(:has(> * > .words)) > :has(> .wotd) { grid-column: 1 / -1; }
-  #panel-today .go-rail { margin-inline: 0; padding-inline: 0; scroll-padding-inline: 0; }
-  /* 進度: the activity beside the levels. */
-  #panel-progress > :has(> .chart-card) { grid-column: 1; }
-  #panel-progress > :has(> .levels-card) { grid-column: 2; }
-  /* A long list of words: two to a row. */
-  .paged > .q-rowcard.words { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .paged > .q-rowcard.words > :nth-child(2)::before { display: none; }
-}
