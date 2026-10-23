@@ -59,4 +59,4 @@ export function dueText(days) {
 }
 // A word as a headline, on one line beside its 🔊: the longer it is, the
 // smaller (styles.css reads --len), never broken mid-word.
-export const wordEl = (word, big = false) => el('strong', { class: `word${big ? ' big' : ''}`, style: `--len:${word.word.length}`, text: word.word });
+export const wordEl = (word, cls = '') => el('strong', { class: `word q-fit ${cls}`.trim(), style: `--len:${word.word.length}`, text: word.word });

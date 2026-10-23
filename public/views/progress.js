@@ -108,7 +108,7 @@ let dialog = null;
 export function hardRow(w) {
   const p = state.progress[w.key];
   const mixed = (p.c || []).map(k => state.byKey.get(k)?.word).filter(Boolean);
-  return el('button', { class: 'q-ritem wr', type: 'button', onclick: () => openWord(w) }, [speakButton(w), el('span', { class: 'wr-main' }, [el('strong', { text: w.word }), el('small', { class: 'muted wrap', text: [shortMeaning(w.zh), mixed.length ? t('mixedWith', { words: joined(mixed) }) : ''].filter(Boolean).join(' · ') })]), el('small', { class: 'q-tag red', text: t('lapsesN', { n: p.l }) })]);
+  return el('button', { class: 'q-ritem wr', type: 'button', onclick: () => openWord(w) }, [speakButton(w), el('span', { class: 'wr-main' }, [el('strong', { class: 'q-fit', text: w.word }), el('small', { class: 'muted wrap', text: [shortMeaning(w.zh), mixed.length ? t('mixedWith', { words: joined(mixed) }) : ''].filter(Boolean).join(' · ') })]), el('small', { class: 'q-tag red', text: t('lapsesN', { n: p.l }) })]);
 }
 export function openHardest(list) {
   dialog?.remove();

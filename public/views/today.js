@@ -130,5 +130,5 @@ function recentShelf() {
     .map(([k]) => state.byKey.get(k))
     .filter(Boolean);
   if (!list.length) return null;
-  return section(t('recentTitle'), rail(list.map(w => el('button', { class: 'recent-card q-press', type: 'button', onclick: () => openWord(w) }, [el('strong', { class: 'rc-word', text: w.word }), el('small', { class: 'rc-zh', text: shortMeaning(w.zh).split(/[、,，;；]/)[0] }), tag(t(`state_${stateOf(state.progress[w.key])}`), stateOf(state.progress[w.key]) === 'mastered' ? 'green' : 'tint')])), 'recent-rail'));
+  return section(t('recentTitle'), rail(list.map(w => el('button', { class: 'recent-card q-press', type: 'button', onclick: () => openWord(w) }, [wordEl(w, 'rc-word'), el('small', { class: 'rc-zh', text: shortMeaning(w.zh).split(/[、,，;；]/)[0] }), tag(t(`state_${stateOf(state.progress[w.key])}`), stateOf(state.progress[w.key]) === 'mastered' ? 'green' : 'tint')])), 'recent-rail'));
 }

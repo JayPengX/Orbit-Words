@@ -83,7 +83,8 @@ h1, h2, h3, p { margin: 0; }
 .star svg { width: 22px; height: 22px; }
 .star.on { color: var(--q-orange); }
 .star.on svg, .mini-star svg { fill: currentColor; }
-/* A word as a headline, on one line beside its sound: the longer, the smaller (--len, shell.js wordEl). */
+/* A word as a headline, on one line beside its sound, never broken: the longer, the smaller (--len,
+   shell.js wordEl), then the kit's .q-fit trims it to the exact room. Every headword is a wordEl. */
 .word-line { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .word { min-width: 0; font-weight: 800; letter-spacing: -0.01em; white-space: nowrap; font-size: min(34px, calc((100vw - 150px) / (var(--len, 8) * 0.6))); line-height: 1.15; }
 .meaning { font-size: 16px; line-height: 1.5; }
@@ -125,7 +126,9 @@ h1, h2, h3, p { margin: 0; }
 /* How a word went wrong: a small tag, then the misspelling or the word it was taken for. */
 .miss-note { display: flex; align-items: baseline; gap: 6px; min-width: 0; white-space: nowrap; overflow: hidden; }
 .miss-note > * { flex: none; }
-.miss-note > .miss-mean { flex: 0 1 auto; min-width: 0; overflow: hidden; }
+.miss-note > .miss-mean { flex: 0 100 auto; min-width: 0; overflow: hidden; }
+/* (A row's word in the note gives way only once the meaning has, then shrinks to fit: never cut.) */
+.miss-note > .q-fit { flex: 0 1 auto; }
 .miss-tag { padding: 0 6px; border-radius: 999px; background: color-mix(in srgb, var(--q-red) 14%, transparent); color: var(--q-red); font-size: 11px; font-weight: 700; line-height: 1.6; }
 .miss-count { margin-left: auto; color: var(--q-label-2); font-size: 11px; font-weight: 700; }
 
@@ -174,8 +177,8 @@ h1, h2, h3, p { margin: 0; }
 .card-word .word-line { justify-content: center; max-width: 100%; }
 .ask-card .word.big { font-size: min(40px, calc((100vw - 170px) / (var(--len, 8) * 0.6))); }
 .meaning.big { font-size: 22px; font-weight: 700; line-height: 1.35; }
-.cloze { font-size: clamp(26px, 8vw, 34px); font-weight: 800; letter-spacing: 0.18em; overflow-wrap: anywhere; }
-.diff-wrap .diff { font-size: 22px; }
+.cloze { font-size: min(34px, calc((100vw - 110px) / (var(--len, 8) * 0.8))); font-weight: 800; letter-spacing: 0.18em; }
+.diff-wrap { max-width: 100%; font-size: min(22px, calc((100vw - 110px) / (var(--len, 8) * 0.7))); }
 /* The answers. */
 .choices { display: grid; gap: 10px; margin-top: 16px; }
 @media (min-width: 560px) { .choices:not(.long) { grid-template-columns: 1fr 1fr; } }
@@ -183,7 +186,7 @@ h1, h2, h3, p { margin: 0; }
 .choice:active:not(:disabled) { transform: scale(0.97); }
 .choice:disabled { cursor: default; }
 .choice-n { flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 9px; background: var(--accent-wash); color: var(--accent); font: 700 14px/1 var(--q-font-rounded); }
-.choice-text { min-width: 0; overflow-wrap: anywhere; }
+.choice-text { min-width: 0; }
 @media (hover: hover) { .choice:not(:disabled):hover { border-color: color-mix(in srgb, var(--accent) 40%, transparent); } }
 .choice.right { border-color: var(--win); background: color-mix(in srgb, var(--win) 12%, var(--q-surface)); }
 .choice.right .choice-n { background: var(--win); color: #fff; }
@@ -214,7 +217,7 @@ h1, h2, h3, p { margin: 0; }
 .verdict-top { display: flex; align-items: center; gap: 8px; min-width: 0; margin-right: -8px; }
 .verdict-top > strong { flex: 1; min-width: 0; font: 700 18px/22px var(--q-font); white-space: nowrap; }
 .verdict-top .q-tile svg { stroke-width: 3; }
-.v-word { font: 800 24px/1.2 var(--q-font); overflow-wrap: anywhere; }
+.word.v-word { font-size: min(24px, calc((100vw - 120px) / (var(--len, 8) * 0.6))); line-height: 1.2; }
 .mixed { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center; gap: 4px 8px; padding: 10px 14px; border: 0; border-radius: 14px; background: var(--q-fill-3); color: inherit; text-align: center; }
 .verdict .mixed { justify-content: flex-start; text-align: left; }
 .next-bar { position: fixed; left: 0; right: 0; bottom: calc(var(--q-nav) + 10px); z-index: 50; display: flex; justify-content: center; padding: 0 16px; pointer-events: none; }
@@ -233,14 +236,14 @@ h1, h2, h3, p { margin: 0; }
 .flash-card { cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: pan-y; }
 .flash-why { display: grid; justify-items: center; gap: 6px; max-width: 100%; }
 .flash-why .miss-note { flex-direction: column; align-items: center; gap: 3px; max-width: 100%; font-size: 15px; white-space: normal; }
-.flash-why .miss-note > * { max-width: 100%; overflow-wrap: anywhere; }
+.flash-why .miss-note > * { max-width: 100%; overflow-wrap: break-word; }
 .flip-hint { display: inline-flex; align-items: center; gap: 6px; margin-top: auto; color: var(--q-label-2); font: var(--q-t-footnote); }
 .flip-hint .gl { width: 15px; height: 15px; }
 .flash-mixed { display: grid; gap: 6px; justify-self: stretch; }
 /* 測驗 stays in reach above the floating tab bar on a long flipped card. */
 .flash-test { position: sticky; bottom: calc(var(--q-bar-gap, 12px) + 72px); z-index: 2; box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.35); }
 .spelt { display: grid; justify-items: center; gap: 4px; }
-.spelt-row { display: flex; align-items: baseline; gap: 8px; font-size: 18px; font-weight: 700; }
+.spelt-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px; font-size: 18px; font-weight: 700; }
 .card-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0 12px; }
 .card-nav .gl { width: 18px; height: 18px; }
 /* An answer, once (.just: the drawing right after it): the right choice
@@ -289,7 +292,8 @@ h1, h2, h3, p { margin: 0; }
 .go-card .mini-bar { width: 100%; margin-top: 6px; }
 .deck { box-shadow: 0 -4px 0 -2px var(--q-fill-3), 0 -8px 0 -4px var(--q-fill-4); margin-top: 8px; }
 .recent-card { gap: 6px; }
-.rc-word { font: 700 20px/24px var(--q-font); overflow-wrap: anywhere; }
+/* (A rail card's word: 122 px of room, 20 px at most.) */
+.word.rc-word { max-width: 100%; font-weight: 700; font-size: min(20px, calc(122px / (var(--len, 8) * 0.56))); line-height: 24px; }
 .rc-zh { color: var(--q-label-2); font: 13px/18px var(--q-font); white-space: nowrap; }
 .streak-card { display: grid; gap: 12px; padding: 16px; }
 .streak-top { display: flex; align-items: center; gap: 12px; }

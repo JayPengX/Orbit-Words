@@ -148,7 +148,7 @@ function renderRound(box, r) {
 }
 
 // The word as a card's headline: the word, its sound beside it, the line under it.
-const wordHead = word => el('div', { class: 'card-word' }, [el('div', { class: 'word-line' }, [wordEl(word, true), speakButton(word)]), el('small', { class: 'muted', text: metaLine(word) })]);
+const wordHead = word => el('div', { class: 'card-word' }, [el('div', { class: 'word-line' }, [wordEl(word, 'big'), speakButton(word)]), el('small', { class: 'muted', text: metaLine(word) })]);
 const meaningHead = (word, extra = '') => el('div', { class: 'card-word' }, [el('p', { class: 'meaning big', text: shortMeaning(word.zh) }), el('small', { class: 'muted', text: [word.pos, extra].filter(Boolean).join(' · ') })]);
 const soundHead = (word, line) => el('div', { class: 'card-word' }, [speakButton(word, true), line]);
 
@@ -170,7 +170,7 @@ function questionView(r) {
       { class: `choices${question.type === 'meaning' ? ' long' : ''}` },
       question.choices.map((c, i) => {
         const cls = done ? (c.key === question.answer ? ' right' : last.typed === c.key ? ' wrong' : ' dim') : '';
-        return el('button', { class: `choice${cls}`, type: 'button', disabled: done, onclick: () => answer(c.key === question.answer, c.key) }, [el('span', { class: 'choice-n num', text: String(i + 1) }), el('span', { class: 'choice-text', text: c.text })]);
+        return el('button', { class: `choice${cls}`, type: 'button', disabled: done, onclick: () => answer(c.key === question.answer, c.key) }, [el('span', { class: 'choice-n num', text: String(i + 1) }), el('span', { class: `choice-text${question.type === 'meaning' ? '' : ' q-fit'}`, text: c.text })]);
       })
     );
   } else if (question.type === 'letters') {
@@ -206,9 +206,9 @@ function questionView(r) {
     const input = el('input', { class: 'spell-input', type: 'text', autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false', enterkeyhint: 'done', value: r.typed, disabled: done, 'aria-label': t(`ask_${question.type}`) });
     input.addEventListener('input', () => (r.typed = input.value));
     const top = cloze
-      ? el('div', { class: 'card-word' }, [el('p', { class: 'cloze num', text: clozeText(word.word, question.gaps) }), el('p', { class: 'meaning', text: shortMeaning(word.zh) }), el('small', { class: 'muted', text: word.pos })])
+      ? el('div', { class: 'card-word' }, [el('p', { class: 'cloze num q-fit', style: `--len:${word.word.length}`, text: clozeText(word.word, question.gaps) }), el('p', { class: 'meaning', text: shortMeaning(word.zh) }), el('small', { class: 'muted', text: word.pos })])
       : soundHead(word, el('p', { class: 'meaning', text: shortMeaning(word.zh) }));
-    put(card, ask, top, cloze ? null : el('small', { class: 'muted', text: t('letters', { n: word.word.length }) }), done && !last.correct ? el('p', { class: 'diff-wrap' }, [diffLine(spellDiff(last.typed, word.word))]) : null);
+    put(card, ask, top, cloze ? null : el('small', { class: 'muted', text: t('letters', { n: word.word.length }) }), done && !last.correct ? el('p', { class: 'diff-wrap q-fit', style: `--len:${Math.max(String(last.typed || '').length, word.word.length)}` }, [diffLine(spellDiff(last.typed, word.word))]) : null);
     answers = el('form', { class: 'spell-form', onsubmit: e => (e.preventDefault(), input.value.trim() && answer(sameWord(input.value, word.word), input.value)) }, [input, el('button', { class: 'q-btn primary', type: 'submit', disabled: done, text: t('check') })]);
   }
   if (!done) {
@@ -230,7 +230,7 @@ function feedback(res) {
   return el('div', { class: `q-ambient verdict ${res.correct ? 'good' : 'bad'}` }, [
     el('div', { class: 'verdict-top' }, [tile(res.correct ? 'check' : 'x', res.correct ? 'var(--q-green)' : 'var(--q-red)', 'sm'), el('strong', { text: status }), res.pay ? tag(xpText(res.pay, { sign: true }), 'green') : null, tag(t(`state_${res.after}`), res.after === 'mastered' ? 'green' : res.after === 'learning' ? 'tint' : ''), starButton(word, hooks.render)]),
     // The word's on screen already for a meaning question: its meaning only.
-    res.type === 'meaning' ? null : el('div', { class: 'word-line' }, [el('strong', { class: 'v-word', text: word.word }), speakButton(word)]),
+    res.type === 'meaning' ? null : el('div', { class: 'word-line' }, [wordEl(word, 'v-word'), speakButton(word)]),
     el('p', { class: 'meaning', text: word.zh }),
     // What it was mistaken for, side by side: the difference is the lesson.
     res.mixed ? el('button', { class: 'mixed', type: 'button', onclick: () => openWord(res.mixed) }, [el('small', { class: 'muted', text: t(res.written ? 'youWrote' : 'youPicked') }), el('strong', { text: res.mixed.word }), el('span', { class: 'muted', text: shortMeaning(res.mixed.zh) })]) : null,
@@ -331,7 +331,7 @@ function studyKnown() {
 }
 // A card to learn from: the level and ★ on top, the word and its sound, the rest under.
 const bigCard = (word, kids, props = {}) =>
-  el('div', { class: 'q-ambient word-card', ...props }, [el('div', { class: 'card-top' }, [tag(levelName(word.level)), starButton(word, hooks.render)]), el('div', { class: 'card-word' }, [el('div', { class: 'word-line' }, [wordEl(word, true)]), el('small', { class: 'muted', text: [word.ph ? `/${word.ph}/` : '', word.pos].filter(Boolean).join(' · ') }), speakButton(word, true)]), ...kids]);
+  el('div', { class: 'q-ambient word-card', ...props }, [el('div', { class: 'card-top' }, [tag(levelName(word.level)), starButton(word, hooks.render)]), el('div', { class: 'card-word' }, [el('div', { class: 'word-line' }, [wordEl(word, 'big')]), el('small', { class: 'muted', text: [word.ph ? `/${word.ph}/` : '', word.pos].filter(Boolean).join(' · ') }), speakButton(word, true)]), ...kids]);
 const navBtn = (icon, text, onclick, { primary = false, disabled = false, after = false } = {}) => {
   const i = el('i', { class: 'gl', 'aria-hidden': 'true' });
   i.innerHTML = ico(icon);

@@ -29,8 +29,8 @@ export function missNote(word, p, { small = true } = {}) {
   const tag = key => el('span', { class: 'miss-tag', text: `${t(key)}${small && misses > 1 ? ` ×${misses}` : ''}` });
   const count = !small && misses > 1 ? el('span', { class: 'miss-count', text: t('missesN', { n: misses }) }) : null;
   let body;
-  if (how === 's' && spelt) body = small ? [tag('missSpelt'), diffLine(spellDiff(spelt, word.word), 'small')] : [tag('missSpelt'), el('s', { class: 'muted', text: spelt }), el('span', { class: 'miss-to' }, [document.createTextNode('→ '), diffLine(spellDiff(spelt, word.word), 'small')])];
-  else if ((how === 'm' || how === 'w' || how === 'e') && other) body = [tag(how === 'e' ? 'missHeard' : 'missMixed'), el('strong', { text: other.word }), el('span', { class: 'muted miss-mean', text: ` ${shortMeaning(other.zh)}` })];
+  if (how === 's' && spelt) body = small ? [tag('missSpelt'), diffLine(spellDiff(spelt, word.word), 'small q-fit')] : [tag('missSpelt'), el('s', { class: 'muted', text: spelt }), el('span', { class: 'miss-to' }, [document.createTextNode('→ '), diffLine(spellDiff(spelt, word.word), 'small')])];
+  else if ((how === 'm' || how === 'w' || how === 'e') && other) body = [tag(how === 'e' ? 'missHeard' : 'missMixed'), el('strong', { class: small ? 'q-fit' : null, text: other.word }), el('span', { class: 'muted miss-mean', text: ` ${shortMeaning(other.zh)}` })];
   else if (how === 'u') body = [tag('missUnknown'), el('span', { class: 'muted miss-mean', text: shortMeaning(word.zh) })];
   else body = [tag(how === 'e' ? 'missEar' : 'missWrong'), el('span', { class: 'muted miss-mean', text: shortMeaning(word.zh) })];
   return el(small ? 'small' : 'p', { class: 'miss-note' }, [...body, count]);
