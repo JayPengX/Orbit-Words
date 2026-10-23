@@ -12,9 +12,11 @@
 // every app's guide) is the kit's Orbit Pass sheet, in every app. (It was
 // Orbit Words; its id stays `vocab`, its storage and caches `orbit-words`.)
 import * as kitUI from '#kit/ui.mjs';
+// (As a namespace: a phone on an older kit lacks milestone, and a missing named import would stop the app.)
+import * as kit from '#kit/orbit.mjs';
 import { passSync } from '#kit/pass-sync.mjs';
 import { orbitSession, taipeiDay, tabBar, topActions, installGate, watchUpdates, schedulePush, notify, keepOffline, storedAccount, cachedPayload } from '#kit/orbit.mjs';
-import { loadWords, loadHints, keyOf } from './lib/words.mjs';
+import { loadWords, loadHints, keyOf, stateOf } from './lib/words.mjs';
 import { DAILY_GOAL, streakAtRisk } from './lib/practice.mjs';
 import { catCounts } from './lib/review.mjs';
 import { decodePayload, encodePayload, mergeCopy } from './lib/copy.mjs';
@@ -76,7 +78,10 @@ let timer = 0;
 function sync({ soon = false } = {}) {
   clearTimeout(timer);
   if (soon) return (timer = setTimeout(() => sync(), 1500));
-  return state.loaded ? pass.sync() : Promise.resolve();
+  if (!state.loaded) return Promise.resolve();
+  // The words mastered, toward the 五百字 milestone.
+  kit.milestone?.(q, 'vocab', Object.values(state.progress || {}).filter(p => stateOf(p) === 'mastered').length);
+  return pass.sync();
 }
 document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && sync());
 
