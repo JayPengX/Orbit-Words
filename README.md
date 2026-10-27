@@ -16,15 +16,15 @@
 English vocabulary that sticks: the full 大考中心 list, levels 1 to 6 (6,169 words), each with a recorded voice. Part of **Orbit**, a family of phone apps for life in Taiwan that share one sign-in, the Orbit Pass. See them all at [orbit.jaypengx.com](https://orbit.jaypengx.com/pass/).
 
 <p align="center">
-  <img src="docs/screenshots/words-1.webp" width="30%" alt="Tricky choices that teach">
-  <img src="docs/screenshots/words-2.webp" width="30%" alt="Every word, explained">
-  <img src="docs/screenshots/words-3.webp" width="30%" alt="Review at the right time">
+  <img src="docs/screenshots/words-1.webp" width="30%" alt="Today's goal and streak">
+  <img src="docs/screenshots/words-2.webp" width="30%" alt="Tricky choices that teach">
+  <img src="docs/screenshots/words-3.webp" width="30%" alt="Every word, explained">
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/words-4.webp" width="30%" alt="Watch yourself improve">
-  <img src="docs/screenshots/words-5.webp" width="30%" alt="Levels and memory">
-  <img src="docs/screenshots/words-6.webp" width="30%" alt="Today's words">
+  <img src="docs/screenshots/words-4.webp" width="30%" alt="Review at the right time">
+  <img src="docs/screenshots/words-5.webp" width="30%" alt="Watch yourself improve">
+  <img src="docs/screenshots/words-6.webp" width="30%" alt="Levels and memory">
 </p>
 
 ## Features
