@@ -1,4 +1,4 @@
-// Orbit Words: the family's one service worker (Shared-Proxy/kit/sw.js),
+// Orbit Words: the family's one service worker (Orbit-Core/kit/sw.js),
 // with this app's settings. It keeps the page's own files so the app opens
 // without a connection and can be installed, and never keeps a file that
 // isn't the one its address names (GitHub's CDN can answer a new address
@@ -13,5 +13,5 @@ self.ORBIT_SW = {
   route: (request, url) => (isAudio(url) ? 'cacheFirst' : null),
   prune: url => !isAudio(url)
 };
-importScripts('../Shared-Proxy/kit/sw-images.js');
-importScripts('../Shared-Proxy/kit/sw.js');
+importScripts('../Orbit-Core/kit/sw-images.js');
+importScripts('../Orbit-Core/kit/sw.js');

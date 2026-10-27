@@ -38,7 +38,7 @@ English vocabulary that sticks: the full 大考中心 list, levels 1 to 6 (6,169
 | --- | --- |
 | App | Plain JavaScript (ES modules), HTML and CSS; no framework, no build step, no dependencies |
 | Platform | Installable web app; the service worker keeps every word and recording, so it works with no network |
-| Shared | Look, Orbit Pass sync (`pass-sync.mjs`) and the 20:00 streak notice from the kit in [Shared-Proxy](https://github.com/JayPengX/Shared-Proxy) |
+| Shared | Look, Orbit Pass sync (`pass-sync.mjs`) and the 20:00 streak notice from the kit in [Orbit-Core](https://github.com/JayPengX/Orbit-Core) |
 | Memory model | FSRS-5 (stability and difficulty); 10 days' stability counts as mastered |
 | Data | `data/words.json` (the list), `data/hints.json` (mnemonics and mix-ups, written once offline), `data/audio/` (one recording per word) |
 | Tests | `node --test`, including merging progress across devices |
@@ -69,10 +69,10 @@ MAP.md                how it works
 
 ## Getting started
 
-The app loads the shared kit from a sibling folder, so clone this repo next to [Shared-Proxy](https://github.com/JayPengX/Shared-Proxy):
+The app loads the shared kit from a sibling folder, so clone this repo next to [Orbit-Core](https://github.com/JayPengX/Orbit-Core):
 
 ```bash
-git clone https://github.com/JayPengX/Shared-Proxy.git
+git clone https://github.com/JayPengX/Orbit-Core.git
 git clone https://github.com/JayPengX/Orbit-Words.git
 cd Orbit-Words
 ```
@@ -80,21 +80,21 @@ cd Orbit-Words
 Requirements: Node.js 22 or newer. There is nothing to install: no framework, no `node_modules`.
 
 ```bash
-npm test   # links ../Shared-Proxy/kit as .kit, then runs node --test
+npm test   # links ../Orbit-Core/kit as .kit, then runs node --test
 ```
 
 See it on a phone-sized screen, signed in with a made-up wallet and real data (needs Playwright):
 
 ```bash
 # a screenshot, saved in /tmp/orbit-preview
-node ../Shared-Proxy/tools/preview.mjs words --live --width 375
+node ../Orbit-Core/tools/preview.mjs words --live --width 375
 # serve it, then open http://localhost:8123/Orbit-Words/
-node ../Shared-Proxy/tools/preview.mjs words --live --serve --port 8123
+node ../Orbit-Core/tools/preview.mjs words --live --serve --port 8123
 ```
 
-`--dark`, `--lang en`, `--webkit` (Safari's engine) and the other flags are listed in [Shared-Proxy/tools/README.md](https://github.com/JayPengX/Shared-Proxy/blob/main/tools/README.md).
+`--dark`, `--lang en`, `--webkit` (Safari's engine) and the other flags are listed in [Orbit-Core/tools/README.md](https://github.com/JayPengX/Orbit-Core/blob/main/tools/README.md).
 
-Missing recordings: `python3 ../Shared-Proxy/tools/word-audio.py`.
+Missing recordings: `python3 ../Orbit-Core/tools/word-audio.py`.
 
 ## Deploying
 
@@ -113,6 +113,6 @@ Push to `main`. GitHub Actions runs the tests, stamps every file with its conten
 | [Orbit Beats](https://github.com/JayPengX/Orbit-Beats) | Endless music and your own beats |
 | [Orbit Law](https://github.com/JayPengX/Orbit-Law) | Laws, rulings and bills, linked |
 | [Orbit Money](https://github.com/JayPengX/Orbit-Money) | Your own books |
-| [Shared-Proxy](https://github.com/JayPengX/Shared-Proxy) | The kit, the Orbit Pass and the Workers behind them all |
+| [Orbit-Core](https://github.com/JayPengX/Orbit-Core) | The kit, the Orbit Pass and the Workers behind them all |
 
 How it was all built, in pictures and numbers: [jaypengx.com/showcase](https://jaypengx.com/showcase/).

@@ -69,10 +69,10 @@ npm test
 ```
 
 ```bash
-node ../Shared-Proxy/tools/preview.mjs words --width 375
+node ../Orbit-Core/tools/preview.mjs words --width 375
 ```
 
-Missing recordings: `python3 ../Shared-Proxy/tools/word-audio.py`. A push
+Missing recordings: `python3 ../Orbit-Core/tools/word-audio.py`. A push
 to `main` tests, stamps versions and deploys to Pages.
 
 ## If you change…
