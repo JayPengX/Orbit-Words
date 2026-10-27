@@ -3,6 +3,7 @@
 // weakest words and a test on them; under it the words, searched and sorted.
 // Each row opens the word's sheet.
 import { el, put, segmented, searchField, pagedList } from '../ui.js';
+import { empty as kitEmpty } from '#kit/ui.mjs';
 import { state, t, hooks, dueText } from '../shell.js';
 import { speakButton } from '../audio.js';
 import { shortMeaning, stateOf } from '../lib/words.mjs';
@@ -37,7 +38,8 @@ function deckHero(n) {
     el('div', { class: 'q-hc-row' }, [heroBtn(t('flashStart'), () => startFlash(deck(), t(`cat_${view.cat}`)), { icon: 'cards' }), heroBtn(t('testThese'), () => startRound({ from: 'flash', list: deck() }), { ghost: true })])
   ]);
 }
-const emptyCard = () => el('div', { class: 'q-card empty-card' }, [el('p', { text: t(`catEmpty_${view.cat}`) })]);
+// A list with nothing in it: the kit's empty state (a mark and the words), not a bare sentence.
+const emptyCard = () => el('div', { class: 'q-card empty-card' }, [kitEmpty({ icon: view.cat === 'marked' ? 'star' : 'check', tint: 'var(--q-green)', body: t(`catEmpty_${view.cat}`) })]);
 
 // The words: a search, a sort (the menu in the head), the list a page at a time.
 function wordsSection() {
