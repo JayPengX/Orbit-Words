@@ -4,7 +4,7 @@ English words that stay with you: the 大考中心 list, levels 1–6 (6,169
 words), each recorded in Microsoft's Jenny voice. Signs in with the Orbit
 Pass; no money in or out.
 
-Live: https://jaypengx.com/words/
+Live: https://orbit.jaypengx.com/words/
 
 ## How it works
 
