@@ -95,8 +95,8 @@ function draw(word) {
   const info = wordInfo(p, Date.now(), personalFactor(state.cal));
   const hint = hintOf(word.key);
   const redraw = () => (draw(word), hooks.render());
-  const tone = info.state === 'mastered' ? 'green' : info.state === 'learning' ? 'tint' : '';
-  const head = el('div', { class: 'q-tags' }, [tag(t(`state_${info.state}`), tone), p?.o === 2 ? tag(t('lastMissed'), 'red') : null, info.dueIn != null ? tag(dueText(info.dueIn), info.dueIn <= 0 ? 'orange' : '') : null]);
+  // Where it stands: plain words; only an overdue word earns a tag.
+  const head = el('div', { class: 'sheet-state' }, [el('span', { class: 'muted', text: [t(`state_${info.state}`), p?.o === 2 ? t('lastMissed') : '', info.dueIn != null && info.dueIn > 0 ? dueText(info.dueIn) : ''].filter(Boolean).join(' · ') }), info.dueIn != null && info.dueIn <= 0 ? tag(dueText(info.dueIn), 'orange') : null]);
   lead.replaceChildren(starButton(word, redraw));
   const top = el('div', { class: 'sheet-word' }, [el('div', { class: 'word-line' }, [wordEl(word), speakButton(word)]), el('small', { class: 'muted', text: metaLine(word) }), el('p', { class: 'meaning', text: word.zh })]);
   const spelt = (p?.x || []).length ? block(t('youSpelt'), el('div', { class: 'q-card spelt' }, p.x.map(s => speltRow(s, word)))) : null;
@@ -131,7 +131,7 @@ function draw(word) {
     spelt,
     wordChips(p?.c || [], t('mixedYours')),
     wordChips((hint?.common || []).filter(k => !(p?.c || []).includes(k)), t('mixedCommon')),
-    block(t('howItGoes'), [numbers, info.lapses ? el('div', { class: 'q-tags lapses' }, [tag(t('lapsesLine', { n: info.lapses }), 'red')]) : null]),
+    block(t('howItGoes'), [numbers, info.lapses ? el('p', { class: 'lapses muted', text: t('lapsesLine', { n: info.lapses }) }) : null]),
     known
   );
 }

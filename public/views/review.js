@@ -9,7 +9,7 @@ import { shortMeaning, stateOf } from '../lib/words.mjs';
 import { CATS, SORTS, catCounts, reviewList, flashDeck, wordInfo, isMarked } from '../lib/review.mjs';
 import { startFlash, startRound } from './session.js';
 import { openWord, missNote } from './sheet.js';
-import { hero, heroPill, heroBtn, big, section, menuButton, tile, ico } from './chrome.js';
+import { hero, heroPill, heroBtn, big, section, menuButton, ico } from './chrome.js';
 
 const view = { cat: 'wrong', sort: 'weak', query: '', deck: 20, picked: false };
 export const DECKS = [10, 20, 50];
@@ -37,7 +37,7 @@ function deckHero(n) {
     el('div', { class: 'q-hc-row' }, [heroBtn(t('flashStart'), () => startFlash(deck(), t(`cat_${view.cat}`)), { icon: 'cards' }), heroBtn(t('testThese'), () => startRound({ from: 'flash', list: deck() }), { ghost: true })])
   ]);
 }
-const emptyCard = () => el('div', { class: 'q-ambient empty-card', style: '--amb: var(--q-green)' }, [tile(view.cat === 'marked' ? 'star' : 'check', 'var(--q-green)', 'lg'), el('p', { text: t(`catEmpty_${view.cat}`) })]);
+const emptyCard = () => el('div', { class: 'q-card empty-card' }, [el('p', { text: t(`catEmpty_${view.cat}`) })]);
 
 // The words: a search, a sort (the menu in the head), the list a page at a time.
 function wordsSection() {
@@ -53,16 +53,16 @@ function wordsSection() {
 
 // A word in a list: its sound, the word and its meaning (or how it went
 // wrong last time), and where it stands.
-const stateTone = info => (info.dueIn != null && info.dueIn <= 0 ? 'orange' : info.state === 'mastered' ? 'green' : info.state === 'learning' ? 'tint' : '');
 export function wordRow(w) {
   const p = state.progress[w.key];
   const info = wordInfo(p);
   const side = info.state === 'new' ? t('state_new') : info.dueIn != null && info.dueIn <= 0 ? dueText(info.dueIn) : t(`state_${stateOf(p)}`);
+  const overdue = info.dueIn != null && info.dueIn <= 0;
   const star = isMarked(state.marks, w.key) ? el('i', { class: 'mini-star', 'aria-label': t('mark') }) : null;
   if (star) star.innerHTML = ico('star');
   return el('button', { class: 'q-ritem wr', type: 'button', onclick: () => openWord(w) }, [
     speakButton(w),
     el('span', { class: 'wr-main' }, [el('span', { class: 'wr-top' }, [el('strong', { class: 'q-fit', text: w.word }), star]), (p?.o === 2 && missNote(w, p)) || el('small', { class: 'muted', text: shortMeaning(w.zh) })]),
-    el('small', { class: `q-tag ${stateTone(info)}`.trim(), text: side })
+    overdue ? el('small', { class: 'q-tag orange', text: side }) : el('small', { class: 'wr-side', text: side })
   ]);
 }

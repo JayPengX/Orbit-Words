@@ -9,9 +9,6 @@ import { LEVELS, MODES, stats, wordOfDay } from '../lib/words.mjs';
 import { row, rowCard, checkDot, bar } from './chrome.js';
 
 export const SIZES = [10, 20, 30];
-const MODE_ICON = { smart: 'spark', meaning: 'book', word: 'list', listen: 'sound', letters: 'grid', cloze: 'search', spell: 'pencil' };
-const MODE_COLOR = { smart: 'var(--q-accent)', meaning: 'var(--q-blue)', word: 'var(--q-indigo)', listen: 'var(--q-orange)', letters: 'var(--q-teal)', cloze: 'var(--q-purple)', spell: 'var(--q-green)' };
-const LEVEL_COLOR = ['', 'var(--q-green)', 'var(--q-mint)', 'var(--q-blue)', 'var(--q-indigo)', 'var(--q-purple)', 'var(--q-pink)'];
 
 // 第 1–3 級, 第 2 級, 第 1、3、5 級 (Levels 1–3 …).
 export function levelsText(levels) {
@@ -39,8 +36,8 @@ function draw() {
       const on = state.levels.includes(l);
       return row({
         icon: String(l),
-        color: LEVEL_COLOR[l],
-        soft: !on,
+        color: 'var(--q-label-2)',
+        soft: true,
         title: levelName(l),
         sub: t(`levelHint${l}`),
         body: bar(st[l].mastered, st[l].total, 'mini-bar'),
@@ -54,7 +51,7 @@ function draw() {
       });
     })
   );
-  const modes = rowCard(MODES.map(m => row({ icon: MODE_ICON[m], color: MODE_COLOR[m], title: t(`mode_${m}`), sub: t(`modeHint_${m}`), trailing: checkDot(state.mode === m), pressed: state.mode === m, chevron: false, onClick: () => ((state.mode = m), changed()) })));
+  const modes = rowCard(MODES.map(m => row({ title: t(`mode_${m}`), sub: t(`modeHint_${m}`), trailing: checkDot(state.mode === m), pressed: state.mode === m, chevron: false, onClick: () => ((state.mode = m), changed()) })));
   // The sound's speed, tried on the word of the day.
   const rate = RATES.includes(state.opt.rate) ? state.opt.rate : 1;
   const sound = rowCard([

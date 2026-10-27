@@ -160,7 +160,7 @@ function questionView(r) {
   const just = done && r.justAnswered;
   r.justAnswered = false;
   // The question: one card (what's asked, then the word, the meaning or the sound), the answers under it.
-  const card = el('div', { class: `q-ambient ask-card type-${question.type}` });
+  const card = el('div', { class: `q-card ask-card type-${question.type}` });
   const ask = el('p', { class: 'ask', text: t(`ask_${question.type}`) });
   let answers = null;
   if (question.choices) {
@@ -227,8 +227,8 @@ function feedback(res) {
   const status = res.mastered ? t('fbMastered') : res.correct ? t('fbRight') : t('fbWrong');
   const next = el('button', { class: 'q-btn primary large block', type: 'button', text: r.i + 1 >= r.list.length ? t('seeResult') : t('next'), onclick: advance });
   setTimeout(() => next.focus({ preventScroll: true }), 0);
-  return el('div', { class: `q-ambient verdict ${res.correct ? 'good' : 'bad'}` }, [
-    el('div', { class: 'verdict-top' }, [tile(res.correct ? 'check' : 'x', res.correct ? 'var(--q-green)' : 'var(--q-red)', 'sm'), el('strong', { text: status }), res.pay ? tag(xpText(res.pay, { sign: true }), 'green') : null, tag(t(`state_${res.after}`), res.after === 'mastered' ? 'green' : res.after === 'learning' ? 'tint' : ''), starButton(word, hooks.render)]),
+  return el('div', { class: `q-card verdict ${res.correct ? 'good' : 'bad'}` }, [
+    el('div', { class: 'verdict-top' }, [tile(res.correct ? 'check' : 'x', res.correct ? 'var(--q-green)' : 'var(--q-red)', 'sm'), el('strong', { text: status }), res.pay ? el('small', { class: 'muted', text: xpText(res.pay, { sign: true }) }) : null, tag(t(`state_${res.after}`)), starButton(word, hooks.render)]),
     // The word's on screen already for a meaning question: its meaning only.
     res.type === 'meaning' ? null : el('div', { class: 'word-line' }, [wordEl(word, 'v-word'), speakButton(word)]),
     el('p', { class: 'meaning', text: word.zh }),
@@ -253,7 +253,7 @@ function roundSummary(r) {
     el('button', { class: 'q-ritem chevron', type: 'button', onclick: () => openWord(x.word) }, [
       tile(x.correct ? 'check' : 'x', x.correct ? 'var(--q-green)' : 'var(--q-red)', 'sm'),
       el('span', { class: 'q-ritem-text' }, [el('span', { class: 'q-ritem-title', text: x.word.word }), el('small', { text: [shortMeaning(x.word.zh), x.mixed ? t('mixedWith', { words: x.mixed.word }) : ''].filter(Boolean).join(' · ') })]),
-      tag(t(`state_${x.after}`), x.after === 'mastered' ? 'green' : x.after === 'learning' ? 'tint' : '')
+      el('small', { class: 'wr-side', text: t(`state_${x.after}`) })
     ])
   );
   return el('div', { class: 'round-end' }, [top, section(t('roundWords'), el('div', { class: 'q-rowcard results' }, rows))]);
@@ -331,7 +331,7 @@ function studyKnown() {
 }
 // A card to learn from: the level and ★ on top, the word and its sound, the rest under.
 const bigCard = (word, kids, props = {}) =>
-  el('div', { class: 'q-ambient word-card', ...props }, [el('div', { class: 'card-top' }, [tag(levelName(word.level)), starButton(word, hooks.render)]), el('div', { class: 'card-word' }, [el('div', { class: 'word-line' }, [wordEl(word, 'big')]), el('small', { class: 'muted', text: [word.ph ? `/${word.ph}/` : '', word.pos].filter(Boolean).join(' · ') }), speakButton(word, true)]), ...kids]);
+  el('div', { class: 'q-card word-card', ...props }, [el('div', { class: 'card-top' }, [el('small', { class: 'muted', text: levelName(word.level) }), starButton(word, hooks.render)]), el('div', { class: 'card-word' }, [el('div', { class: 'word-line' }, [wordEl(word, 'big')]), el('small', { class: 'muted', text: [word.ph ? `/${word.ph}/` : '', word.pos].filter(Boolean).join(' · ') }), speakButton(word, true)]), ...kids]);
 const navBtn = (icon, text, onclick, { primary = false, disabled = false, after = false } = {}) => {
   const i = el('i', { class: 'gl', 'aria-hidden': 'true' });
   i.innerHTML = ico(icon);
@@ -410,7 +410,7 @@ function renderFlash(box, s) {
         tipBox(word)
       ]
     : [why ? el('div', { class: 'flash-why' }, [el('small', { class: 'muted', text: t('lastMiss') }), why]) : null, iconText('flip-hint', 'flip', t('tapToFlip'))];
-  const card = bigCard(word, back, { class: `q-ambient word-card flash-card${s.flipped ? ' flipped' : ''}`, role: 'button', tabindex: '0', 'aria-label': t('tapToFlip') });
+  const card = bigCard(word, back, { class: `q-card word-card flash-card${s.flipped ? ' flipped' : ''}`, role: 'button', tabindex: '0', 'aria-label': t('tapToFlip') });
   swipeable(card);
   const all = s.seen.size >= s.deck.length;
   const nav = el('div', { class: 'card-nav' }, [navBtn('left', t('flashPrev'), () => flashStep(-1), { disabled: s.i === 0 }), navBtn('right', t('flashNext'), () => flashStep(1), { disabled: s.i + 1 >= s.deck.length, after: true })]);

@@ -3,7 +3,7 @@
 // weak words, the missed words as flash cards), and the word of the day.
 import * as kitUI from '#kit/ui.mjs';
 import { el, put } from '../ui.js';
-import { hero, heroPill, heroBtn, big, bar, iconText, section, tag, tile } from './chrome.js';
+import { hero, heroPill, heroBtn, big, bar, iconText, section, tag } from './chrome.js';
 import { state, t, hooks, hintOf, metaLine, wordEl, locale } from '../shell.js';
 import { speakButton } from '../audio.js';
 import { LEVELS, stats, toStudy, stateOf, shortMeaning, wordOfDay, hardest } from '../lib/words.mjs';
@@ -28,7 +28,7 @@ function goalHero() {
   const due = chosen.reduce((s, l) => s + st[l].due, 0);
   return hero('target', t('goalTitle'), heroPill('sliders', chosen.length ? levelsText(chosen) : t('pickLevel'), openPrefs, t('prefsTitle')), [
     el('div', { class: 'hero-main' }, [big(String(Math.min(today, DAILY_GOAL)), ` / ${DAILY_GOAL}`), ring(today, DAILY_GOAL)]),
-    el('div', { class: 'hero-tags' }, [iconText('hero-tag', 'flame', t('daysN', { n: streak })), el('span', { class: 'hero-note', text: !left ? t('goalDone') : keeps ? t('goalKeep', { n: left }) : t('goalLeft', { n: left }) })]),
+    iconText('hero-note', 'flame', `${t('daysN', { n: streak })} · ${!left ? t('goalDone') : keeps ? t('goalKeep', { n: left }) : t('goalLeft', { n: left })}`),
     el('div', { class: 'q-hc-row' }, [heroBtn(due ? t('startDue', { n: Math.min(due, state.size) }) : t('startRound', { n: state.size }), () => startRound(), { disabled: !chosen.length, icon: 'play' })])
   ]);
 }
@@ -41,7 +41,7 @@ function wordOfDayCard() {
   const st = stateOf(state.progress[w.key]);
   return section(
     t('wotd'),
-    el('div', { class: 'q-ambient wotd q-press', role: 'button', tabindex: '0', onclick: e => !e.target.closest('button') && openWord(w) }, [
+    el('div', { class: 'q-card wotd q-press', role: 'button', tabindex: '0', onclick: e => !e.target.closest('button') && openWord(w) }, [
       el('div', { class: 'card-top' }, [tag(t(`state_${st}`), st === 'mastered' ? 'green' : st === 'new' ? '' : 'tint'), starButton(w, hooks.render)]),
       el('div', { class: 'word-line' }, [wordEl(w), speakButton(w)]),
       el('small', { class: 'muted', text: metaLine(w) }),
@@ -59,7 +59,6 @@ const ring = (value, max) => kitUI.progressRing(Math.min(1, value / max), { size
 // A card of the rail: a colour tile, a big number, its name, one line under.
 function goCard({ icon, color, title, value, sub, progress, onClick, disabled = false }) {
   return el('button', { class: 'go-card q-press', type: 'button', disabled: disabled || null, onclick: onClick }, [
-    tile(icon, color, 'sm'),
     el('strong', { class: 'go-val num', text: String(value) }),
     el('span', { class: 'go-title q-fit-wrap', text: title }),
     sub ? el('small', { class: 'go-sub', text: sub }) : null,
@@ -97,7 +96,7 @@ function streakPanel() {
   return section(
     t('streakTitle'),
     el('div', { class: 'q-card streak-card' }, [
-      el('div', { class: 'streak-top' }, [tile('flame', 'var(--q-orange)'), el('div', { class: 'streak-text' }, [el('strong', { class: 'num', text: t('streakDays', { n: streak }) }), el('small', { text: [t('bestStreak', { n: bestStreak(state.days) }), t('todayN', { n: todayCount(state.days) })].join(' · ') })])]),
+      el('div', { class: 'streak-top' }, [el('div', { class: 'streak-text' }, [el('strong', { class: 'num', text: t('streakDays', { n: streak }) }), el('small', { text: [t('bestStreak', { n: bestStreak(state.days) }), t('todayN', { n: todayCount(state.days) })].join(' · ') })])]),
       cal
     ])
   );
@@ -116,7 +115,7 @@ const DECKS = [['wrong', 'cards', 'var(--q-indigo)'], ['due', 'history', 'var(--
 function deckShelf() {
   const counts = catCounts(state.words, state.progress, { marks: state.marks });
   const decks = DECKS.filter(([c]) => counts[c] > 0).map(([c, icon, color]) =>
-    el('button', { class: 'deck q-press', type: 'button', onclick: () => startFlash(flashDeck(state.words, state.progress, c, { n: 20, marks: state.marks }), t(`cat_${c}`)) }, [tile(icon, color, 'sm'), el('strong', { class: 'go-val num', text: String(counts[c]) }), el('span', { class: 'go-title', text: t(`cat_${c}`) }), el('small', { class: 'go-sub', text: t('deckN', { n: Math.min(20, counts[c]) }) })])
+    el('button', { class: 'deck q-press', type: 'button', onclick: () => startFlash(flashDeck(state.words, state.progress, c, { n: 20, marks: state.marks }), t(`cat_${c}`)) }, [el('strong', { class: 'go-val num', text: String(counts[c]) }), el('span', { class: 'go-title', text: t(`cat_${c}`) }), el('small', { class: 'go-sub', text: t('deckN', { n: Math.min(20, counts[c]) }) })])
   );
   return decks.length ? section(t('decksTitle'), rail(decks, 'deck-rail')) : null;
 }
@@ -130,5 +129,5 @@ function recentShelf() {
     .map(([k]) => state.byKey.get(k))
     .filter(Boolean);
   if (!list.length) return null;
-  return section(t('recentTitle'), rail(list.map(w => el('button', { class: 'recent-card q-press', type: 'button', onclick: () => openWord(w) }, [wordEl(w, 'rc-word'), el('small', { class: 'rc-zh', text: shortMeaning(w.zh).split(/[、,，;；]/)[0] }), tag(t(`state_${stateOf(state.progress[w.key])}`), stateOf(state.progress[w.key]) === 'mastered' ? 'green' : 'tint')])), 'recent-rail'));
+  return section(t('recentTitle'), rail(list.map(w => el('button', { class: 'recent-card q-press', type: 'button', onclick: () => openWord(w) }, [wordEl(w, 'rc-word'), el('small', { class: 'rc-zh', text: shortMeaning(w.zh).split(/[、,，;；]/)[0] }), el('small', { class: 'rc-state', text: t(`state_${stateOf(state.progress[w.key])}`) })])), 'recent-rail'));
 }
