@@ -16,8 +16,8 @@
 English vocabulary that sticks: the full 大考中心 list, levels 1 to 6 (6,169 words), each with a recorded voice. Part of **Orbit**, a family of phone apps for life in Taiwan that share one sign-in, the Orbit Pass. See them all at [jaypengx.com](https://jaypengx.com/).
 
 <p align="center">
-  <img src="docs/screenshots/words-1.webp" width="240" alt="Today">
-  <img src="docs/screenshots/words-2.webp" width="240" alt="A word">
+  <img src="docs/screenshots/words-1.webp" width="30%" alt="Today">
+  <img src="docs/screenshots/words-2.webp" width="30%" alt="A word">
 </p>
 
 ## Features
