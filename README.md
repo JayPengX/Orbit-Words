@@ -15,26 +15,104 @@
 
 English vocabulary that sticks: the full 大考中心 list, levels 1 to 6 (6,169 words), each with a recorded voice. Part of **Orbit**, a family of phone apps for life in Taiwan that share one sign-in, the Orbit Pass. See them all at [jaypengx.com](https://jaypengx.com/).
 
-## What it does
+<p align="center">
+  <img src="docs/screenshots/words-1.webp" width="240" alt="Today">
+  <img src="docs/screenshots/words-2.webp" width="240" alt="A word">
+</p>
 
-- **A daily round** of 20 words with a streak, new words first where you're most likely to slip.
-- **Hard on purpose:** wrong options are the words you're most likely to mix up.
-- **Spaced review** on a modern memory model (FSRS), from flash cards to dictation.
-- **Progress:** level, accuracy, what's due and the words you forget most.
-- **Fully offline:** every word and recording is kept on the phone.
+## Features
 
-## Stack
+- **The whole 大考中心 list:** levels 1 to 6, 6,169 words, each recorded in a natural voice.
+- **Today:** a daily goal of 20 and a streak; new words as cards, the weak words, a word of the day. Pick 10, 20 or 30 words, the levels, the way to learn and the sound speed.
+- **Hard on purpose:** the wrong options are the likeliest mix-ups (spelt alike, close in meaning, or words you already confused).
+- **A quick check first:** a word you know at a glance goes away for weeks; one you miss is learnt.
+- **Every way of asking:** meaning, word, by ear, and dictation once a word is held.
+- **Review:** wrong answers, what's due, what you're learning and your saved words, as flash cards and then a test.
+- **A word's page:** sound, meaning, a line to remember it by, what you mixed it up with, your misspellings and the chance you still know it.
+- **Progress:** level and points, accuracy, the last 14 days, each level, and the words you forget most.
+- **Fully offline**, synced between devices through the Orbit Pass.
 
-- Plain JavaScript (ES modules), HTML and CSS: no framework, no build step, no runtime dependencies.
-- An installable phone web app (Add to Home Screen), cached by a service worker.
-- The look, sign-in (the Orbit Pass) and notices come from the shared kit in [Shared-Proxy](https://github.com/JayPengX/Shared-Proxy).
-- Progress syncs across devices through the Orbit Pass.
-- Hosted on GitHub Pages and served at jaypengx.com by a Cloudflare Worker; every push to `main` tests and deploys.
+## Tech stack
 
-## For developers
+| Layer | What |
+| --- | --- |
+| App | Plain JavaScript (ES modules), HTML and CSS; no framework, no build step, no dependencies |
+| Platform | Installable web app; the service worker keeps every word and recording, so it works with no network |
+| Shared | Look, Orbit Pass sync (`pass-sync.mjs`) and the 20:00 streak notice from the kit in [Shared-Proxy](https://github.com/JayPengX/Shared-Proxy) |
+| Memory model | FSRS-5 (stability and difficulty); 10 days' stability counts as mastered |
+| Data | `data/words.json` (the list), `data/hints.json` (mnemonics and mix-ups, written once offline), `data/audio/` (one recording per word) |
+| Tests | `node --test`, including merging progress across devices |
 
-```bash
-npm test
+## How it works
+
+- **Progress is a small compressed row per word** (`z3:` + gzip), saved on the phone at every answer and merged with the Pass's copy before anything is written. A copy that can't be read is never written over; the newer settings win a merge.
+- **Rounds** (`lib/words.mjs`) put the new words most likely to be missed first, then schedule each by its FSRS stability.
+- **Nothing generated live:** hints and mix-ups are files, and recorded voices always win over the device's.
+
+Details and the decisions still in force: **[MAP.md](MAP.md)**.
+
+## Project structure
+
+```
+public/
+├── index.html, app.js, shell.js, ui.js, audio.js   start, saving, tabs, drawing, sound
+├── views/            each tab, the round, flash cards, the word sheet
+├── lib/
+│   ├── words.mjs     memory model, rounds, questions, wrong options
+│   ├── copy.mjs      the saved payload: encode, decode, merge
+│   └── review.mjs, practice.mjs   review lists; points and streak
+├── data/             words.json, hints.json, audio/
+└── sw.js
+tests/                node --test
+MAP.md                how it works
 ```
 
-How it works, file by file, and the decisions still in force: **[MAP.md](MAP.md)**.
+## Getting started
+
+The app loads the shared kit from a sibling folder, so clone this repo next to [Shared-Proxy](https://github.com/JayPengX/Shared-Proxy):
+
+```bash
+git clone https://github.com/JayPengX/Shared-Proxy.git
+git clone https://github.com/JayPengX/Orbit-Words.git
+cd Orbit-Words
+```
+
+Requirements: Node.js 22 or newer. There is nothing to install: no framework, no `node_modules`.
+
+```bash
+npm test   # links ../Shared-Proxy/kit as .kit, then runs node --test
+```
+
+See it on a phone-sized screen, signed in with a made-up wallet and real data (needs Playwright):
+
+```bash
+# a screenshot, saved in /tmp/orbit-preview
+node ../Shared-Proxy/tools/preview.mjs words --live --width 375
+# serve it, then open http://localhost:8123/Orbit-Words/
+node ../Shared-Proxy/tools/preview.mjs words --live --serve --port 8123
+```
+
+`--dark`, `--lang en`, `--webkit` (Safari's engine) and the other flags are listed in [Shared-Proxy/tools/README.md](https://github.com/JayPengX/Shared-Proxy/blob/main/tools/README.md).
+
+Missing recordings: `python3 ../Shared-Proxy/tools/word-audio.py`.
+
+## Deploying
+
+Push to `main`. GitHub Actions runs the tests, stamps every file with its content hash (so a phone downloads only what changed) and publishes `public/` to GitHub Pages; the site Worker serves it at its jaypengx.com address. There are no pull requests or release branches.
+
+## Part of Orbit
+
+| App | What it is |
+| --- | --- |
+| [Orbit Sports](https://github.com/JayPengX/Orbit-Sports) | Every game you can watch in Taiwan, live |
+| [Orbit Transit](https://github.com/JayPengX/Orbit-Transit) | Bus, train, metro and YouBike, planned and navigated |
+| [Orbit Weather](https://github.com/JayPengX/Orbit-Weather) | One clear forecast, to the township |
+| [Orbit Words](https://github.com/JayPengX/Orbit-Words) | English vocabulary that stays |
+| [Orbit Securities](https://github.com/JayPengX/Orbit-Securities) | A Taiwan broker on play money |
+| [Orbit Class](https://github.com/JayPengX/Orbit-Class) | Today's classes at a glance |
+| [Orbit Beats](https://github.com/JayPengX/Orbit-Beats) | Endless music and your own beats |
+| [Orbit Law](https://github.com/JayPengX/Orbit-Law) | Laws, rulings and bills, linked |
+| [Orbit Money](https://github.com/JayPengX/Orbit-Money) | Your own books |
+| [Shared-Proxy](https://github.com/JayPengX/Shared-Proxy) | The kit, the Orbit Pass and the Workers behind them all |
+
+How it was all built, in pictures and numbers: [jaypengx.com/showcase](https://jaypengx.com/showcase/).
