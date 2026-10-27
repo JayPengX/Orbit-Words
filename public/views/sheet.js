@@ -30,9 +30,9 @@ export function missNote(word, p, { small = true } = {}) {
   const count = !small && misses > 1 ? el('span', { class: 'miss-count', text: t('missesN', { n: misses }) }) : null;
   let body;
   if (how === 's' && spelt) body = small ? [tag('missSpelt'), diffLine(spellDiff(spelt, word.word), 'small q-fit')] : [tag('missSpelt'), el('s', { class: 'muted', text: spelt }), el('span', { class: 'miss-to' }, [document.createTextNode('→ '), diffLine(spellDiff(spelt, word.word), 'small')])];
-  else if ((how === 'm' || how === 'w' || how === 'e') && other) body = [tag(how === 'e' ? 'missHeard' : 'missMixed'), el('strong', { class: small ? 'q-fit' : null, text: other.word }), el('span', { class: 'muted miss-mean', text: ` ${shortMeaning(other.zh)}` })];
-  else if (how === 'u') body = [tag('missUnknown'), el('span', { class: 'muted miss-mean', text: shortMeaning(word.zh) })];
-  else body = [tag(how === 'e' ? 'missEar' : 'missWrong'), el('span', { class: 'muted miss-mean', text: shortMeaning(word.zh) })];
+  else if ((how === 'm' || how === 'w' || how === 'e') && other) body = [tag(how === 'e' ? 'missHeard' : 'missMixed'), el('strong', { class: small ? 'q-fit' : null, text: other.word }), el('span', { lang: 'zh-Hant', class: 'muted miss-mean', text: ` ${shortMeaning(other.zh)}` })];
+  else if (how === 'u') body = [tag('missUnknown'), el('span', { lang: 'zh-Hant', class: 'muted miss-mean', text: shortMeaning(word.zh) })];
+  else body = [tag(how === 'e' ? 'missEar' : 'missWrong'), el('span', { lang: 'zh-Hant', class: 'muted miss-mean', text: shortMeaning(word.zh) })];
   return el(small ? 'small' : 'p', { class: 'miss-note' }, [...body, count]);
 }
 
@@ -77,7 +77,7 @@ const block = (label, body) => el('section', { class: 'sheet-block' }, [el('h3',
 function wordChips(keys, label) {
   const list = keys.map(k => state.byKey.get(k)).filter(Boolean);
   if (!list.length) return null;
-  return block(label, el('div', { class: 'link-chips' }, list.map(w => el('button', { class: 'link-chip q-press', type: 'button', onclick: () => (buzz(), draw(w), dialog.scrollTo?.(0, 0)) }, [el('strong', { text: w.word }), el('small', { text: shortMeaning(w.zh) })]))));
+  return block(label, el('div', { class: 'link-chips' }, list.map(w => el('button', { class: 'link-chip q-press', type: 'button', onclick: () => (buzz(), draw(w), dialog.scrollTo?.(0, 0)) }, [el('strong', { lang: 'en', text: w.word }), el('small', { lang: 'zh-Hant', text: shortMeaning(w.zh) })]))));
 }
 // A misspelling: what was typed, struck, then the word with the letters missed marked.
 export const speltRow = (s, word) => el('div', { class: 'spelt-row' }, [el('s', { class: 'muted', text: s }), el('span', { class: 'muted', text: '→' }), diffLine(spellDiff(s, word.word))]);
@@ -98,7 +98,7 @@ function draw(word) {
   // Where it stands: plain words; only an overdue word earns a tag.
   const head = el('div', { class: 'sheet-state' }, [el('span', { class: 'muted', text: [t(`state_${info.state}`), p?.o === 2 ? t('lastMissed') : '', info.dueIn != null && info.dueIn > 0 ? dueText(info.dueIn) : ''].filter(Boolean).join(' · ') }), info.dueIn != null && info.dueIn <= 0 ? tag(dueText(info.dueIn), 'orange') : null]);
   lead.replaceChildren(starButton(word, redraw));
-  const top = el('div', { class: 'sheet-word' }, [el('div', { class: 'word-line' }, [wordEl(word), speakButton(word)]), el('small', { class: 'muted', text: metaLine(word) }), el('p', { class: 'meaning', text: word.zh })]);
+  const top = el('div', { class: 'sheet-word' }, [el('div', { class: 'word-line' }, [wordEl(word), speakButton(word)]), el('small', { lang: 'en', class: 'muted', text: metaLine(word) }), el('p', { lang: 'zh-Hant', class: 'meaning', text: word.zh })]);
   const spelt = (p?.x || []).length ? block(t('youSpelt'), el('div', { class: 'q-card spelt' }, p.x.map(s => speltRow(s, word)))) : null;
   const numbers = info.answers
     ? el('div', { class: 'sheet-stats' }, [

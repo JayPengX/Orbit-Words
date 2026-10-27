@@ -148,8 +148,8 @@ function renderRound(box, r) {
 }
 
 // The word as a card's headline: the word, its sound beside it, the line under it.
-const wordHead = word => el('div', { class: 'card-word' }, [el('div', { class: 'word-line' }, [wordEl(word, 'big'), speakButton(word)]), el('small', { class: 'muted', text: metaLine(word) })]);
-const meaningHead = (word, extra = '') => el('div', { class: 'card-word' }, [el('p', { class: 'meaning big', text: shortMeaning(word.zh) }), el('small', { class: 'muted', text: [word.pos, extra].filter(Boolean).join(' · ') })]);
+const wordHead = word => el('div', { class: 'card-word' }, [el('div', { class: 'word-line' }, [wordEl(word, 'big'), speakButton(word)]), el('small', { lang: 'en', class: 'muted', text: metaLine(word) })]);
+const meaningHead = (word, extra = '') => el('div', { class: 'card-word' }, [el('p', { lang: 'zh-Hant', class: 'meaning big', text: shortMeaning(word.zh) }), el('small', { class: 'muted', text: [word.pos, extra].filter(Boolean).join(' · ') })]);
 const soundHead = (word, line) => el('div', { class: 'card-word' }, [speakButton(word, true), line]);
 
 function questionView(r) {
@@ -170,7 +170,7 @@ function questionView(r) {
       { class: `choices${question.type === 'meaning' ? ' long' : ''}` },
       question.choices.map((c, i) => {
         const cls = done ? (c.key === question.answer ? ' right' : last.typed === c.key ? ' wrong' : ' dim') : '';
-        return el('button', { class: `choice${cls}`, type: 'button', disabled: done, onclick: () => answer(c.key === question.answer, c.key) }, [el('span', { class: 'choice-n num', text: String(i + 1) }), el('span', { class: `choice-text${question.type === 'meaning' ? '' : ' q-fit'}`, text: c.text })]);
+        return el('button', { class: `choice${cls}`, type: 'button', disabled: done, onclick: () => answer(c.key === question.answer, c.key) }, [el('span', { class: 'choice-n num', text: String(i + 1) }), el('span', { lang: question.type === 'meaning' ? 'zh-Hant' : 'en', class: `choice-text${question.type === 'meaning' ? '' : ' q-fit'}`, text: c.text })]);
       })
     );
   } else if (question.type === 'letters') {
@@ -206,8 +206,8 @@ function questionView(r) {
     const input = el('input', { class: 'spell-input', type: 'text', autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false', enterkeyhint: 'done', value: r.typed, disabled: done, 'aria-label': t(`ask_${question.type}`) });
     input.addEventListener('input', () => (r.typed = input.value));
     const top = cloze
-      ? el('div', { class: 'card-word' }, [el('p', { class: 'cloze num q-fit', style: `--len:${word.word.length}`, text: clozeText(word.word, question.gaps) }), el('p', { class: 'meaning', text: shortMeaning(word.zh) }), el('small', { class: 'muted', text: word.pos })])
-      : soundHead(word, el('p', { class: 'meaning', text: shortMeaning(word.zh) }));
+      ? el('div', { class: 'card-word' }, [el('p', { class: 'cloze num q-fit', style: `--len:${word.word.length}`, text: clozeText(word.word, question.gaps) }), el('p', { lang: 'zh-Hant', class: 'meaning', text: shortMeaning(word.zh) }), el('small', { class: 'muted', text: word.pos })])
+      : soundHead(word, el('p', { lang: 'zh-Hant', class: 'meaning', text: shortMeaning(word.zh) }));
     put(card, ask, top, cloze ? null : el('small', { class: 'muted', text: t('letters', { n: word.word.length }) }), done && !last.correct ? el('p', { class: 'diff-wrap q-fit', style: `--len:${Math.max(String(last.typed || '').length, word.word.length)}` }, [diffLine(spellDiff(last.typed, word.word))]) : null);
     answers = el('form', { class: 'spell-form', onsubmit: e => (e.preventDefault(), input.value.trim() && answer(sameWord(input.value, word.word), input.value)) }, [input, el('button', { class: 'q-btn primary', type: 'submit', disabled: done, text: t('check') })]);
   }
@@ -231,7 +231,7 @@ function feedback(res) {
     el('div', { class: 'verdict-top' }, [tile(res.correct ? 'check' : 'x', res.correct ? 'var(--q-green)' : 'var(--q-red)', 'sm'), el('strong', { text: status }), res.pay ? el('small', { class: 'muted', text: xpText(res.pay, { sign: true }) }) : null, tag(t(`state_${res.after}`)), starButton(word, hooks.render)]),
     // The word's on screen already for a meaning question: its meaning only.
     res.type === 'meaning' ? null : el('div', { class: 'word-line' }, [wordEl(word, 'v-word'), speakButton(word)]),
-    el('p', { class: 'meaning', text: word.zh }),
+    el('p', { lang: 'zh-Hant', class: 'meaning', text: word.zh }),
     // What it was mistaken for, side by side: the difference is the lesson.
     res.mixed ? el('button', { class: 'mixed', type: 'button', onclick: () => openWord(res.mixed) }, [el('small', { class: 'muted', text: t(res.written ? 'youWrote' : 'youPicked') }), el('strong', { text: res.mixed.word }), el('span', { class: 'muted', text: shortMeaning(res.mixed.zh) })]) : null,
     res.correct ? null : tipBox(word),
@@ -340,7 +340,7 @@ const navBtn = (icon, text, onclick, { primary = false, disabled = false, after 
 function renderStudy(box, s) {
   const word = s.list[s.i];
   const inBatch = Math.min(state.study.length, state.size);
-  const card = bigCard(word, [el('p', { class: 'meaning full', text: word.zh }), tipBox(word)]);
+  const card = bigCard(word, [el('p', { lang: 'zh-Hant', class: 'meaning full', text: word.zh }), tipBox(word)]);
   const nav = el('div', { class: 'card-nav' }, [navBtn('left', t('studyPrev'), () => studyStep(-1), { disabled: s.i === 0 }), navBtn('check', t('studyGot'), studyGot, { primary: true })]);
   put(box, head(() => ((state.session = null), hooks.render()), inBatch, state.size, `${inBatch} / ${state.size}`), card, nav, el('div', { class: 'aside' }, [el('button', { class: 'q-btn small plain muted-btn', type: 'button', text: t('tooEasy'), onclick: studyKnown })]));
 }
@@ -404,7 +404,7 @@ function renderFlash(box, s) {
   const why = missNote(word, p, { small: false });
   const back = s.flipped
     ? [
-        el('p', { class: 'meaning full', text: word.zh }),
+        el('p', { lang: 'zh-Hant', class: 'meaning full', text: word.zh }),
         (p?.x || []).length ? el('div', { class: 'spelt' }, [el('small', { class: 'muted', text: t('youSpelt') }), ...p.x.slice(0, 2).map(x => speltRow(x, word))]) : null,
         mixed.length ? el('div', { class: 'flash-mixed' }, [el('small', { class: 'muted', text: t('mixedYours') }), ...mixed.slice(0, 3).map(o => el('button', { class: 'mixed', type: 'button', onclick: e => (e.stopPropagation(), openWord(o)) }, [el('strong', { text: o.word }), el('span', { class: 'muted', text: shortMeaning(o.zh) })]))]) : null,
         tipBox(word)

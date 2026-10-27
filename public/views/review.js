@@ -64,7 +64,7 @@ export function wordRow(w) {
   if (star) star.innerHTML = ico('star');
   return el('button', { class: 'q-ritem wr', type: 'button', onclick: () => openWord(w) }, [
     speakButton(w),
-    el('span', { class: 'wr-main' }, [el('span', { class: 'wr-top' }, [el('strong', { class: 'q-fit', text: w.word }), star]), (p?.o === 2 && missNote(w, p)) || el('small', { class: 'muted', text: shortMeaning(w.zh) })]),
+    el('span', { class: 'wr-main' }, [el('span', { class: 'wr-top' }, [el('strong', { lang: 'en', class: 'q-fit', text: w.word }), star]), (p?.o === 2 && missNote(w, p)) || el('small', { lang: 'zh-Hant', class: 'muted', text: shortMeaning(w.zh) })]),
     overdue ? el('small', { class: 'q-tag orange', text: side }) : el('small', { class: 'wr-side', text: side })
   ]);
 }

@@ -44,8 +44,8 @@ function wordOfDayCard() {
     el('div', { class: 'q-card wotd q-press', role: 'button', tabindex: '0', onclick: e => !e.target.closest('button') && openWord(w) }, [
       el('div', { class: 'card-top' }, [tag(t(`state_${st}`), st === 'mastered' ? 'green' : st === 'new' ? '' : 'tint'), starButton(w, hooks.render)]),
       el('div', { class: 'word-line' }, [wordEl(w), speakButton(w)]),
-      el('small', { class: 'muted', text: metaLine(w) }),
-      el('p', { class: 'meaning', text: shortMeaning(w.zh) }),
+      el('small', { lang: 'en', class: 'muted', text: metaLine(w) }),
+      el('p', { lang: 'zh-Hant', class: 'meaning', text: shortMeaning(w.zh) }),
       tip ? el('p', { class: 'tip-line', text: tip }) : null
     ])
   );
@@ -129,5 +129,5 @@ function recentShelf() {
     .map(([k]) => state.byKey.get(k))
     .filter(Boolean);
   if (!list.length) return null;
-  return section(t('recentTitle'), rail(list.map(w => el('button', { class: 'recent-card q-press', type: 'button', onclick: () => openWord(w) }, [wordEl(w, 'rc-word'), el('small', { class: 'rc-zh', text: shortMeaning(w.zh).split(/[、,，;；]/)[0] }), el('small', { class: 'rc-state', text: t(`state_${stateOf(state.progress[w.key])}`) })])), 'recent-rail'));
+  return section(t('recentTitle'), rail(list.map(w => el('button', { class: 'recent-card q-press', type: 'button', onclick: () => openWord(w) }, [wordEl(w, 'rc-word'), el('small', { lang: 'zh-Hant', class: 'rc-zh', text: shortMeaning(w.zh).split(/[、,，;；]/)[0] }), el('small', { class: 'rc-state', text: t(`state_${stateOf(state.progress[w.key])}`) })])), 'recent-rail'));
 }
