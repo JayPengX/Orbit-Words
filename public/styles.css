@@ -33,7 +33,7 @@ h1, h2, h3, p { margin: 0; }
 
 /* ---- The page (this file comes after the kit's, so its rules win a tie) ---- */
 .page { padding: 0 max(16px, env(safe-area-inset-right)) calc(40px + var(--q-nav)) max(16px, env(safe-area-inset-left)); }
-.tab-panel .q-section { margin-top: var(--q-s-6); }
+.tab-panel .q-section { margin-top: var(--q-s-5); }
 .tab-panel .q-section-head { margin-bottom: var(--q-s-3); }
 .tab-panel .q-section-head h2 { font: var(--q-t-title3); }
 
@@ -74,7 +74,6 @@ h1, h2, h3, p { margin: 0; }
 .q-stat { padding: 0; border-radius: 0; background: none; }
 .q-stat small { font-weight: 400; }
 .q-stat strong { font: var(--q-t-figure); font-size: 22px; line-height: 28px; }
-.q-focus-value .dim { color: var(--q-label-2); font-size: 0.5em; font-weight: 500; letter-spacing: 0; }
 .chart-note { color: var(--q-label-2); font: var(--q-t-footnote); }
 /* A section head's menu (sort, filter). */
 .q-section-head .head-menu { display: inline-flex; align-items: center; gap: 2px; font: 500 15px/1 var(--q-font); }
@@ -82,7 +81,7 @@ h1, h2, h3, p { margin: 0; }
 /* A word's sound: a soft circle; big, the app's colour. */
 .speak { flex: none; display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 50%; background: var(--accent-wash); color: var(--accent); }
 .speak svg { width: 19px; height: 19px; }
-.speak.big { width: 64px; height: 64px; background: var(--accent); color: var(--accent-ink); transition: transform var(--q-dur-snappy) var(--q-spring-snappy); }
+.speak.big { width: 64px; height: 64px; background: var(--accent); color: var(--accent-ink); box-shadow: 0 10px 24px -12px var(--accent); transition: transform var(--q-dur-snappy) var(--q-spring-snappy); }
 .speak.big:active { transform: scale(0.92); }
 .speak.big svg { width: 30px; height: 30px; }
 .star { flex: none; display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--q-label-3); }
@@ -209,7 +208,7 @@ h1, h2, h3, p { margin: 0; }
 .slot.right { border-color: var(--win); color: var(--win); }
 .slot.wrong { border-color: var(--loss); color: var(--loss); }
 .letters { display: grid; justify-items: center; gap: 12px; margin-top: 16px; }
-.tile { aspect-ratio: 44 / 48; min-width: 0; padding: 0; border: 0; border-radius: min(12px, calc(90px / var(--n))); background: var(--accent); color: var(--accent-ink); font-size: min(20px, calc(170px / var(--n))); font-weight: 600; }
+.tile { aspect-ratio: 44 / 48; min-width: 0; padding: 0; border: 0; border-radius: min(12px, calc(90px / var(--n))); background: var(--accent); color: var(--accent-ink); font-size: min(20px, calc(170px / var(--n))); font-weight: 800; box-shadow: 0 3px 0 color-mix(in srgb, var(--accent) 60%, #000); }
 .tile:disabled { opacity: 0.15; }
 .spell-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; margin-top: 16px; }
 .spell-input { min-width: 0; padding: 12px 16px; border: 2px solid transparent; border-radius: var(--q-r-cell); background: var(--q-surface); color: var(--q-text); font: 500 20px/1.2 var(--q-font); }
