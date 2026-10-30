@@ -16,7 +16,7 @@ import * as kitUI from '#kit/ui.mjs';
 import * as kit from '#kit/orbit.mjs';
 import { passSync } from '#kit/pass-sync.mjs';
 import { orbitSession, taipeiDay, tabBar, topActions, installGate, watchUpdates, schedulePush, notify, keepOffline, storedAccount, cachedPayload } from '#kit/orbit.mjs';
-import { loadWords, loadHints, keyOf, stateOf } from './lib/words.mjs';
+import { loadWords, loadHints, loadMore, keyOf, stateOf } from './lib/words.mjs';
 import { DAILY_GOAL, streakAtRisk } from './lib/practice.mjs';
 import { catCounts } from './lib/review.mjs';
 import { decodePayload, encodePayload, mergeCopy } from './lib/copy.mjs';
@@ -26,7 +26,7 @@ import { renderToday } from './views/today.js';
 import { renderReview } from './views/review.js';
 import { renderBrowse } from './views/browse.js';
 import { renderProgress } from './views/progress.js';
-import { openWord, closeWord } from './views/sheet.js';
+import { openWord, closeWord, redrawWord } from './views/sheet.js';
 import { el, put, fitSenses, FIT_SENSES } from './ui.js';
 
 document.documentElement.lang = locale === 'zh' ? 'zh-Hant' : 'en';
@@ -158,6 +158,15 @@ async function loadHintList() {
     if (!busy()) render();
   } catch {}
 }
+// A word's example and forms, for its sheet: after the first screen too.
+async function loadMoreList() {
+  try {
+    const res = await fetch(`./data/more.json?v=${VERSION}`);
+    if (!res.ok) throw new Error(String(res.status));
+    state.more = loadMore(await res.json());
+    redrawWord();
+  } catch {}
+}
 
 async function boot() {
   const words = loadWordList().catch(() => null);
@@ -187,6 +196,7 @@ async function boot() {
   show();
   pass.watch();
   loadHintList();
+  loadMoreList();
   await sync();
   for (const item of first?.inbox || []) q.dropInbox(item.id).catch(() => {});
   setTimeout(checkStreak, 2000);

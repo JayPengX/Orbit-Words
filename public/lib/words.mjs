@@ -80,6 +80,33 @@ export function loadHints(raw) {
   return out;
 }
 
+// A word's example and forms (data/more.json): { key: [[forms], English
+// example, its Chinese] }, from Wiktionary and Tatoeba, written once.
+// Rows that aren't that shape are dropped; a part may be empty.
+export function loadMore(raw) {
+  const out = new Map();
+  for (const [k, v] of Object.entries(raw || {})) {
+    if (!Array.isArray(v)) continue;
+    const forms = Array.isArray(v[0]) ? v[0].filter(x => typeof x === 'string' && x) : [];
+    const en = typeof v[1] === 'string' ? v[1] : '';
+    const zh = typeof v[2] === 'string' ? v[2] : '';
+    if (forms.length || en) out.set(k, { forms, en: en && zh ? en : '', zh: en && zh ? zh : '' });
+  }
+  return out;
+}
+
+// A meaning's senses, one a line (「v. 意思是、意指」 → { pos: 'v.', text: '意思是、意指' }).
+export function senses(zh) {
+  return String(zh || '')
+    .split(/\r?\n/)
+    .map(l => l.trim())
+    .filter(Boolean)
+    .map(l => {
+      const m = l.match(/^([a-z]+\.)\s*(.*)$/i);
+      return m ? { pos: m[1], text: m[2] } : { pos: '', text: l };
+    });
+}
+
 // ---- The memory model --------------------------------------------------------------------
 //
 // FSRS-5's published defaults (open-spaced-repetition). R(t) = (1 + F·t/S)^C:

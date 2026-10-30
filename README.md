@@ -35,7 +35,7 @@ English vocabulary that sticks: the full 大考中心 list, levels 1 to 6 (6,169
 - **A quick check first:** a word you know at a glance goes away for weeks; one you miss is learnt.
 - **Every way of asking:** meaning, word, by ear, and dictation once a word is held.
 - **Review:** wrong answers, what's due, what you're learning and your saved words, as flash cards and then a test.
-- **A word's page:** sound, meaning, a line to remember it by, what you mixed it up with, your misspellings and the chance you still know it.
+- **A word's page:** sound, KK, the senses a student needs first, an example sentence with its Chinese, the word's forms, a line to remember it by, what you mixed it up with, your misspellings and the chance you still know it.
 - **Progress:** level and points, accuracy, the last 14 days, each level, and the words you forget most.
 - **Fully offline**, synced between devices through the Orbit Pass.
 
@@ -47,7 +47,7 @@ English vocabulary that sticks: the full 大考中心 list, levels 1 to 6 (6,169
 | Platform | Installable web app; the service worker keeps every word and recording, so it works with no network |
 | Shared | Look, Orbit Pass sync (`pass-sync.mjs`) and the 20:00 streak notice from the kit in [Orbit-Core](https://github.com/JayPengX/Orbit-Core) |
 | Memory model | FSRS-5 (stability and difficulty); 10 days' stability counts as mastered |
-| Data | `data/words.json` (the list), `data/hints.json` (mnemonics and mix-ups, written once offline), `data/audio/` (one recording per word) |
+| Data | `data/words.json` (the list, its senses and KK), `data/more.json` (examples and forms), `data/hints.json` (mnemonics and mix-ups, written once offline), `data/audio/` (one recording per word) |
 | Tests | `node --test`, including merging progress across devices |
 
 ## How it works
@@ -68,7 +68,7 @@ public/
 │   ├── words.mjs     memory model, rounds, questions, wrong options
 │   ├── copy.mjs      the saved payload: encode, decode, merge
 │   └── review.mjs, practice.mjs   review lists; points and streak
-├── data/             words.json, hints.json, audio/
+├── data/             words.json, more.json, hints.json, audio/
 └── sw.js
 tests/                node --test
 MAP.md                how it works
@@ -123,3 +123,7 @@ Push to `main`. GitHub Actions runs the tests, stamps every file with its conten
 | [Orbit-Core](https://github.com/JayPengX/Orbit-Core) | The kit, the Orbit Pass and the Workers behind them all |
 
 How it was all built, in pictures and numbers: [jaypengx.com/showcase](https://jaypengx.com/showcase/).
+
+## Credits
+
+Meanings and pronunciations draw on [Wiktionary](https://en.wiktionary.org) (via [kaikki.org](https://kaikki.org), CC BY-SA 4.0); example sentences come from [Tatoeba](https://tatoeba.org) (CC BY 2.0 FR). The dictionary files `public/data/words.json`'s meanings and `public/data/more.json` are shared under CC BY-SA 4.0.

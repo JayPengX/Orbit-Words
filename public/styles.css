@@ -307,3 +307,17 @@ h1, h2, h3, p { margin: 0; }
 .streak-text strong { font: 600 22px/26px var(--q-font-rounded, var(--q-font)); }
 .streak-text small { color: var(--q-label-2); font: 13px/18px var(--q-font); }
 .q-section-head .q-sh-more { margin-left: auto; }
+
+/* The sheet's senses, example and forms (data/more.json) */
+.senses { display: grid; gap: 6px; margin: 10px 0 0; padding: 0; list-style: none; }
+.senses li { display: flex; gap: 8px; align-items: baseline; font-size: 17px; line-height: 1.45; }
+.sense-pos { flex: none; min-width: 36px; color: var(--q-label-2); font: 500 13px/1 var(--q-font-rounded); }
+.sense-zh { min-width: 0; }
+.word-sheet .example { display: grid; gap: 4px; padding: var(--q-s-3) var(--q-s-4); border-radius: var(--q-r-cell); }
+.ex-en { font-size: 16px; line-height: 1.45; }
+.ex-en strong { color: var(--q-accent, inherit); font-weight: 650; }
+.ex-zh { font-size: 15px; line-height: 1.45; }
+.forms { padding: 0 4px; font-size: 15px; }
+.forms span { display: inline-block; margin-right: 0.35em; white-space: nowrap; }
+.forms span:not(:last-child)::after { content: '\00a0·'; color: var(--q-label-2); }
+.word-sheet .credit { margin: 18px 4px 0; font-size: 12px; text-align: center; }

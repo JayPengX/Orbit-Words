@@ -15,6 +15,8 @@ export const state = {
   byKey: new Map(),
   // Hints (data/hints.json): key → { tip, common }; loaded after the words.
   hints: new Map(),
+  // A word's example and forms (data/more.json): key → { forms, en, zh }; loaded after the words.
+  more: new Map(),
   progress: {},
   days: {},
   // Right answers and seconds per day (practice.mjs logResult).
@@ -48,8 +50,9 @@ export const settingsChanged = () => ((state.st = Math.round(Date.now() / 1000))
 export const levelName = l => t('level', { n: l });
 export const joined = items => items.join(locale === 'en' ? ', ' : '、');
 export const hintOf = key => state.hints.get(key) || null;
-// The line under a word: /phonetic/ · part of speech · level.
-export const metaLine = word => [word.ph ? `/${word.ph}/` : '', word.pos, levelName(word.level)].filter(Boolean).join(' · ');
+export const moreOf = key => state.more.get(key) || null;
+// The line under a word: [KK] · part of speech · level.
+export const metaLine = word => [word.ph ? `[${word.ph}]` : '', word.pos, levelName(word.level)].filter(Boolean).join(' · ');
 export const percent = x => (x == null ? '—' : `${Math.round(x * 100)}%`);
 // 3 天後, 今天, 2 天前 (a due date against today).
 export function dueText(days) {

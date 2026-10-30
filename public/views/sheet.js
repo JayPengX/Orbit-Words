@@ -6,10 +6,10 @@
 // it" to put it away.
 import * as kitUI from '#kit/ui.mjs';
 import { el, put, diffLine } from '../ui.js';
-import { state, t, hooks, hintOf, metaLine, percent, dueText, wordEl } from '../shell.js';
+import { state, t, hooks, hintOf, moreOf, metaLine, percent, dueText, wordEl } from '../shell.js';
 import { speakButton } from '../audio.js';
 import { tag, ico } from './chrome.js';
-import { shortMeaning, spellDiff, markKnown, personalFactor } from '../lib/words.mjs';
+import { shortMeaning, spellDiff, markKnown, personalFactor, senses } from '../lib/words.mjs';
 import { isMarked, toggleMark, wordInfo } from '../lib/review.mjs';
 
 // How a word went wrong the last time, in one line (複習's rows, the flash
@@ -53,6 +53,9 @@ export function openWord(word) {
   draw(word);
 }
 export const closeWord = () => dialog?.open && shell.close();
+// Drawn again when something it shows arrives late (data/more.json).
+let current = null;
+export const redrawWord = () => dialog?.open && current && draw(current);
 
 export function starButton(word, after = () => {}) {
   const on = isMarked(state.marks, word.key);
@@ -90,7 +93,30 @@ export function tipBox(word) {
   return el('div', { class: 'tip' }, [mark, el('p', { text: tip })]);
 }
 
+// The whole meaning, a sense a row: its part of speech, then the Chinese.
+export function senseList(word) {
+  const list = senses(word.zh);
+  if (!list.some(x => x.pos)) return el('p', { lang: 'zh-Hant', class: 'meaning', text: word.zh });
+  return el('ol', { class: 'senses' }, list.map(x => el('li', {}, [el('span', { lang: 'en', class: 'sense-pos', text: x.pos }), el('span', { lang: 'zh-Hant', class: 'sense-zh', text: x.text })])));
+}
+// The example sentence, the word in it marked (any of its forms), and its Chinese.
+function exampleLine(en, forms) {
+  const words = [...forms].filter(Boolean).sort((a, b) => b.length - a.length).map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  const re = words.length ? new RegExp(`\\b(${words.join('|')})\\b`, 'i') : null;
+  const m = re && en.match(re);
+  if (!m) return el('p', { lang: 'en', class: 'ex-en', text: en });
+  return el('p', { lang: 'en', class: 'ex-en' }, [document.createTextNode(en.slice(0, m.index)), el('strong', { text: m[0] }), document.createTextNode(en.slice(m.index + m[0].length))]);
+}
+function moreBlocks(word) {
+  const more = moreOf(word.key);
+  if (!more) return [];
+  const example = more.en ? block(t('exampleTitle'), el('div', { class: 'q-card example' }, [exampleLine(more.en, [word.word, ...more.forms]), el('p', { lang: 'zh-Hant', class: 'ex-zh muted', text: more.zh })])) : null;
+  const forms = more.forms.length ? block(t('formsTitle'), el('p', { lang: 'en', class: 'forms' }, more.forms.map(f => el('span', { text: f })))) : null;
+  return [example, forms];
+}
+
 function draw(word) {
+  current = word;
   const p = state.progress[word.key];
   const info = wordInfo(p, Date.now(), personalFactor(state.cal));
   const hint = hintOf(word.key);
@@ -98,7 +124,7 @@ function draw(word) {
   // Where it stands: plain words; only an overdue word earns a tag.
   const head = el('div', { class: 'sheet-state' }, [el('span', { class: 'muted', text: [t(`state_${info.state}`), p?.o === 2 ? t('lastMissed') : '', info.dueIn != null && info.dueIn > 0 ? dueText(info.dueIn) : ''].filter(Boolean).join(' · ') }), info.dueIn != null && info.dueIn <= 0 ? tag(dueText(info.dueIn), 'orange') : null]);
   lead.replaceChildren(starButton(word, redraw));
-  const top = el('div', { class: 'sheet-word' }, [el('div', { class: 'word-line' }, [wordEl(word), speakButton(word)]), el('small', { lang: 'en', class: 'muted', text: metaLine(word) }), el('p', { lang: 'zh-Hant', class: 'meaning', text: word.zh })]);
+  const top = el('div', { class: 'sheet-word' }, [el('div', { class: 'word-line' }, [wordEl(word), speakButton(word)]), el('small', { lang: 'en', class: 'muted', text: metaLine(word) }), senseList(word)]);
   const spelt = (p?.x || []).length ? block(t('youSpelt'), el('div', { class: 'q-card spelt' }, p.x.map(s => speltRow(s, word)))) : null;
   const numbers = info.answers
     ? el('div', { class: 'sheet-stats' }, [
@@ -128,10 +154,12 @@ function draw(word) {
     head,
     top,
     tipBox(word),
+    ...moreBlocks(word),
     spelt,
     wordChips(p?.c || [], t('mixedYours')),
     wordChips((hint?.common || []).filter(k => !(p?.c || []).includes(k)), t('mixedCommon')),
     block(t('howItGoes'), [numbers, info.lapses ? el('p', { class: 'lapses muted', text: t('lapsesLine', { n: info.lapses }) }) : null]),
-    known
+    known,
+    el('p', { class: 'credit muted', text: t('dictCredit') })
   );
 }

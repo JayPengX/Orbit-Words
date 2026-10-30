@@ -14,7 +14,8 @@ Live: https://orbit.jaypengx.com/words/
   · 複習 (答錯, 該複習, 學習中, 收藏; flash cards then a test) · 單字 (the
   whole list) · 進度 (level and points, accuracy, the 14 days and what's
   due, each level, the memory fit, the words forgotten most).
-- **A word's sheet** (from anywhere, or `#word=<word>`): sound, meaning, a
+- **A word's sheet** (from anywhere, or `#word=<word>`): sound, KK, the
+  senses (most useful first), an example with its Chinese, the word's forms, a
   line to remember it by, what you mixed it up with, your misspellings,
   the chance you still know it.
 - **Teaching** (`lib/words.mjs`), hard on purpose:
@@ -46,6 +47,10 @@ Live: https://orbit.jaypengx.com/words/
 
 - The device's language; no switcher.
 - Recorded voices, never the device's when a recording exists.
+- The dictionary is written once offline (`scripts/dict/`): senses and KK
+  from Wiktionary (kaikki.org), examples from Tatoeba, Taiwan wording; sense
+  1 is what the quiz asks. Edit `scripts/dict/entries.jsonl`, then
+  `python3 scripts/dict/build.py`. Credit line at the foot of the sheet.
 - Mnemonics and confusions are `data/hints.json`, written once offline;
   nothing generated live.
 - Cloze and unscrambling are not asked in smart mode (only as their own
@@ -60,7 +65,7 @@ Live: https://orbit.jaypengx.com/words/
 | `lib/words.mjs` | Memory model, rounds, questions, wrong options, saved progress |
 | `lib/copy.mjs` | The payload (encode, decode, merge); the kit's `pass-sync.mjs` keeps it in step with the Pass |
 | `lib/review.mjs`, `practice.mjs` | Review lists and 進度's numbers; points and streak |
-| `data/words.json`, `hints.json`, `audio/` | The list, the hints, a recording per word |
+| `data/words.json`, `more.json`, `hints.json`, `audio/` | The list (senses, KK), examples and forms, the hints, a recording per word |
 
 ## Run and test
 
