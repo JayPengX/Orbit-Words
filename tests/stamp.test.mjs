@@ -29,7 +29,9 @@ test("every relative module import is stamped with its file's hash, ../ included
     assert.match(html, /modulepreload" href="\.\/views\/session\.js\?v=[0-9a-f]{10,12}"/);
     // The kit modules too, all asked for with the page (kit/preload.mjs), the
     // kit's own imports included (the built kit's go through the import map).
-    assert.match(html, /<!-- \/kit:head -->\n<script>\[[^\]]*'loan\.mjs'[^\]]*'ui\.mjs'[^\]]*\]\.forEach/);
+    // Which kit files are listed is the kit's business (it renames and drops
+    // them), so only the shape and the one every screen uses are checked.
+    assert.match(html, /<!-- \/kit:head -->\n<script>\[(?:'[a-z0-9-]+\.mjs',){3,}[^\]]*'ui\.mjs'[^\]]*\]\.forEach/);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
