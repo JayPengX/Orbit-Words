@@ -105,6 +105,23 @@ h1, h2, h3, p { margin: 0; }
 /* ---- 今天 ---- */
 .wotd { display: grid; gap: var(--q-s-2); padding: var(--q-s-4); cursor: pointer; }
 .wotd .meaning { margin-top: 2px; }
+/* 單字比賽: the card that starts the paper, and the paper itself (views/contest.js). */
+.contest-card { display: grid; gap: var(--q-s-3); padding: var(--q-s-4); }
+.contest-card .q-seg { margin: 0; }
+.contest-top { display: grid; gap: 2px; }
+.contest-top strong { font: 600 17px/22px var(--q-font); }
+.contest-best { color: var(--q-label-2); font: var(--q-t-subhead); }
+.contest-part { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 0 4px 8px; }
+.contest-part strong { font: 600 17px/22px var(--q-font); white-space: nowrap; }
+.contest-part small { white-space: nowrap; }
+.contest-ask .speak.big { margin: 4px 0; }
+.contest-time { justify-self: stretch; height: 4px; border-radius: 99px; background: var(--q-fill-3); overflow: hidden; }
+.contest-time > i { display: block; height: 100%; border-radius: inherit; background: var(--accent); transition: width 0.25s linear; }
+.contest-sentence { font: 500 19px/1.55 var(--q-font); text-align: left; justify-self: stretch; }
+.contest-sentence .blank { display: inline-block; min-width: 4em; border-bottom: 2px solid var(--accent); }
+.bank { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
+.bank .choice { justify-content: center; min-height: 48px; padding: 8px; text-align: center; font-size: 16px; overflow-wrap: anywhere; }
+.bank .choice.dim { opacity: 0.45; }
 
 /* ---- The round's choices (a sheet) ---- */
 .prefs-sheet .q-sheet-h:first-of-type { margin-top: 8px; }

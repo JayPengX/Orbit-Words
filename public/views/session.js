@@ -8,6 +8,7 @@
 //           remember it by); a full batch unlocks a quiz on just those.
 //   flash   cards to flip through (a review category or bookmarks), swiped
 //           or tapped; looking doesn't count, the test on the deck after does.
+//   contest a practice paper shaped like the real 單字比賽 (views/contest.js).
 import { el, put, toast, diffLine } from '../ui.js';
 import { state, t, hooks, hintOf, metaLine, levelName, wordEl } from '../shell.js';
 import { ico, tile, tag, hero, heroBtn, big, section, iconText } from './chrome.js';
@@ -15,20 +16,22 @@ import { speak, speakButton, prefetch } from '../audio.js';
 import { LEVELS, pickRound, spread, toStudy, smartType, retryType, markKnown, makeQuestion, grade, sameWord, spellDiff, stateOf, shortMeaning, clozeText, keyOf, personalFactor, recordReview } from '../lib/words.mjs';
 import { answerXp, xpText, logAnswer, logResult } from '../lib/practice.mjs';
 import { openWord, starButton, missNote, tipBox, speltRow } from './sheet.js';
+import { renderContest } from './contest.js';
 
 const buzz = () => globalThis.orbitHaptic?.();
-export const busy = () => Boolean(state.session && !(state.session.kind === 'round' && state.session.done));
+export const busy = () => Boolean(state.session && !state.session.done);
 const end = () => ((state.session = null), hooks.sync(), hooks.render());
 
 export function renderSession(box) {
   const s = state.session;
   if (s.kind === 'round') return renderRound(box, s);
   if (s.kind === 'study') return renderStudy(box, s);
+  if (s.kind === 'contest') return renderContest(box, s);
   return renderFlash(box, s);
 }
 
 // The top of anything running: ✕ (ends it), how far along, and a number on the right.
-function head(onClose, value, max, right, label = t('close')) {
+export function head(onClose, value, max, right, label = t('close')) {
   const close = el('button', { class: 'q-close', type: 'button', 'aria-label': label, onclick: onClose });
   close.innerHTML = ico('x');
   return el('div', { class: 'run-head' }, [close, el('div', { class: 'run-bar' }, [el('i', { style: `width:${max ? (Math.min(value, max) / max) * 100 : 0}%` })]), el('strong', { class: 'run-right num', text: right })]);

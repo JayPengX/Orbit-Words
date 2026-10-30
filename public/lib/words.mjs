@@ -49,6 +49,8 @@
 // o how the last answer went (1 right, 2 missed), x [how this person
 // misspelt it, latest first] }.
 
+import { readContests } from './contest.mjs';
+
 export const LEVELS = [1, 2, 3, 4, 5, 6];
 // Which study modes a person can choose; 'smart' picks per word.
 export const MODES = ['smart', 'meaning', 'word', 'listen', 'letters', 'cloze', 'spell'];
@@ -566,11 +568,13 @@ const samePos = (x, y) => {
 };
 // How each kind of question weighs the ways to be confused: by meaning
 // when the options are meanings, by spelling when they're spellings, by
-// spelling and sound when the word is only heard.
+// spelling and sound when the word is only heard, by its kind (part of
+// speech) when a sentence asks for it (單字比賽's 單題).
 const WEIGH = {
   meaning: { look: 1.2, mean: 1.8, pos: 0.8 },
   word: { look: 2, mean: 1.1, pos: 0.8 },
-  listen: { look: 2.4, mean: 0.4, pos: 0.4 }
+  listen: { look: 2.4, mean: 0.4, pos: 0.4 },
+  context: { look: 0.4, mean: 0.5, pos: 2.5 }
 };
 // The `n` words most likely to be picked instead of `word` in a question of
 // `type`: the ones this person has mixed it up with first (`confused`), then
@@ -732,15 +736,16 @@ export const hardest = (words, progress, n = 5) =>
 //   the studied batch waiting for its quiz; `cal`: reviews for fitting the
 //   model; `days` and `log`: answers, and right answers and seconds, per
 //   Taiwan day, practice.mjs; `marks`: bookmarked words, review.mjs; `opt`:
-//   { rate, size } the speed of the sound, the words per round when not 10). The app gzips it.
-export function packProgress({ progress, levels, mode, days = {}, study = [], cal = [], log = {}, marks = {}, opt = {}, size = 10, st = 0 }) {
+//   { rate, size } the speed of the sound, the words per round when not
+//   10; `ct`: the contests taken, contest.mjs). The app gzips it.
+export function packProgress({ progress, levels, mode, days = {}, study = [], cal = [], log = {}, marks = {}, opt = {}, size = 10, st = 0, ct = [] }) {
   const w = {};
   for (const [k, p] of Object.entries(progress)) {
     const row = [p.b || 0, p.d || 0, p.n || 0, p.r || 0, Math.round((p.t || 0) / 1000), p.m ? 1 : 0, p.l || 0, p.c || [], p.s ?? null, p.D ?? null, p.o || 0, p.x || [], p.h || 0];
     while (row.length > 6 && (row.at(-1) === null || row.at(-1) === 0 || (Array.isArray(row.at(-1)) && !row.at(-1).length))) row.pop();
     w[k] = row;
   }
-  return { v: 3, w, levels, mode, days, study, cal, log, marks, opt: size !== 10 ? { ...opt, size } : opt, ...(st ? { st } : {}) };
+  return { v: 3, w, levels, mode, days, study, cal, log, marks, opt: size !== 10 ? { ...opt, size } : opt, ...(st ? { st } : {}), ...(ct.length ? { ct } : {}) };
 }
 export function unpackProgress(obj) {
   if (obj?.v !== 3 || !obj.w) return null;
@@ -757,7 +762,8 @@ export function unpackProgress(obj) {
     log: obj2(obj.log),
     marks: obj2(obj.marks),
     opt: obj2(obj.opt),
-    st: Number.isFinite(obj.st) && obj.st > 0 ? obj.st : 0
+    st: Number.isFinite(obj.st) && obj.st > 0 ? obj.st : 0,
+    ct: readContests(obj.ct)
   };
 }
 

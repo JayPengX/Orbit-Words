@@ -25,6 +25,8 @@ export const state = {
   marks: {},
   // Options: { rate } the sound's speed.
   opt: {},
+  // Contests taken (lib/contest.mjs contestRow), the latest first.
+  ct: [],
   levels: [1, 2, 3],
   mode: 'smart',
   size: 10,

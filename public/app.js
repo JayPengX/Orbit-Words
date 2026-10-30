@@ -115,7 +115,7 @@ function showTab(tab) {
 }
 // The open tab tapped again at the top: a finished round there is put away.
 function resetTab(tab) {
-  if (state.session?.home === tab && state.session.kind === 'round' && state.session.done) (state.session = null), render();
+  if (state.session?.home === tab && state.session.done) (state.session = null), render();
 }
 // A redraw that never interrupts a question or typing.
 const quietRefresh = () => !busy() && !(document.activeElement?.tagName === 'INPUT') && render();
@@ -158,13 +158,15 @@ async function loadHintList() {
     if (!busy()) render();
   } catch {}
 }
-// A word's example and forms, for its sheet: after the first screen too.
+// A word's example and forms, for its sheet and the contest's 填空: after the first screen too.
 async function loadMoreList() {
   try {
     const res = await fetch(`./data/more.json?v=${VERSION}`);
     if (!res.ok) throw new Error(String(res.status));
     state.more = loadMore(await res.json());
     redrawWord();
+    // (今天's contest card waits for them: 填空's sentences.)
+    if (!busy()) render();
   } catch {}
 }
 

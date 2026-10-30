@@ -1,6 +1,7 @@
 // 今天, the home: the day's goal and the round (the hero; its pill opens the
 // round's choices), then what else there is to do (new words as cards, the
-// weak words, the missed words as flash cards), and the word of the day.
+// 單字比賽 practice paper, the weak words, the missed words as flash cards),
+// and the word of the day.
 import * as kitUI from '#kit/ui.mjs';
 import { el, put } from '../ui.js';
 import { hero, heroPill, heroBtn, big, bar, iconText, section, tag } from './chrome.js';
@@ -10,12 +11,13 @@ import { LEVELS, stats, toStudy, stateOf, shortMeaning, wordOfDay, hardest } fro
 import { DAILY_GOAL, todayCount, goalStatus, streakOf, bestStreak, lastDays } from '../lib/practice.mjs';
 import { catCounts, flashDeck, recentMisses } from '../lib/review.mjs';
 import { startRound, startStudy, startFlash } from './session.js';
+import { contestCard } from './contest.js';
 import { openWord, starButton } from './sheet.js';
 import { openPrefs, levelsText } from './prefs.js';
 import { hardRow, openHardest } from './progress.js';
 
 export function renderToday(box) {
-  put(box, goalHero(), continueShelf(), streakPanel(), weakShelf(), deckShelf(), recentShelf(), wordOfDayCard());
+  put(box, goalHero(), continueShelf(), contestCard(), streakPanel(), weakShelf(), deckShelf(), recentShelf(), wordOfDayCard());
 }
 
 // The goal: today's answers of 20, the streak they keep, and the round.

@@ -10,7 +10,8 @@ Live: https://orbit.jaypengx.com/words/
 
 - **Tabs:** 今天 (the day's goal of 20 and the streak, the round; its
   choices are a sheet from the hero: 10/20/30 words, levels, the way to
-  learn, sound speed; new words as cards, the weak words, word of the day)
+  learn, sound speed; new words as cards, the 單字比賽 practice paper, the
+  weak words, word of the day)
   · 複習 (答錯, 該複習, 學習中, 收藏; flash cards then a test) · 單字 (the
   whole list) · 進度 (level and points, accuracy, the 14 days and what's
   due, each level, the memory fit, the words forgotten most).
@@ -28,6 +29,16 @@ Live: https://orbit.jaypengx.com/words/
   - Memory model: FSRS-5 (stability, difficulty); 10 days' stability is
     mastered.
 - **Weak-word round** (今天): a quick round on the words missed in the last 3 days, up to the round size.
+- **單字比賽** (`lib/contest.mjs`, `views/contest.js`): a practice paper in
+  the shape of the national contest's 區域決賽 (國教署's 115 plan): levels
+  1–6, 聽英拼寫 50 (said twice, 20 s each, marked exactly and in lower
+  case) and 詞彙題 50 (30 單題 like the 學測's, from the word's example with
+  three options of its kind; 20 題組 in sets of five sharing a bank of six),
+  40 minutes, 2 points each of 200. About 40% of each part is this person's
+  weak words (missed, misspelt, overdue), the rest by level, the top levels
+  heaviest. Every answer goes into the word's memory; nothing is shown until
+  it's handed in, then the points, each part and each miss. The plan doesn't
+  publish the 單題/題組 split: 30/20 is a guess. The last 20 scores are kept (`ct`).
 - **Points** (`lib/practice.mjs`): XP, levels, the streak (20 answers a
   day), a 20:00 notice when it's about to end. Points buy nothing.
 - **Offline:** everything works. Words and recordings are the site's own
@@ -39,7 +50,7 @@ Live: https://orbit.jaypengx.com/words/
   A return reads it once, after the kit's claim; not at all after under
   10 s away; a copy the same as the last one merged isn't merged again.
 - **Saved:** the payload `vocab-progress-sync`, `z3:` + gzip of
-  `{ v: 3, w: { word: [box, due, answers, right, …] }, … }`. Every row part
+  `{ v: 3, w: { word: [box, due, answers, right, …] }, ct: [contests], … }`. Every row part
   is optional, so older copies open. Settings carry their own time (`st`):
   the newer settings win a merge (`lib/copy.mjs` `mergeCopy`).
 
@@ -64,6 +75,7 @@ Live: https://orbit.jaypengx.com/words/
 | `views/` | Each tab, the round's choices, the word sheet, rounds and flash cards; `chrome.js` the shared pieces |
 | `lib/words.mjs` | Memory model, rounds, questions, wrong options, saved progress |
 | `lib/copy.mjs` | The payload (encode, decode, merge); the kit's `pass-sync.mjs` keeps it in step with the Pass |
+| `lib/contest.mjs` | The 單字比賽 paper: its words, marking, scores kept |
 | `lib/review.mjs`, `practice.mjs` | Review lists and 進度's numbers; points and streak |
 | `data/words.json`, `more.json`, `hints.json`, `audio/` | The list (senses, KK), examples and forms, the hints, a recording per word |
 

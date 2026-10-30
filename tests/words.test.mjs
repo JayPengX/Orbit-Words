@@ -279,7 +279,7 @@ test('progress round-trips with lapses and mix-ups and merges newest per word; t
   const log = { '2026-10-04': [20, 140.5] };
   const marks = { sun: [1, 1_790_000_000] };
   const back = unpackProgress(JSON.parse(JSON.stringify(packProgress({ progress, levels: [1, 3], mode: 'cloze', days, study: ['tree'], log, marks, opt: { rate: 0.75 } }))));
-  assert.deepEqual(back, { progress, levels: [1, 3], mode: 'cloze', days, study: ['tree'], cal: [], log, marks, opt: { rate: 0.75 }, st: 0 });
+  assert.deepEqual(back, { progress, levels: [1, 3], mode: 'cloze', days, study: ['tree'], cal: [], log, marks, opt: { rate: 0.75 }, st: 0, ct: [] });
   // A saved copy from before the log, bookmarks and outcomes still opens.
   const old = unpackProgress({ v: 3, w: { go: [5, 20100, 9, 9, 1_790_000_001, 1] }, days });
   assert.deepEqual([old.progress.go.o, old.log, old.marks, old.opt], [undefined, {}, {}, {}]);
