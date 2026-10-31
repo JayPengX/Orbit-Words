@@ -13,7 +13,7 @@ export const state = {
   tab: 'today',
   words: null,
   byKey: new Map(),
-  // Hints (data/hints.json): key → { tip, common }; loaded after the words.
+  // Hints (data/hints.json): key → { common }; loaded after the words.
   hints: new Map(),
   // A word's example and forms (data/more.json): key → { forms, en, zh }; loaded after the words.
   more: new Map(),

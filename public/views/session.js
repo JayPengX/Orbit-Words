@@ -4,11 +4,11 @@
 //
 //   round   questions on a list of words, each graded by the memory model
 //           (lib/words.mjs); a word missed comes back at the end, written.
-//   study   new words one card at a time (word, sound, meaning, a line to
-//           remember it by); a full batch unlocks a quiz on just those.
+//   study   new words one card at a time (word, sound, meaning); a full
+//           batch unlocks a quiz on just those.
 //   flash   cards to flip through (a review category or bookmarks), swiped
 //           or tapped; looking doesn't count, the test on the deck after does.
-//   contest a practice paper shaped like the real 單字比賽 (views/contest.js).
+//   contest 拼字比賽, a timed paper (views/contest.js).
 import { el, put, toast, diffLine } from '../ui.js';
 import { state, t, hooks, hintOf, moreOf, metaLine, levelName, wordEl } from '../shell.js';
 import { ico, tile, tag, hero, heroBtn, big, section, iconText } from './chrome.js';
@@ -16,7 +16,7 @@ import { speak, speakButton, prefetch } from '../audio.js';
 import { LEVELS, MODES, pickRound, spread, toStudy, smartType, retryType, makeQuestion, grade, sameWord, spellDiff, stateOf, shortMeaning, clozeText, keyOf, personalFactor, recordReview } from '../lib/words.mjs';
 import { sentenceQuestion } from '../lib/contest.mjs';
 import { answerXp, xpText, logAnswer, logResult } from '../lib/practice.mjs';
-import { openWord, starButton, missNote, tipBox, speltRow } from './sheet.js';
+import { openWord, starButton, missNote, speltRow } from './sheet.js';
 import { renderContest } from './contest.js';
 
 const buzz = () => globalThis.orbitHaptic?.();
@@ -222,7 +222,7 @@ function questionView(r) {
 }
 
 // The verdict, under the answers: right or not, the points, the word in
-// full, what it was taken for, the line to remember it by; 下一題 pinned.
+// full, what it was taken for; 下一題 pinned.
 function feedback(res) {
   const word = res.word;
   const r = state.session;
@@ -236,7 +236,6 @@ function feedback(res) {
     el('p', { lang: 'zh-Hant', class: 'meaning', text: word.zh }),
     // What it was mistaken for, side by side: the difference is the lesson.
     res.mixed ? el('button', { class: 'mixed', type: 'button', onclick: () => openWord(res.mixed) }, [el('small', { class: 'muted', text: t(res.written ? 'youWrote' : 'youPicked') }), el('strong', { text: res.mixed.word }), el('span', { class: 'muted', text: shortMeaning(res.mixed.zh) })]) : null,
-    res.correct ? null : tipBox(word),
     el('div', { class: 'next-bar' }, [next])
   ]);
 }
@@ -326,7 +325,7 @@ const navBtn = (icon, text, onclick, { primary = false, disabled = false, after 
 function renderStudy(box, s) {
   const word = s.list[s.i];
   const inBatch = Math.min(state.study.length, state.size);
-  const card = bigCard(word, [el('p', { lang: 'zh-Hant', class: 'meaning full', text: word.zh }), tipBox(word)]);
+  const card = bigCard(word, [el('p', { lang: 'zh-Hant', class: 'meaning full', text: word.zh })]);
   const nav = el('div', { class: 'card-nav' }, [navBtn('left', t('studyPrev'), () => studyStep(-1), { disabled: s.i === 0 }), navBtn('check', t('studyGot'), studyGot, { primary: true })]);
   put(box, head(() => ((state.session = null), hooks.render()), inBatch, state.size, `${inBatch} / ${state.size}`), card, nav);
 }
@@ -334,7 +333,7 @@ function renderStudy(box, s) {
 // ---- Flash cards --------------------------------------------------------------------------
 //
 // A deck to flip through: the word and its sound on the front; a tap turns
-// it over (the meaning, a line to remember it by, how it was misspelt, what
+// it over (the meaning, how it was misspelt, what
 // it's mixed up with). Swipe or ‹ › to move. Looking at cards changes no
 // word's schedule: once every card has been seen, the deck can be tested
 // (a round on just these words), and that does.
@@ -384,7 +383,7 @@ function renderFlash(box, s) {
   const p = state.progress[word.key];
   // Its back: the meaning, then everything about how it's gone wrong (each
   // misspelling and where it differs, each word it was taken for with that
-  // word's meaning, a tap to it), and the line to remember it by. Its front:
+  // word's meaning, a tap to it). Its front:
   // how it went wrong last time (so the card says why it's in the deck).
   const mixed = (p?.c || []).map(k => state.byKey.get(k)).filter(Boolean);
   const why = missNote(word, p, { small: false });
@@ -392,8 +391,7 @@ function renderFlash(box, s) {
     ? [
         el('p', { lang: 'zh-Hant', class: 'meaning full', text: word.zh }),
         (p?.x || []).length ? el('div', { class: 'spelt' }, [el('small', { class: 'muted', text: t('youSpelt') }), ...p.x.slice(0, 2).map(x => speltRow(x, word))]) : null,
-        mixed.length ? el('div', { class: 'flash-mixed' }, [el('small', { class: 'muted', text: t('mixedYours') }), ...mixed.slice(0, 3).map(o => el('button', { class: 'mixed', type: 'button', onclick: e => (e.stopPropagation(), openWord(o)) }, [el('strong', { text: o.word }), el('span', { class: 'muted', text: shortMeaning(o.zh) })]))]) : null,
-        tipBox(word)
+        mixed.length ? el('div', { class: 'flash-mixed' }, [el('small', { class: 'muted', text: t('mixedYours') }), ...mixed.slice(0, 3).map(o => el('button', { class: 'mixed', type: 'button', onclick: e => (e.stopPropagation(), openWord(o)) }, [el('strong', { text: o.word }), el('span', { class: 'muted', text: shortMeaning(o.zh) })]))]) : null
       ]
     : [why ? el('div', { class: 'flash-why' }, [el('small', { class: 'muted', text: t('lastMiss') }), why]) : null, iconText('flip-hint', 'flip', t('tapToFlip'))];
   const card = bigCard(word, back, { class: `q-card word-card flash-card${s.flipped ? ' flipped' : ''}`, role: 'button', tabindex: '0', 'aria-label': t('tapToFlip') });

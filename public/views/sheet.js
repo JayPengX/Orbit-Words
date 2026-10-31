@@ -1,15 +1,14 @@
 // A word's sheet: everything about one word, from any list (a tap on a
-// row). The word and its sound, the whole meaning, a line to remember it
-// by, the words it's mixed up with (yours, then the usual ones; a tap opens
+// row). The word and its sound, the whole meaning, the words it's mixed up with (yours, then the usual ones; a tap opens
 // theirs), how you've misspelt it, how it's going (the chance you still
 // know it, answers right, when it's next asked), and a bookmark. Whether a
 // word is known is the memory model's call alone, from the answers: there's
 // no "I know it" to put a word away by hand (Jay 2026-10-31).
 import * as kitUI from '#kit/ui.mjs';
 import { el, put, diffLine } from '../ui.js';
-import { state, t, hooks, hintOf, moreOf, metaLine, percent, dueText, wordEl } from '../shell.js';
+import { state, t, hooks, hintOf, moreOf, metaLine, percent, wordEl } from '../shell.js';
 import { speakButton } from '../audio.js';
-import { tag, ico, row, rowCard, bar } from './chrome.js';
+import { ico, row, rowCard, bar } from './chrome.js';
 import { shortMeaning, spellDiff, personalFactor, senses } from '../lib/words.mjs';
 import { isMarked, toggleMark, wordInfo } from '../lib/review.mjs';
 
@@ -85,14 +84,6 @@ function wordChips(keys, label) {
 }
 // A misspelling: what was typed, struck, then the word with the letters missed marked.
 export const speltRow = (s, word) => el('div', { class: 'spelt-row' }, [el('s', { class: 'muted', text: s }), el('span', { class: 'muted', text: '→' }), diffLine(spellDiff(s, word.word))]);
-// The line to remember a word by (data/hints.json), when there is one.
-export function tipBox(word) {
-  const tip = hintOf(word.key)?.tip;
-  if (!tip) return null;
-  const mark = el('i', { class: 'gl', 'aria-hidden': 'true' });
-  mark.innerHTML = ico('spark');
-  return el('div', { class: 'tip' }, [mark, el('p', { text: tip })]);
-}
 
 // The whole meaning, a sense a row: its part of speech, then the Chinese.
 export function senseList(word) {
@@ -123,19 +114,21 @@ function draw(word) {
   const hint = hintOf(word.key);
   const redraw = () => (draw(word), hooks.render());
   // Where it stands: plain words; only an overdue word earns a tag.
-  const head = el('div', { class: 'sheet-state' }, [el('span', { class: 'muted', text: [t(`state_${info.state}`), p?.o === 2 ? t('lastMissed') : '', info.dueIn != null && info.dueIn > 0 ? dueText(info.dueIn) : ''].filter(Boolean).join(' · ') }), info.dueIn != null && info.dueIn <= 0 ? tag(dueText(info.dueIn), 'orange') : null]);
+  // (When it's next asked is said once, in 學習紀錄: here it read 過期 18 天 over a 下次複習 今天.)
+  const head = el('div', { class: 'sheet-state' }, [el('span', { class: 'muted', text: [t(`state_${info.state}`), p?.o === 2 ? t('lastMissed') : ''].filter(Boolean).join(' · ') })]);
   lead.replaceChildren(starButton(word, redraw));
   const top = el('div', { class: 'sheet-word' }, [el('div', { class: 'word-line' }, [wordEl(word), speakButton(word)]), el('small', { lang: 'en', class: 'muted', text: metaLine(word) }), senseList(word)]);
   const spelt = (p?.x || []).length ? block(t('youSpelt'), el('div', { class: 'q-card spelt' }, p.x.map(s => speltRow(s, word)))) : null;
   // 學習紀錄: the chance it's known now (its bar), answers right, when it's
   // next asked; a line under says who decides (the answers, not a button).
-  const next = info.dueIn == null ? '' : info.dueIn <= 0 ? t('nextToday') : info.dueIn === 1 ? t('nextTomorrow') : t('nextInN', { n: info.dueIn });
+  const next = info.dueIn == null ? '' : info.dueIn < 0 ? t('overdueN', { n: -info.dueIn }) : info.dueIn === 0 ? t('nextToday') : info.dueIn === 1 ? t('nextTomorrow') : t('nextInN', { n: info.dueIn });
   const record = info.answers
     ? [
         rowCard([
-          row({ title: t('stRecall'), value: percent(info.recall), body: info.recall != null ? bar(Math.round(info.recall * 100), 100, 'mini-bar recall-bar') : null }),
+          // (Not right after a miss: the model starts it again from the answer just seen, 100%, which read as a reward for the miss.)
+          p?.o === 2 ? null : row({ title: t('stRecall'), value: percent(info.recall), body: info.recall != null ? bar(Math.round(info.recall * 100), 100, 'mini-bar recall-bar') : null }),
           row({ title: t('stRight'), value: t('rightOfN', { r: info.right, n: info.answers }) }),
-          next ? row({ title: t('stNext'), value: next }) : null,
+          next ? row({ title: t('stNext'), value: next, cls: info.dueIn < 0 ? 'late' : '' }) : null,
           info.lapses ? row({ title: t('stLapses'), value: t('timesN', { n: info.lapses }) }) : null
         ], 'record-card'),
         el('p', { class: 'record-note muted', text: t('recordNote') })
@@ -145,7 +138,6 @@ function draw(word) {
     box,
     head,
     top,
-    tipBox(word),
     ...moreBlocks(word),
     spelt,
     wordChips(p?.c || [], t('mixedYours')),

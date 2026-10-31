@@ -35,7 +35,7 @@ English vocabulary that sticks: the full 大考中心 list, levels 1 to 6 (6,169
 - **A quick check first:** a word you know at a glance goes away for weeks; one you miss is learnt.
 - **Eight ways to practise, picked on the home screen:** smart (by memory), meaning, word, by ear, dictation, sentences (the word's example with a blank), letters and fill-in.
 - **Review:** wrong answers, what's due, what you're learning and your saved words, as flash cards and then a test.
-- **A word's page,** from a dictionary written for Taiwan students (meanings from Wiktionary in Taiwan wording, the main sense first): sound, KK, the senses a student needs first, an example sentence with its Chinese, the word's forms, a line to remember it by, what you mixed it up with, your misspellings and the chance you still know it.
+- **A word's page,** from a dictionary written for Taiwan students (meanings from Wiktionary in Taiwan wording, the main sense first): sound, KK, the senses a student needs first, an example sentence with its Chinese, the word's forms, what you mixed it up with, your misspellings and the chance you still know it.
 - **拼字比賽:** a timed paper of spelling by ear (each word said twice) then multiple choice, in three sizes: 20+20, 50+50 (40 minutes, the national contest's) and 50+100.
 - **Progress:** level and points, accuracy, the last 14 days, each level, and the words you forget most.
 - **Fully offline**, synced between devices through the Orbit Pass.

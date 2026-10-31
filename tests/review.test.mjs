@@ -117,15 +117,14 @@ test('the day’s log: right answers and seconds, a minute at most a question; t
   assert.equal(periodOf({}, {}, 7, now).accuracy, null);
 });
 
-test('hints: every level 4-6 word has a line to remember it by, and its usual confusions are real words', () => {
+test('hints: the usual confusions are real words', () => {
   const hints = loadHints(read('hints.json'));
-  assert.ok(hints.size > 3000);
+  assert.ok(hints.size > 1500);
   for (const [k, h] of hints) {
     assert.ok(byKey.has(k), k);
-    assert.ok(h.tip.length > 3, k);
     for (const c of h.common) assert.ok(byKey.has(c) && c !== k, `${k} → ${c}`);
   }
-  assert.equal(loadHints({ x: 5, y: ['tip', 'nope'] }).get('y').common.length, 0);
+  assert.equal(loadHints({ x: 5, y: [3] }).size, 0);
   // A usual confusion is offered as a wrong option.
   const w = [...hints].find(([, h]) => h.common.length)[0];
   const opts = distractors(W(w), words, 3, { type: 'word', common: hints.get(w).common, random: () => 0.5 }).map(x => x.key);

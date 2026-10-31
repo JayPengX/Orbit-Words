@@ -17,8 +17,7 @@ Live: https://orbit.jaypengx.com/words/
   whole list) · 進度 (level and points, accuracy, the 14 days and what's
   due, each level, the memory fit, the words forgotten most).
 - **A word's sheet** (from anywhere, or `#word=<word>`): sound, KK, the
-  senses (most useful first), an example with its Chinese, the word's forms, a
-  line to remember it by, what you mixed it up with, your misspellings,
+  senses (most useful first), an example with its Chinese, the word's forms, what you mixed it up with, your misspellings,
   學習紀錄 (the chance you still know it, answers right, the next review).
 - **Ways to practise** (`MODES`): 智慧練習 (by memory), 選中文, 選英文,
   聽音選字, 聽寫, 句子填空 (the word's own example with a blank, four
@@ -67,8 +66,9 @@ Live: https://orbit.jaypengx.com/words/
   from Wiktionary (kaikki.org), examples from Tatoeba, Taiwan wording; sense
   1 is what the quiz asks. Edit `scripts/dict/entries.jsonl`, then
   `python3 scripts/dict/build.py`. Credit line at the foot of the sheet.
-- Mnemonics and confusions are `data/hints.json`, written once offline;
-  nothing generated live.
+- The usual confusions are `data/hints.json`, written once offline;
+  nothing generated live. No mnemonic lines (dropped 2026-10-31: English
+  restatements like "Opt to choose an option.").
 - Cloze and unscrambling are not asked in smart mode (only as their own
   modes).
 - Only the memory model decides a word is known, from the answers: no "I

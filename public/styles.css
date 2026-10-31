@@ -93,10 +93,6 @@ h1, h2, h3, p { margin: 0; }
 .word-line { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .word { min-width: 0; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; font-size: min(34px, calc((var(--q-vw, 100vw) - 150px) / (var(--len, 8) * 0.6))); line-height: 1.15; }
 .meaning { font-size: 16px; line-height: 1.5; }
-.tip { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border-radius: var(--q-r-cell); background: var(--accent-wash); text-align: left; }
-.tip .gl { width: 18px; height: 18px; margin-top: 2px; color: var(--accent); }
-.tip p { font-size: 15px; line-height: 1.5; }
-.tip-line { color: var(--q-label-2); font: var(--q-t-footnote); }
 .card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: -6px -8px 0 0; }
 .diff { font-weight: 600; letter-spacing: 0; }
 .diff .bad { color: var(--loss); text-decoration: underline; }
@@ -104,7 +100,8 @@ h1, h2, h3, p { margin: 0; }
 
 /* ---- 今天 ---- */
 .wotd { display: grid; gap: var(--q-s-2); padding: var(--q-s-4); cursor: pointer; }
-.wotd .meaning { margin-top: 2px; }
+.wotd .meaning { margin-top: 2px; font-size: 17px; }
+.wotd .word { font-size: min(28px, calc((var(--q-vw, 100vw) - 150px) / (var(--len, 8) * 0.6))); }
 /* 練習模式: every way to practise, two to a row (views/today.js). */
 .mode-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .mode-card { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 10px; row-gap: 6px; min-width: 0; padding: 12px; border: 0; border-radius: var(--q-r-cell); background: var(--q-surface); color: var(--q-label); font: inherit; text-align: left; }
@@ -266,7 +263,6 @@ h1, h2, h3, p { margin: 0; }
 .word-card .card-top { justify-self: stretch; }
 .word-card .card-word { gap: 10px; margin-top: 8px; }
 .word-card .word.big { font-size: min(44px, calc((var(--q-vw, 100vw) - 104px) / (var(--len, 8) * 0.6))); }
-.word-card .tip { justify-self: stretch; }
 .meaning.full { white-space: pre-line; font-size: 17px; line-height: 1.6; }
 .flash-card { cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: pan-y; }
 .flash-why { display: grid; justify-items: center; gap: 6px; max-width: 100%; }
@@ -304,6 +300,10 @@ h1, h2, h3, p { margin: 0; }
 .sheet-block .q-sheet-h { margin: 22px 4px 8px; }
 .word-sheet .spelt { justify-items: start; padding: var(--q-s-3) var(--q-s-4); border-radius: var(--q-r-cell); }
 .record-card .recall-bar { width: 100%; margin-top: 8px; }
+/* 學習紀錄 and the mixed-up words: rows of plain text, the sheet's one body size (17), values grey. */
+.record-card .q-ritem-title, .link-row .q-ritem-title { font-weight: 400; }
+.record-card .q-ritem-value { color: var(--q-label-2); font-weight: 400; }
+.record-card .late .q-ritem-value { color: var(--q-orange); }
 .record-card .q-ritem:has(.recall-bar) { align-items: start; }
 .record-note { margin: 8px 16px 0; font: var(--q-t-footnote); }
 .word-sheet > .q-btn.block { margin-top: 20px; }
@@ -315,17 +315,16 @@ h1, h2, h3, p { margin: 0; }
 .recent-rail { --q-rail-w: 150px; }
 .go-card, .deck, .recent-card { display: grid; align-content: start; justify-items: start; gap: 4px; min-width: 0; padding: 14px; border: 0; border-radius: var(--q-r-card); background: var(--q-surface); color: var(--q-label); font: inherit; text-align: left; }
 .go-card:disabled { opacity: 0.5; }
-.go-val { font: 500 28px/32px var(--q-font-rounded, var(--q-font)); letter-spacing: -0.02em; }
-.go-title { font: 600 15px/20px var(--q-font); }
-.go-sub { color: var(--q-label-2); font: 12px/16px var(--q-font); overflow-wrap: anywhere; }
+.go-val { font: 600 22px/26px var(--q-font-rounded, var(--q-font)); }
+.go-title { font: 500 15px/20px var(--q-font); }
+.go-sub { color: var(--q-label-2); font: var(--q-t-footnote); overflow-wrap: anywhere; }
 .go-card .mini-bar { width: 100%; margin-top: 6px; }
 .deck { box-shadow: 0 -4px 0 -2px var(--q-fill-3), 0 -8px 0 -4px var(--q-fill-4); margin-top: 8px; }
-.recent-card { gap: 6px; }
-/* (A rail card's word: 122 px of room, 20 px at most.) */
-.word.rc-word { max-width: 100%; font-weight: 600; font-size: min(20px, calc(122px / (var(--len, 8) * 0.56))); line-height: 24px; }
-.rc-zh { color: var(--q-label-2); font: 13px/18px var(--q-font); white-space: nowrap; }
+.recent-card { gap: 2px; }
+/* (A rail card: the word, one size for every card, then its meaning and state in grey.) */
+.rc-word { max-width: 100%; overflow: hidden; font: 600 17px/22px var(--q-font); white-space: nowrap; text-overflow: ellipsis; }
+.rc-sub { max-width: 100%; overflow: hidden; color: var(--q-label-2); font: var(--q-t-footnote); white-space: nowrap; text-overflow: ellipsis; }
 .streak-card { display: grid; gap: var(--q-s-3); padding: var(--q-s-4); }
-.rc-state { color: var(--q-label-2); font: var(--q-t-caption); }
 .streak-top { display: flex; align-items: center; gap: 12px; }
 .streak-text { display: grid; gap: 2px; min-width: 0; }
 .streak-text strong { font: 600 22px/26px var(--q-font-rounded, var(--q-font)); }
@@ -338,10 +337,10 @@ h1, h2, h3, p { margin: 0; }
 .sense-pos { flex: none; min-width: 36px; color: var(--q-label-2); font: 500 13px/1 var(--q-font-rounded); }
 .sense-zh { min-width: 0; }
 .word-sheet .example { display: grid; gap: 4px; padding: var(--q-s-3) var(--q-s-4); border-radius: var(--q-r-cell); }
-.ex-en { font-size: 16px; line-height: 1.45; }
+.ex-en { font-size: 17px; line-height: 1.45; }
 .ex-en strong { color: var(--q-accent, inherit); font-weight: 650; }
 .ex-zh { font-size: 15px; line-height: 1.45; }
-.forms { padding: 0 4px; font-size: 15px; }
+.forms { padding: 0 4px; font-size: 17px; }
 .forms span { display: inline-block; margin-right: 0.35em; white-space: nowrap; }
 .forms span:not(:last-child)::after { content: '\00a0·'; color: var(--q-label-2); }
 .word-sheet .credit { margin: 18px 4px 0; font-size: 12px; text-align: center; }

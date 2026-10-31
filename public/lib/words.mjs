@@ -69,15 +69,17 @@ export function loadWords(rows) {
   return rows.map(([word, pos, level, zh, ph], i) => ({ i, word, key: keyOf(word), pos, level, zh, ph: ph || '' }));
 }
 
-// Hints (data/hints.json, levels 4 to 6): { key: [a line to remember it by,
-// [keys of words it's commonly confused with]] }, written once for every
-// learner (they were Orbit Words' AI signals). Rows that aren't that shape
-// are dropped.
+// Hints (data/hints.json, levels 4 to 6): { key: [keys of words it's
+// commonly confused with] }, written once for every learner. (The lines to
+// remember a word by went 2026-10-31: English restatements such as "Opt to
+// choose an option.", no help to a Taiwan student.) Rows that aren't that
+// shape are dropped.
 export function loadHints(raw) {
   const out = new Map();
   for (const [k, v] of Object.entries(raw || {})) {
-    if (!Array.isArray(v) || typeof v[0] !== 'string') continue;
-    out.set(k, { tip: v[0], common: Array.isArray(v[1]) ? v[1].filter(x => typeof x === 'string') : [] });
+    if (!Array.isArray(v)) continue;
+    const common = v.filter(x => typeof x === 'string');
+    if (common.length) out.set(k, { common });
   }
   return out;
 }

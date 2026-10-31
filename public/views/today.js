@@ -6,7 +6,7 @@
 import * as kitUI from '#kit/ui.mjs';
 import { el, put } from '../ui.js';
 import { hero, heroPill, heroBtn, big, bar, iconText, section, tag, tile } from './chrome.js';
-import { state, t, hooks, hintOf, metaLine, wordEl, locale, settingsChanged } from '../shell.js';
+import { state, t, hooks, metaLine, wordEl, locale, settingsChanged } from '../shell.js';
 import { speakButton } from '../audio.js';
 import { LEVELS, MODES, stats, toStudy, stateOf, shortMeaning, wordOfDay, hardest } from '../lib/words.mjs';
 import { DAILY_GOAL, todayCount, goalStatus, streakOf, bestStreak, lastDays } from '../lib/practice.mjs';
@@ -69,7 +69,6 @@ function pickMode(m) {
 function wordOfDayCard() {
   const w = wordOfDay(state.words, Date.now(), state.levels);
   if (!w) return null;
-  const tip = hintOf(w.key)?.tip;
   const st = stateOf(state.progress[w.key]);
   return section(
     t('wotd'),
@@ -77,8 +76,7 @@ function wordOfDayCard() {
       el('div', { class: 'card-top' }, [tag(t(`state_${st}`), st === 'mastered' ? 'green' : st === 'new' ? '' : 'tint'), starButton(w, hooks.render)]),
       el('div', { class: 'word-line' }, [wordEl(w), speakButton(w)]),
       el('small', { lang: 'en', class: 'muted', text: metaLine(w) }),
-      el('p', { lang: 'zh-Hant', class: 'meaning', text: shortMeaning(w.zh) }),
-      tip ? el('p', { class: 'tip-line', text: tip }) : null
+      el('p', { lang: 'zh-Hant', class: 'meaning', text: shortMeaning(w.zh) })
     ])
   );
 }
@@ -147,7 +145,7 @@ const DECKS = [['wrong', 'cards', 'var(--q-indigo)'], ['due', 'history', 'var(--
 function deckShelf() {
   const counts = catCounts(state.words, state.progress, { marks: state.marks });
   const decks = DECKS.filter(([c]) => counts[c] > 0).map(([c, icon, color]) =>
-    el('button', { class: 'deck q-press', type: 'button', onclick: () => startFlash(flashDeck(state.words, state.progress, c, { n: 20, marks: state.marks }), t(`cat_${c}`)) }, [el('strong', { class: 'go-val num', text: String(counts[c]) }), el('span', { class: 'go-title', text: t(`cat_${c}`) }), el('small', { class: 'go-sub', text: t('deckN', { n: Math.min(20, counts[c]) }) })])
+    el('button', { class: 'deck q-press', type: 'button', onclick: () => startFlash(flashDeck(state.words, state.progress, c, { n: 20, marks: state.marks }), t(`cat_${c}`)) }, [el('strong', { class: 'go-val num', text: String(counts[c]) }), el('span', { class: 'go-title', text: t(`cat_${c}`) })])
   );
   return decks.length ? section(t('decksTitle'), rail(decks, 'deck-rail')) : null;
 }
@@ -161,5 +159,5 @@ function recentShelf() {
     .map(([k]) => state.byKey.get(k))
     .filter(Boolean);
   if (!list.length) return null;
-  return section(t('recentTitle'), rail(list.map(w => el('button', { class: 'recent-card q-press', type: 'button', onclick: () => openWord(w) }, [wordEl(w, 'rc-word'), el('small', { lang: 'zh-Hant', class: 'rc-zh', text: shortMeaning(w.zh).split(/[、,，;；]/)[0] }), el('small', { class: 'rc-state', text: t(`state_${stateOf(state.progress[w.key])}`) })])), 'recent-rail'));
+  return section(t('recentTitle'), rail(list.map(w => el('button', { class: 'recent-card q-press', type: 'button', onclick: () => openWord(w) }, [el('strong', { lang: 'en', class: 'rc-word', text: w.word }), el('small', { class: 'rc-sub' }, [el('span', { lang: 'zh-Hant', text: shortMeaning(w.zh).split(/[、,，;；]/)[0] }), ` · ${t(`state_${stateOf(state.progress[w.key])}`)}`])])), 'recent-rail'));
 }
