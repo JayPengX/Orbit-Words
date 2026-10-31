@@ -1,9 +1,9 @@
-// 單字比賽's practice paper (lib/contest.mjs): the regional final's shape, the words it draws, how it marks and keeps scores.
+// 拼字比賽's practice paper (lib/contest.mjs): the contest's shape and the other sizes, the words it draws, how it marks and keeps scores.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { loadWords, loadMore, dayNum, packProgress, unpackProgress } from '../public/lib/words.mjs';
-import { PARTS, TOTAL, SET_SIZE, makePaper, weakness, blankOf, markSpelling, scorePaper, contestRow, mergeContests, contestStats } from '../public/lib/contest.mjs';
+import { PAPERS, PAPER_IDS, totalOf, minutesOf, SET_SIZE, makePaper, sentenceQuestion, weakness, blankOf, markSpelling, scorePaper, contestRow, mergeContests, contestStats } from '../public/lib/contest.mjs';
 import { mergeCopy } from '../public/lib/copy.mjs';
 
 const words = loadWords(JSON.parse(readFileSync(new URL('../public/data/words.json', import.meta.url))));
@@ -14,7 +14,8 @@ const today = dayNum(NOW);
 
 test('a paper is the final’s 100: 50 heard, 30 單題 and 20 題組 in sets of five, no word twice, levels 1–6, top levels heaviest', () => {
   const p = makePaper(words, {}, { more, now: NOW, random: seeded() });
-  assert.deepEqual([p.spell.length, p.single.length, p.group.length], PARTS.map(x => x.n));
+  const TOTAL = totalOf(PAPERS.full);
+  assert.deepEqual([p.spell.length, p.single.length, p.group.length], [50, 30, 20]);
   const all = [...p.spell, ...p.single.map(q => q.word), ...p.group.map(q => q.word)];
   assert.equal(new Set(all.map(w => w.key)).size, TOTAL);
   assert.ok(all.every(w => w.level >= 1 && w.level <= 6 && /^[a-z]+$/.test(w.word)));
@@ -28,12 +29,33 @@ test('a paper is the final’s 100: 50 heard, 30 單題 and 20 題組 in sets of
     assert.equal(new Set(q.choices.map(c => c.key)).size, 4);
   }
   // 題組: four sets, each bank its five words as written plus one more.
-  for (let s = 0; s < PARTS[2].n / SET_SIZE; s++) {
+  for (let s = 0; s < 20 / SET_SIZE; s++) {
     const set = p.group.filter(q => q.set === s);
     assert.equal(set.length, SET_SIZE);
     assert.equal(set[0].bank.length, SET_SIZE + 1);
     for (const q of set) assert.ok(q.bank.some(b => b.key === q.word.key && b.text === q.form));
   }
+});
+
+test('each paper size: its parts in full, 題組 in whole sets, 40 minutes for the 標準 one', () => {
+  for (const id of PAPER_IDS) {
+    const shape = PAPERS[id];
+    const p = makePaper(words, {}, { shape, more, now: NOW, random: seeded(5) });
+    assert.deepEqual([p.spell.length, p.single.length, p.group.length], [shape.spell, shape.single, shape.group], id);
+    assert.equal(shape.group % SET_SIZE, 0);
+    const all = [...p.spell, ...p.single.map(q => q.word), ...p.group.map(q => q.word)];
+    assert.equal(new Set(all.map(w => w.key)).size, totalOf(shape), id);
+  }
+  assert.deepEqual([minutesOf(PAPERS.short), minutesOf(PAPERS.full), minutesOf(PAPERS.long)], [16, 40, 63]);
+  assert.equal(totalOf(PAPERS.long) - PAPERS.long.spell, 100, 'the long paper: 100 choice questions');
+});
+
+test('a word as a sentence question: its own example, four options, null without one', () => {
+  const w = words.find(x => x.word === 'scarcity') || words.find(x => more.get(x.key)?.en && blankOf(x, more.get(x.key), { exact: true }));
+  const q = sentenceQuestion(w, more.get(w.key), words, seeded(2));
+  assert.ok(q && q.before.length > 0 && q.form === w.word);
+  assert.equal(q.choices.filter(c => c.key === w.key).length, 1);
+  assert.equal(sentenceQuestion(w, { forms: [], en: '' }, words), null);
 });
 
 test('weak words fill about 40% of a part, and a misspelt word weighs most for the heard part', () => {
@@ -73,13 +95,26 @@ test('points per part and in all (2 each, of 200); scores kept, merged across de
   const s = scorePaper(answers);
   assert.deepEqual([s.spell.right, s.vocab.right, s.vocab.n, s.points, s.max], [40, 37, 50, 154, 200]);
   const a = contestRow({ at: NOW, score: s, seconds: 2400.4 });
-  assert.deepEqual(a, [Math.round(NOW / 1000), 40, 37, 2400]);
+  assert.deepEqual(a, [Math.round(NOW / 1000), 40, 37, 2400, 100]);
+  // An older row (four numbers) is a 100-question paper; a short paper's scores are kept apart.
   const b = [a[0] + 86_400, 30, 30, 2000];
+  const c = [a[0] + 2 * 86_400, 18, 19, 900, 40];
   const merged = mergeContests([a], [b, a, ['junk']]);
   assert.deepEqual(merged, [b, a]);
-  assert.deepEqual(contestStats(merged), { last: 120, best: 154, n: 2 });
+  assert.deepEqual(contestStats(merged), { last: 120, best: 154, n: 2, max: 200 });
+  assert.deepEqual(contestStats([c, ...merged], 40), { last: 74, best: 74, n: 1, max: 80 });
   assert.equal(contestStats([]), null);
+  const shortScore = scorePaper([{ part: 'spell', correct: true }], PAPERS.short);
+  assert.deepEqual([shortScore.points, shortScore.max, shortScore.vocab.n], [2, 80, 20]);
   const back = unpackProgress(packProgress({ progress: {}, levels: [1], mode: 'smart', ct: merged }));
   assert.deepEqual(back.ct, merged);
   assert.deepEqual(mergeCopy({ progress: {}, ct: [a] }, { progress: {}, ct: [b] }).ct, [b, a]);
+});
+
+test('a sentence’s options are never close in meaning to the word (two could fit the blank)', () => {
+  const cabin = words.find(w => w.word === 'cabin');
+  for (let seed = 1; seed < 40; seed++) {
+    const keys = sentenceQuestion(cabin, { forms: [], en: 'This cabin is a very special place.' }, words, seeded(seed)).choices.map(c => c.key);
+    for (const k of ['hut', 'cottage', 'shed']) assert.ok(!keys.includes(k), `${k} with cabin`);
+  }
 });

@@ -1,15 +1,16 @@
 // A word's sheet: everything about one word, from any list (a tap on a
 // row). The word and its sound, the whole meaning, a line to remember it
 // by, the words it's mixed up with (yours, then the usual ones; a tap opens
-// theirs), how you've misspelt it, how it's going (answers, accuracy, the
-// chance you still know it, when it's next asked), a bookmark, and "I know
-// it" to put it away.
+// theirs), how you've misspelt it, how it's going (the chance you still
+// know it, answers right, when it's next asked), and a bookmark. Whether a
+// word is known is the memory model's call alone, from the answers: there's
+// no "I know it" to put a word away by hand (Jay 2026-10-31).
 import * as kitUI from '#kit/ui.mjs';
 import { el, put, diffLine } from '../ui.js';
 import { state, t, hooks, hintOf, moreOf, metaLine, percent, dueText, wordEl } from '../shell.js';
 import { speakButton } from '../audio.js';
-import { tag, ico } from './chrome.js';
-import { shortMeaning, spellDiff, markKnown, personalFactor, senses } from '../lib/words.mjs';
+import { tag, ico, row, rowCard, bar } from './chrome.js';
+import { shortMeaning, spellDiff, personalFactor, senses } from '../lib/words.mjs';
 import { isMarked, toggleMark, wordInfo } from '../lib/review.mjs';
 
 // How a word went wrong the last time, in one line (複習's rows, the flash
@@ -80,7 +81,7 @@ const block = (label, body) => el('section', { class: 'sheet-block' }, [el('h3',
 function wordChips(keys, label) {
   const list = keys.map(k => state.byKey.get(k)).filter(Boolean);
   if (!list.length) return null;
-  return block(label, el('div', { class: 'link-chips' }, list.map(w => el('button', { class: 'link-chip q-press', type: 'button', onclick: () => (buzz(), draw(w), dialog.scrollTo?.(0, 0)) }, [el('strong', { lang: 'en', text: w.word }), el('small', { lang: 'zh-Hant', text: shortMeaning(w.zh) })]))));
+  return block(label, rowCard(list.map(w => row({ title: w.word, sub: shortMeaning(w.zh), cls: 'link-row', onClick: () => (buzz(), draw(w), dialog.scrollTo?.(0, 0)) }))));
 }
 // A misspelling: what was typed, struck, then the word with the letters missed marked.
 export const speltRow = (s, word) => el('div', { class: 'spelt-row' }, [el('s', { class: 'muted', text: s }), el('span', { class: 'muted', text: '→' }), diffLine(spellDiff(s, word.word))]);
@@ -126,29 +127,20 @@ function draw(word) {
   lead.replaceChildren(starButton(word, redraw));
   const top = el('div', { class: 'sheet-word' }, [el('div', { class: 'word-line' }, [wordEl(word), speakButton(word)]), el('small', { lang: 'en', class: 'muted', text: metaLine(word) }), senseList(word)]);
   const spelt = (p?.x || []).length ? block(t('youSpelt'), el('div', { class: 'q-card spelt' }, p.x.map(s => speltRow(s, word)))) : null;
-  const numbers = info.answers
-    ? el('div', { class: 'sheet-stats' }, [
-        [String(info.answers), t('stAnswers')],
-        [percent(info.accuracy), t('stAccuracy')],
-        [percent(info.recall), t('stRecall')],
-        [info.stability ? t('daysShort', { n: info.stability >= 10 ? Math.round(info.stability) : Math.round(info.stability * 10) / 10 }) : '—', t('stStability')]
-      ].map(([v, l]) => el('div', {}, [el('strong', { class: 'num', text: v }), el('small', { text: l })])))
+  // 學習紀錄: the chance it's known now (its bar), answers right, when it's
+  // next asked; a line under says who decides (the answers, not a button).
+  const next = info.dueIn == null ? '' : info.dueIn <= 0 ? t('nextToday') : info.dueIn === 1 ? t('nextTomorrow') : t('nextInN', { n: info.dueIn });
+  const record = info.answers
+    ? [
+        rowCard([
+          row({ title: t('stRecall'), value: percent(info.recall), body: info.recall != null ? bar(Math.round(info.recall * 100), 100, 'mini-bar recall-bar') : null }),
+          row({ title: t('stRight'), value: t('rightOfN', { r: info.right, n: info.answers }) }),
+          next ? row({ title: t('stNext'), value: next }) : null,
+          info.lapses ? row({ title: t('stLapses'), value: t('timesN', { n: info.lapses }) }) : null
+        ], 'record-card'),
+        el('p', { class: 'record-note muted', text: t('recordNote') })
+      ]
     : el('p', { class: 'none', text: t('neverAsked') });
-  const known =
-    info.state !== 'mastered'
-      ? el('button', {
-          class: 'q-btn block tinted',
-          type: 'button',
-          text: t('iKnowIt'),
-          onclick: () => {
-            buzz();
-            state.progress = { ...state.progress, [word.key]: markKnown(p) };
-            state.study = state.study.filter(k => k !== word.key);
-            hooks.changed();
-            redraw();
-          }
-        })
-      : null;
   put(
     box,
     head,
@@ -158,8 +150,7 @@ function draw(word) {
     spelt,
     wordChips(p?.c || [], t('mixedYours')),
     wordChips((hint?.common || []).filter(k => !(p?.c || []).includes(k)), t('mixedCommon')),
-    block(t('howItGoes'), [numbers, info.lapses ? el('p', { class: 'lapses muted', text: t('lapsesLine', { n: info.lapses }) }) : null]),
-    known,
+    block(t('howItGoes'), record),
     el('p', { class: 'credit muted', text: t('dictCredit') })
   );
 }

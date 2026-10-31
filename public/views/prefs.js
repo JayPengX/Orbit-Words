@@ -1,11 +1,11 @@
 // The round's choices, in a sheet from 今天's hero: how
-// many words a round holds, which levels, which way to learn, and how fast
-// the words are said. Each change is saved at once (shell.js settingsChanged).
+// many words a round holds, which levels, and how fast the words are said.
+// (The way to practise is picked on 今天 itself: 練習模式.) Each change is saved at once (shell.js settingsChanged).
 import * as kitUI from '#kit/ui.mjs';
 import { el, put, segmented } from '../ui.js';
 import { state, t, hooks, levelName, settingsChanged, locale } from '../shell.js';
 import { speak, RATES } from '../audio.js';
-import { LEVELS, MODES, stats, wordOfDay } from '../lib/words.mjs';
+import { LEVELS, stats, wordOfDay } from '../lib/words.mjs';
 import { row, rowCard, checkDot, bar } from './chrome.js';
 
 export const SIZES = [10, 20, 30];
@@ -51,7 +51,6 @@ function draw() {
       });
     })
   );
-  const modes = rowCard(MODES.map(m => row({ title: t(`mode_${m}`), sub: t(`modeHint_${m}`), trailing: checkDot(state.mode === m), pressed: state.mode === m, chevron: false, onClick: () => ((state.mode = m), changed()) })));
   // The sound's speed, tried on the word of the day.
   const rate = RATES.includes(state.opt.rate) ? state.opt.rate : 1;
   const sound = rowCard([
@@ -64,5 +63,5 @@ function draw() {
       el('button', { class: 'q-btn small tinted', type: 'button', onclick: () => speak(wordOfDay(state.words, Date.now(), state.levels)) }, [t('rateTry')])
     ])
   ]);
-  put(box, el('h3', { class: 'q-sheet-h', text: t('roundSize') }), size, el('h3', { class: 'q-sheet-h', text: t('levels') }), levels, el('h3', { class: 'q-sheet-h', text: t('modes') }), modes, el('h3', { class: 'q-sheet-h', text: t('rateLabel') }), sound);
+  put(box, el('h3', { class: 'q-sheet-h', text: t('roundSize') }), size, el('h3', { class: 'q-sheet-h', text: t('levels') }), levels, el('h3', { class: 'q-sheet-h', text: t('rateLabel') }), sound);
 }

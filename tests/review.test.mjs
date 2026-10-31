@@ -3,7 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
-import { loadWords, loadHints, grade, distractors, dayNum, markKnown } from '../public/lib/words.mjs';
+import { loadWords, loadHints, grade, distractors, dayNum } from '../public/lib/words.mjs';
 import { inCat, catCounts, reviewList, browse, flashDeck, toggleMark, mergeMarks, isMarked, wordInfo, totals, forecast, levelBreakdown, memorySpread, matches } from '../public/lib/review.mjs';
 import { logResult, mergeLog, periodOf, logAnswer, daysPractised } from '../public/lib/practice.mjs';
 
@@ -88,8 +88,6 @@ test('one word in numbers: answers, accuracy, recall now and when it’s next as
   assert.ok(Math.abs(info.recall - 0.9) < 0.001);
   assert.equal(info.dueIn, 2);
   assert.equal(info.lapses, 1);
-  // "I know it": mastered, out of the way for two months.
-  assert.equal(wordInfo(markKnown(undefined, now), now).state, 'mastered');
 });
 
 test('進度’s numbers: totals, reviews coming, each level, how long words stay', () => {

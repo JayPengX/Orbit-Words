@@ -10,10 +10,11 @@
 //           or tapped; looking doesn't count, the test on the deck after does.
 //   contest a practice paper shaped like the real 單字比賽 (views/contest.js).
 import { el, put, toast, diffLine } from '../ui.js';
-import { state, t, hooks, hintOf, metaLine, levelName, wordEl } from '../shell.js';
+import { state, t, hooks, hintOf, moreOf, metaLine, levelName, wordEl } from '../shell.js';
 import { ico, tile, tag, hero, heroBtn, big, section, iconText } from './chrome.js';
 import { speak, speakButton, prefetch } from '../audio.js';
-import { LEVELS, pickRound, spread, toStudy, smartType, retryType, markKnown, makeQuestion, grade, sameWord, spellDiff, stateOf, shortMeaning, clozeText, keyOf, personalFactor, recordReview } from '../lib/words.mjs';
+import { LEVELS, MODES, pickRound, spread, toStudy, smartType, retryType, makeQuestion, grade, sameWord, spellDiff, stateOf, shortMeaning, clozeText, keyOf, personalFactor, recordReview } from '../lib/words.mjs';
+import { sentenceQuestion } from '../lib/contest.mjs';
 import { answerXp, xpText, logAnswer, logResult } from '../lib/practice.mjs';
 import { openWord, starButton, missNote, tipBox, speltRow } from './sheet.js';
 import { renderContest } from './contest.js';
@@ -41,14 +42,14 @@ export function head(onClose, value, max, right, label = t('close')) {
 //
 // `list`: given words (a flash deck's test), else the usual round.
 // `from`: 'study' (the studied batch), 'flash' (a deck), or none.
-export function startRound({ from = null, list = null } = {}) {
+export function startRound({ from = null, list = null, mode = state.mode } = {}) {
   let words;
   if (from === 'study') words = pickRound(state.study.map(k => state.byKey.get(k)).filter(Boolean), {}, { levels: LEVELS, size: state.study.length });
   // A deck in its own order, shuffled, look-alikes apart (spread).
   else if (list) words = spread([...list].sort(() => Math.random() - 0.5));
   else words = pickRound(state.words, state.progress, { levels: state.levels, size: state.size, skip: new Set(state.study), factor: personalFactor(state.cal) });
   if (!words.length) return toast(t('nothingLeft'));
-  state.session = { kind: 'round', home: state.tab, list: words, i: 0, results: [], earned: 0, q: null, answered: false, from };
+  state.session = { kind: 'round', home: state.tab, mode: MODES.includes(mode) ? mode : 'smart', list: words, i: 0, results: [], earned: 0, q: null, answered: false, from };
   nextQuestion();
 }
 function nextQuestion() {
@@ -62,10 +63,13 @@ function nextQuestion() {
   // At a glance it's known and out of the way for weeks; only what's missed
   // or slow is learnt. (It was a cloze with half its letters gone: a word
   // known well but not spelt from memory failed, and took the longest.)
-  r.check = !r.from && !p?.b && !r.retry?.has(word.key) && ['smart', 'cloze', 'spell'].includes(state.mode);
+  r.check = !r.from && !p?.b && !r.retry?.has(word.key) && ['smart', 'cloze', 'spell'].includes(r.mode);
   // A word missed this round comes back the other way round (retryType): picked wrong, from the other side; misspelt, dictated.
-  const type = r.retry?.has(word.key) ? retryType(r.retry.get(word.key), word) : r.check && state.mode === 'smart' ? 'meaning' : state.mode === 'smart' ? smartType(p, Math.random, word, used) : state.mode;
-  r.q = makeQuestion(word, type, state.words, { p, common: hintOf(word.key)?.common || [] });
+  let type = r.retry?.has(word.key) ? retryType(r.retry.get(word.key), word) : r.check && r.mode === 'smart' ? 'meaning' : r.mode === 'smart' ? smartType(p, Math.random, word, used) : r.mode;
+  // 句子填空: the word's own example with a blank; a word without one is asked from its meaning.
+  const inSentence = type === 'sentence' ? sentenceQuestion(word, moreOf(word.key), state.words) : null;
+  if (type === 'sentence' && !inSentence) type = 'word';
+  r.q = inSentence ? { type, word, ...inSentence, answer: word.key } : makeQuestion(word, type, state.words, { p, common: hintOf(word.key)?.common || [] });
   r.answered = false;
   r.typed = '';
   r.built = [];
@@ -115,17 +119,6 @@ function answer(correct, typed = '') {
   hooks.changed();
   hooks.render();
 }
-// 太簡單: the word is known; it's put away and the round moves on.
-function tooEasy() {
-  const r = state.session;
-  if (!r || r.answered) return;
-  const word = r.q.word;
-  state.progress = { ...state.progress, [word.key]: markKnown(state.progress[word.key]) };
-  r.results.push({ word, correct: true, type: 'known', after: 'mastered', pay: 0, typed: '' });
-  r.list = [...r.list.slice(0, r.i + 1), ...r.list.slice(r.i + 1).filter(w => w.key !== word.key)];
-  hooks.changed();
-  advance();
-}
 export function advance() {
   const r = state.session;
   if (!r || r.kind !== 'round') return;
@@ -153,6 +146,12 @@ function renderRound(box, r) {
 // The word as a card's headline: the word, its sound beside it, the line under it.
 const wordHead = word => el('div', { class: 'card-word' }, [el('div', { class: 'word-line' }, [wordEl(word, 'big'), speakButton(word)]), el('small', { lang: 'en', class: 'muted', text: metaLine(word) })]);
 const meaningHead = (word, extra = '') => el('div', { class: 'card-word' }, [el('p', { lang: 'zh-Hant', class: 'meaning big', text: shortMeaning(word.zh) }), el('small', { class: 'muted', text: [word.pos, extra].filter(Boolean).join(' · ') })]);
+// The sentence with its blank (filled in once answered), and its Chinese after.
+const sentenceHead = (q, done) =>
+  el('div', { class: 'card-word sentence' }, [
+    el('p', { lang: 'en', class: 'contest-sentence' }, [q.before, done ? el('strong', { class: 'filled', text: q.form }) : el('span', { class: 'blank', text: '   ' }), q.after]),
+    done && moreOf(q.word.key)?.zh ? el('small', { lang: 'zh-Hant', class: 'muted', text: moreOf(q.word.key).zh }) : null
+  ]);
 const soundHead = (word, line) => el('div', { class: 'card-word' }, [speakButton(word, true), line]);
 
 function questionView(r) {
@@ -167,13 +166,13 @@ function questionView(r) {
   const ask = el('p', { class: 'ask', text: t(`ask_${question.type}`) });
   let answers = null;
   if (question.choices) {
-    put(card, ask, question.type === 'meaning' ? wordHead(word) : question.type === 'word' ? meaningHead(word) : soundHead(word, el('small', { class: 'muted', text: t('tapToHear') })));
+    put(card, ask, question.type === 'meaning' ? wordHead(word) : question.type === 'word' ? meaningHead(word) : question.type === 'sentence' ? sentenceHead(question, done) : soundHead(word, el('small', { class: 'muted', text: t('tapToHear') })));
     answers = el(
       'div',
       { class: `choices${question.type === 'meaning' ? ' long' : ''}` },
       question.choices.map((c, i) => {
         const cls = done ? (c.key === question.answer ? ' right' : last.typed === c.key ? ' wrong' : ' dim') : '';
-        return el('button', { class: `choice${cls}`, type: 'button', disabled: done, onclick: () => answer(c.key === question.answer, c.key) }, [el('span', { class: 'choice-n num', text: String(i + 1) }), el('span', { lang: question.type === 'meaning' ? 'zh-Hant' : 'en', class: `choice-text${question.type === 'meaning' ? '' : ' q-fit'}`, text: c.text })]);
+        return el('button', { class: `choice${cls}`, type: 'button', disabled: done, onclick: () => answer(c.key === question.answer, c.key) }, [el('span', { class: 'choice-n num', text: String(i + 1) }), el('span', { lang: question.type === 'meaning' ? 'zh-Hant' : 'en', class: 'choice-text', text: c.text })]);
       })
     );
   } else if (question.type === 'letters') {
@@ -217,7 +216,7 @@ function questionView(r) {
   if (!done) {
     // A new word's check: 不認識 rather than a guess (a lucky pick put an unknown word away for weeks).
     const unknown = r.check && question.choices ? el('button', { class: 'q-btn small plain', type: 'button', text: t('dontKnow'), onclick: () => answer(false, UNKNOWN) }) : null;
-    return el('div', { class: 'question' }, [card, answers, el('div', { class: 'aside' }, [unknown, el('button', { class: 'q-btn small plain muted-btn', type: 'button', text: t('tooEasy'), onclick: tooEasy })])]);
+    return el('div', { class: 'question' }, [card, answers, unknown ? el('div', { class: 'aside' }, [unknown]) : null]);
   }
   return el('div', { class: `question answered${just ? ' just' : ''}` }, [card, answers, feedback(last)]);
 }
@@ -244,13 +243,13 @@ function feedback(res) {
 
 // The round's end: the score as the hero, then each word (a tap: its sheet).
 function roundSummary(r) {
-  const asked = r.results.filter(x => x.type !== 'known');
+  const asked = r.results;
   const right = asked.filter(x => x.correct).length;
   const mastered = r.results.filter(x => x.mastered).length;
   const top = hero('target', t('roundDone'), null, [
     big(String(right), ` / ${asked.length}`),
     el('div', { class: 'hero-tags' }, [el('span', { class: 'hero-tag', text: xpText(r.earned, { sign: true }) }), mastered ? iconText('hero-tag', 'check', t('masteredN', { n: mastered })) : null]),
-    el('div', { class: 'q-hc-row' }, [heroBtn(t('again'), () => startRound(), { icon: 'play' }), heroBtn(t('done'), end, { ghost: true })])
+    el('div', { class: 'q-hc-row' }, [heroBtn(t('again'), () => startRound({ mode: r.mode }), { icon: 'play' }), heroBtn(t('done'), end, { ghost: true })])
   ]);
   const rows = r.results.map(x =>
     el('button', { class: 'q-ritem chevron', type: 'button', onclick: () => openWord(x.word) }, [
@@ -316,22 +315,6 @@ function studyGot() {
   }
   studyStep(1);
 }
-// 太簡單: known already, out of the way; not in the batch.
-function studyKnown() {
-  const s = state.session;
-  const word = s.list[s.i];
-  state.progress = { ...state.progress, [word.key]: markKnown(state.progress[word.key]) };
-  state.study = state.study.filter(k => k !== word.key);
-  s.list = s.list.filter(w => w.key !== word.key);
-  hooks.changed();
-  if (!s.list.length) {
-    state.session = null;
-    return hooks.render();
-  }
-  s.i = Math.min(s.i, s.list.length - 1);
-  hooks.render();
-  speak(s.list[s.i]);
-}
 // A card to learn from: the level and ★ on top, the word and its sound, the rest under.
 const bigCard = (word, kids, props = {}) =>
   el('div', { class: 'q-card word-card', ...props }, [el('div', { class: 'card-top' }, [el('small', { class: 'muted', text: levelName(word.level) }), starButton(word, hooks.render)]), el('div', { class: 'card-word' }, [el('div', { class: 'word-line' }, [wordEl(word, 'big')]), el('small', { class: 'muted', text: [word.ph ? `/${word.ph}/` : '', word.pos].filter(Boolean).join(' · ') }), speakButton(word, true)]), ...kids]);
@@ -345,7 +328,7 @@ function renderStudy(box, s) {
   const inBatch = Math.min(state.study.length, state.size);
   const card = bigCard(word, [el('p', { lang: 'zh-Hant', class: 'meaning full', text: word.zh }), tipBox(word)]);
   const nav = el('div', { class: 'card-nav' }, [navBtn('left', t('studyPrev'), () => studyStep(-1), { disabled: s.i === 0 }), navBtn('check', t('studyGot'), studyGot, { primary: true })]);
-  put(box, head(() => ((state.session = null), hooks.render()), inBatch, state.size, `${inBatch} / ${state.size}`), card, nav, el('div', { class: 'aside' }, [el('button', { class: 'q-btn small plain muted-btn', type: 'button', text: t('tooEasy'), onclick: studyKnown })]));
+  put(box, head(() => ((state.session = null), hooks.render()), inBatch, state.size, `${inBatch} / ${state.size}`), card, nav);
 }
 
 // ---- Flash cards --------------------------------------------------------------------------

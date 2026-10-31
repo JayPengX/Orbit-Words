@@ -105,9 +105,18 @@ h1, h2, h3, p { margin: 0; }
 /* ---- 今天 ---- */
 .wotd { display: grid; gap: var(--q-s-2); padding: var(--q-s-4); cursor: pointer; }
 .wotd .meaning { margin-top: 2px; }
-/* 單字比賽: the card that starts the paper, and the paper itself (views/contest.js). */
+/* 練習模式: every way to practise, two to a row (views/today.js). */
+.mode-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.mode-card { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 10px; row-gap: 6px; min-width: 0; padding: 12px; border: 0; border-radius: var(--q-r-cell); background: var(--q-surface); color: var(--q-label); font: inherit; text-align: left; }
+.mode-name { font: 500 16px/21px var(--q-font); white-space: nowrap; }
+.mode-hint { grid-column: 1 / -1; }
+.mode-hint { color: var(--q-label-2); font: var(--q-t-footnote); white-space: nowrap; }
+.mode-card[aria-pressed='true'] { box-shadow: inset 0 0 0 2px var(--accent); }
+.mode-card:disabled { opacity: 0.5; }
+/* 拼字比賽: the card that starts the paper, and the paper itself (views/contest.js). */
 .contest-card { display: grid; gap: var(--q-s-3); padding: var(--q-s-4); }
 .contest-card .q-seg { margin: 0; }
+.contest-intro { font: var(--q-t-subhead); }
 .contest-top { display: grid; gap: 2px; }
 .contest-top strong { font: 600 17px/22px var(--q-font); }
 .contest-best { color: var(--q-label-2); font: var(--q-t-subhead); }
@@ -119,6 +128,8 @@ h1, h2, h3, p { margin: 0; }
 .contest-time > i { display: block; height: 100%; border-radius: inherit; background: var(--accent); transition: width 0.25s linear; }
 .contest-sentence { font: 500 19px/1.55 var(--q-font); text-align: left; justify-self: stretch; }
 .contest-sentence .blank { display: inline-block; min-width: 4em; border-bottom: 2px solid var(--accent); }
+.contest-sentence .filled { color: var(--accent); }
+.card-word.sentence { justify-items: stretch; gap: 8px; }
 .bank { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
 .bank .choice { justify-content: center; min-height: 48px; padding: 8px; text-align: center; font-size: 16px; overflow-wrap: anywhere; }
 .bank .choice.dim { opacity: 0.45; }
@@ -209,7 +220,8 @@ h1, h2, h3, p { margin: 0; }
 .choice:active:not(:disabled) { transform: scale(0.97); }
 .choice:disabled { cursor: default; }
 .choice-n { flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 8px; background: var(--q-fill-3); color: var(--q-label-2); font: 500 14px/1 var(--q-font-rounded); }
-.choice-text { min-width: 0; }
+/* Every option one size, whatever its length (a shrunk one gave itself away): a long one wraps. */
+.choice-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 @media (hover: hover) { .choice:not(:disabled):hover { border-color: color-mix(in srgb, var(--accent) 40%, transparent); } }
 .choice.right { border-color: var(--win); background: color-mix(in srgb, var(--win) 12%, var(--q-surface)); }
 .choice.right .choice-n { background: var(--win); color: #fff; }
@@ -290,15 +302,10 @@ h1, h2, h3, p { margin: 0; }
 .sheet-word .meaning { margin-top: 10px; font-size: 17px; }
 .sheet-word .word-line > .word { font-size: min(36px, calc((var(--q-vw, 100vw) - 110px) / (var(--len, 8) * 0.6))); }
 .sheet-block .q-sheet-h { margin: 22px 4px 8px; }
-.link-chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.link-chip { display: grid; max-width: 100%; padding: 8px 14px; border: 0; border-radius: var(--q-r-cell); background: var(--q-surface); text-align: left; }
-.link-chip small { overflow: hidden; color: var(--q-label-2); font-size: 12px; white-space: nowrap; text-overflow: ellipsis; }
 .word-sheet .spelt { justify-items: start; padding: var(--q-s-3) var(--q-s-4); border-radius: var(--q-r-cell); }
-.sheet-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; padding: var(--q-s-3) var(--q-s-2); border-radius: var(--q-r-cell); background: var(--q-surface); text-align: center; }
-.sheet-stats > div { display: grid; gap: 2px; min-width: 0; }
-.sheet-stats strong { font: 600 20px/24px var(--q-font-rounded); white-space: nowrap; }
-.sheet-stats small { color: var(--q-label-2); font-size: 12px; white-space: nowrap; }
-.lapses { margin-top: 10px; }
+.record-card .recall-bar { width: 100%; margin-top: 8px; }
+.record-card .q-ritem:has(.recall-bar) { align-items: start; }
+.record-note { margin: 8px 16px 0; font: var(--q-t-footnote); }
 .word-sheet > .q-btn.block { margin-top: 20px; }
 .word-sheet .none { padding: 4px; text-align: left; }
 

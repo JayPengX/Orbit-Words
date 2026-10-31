@@ -1,13 +1,14 @@
 // 今天, the home: the day's goal and the round (the hero; its pill opens the
-// round's choices), then what else there is to do (new words as cards, the
-// 單字比賽 practice paper, the weak words, the missed words as flash cards),
-// and the word of the day.
+// round's choices), the ways to practise (練習模式: a tap starts a round that
+// way, and the hero's round goes on that way), then what else there is to do
+// (new words as cards, the 拼字比賽 paper, the weak words, the missed words as
+// flash cards), and the word of the day.
 import * as kitUI from '#kit/ui.mjs';
 import { el, put } from '../ui.js';
-import { hero, heroPill, heroBtn, big, bar, iconText, section, tag } from './chrome.js';
-import { state, t, hooks, hintOf, metaLine, wordEl, locale } from '../shell.js';
+import { hero, heroPill, heroBtn, big, bar, iconText, section, tag, tile } from './chrome.js';
+import { state, t, hooks, hintOf, metaLine, wordEl, locale, settingsChanged } from '../shell.js';
 import { speakButton } from '../audio.js';
-import { LEVELS, stats, toStudy, stateOf, shortMeaning, wordOfDay, hardest } from '../lib/words.mjs';
+import { LEVELS, MODES, stats, toStudy, stateOf, shortMeaning, wordOfDay, hardest } from '../lib/words.mjs';
 import { DAILY_GOAL, todayCount, goalStatus, streakOf, bestStreak, lastDays } from '../lib/practice.mjs';
 import { catCounts, flashDeck, recentMisses } from '../lib/review.mjs';
 import { startRound, startStudy, startFlash } from './session.js';
@@ -17,7 +18,7 @@ import { openPrefs, levelsText } from './prefs.js';
 import { hardRow, openHardest } from './progress.js';
 
 export function renderToday(box) {
-  put(box, goalHero(), continueShelf(), contestCard(), streakPanel(), weakShelf(), deckShelf(), recentShelf(), wordOfDayCard());
+  put(box, goalHero(), modePicker(), continueShelf(), contestCard(), streakPanel(), weakShelf(), deckShelf(), recentShelf(), wordOfDayCard());
 }
 
 // The goal: today's answers of 20, the streak they keep, and the round.
@@ -31,8 +32,37 @@ function goalHero() {
   return hero('target', t('goalTitle'), heroPill('sliders', chosen.length ? levelsText(chosen) : t('pickLevel'), openPrefs, t('prefsTitle')), [
     el('div', { class: 'hero-main' }, [big(String(Math.min(today, DAILY_GOAL)), ` / ${DAILY_GOAL}`), ring(today, DAILY_GOAL)]),
     iconText('hero-note', 'flame', `${t('daysN', { n: streak })} · ${!left ? t('goalDone') : keeps ? t('goalKeep', { n: left }) : t('goalLeft', { n: left })}`),
-    el('div', { class: 'q-hc-row' }, [heroBtn(due ? t('startDue', { n: Math.min(due, state.size) }) : t('startRound', { n: state.size }), () => startRound(), { disabled: !chosen.length, icon: 'play' })])
+    el('div', { class: 'q-hc-row' }, [heroBtn([due ? t('startDue', { n: Math.min(due, state.size) }) : t('startRound', { n: state.size }), state.mode !== 'smart' ? t(`mode_${state.mode}`) : ''].filter(Boolean).join(' · '), () => startRound(), { disabled: !chosen.length, icon: 'play' })])
   ]);
+}
+
+// 練習模式: every way to practise, two to a row; a tap starts a round that
+// way at once and keeps it for the hero's round (the one in use is marked).
+const MODE_LOOK = {
+  smart: ['spark', 'var(--q-accent)'],
+  meaning: ['book', 'var(--q-indigo)'],
+  word: ['swap', 'var(--q-blue)'],
+  listen: ['sound', 'var(--q-teal)'],
+  spell: ['pencil', 'var(--q-orange)'],
+  sentence: ['list', 'var(--q-green)'],
+  letters: ['grid', 'var(--q-purple)'],
+  cloze: ['key', 'var(--q-pink)']
+};
+function modePicker() {
+  const ready = state.levels.length > 0;
+  const cards = MODES.map(m => {
+    const on = state.mode === m;
+    return el('button', { class: 'mode-card q-press', type: 'button', 'aria-pressed': String(on), disabled: !ready || null, onclick: () => pickMode(m) }, [
+      tile(MODE_LOOK[m][0], MODE_LOOK[m][1], 'sm'),
+      el('span', { class: 'mode-name', text: t(`mode_${m}`) }),
+      el('small', { class: 'mode-hint', text: t(`modeHint_${m}`) })
+    ]);
+  });
+  return section(t('modes'), el('div', { class: 'mode-grid' }, cards));
+}
+function pickMode(m) {
+  if (state.mode !== m) (state.mode = m), settingsChanged();
+  startRound({ mode: m });
 }
 
 // The same word for everyone today; a tap opens its sheet.

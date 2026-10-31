@@ -1,36 +1,42 @@
-// 單字比賽: a practice paper in the regional final's shape (lib/contest.mjs):
-// 聽英拼寫 50, then 詞彙題 50 (單題, then 題組 sets sharing a bank), on the
-// final's 40 minutes, no answer shown until it's handed in; then the points,
-// each part and every miss, side by side with the right word. Each answer is
-// graded into the word's memory as any other (a test is practice too). Its
-// card on 今天 starts it and shows the last and best points.
+// 拼字比賽: a timed practice paper (lib/contest.mjs): 聽英拼寫, then
+// 詞彙題 (單題, then 題組 sets sharing a bank), on a clock, no answer shown
+// until it's handed in; then the points, each part and every miss, side by
+// side with the right word. Each answer is graded into the word's memory as
+// any other (a test is practice too). One of 今天's modes: its card picks the
+// paper's size (短卷, 標準, 長卷), shows the last and best of that size, and
+// starts it.
 import * as kitUI from '#kit/ui.mjs';
-import { el, put, diffLine, pagedList } from '../ui.js';
-import { state, t, hooks } from '../shell.js';
+import { el, put, diffLine, pagedList, segmented } from '../ui.js';
+import { state, t, hooks, settingsChanged } from '../shell.js';
 import { hero, heroBtn, big, section, tile, iconText } from './chrome.js';
 import { speak, speakButton, prefetch } from '../audio.js';
 import { grade, recordReview, personalFactor, shortMeaning, spellDiff } from '../lib/words.mjs';
 import { logAnswer, logResult } from '../lib/practice.mjs';
-import { PARTS, SPELL_SECONDS, VOCAB_MINUTES, makePaper, markSpelling, scorePaper, contestRow, mergeContests, contestStats } from '../lib/contest.mjs';
+import { PART_IDS, PAPER_IDS, paperOf, totalOf, minutesOf, vocabSecondsOf, SPELL_SECONDS, makePaper, markSpelling, scorePaper, contestRow, mergeContests, contestStats } from '../lib/contest.mjs';
 import { head, startRound } from './session.js';
 import { openWord } from './sheet.js';
 
 const buzz = () => globalThis.orbitHaptic?.();
 const mmss = s => `${Math.floor(s / 60)}:${String(Math.max(0, s) % 60).padStart(2, '0')}`;
-const MINUTES = Math.round((PARTS[0].n * SPELL_SECONDS) / 60 + VOCAB_MINUTES);
 
 // ---- Its card on 今天 ---------------------------------------------------------------------
 
+// The paper's size, kept with the settings (opt.paper).
+const paperId = () => (PAPER_IDS.includes(state.opt.paper) ? state.opt.paper : 'full');
 export function contestCard() {
-  const st = contestStats(state.ct);
+  const id = paperId();
+  const shape = paperOf(id);
+  const st = contestStats(state.ct, totalOf(shape));
+  const sizes = segmented(PAPER_IDS.map(p => ({ id: p, label: t(`paper_${p}`) })), id, p => ((state.opt = { ...state.opt, paper: p }), settingsChanged(), hooks.render()), 'paper-seg');
   return section(
     t('contestTitle'),
     el('div', { class: 'q-card contest-card' }, [
+      el('p', { class: 'contest-intro muted', text: t('contestIntro') }),
+      sizes,
       el('div', { class: 'contest-top' }, [
-        el('strong', { text: t('contestName') }),
-        el('small', { class: 'muted', text: t('contestShape', { s: PARTS[0].n, v: PARTS[1].n + PARTS[2].n, m: MINUTES }) })
+        el('strong', { class: 'num', text: t('contestShape', { s: shape.spell, v: shape.single + shape.group }) }),
+        el('small', { class: 'muted num', text: [t('minutesN', { n: minutesOf(shape) }), t('pointsOf', { n: totalOf(shape) * 2 }), st ? t('contestScores', { last: st.last, best: st.best }) : ''].filter(Boolean).join(' · ') })
       ]),
-      st ? el('small', { class: 'contest-best', text: t('contestScores', { last: st.last, best: st.best }) }) : null,
       // (詞彙題's sentences are the examples, data/more.json, loaded just after the first screen.)
       el('button', { class: 'q-btn primary large block', type: 'button', disabled: !state.more.size, onclick: startContest }, [t('contestStart')])
     ])
@@ -40,9 +46,10 @@ export function contestCard() {
 // ---- Running it ---------------------------------------------------------------------------
 
 export function startContest() {
-  const paper = makePaper(state.words, state.progress, { more: state.more });
+  const shape = paperOf(paperId());
+  const paper = makePaper(state.words, state.progress, { shape, more: state.more });
   const items = [...paper.spell.map(word => ({ part: 'spell', word })), ...paper.single.map(q => ({ part: 'single', word: q.word, q })), ...paper.group.map(q => ({ part: 'group', word: q.word, q }))];
-  state.session = { kind: 'contest', home: state.tab, items, i: 0, answers: [], startedAt: Date.now(), typed: '', ui: null };
+  state.session = { kind: 'contest', home: state.tab, shape, items, i: 0, answers: [], startedAt: Date.now(), typed: '', ui: null };
   showItem();
   tick();
 }
@@ -71,7 +78,7 @@ function secondsLeft(s) {
   const now = Date.now();
   if (s.items[s.i]?.part === 'spell') return Math.ceil((s.shownAt + SPELL_SECONDS * 1000 - now) / 1000);
   s.vocabFrom ??= now;
-  return Math.ceil((s.vocabFrom + VOCAB_MINUTES * 60_000 - now) / 1000);
+  return Math.ceil((s.vocabFrom + vocabSecondsOf(s.shape) * 1000 - now) / 1000);
 }
 
 // A question shown: a heard word is said, and said again a moment later.
@@ -132,7 +139,7 @@ async function handIn(finished = false) {
   }
   stop();
   for (const item of s.items.slice(s.answers.length)) s.answers.push({ part: item.part, word: item.word, correct: false, typed: '', blank: true, mark: item.part === 'spell' ? 'blank' : '' });
-  s.score = scorePaper(s.answers);
+  s.score = scorePaper(s.answers, s.shape);
   s.seconds = (Date.now() - s.startedAt) / 1000;
   s.done = true;
   state.ct = mergeContests([contestRow({ at: s.startedAt, score: s.score, seconds: s.seconds })], state.ct);
@@ -184,7 +191,7 @@ function whereText(s) {
   const item = s.items[s.i];
   const heard = item.part === 'spell';
   const n = s.items.slice(0, s.i).filter(x => (x.part === 'spell') === heard).length + 1;
-  const of = `${n} / ${heard ? PARTS[0].n : PARTS[1].n + PARTS[2].n}`;
+  const of = `${n} / ${heard ? s.shape.spell : s.shape.single + s.shape.group}`;
   return item.part === 'group' ? `${t('setN', { n: item.q.set + 1 })} · ${of}` : of;
 }
 
@@ -200,7 +207,7 @@ function choiceView(s, item) {
     options = el(
       'div',
       { class: 'choices' },
-      q.choices.map((c, i) => el('button', { class: 'choice', type: 'button', onclick: () => record(item, c.key === item.word.key, { chose: c.key }) }, [el('span', { class: 'choice-n num', text: 'ABCD'[i] }), el('span', { lang: 'en', class: 'choice-text q-fit', text: c.text })]))
+      q.choices.map((c, i) => el('button', { class: 'choice', type: 'button', onclick: () => record(item, c.key === item.word.key, { chose: c.key }) }, [el('span', { class: 'choice-n num', text: 'ABCD'[i] }), el('span', { lang: 'en', class: 'choice-text', text: c.text })]))
     );
   }
   return el('div', { class: 'question' }, [card, options]);
@@ -218,7 +225,7 @@ function results(s) {
   const parts = el(
     'div',
     { class: 'q-rowcard' },
-    PARTS.map(p => el('div', { class: 'q-ritem' }, [el('span', { class: 'q-ritem-text' }, [el('span', { class: 'q-ritem-title', text: t(`part_${p.id}`) })]), el('span', { class: 'q-ritem-value num', text: `${sc[p.id].right} / ${p.n}` })]))
+    PART_IDS.filter(id => sc[id].n).map(id => el('div', { class: 'q-ritem' }, [el('span', { class: 'q-ritem-text' }, [el('span', { class: 'q-ritem-title', text: t(`part_${id}`) })]), el('span', { class: 'q-ritem-value num', text: `${sc[id].right} / ${sc[id].n}` })]))
   );
   // (Drawn a page at a time: a first try can miss most of 100.)
   const rows = missed.map(a => () => {

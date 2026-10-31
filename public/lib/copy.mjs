@@ -56,7 +56,7 @@ export function mergeCopy(state, theirs) {
   if ((theirs.st || 0) >= (state.st || 0)) {
     if (theirs.levels) out.levels = theirs.levels;
     if (theirs.mode) out.mode = theirs.mode;
-    if (theirs.opt?.rate) out.opt = { ...state.opt, rate: theirs.opt.rate };
+    if (theirs.opt?.rate || theirs.opt?.paper) out.opt = { ...state.opt, ...(theirs.opt.rate ? { rate: theirs.opt.rate } : {}), ...(theirs.opt.paper ? { paper: theirs.opt.paper } : {}) };
     // (A newer copy without a size means the usual 10.)
     if ([10, 20, 30].includes(theirs.opt?.size)) out.size = theirs.opt.size;
     else if ((theirs.st || 0) > (state.st || 0)) out.size = 10;

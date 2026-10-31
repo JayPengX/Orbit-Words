@@ -1,16 +1,17 @@
-// 單字比賽: a practice paper in the shape of the national contest's regional
-// final (國教署 全國高級中等學校學生英文單字比賽 區域決賽, 115 學年度 plan),
-// weighted by this person's own record. Pure functions (no DOM), so they're
-// tested directly.
+// 拼字比賽: a timed practice paper, as the national high-school vocabulary
+// contest (國教署 全國高級中等學校學生英文單字比賽) sets its paper, weighted
+// by this person's own record. One of the app's modes, not what the app is
+// built around. Pure functions (no DOM), so they're tested directly.
 //
-// The final, as its plan sets it: levels 1–6 of the 大考中心 list (7,000
-// words); 聽英拼寫 50 (hear the word, write it; in lower case, a capital
-// where none belongs scoring nothing) and 詞彙題 50 (one blank a question,
-// the best word from the options: 單題 like the 學測's vocabulary questions,
-// then 題組 like Cool English's collocation sets, a bank of words for a few
+// The contest's paper (115 學年度 plan, 區域決賽): levels 1–6 of the 大考中心
+// list; 聽英拼寫 50 (hear the word, write it; in lower case, a capital where
+// none belongs scoring nothing) and 詞彙題 50 (one blank a question, the best
+// word from the options: 單題 like the 學測's vocabulary questions, then 題組
+// like Cool English's collocation sets, a bank of words for a few
 // sentences); 2 points each, 200 in all; 40 minutes for both. How the 50
 // splits between 單題 and 題組 isn't published: 30 and 20 here (four sets of
-// five, each bank one word over).
+// five, each bank one word over). Besides that 標準 paper: a 短卷 for a
+// quick go and a 長卷 with 100 choice questions.
 //
 // The words: a share of each part (WEAK) from this person's weak words
 // (missed, misspelt, slipping, overdue), the rest drawn by level, the top
@@ -18,19 +19,25 @@
 // twice in a paper.
 import { MASTERED, dayNum, distractors } from './words.mjs';
 
-export const PARTS = [
-  { id: 'spell', n: 50 },
-  { id: 'single', n: 30 },
-  { id: 'group', n: 20 }
-];
-export const TOTAL = PARTS.reduce((s, p) => s + p.n, 0);
+// The papers: how many of each part ({ spell, single, group }; 題組 in sets of SET_SIZE).
+export const PART_IDS = ['spell', 'single', 'group'];
+export const PAPERS = {
+  short: { spell: 20, single: 10, group: 10 },
+  full: { spell: 50, single: 30, group: 20 },
+  long: { spell: 50, single: 60, group: 40 }
+};
+export const PAPER_IDS = Object.keys(PAPERS);
+export const paperOf = id => PAPERS[id] || PAPERS.full;
+export const totalOf = shape => shape.spell + shape.single + shape.group;
 export const POINTS_EACH = 2;
 export const SET_SIZE = 5;
-// The pace, 40 minutes as the final: each heard word said twice and
-// SPELL_SECONDS to write it (as the recording runs on), then one clock for
-// the 50 vocabulary questions.
+// The pace, 40 minutes for the 標準 paper as the contest's: each heard word
+// said twice and SPELL_SECONDS to write it (as the recording runs on), then
+// one clock for the choice questions, VOCAB_SECONDS each.
 export const SPELL_SECONDS = 20;
-export const VOCAB_MINUTES = 40 - Math.round((PARTS[0].n * SPELL_SECONDS) / 60);
+export const VOCAB_SECONDS = (40 * 60 - PAPERS.full.spell * SPELL_SECONDS) / (PAPERS.full.single + PAPERS.full.group);
+export const vocabSecondsOf = shape => Math.round((shape.single + shape.group) * VOCAB_SECONDS);
+export const minutesOf = shape => Math.round((shape.spell * SPELL_SECONDS + vocabSecondsOf(shape)) / 60);
 // How a paper spreads its words over the levels: the harder half heaviest.
 export const LEVEL_SHARE = { 1: 0.03, 2: 0.07, 3: 0.15, 4: 0.25, 5: 0.25, 6: 0.25 };
 // The share of each part taken from the weak words, when there are that many.
@@ -92,7 +99,7 @@ function shuffle(list, random) {
 // [{ key, text }] }], group: [{ word, before, form, after, set, bank }] },
 // each in a random order (a set's sentences together). `more`: key → { forms,
 // en } (the examples, the sentences of 詞彙題).
-export function makePaper(words, progress, { more = new Map(), now = Date.now(), random = Math.random } = {}) {
+export function makePaper(words, progress, { shape = PAPERS.full, more = new Map(), now = Date.now(), random = Math.random } = {}) {
   const today = dayNum(now);
   const pool = words.filter(w => LEVEL_SHARE[w.level] && plain(w));
   const perLevel = {};
@@ -121,9 +128,9 @@ export function makePaper(words, progress, { more = new Map(), now = Date.now(),
     const a = e || blankOf(w, m);
     if (a) any.set(w.key, a);
   }
-  const single = draw(pool.filter(w => exact.has(w.key)), PARTS[1].n, false).map(w => ({ word: w, ...exact.get(w.key), choices: singleChoices(w, words, random) }));
-  const sets = PARTS[2].n / SET_SIZE;
-  const asked = draw(pool.filter(w => any.has(w.key)), PARTS[2].n, false);
+  const single = draw(pool.filter(w => exact.has(w.key)), shape.single, false).map(w => ({ word: w, ...exact.get(w.key), choices: singleChoices(w, words, random) }));
+  const sets = Math.floor(shape.group / SET_SIZE);
+  const asked = draw(pool.filter(w => any.has(w.key)), sets * SET_SIZE, false);
   // Each set's bank: its five words as the sentences have them, and one more.
   const spare = draw(pool.filter(w => any.has(w.key)), sets, false);
   const group = [];
@@ -132,7 +139,13 @@ export function makePaper(words, progress, { more = new Map(), now = Date.now(),
     const bank = [...mine, spare[s]].filter(Boolean).map(w => ({ key: w.key, text: any.get(w.key).form })).sort((a, b) => a.text.localeCompare(b.text));
     for (const w of mine) group.push({ word: w, ...any.get(w.key), set: s, bank });
   }
-  return { spell: draw(pool, PARTS[0].n, true), single, group };
+  return { spell: draw(pool, shape.spell, true), single, group };
+}
+// A word's own example as a question (the 詞彙題 mode): { before, form,
+// after, choices }, or null when its example can't carry it.
+export function sentenceQuestion(word, more, words, random = Math.random) {
+  const blank = blankOf(word, more, { exact: true });
+  return blank ? { ...blank, choices: singleChoices(word, words, random) } : null;
 }
 // A 單題's four options: the word and three of the same part of speech
 // (distractors' 'context': a sentence asks for the right word of its kind,
@@ -153,18 +166,20 @@ export function markSpelling(typed, word) {
 
 // The score per part and in all, from the answers ([{ part, correct }]):
 // { spell: { right, n }, single, group, vocab: { right, n }, points, max }.
-export function scorePaper(answers) {
+export function scorePaper(answers, shape = PAPERS.full) {
   const out = {};
-  for (const { id, n } of PARTS) out[id] = { right: answers.filter(a => a.part === id && a.correct).length, n };
-  out.vocab = { right: out.single.right + out.group.right, n: TOTAL - PARTS[0].n };
+  for (const id of PART_IDS) out[id] = { right: answers.filter(a => a.part === id && a.correct).length, n: shape[id] };
+  out.vocab = { right: out.single.right + out.group.right, n: shape.single + shape.group };
   out.points = (out.spell.right + out.vocab.right) * POINTS_EACH;
-  out.max = TOTAL * POINTS_EACH;
+  out.max = totalOf(shape) * POINTS_EACH;
   return out;
 }
 
-// A contest kept: [when (s), heard words right, vocabulary right, seconds taken].
-export const contestRow = ({ at, score, seconds }) => [Math.round(at / 1000), score.spell.right, score.vocab.right, Math.round(seconds)];
-const goodRow = r => Array.isArray(r) && r.length === 4 && r.every(Number.isFinite);
+// A contest kept: [when (s), heard words right, vocabulary right, seconds
+// taken, questions]. (Rows of four, from before the papers had sizes, are 100.)
+export const contestRow = ({ at, score, seconds }) => [Math.round(at / 1000), score.spell.right, score.vocab.right, Math.round(seconds), score.spell.n + score.vocab.n];
+const goodRow = r => Array.isArray(r) && (r.length === 4 || r.length === 5) && r.every(Number.isFinite);
+const sizeOf = r => r[4] ?? 100;
 // Two devices' contests as one: each once, the latest first.
 export function mergeContests(a = [], b = []) {
   const byAt = new Map();
@@ -172,9 +187,10 @@ export function mergeContests(a = [], b = []) {
   return [...byAt.values()].sort((x, y) => y[0] - x[0]).slice(0, CONTEST_KEEP);
 }
 export const readContests = list => (Array.isArray(list) ? mergeContests(list) : []);
-// The last contest's points and the best (null when none).
-export function contestStats(list) {
-  if (!list?.length) return null;
+// The last paper's points and the best, of papers this size (null when none).
+export function contestStats(list, total = totalOf(PAPERS.full)) {
+  const mine = (list || []).filter(r => sizeOf(r) === total);
+  if (!mine.length) return null;
   const points = r => (r[1] + r[2]) * POINTS_EACH;
-  return { last: points(list[0]), best: Math.max(...list.map(points)), n: list.length };
+  return { last: points(mine[0]), best: Math.max(...mine.map(points)), n: mine.length, max: total * POINTS_EACH };
 }

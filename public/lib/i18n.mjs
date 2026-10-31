@@ -6,13 +6,12 @@ export const STRINGS = {
     tab_today: '今天', tab_progress: '進度', close: '關閉', pickLevel: '先選要練習的級別', roundSize: '一回幾個字', wordsN: '{n} 個字', startRound: '開始 {n} 個字',
     studyTitle: '背新字', studyReady: '背好了', studyQuiz: '測驗這 {n} 個字', studyNone: '沒有新字了', studyGot: '記住了', studyPrev: '上一個', studySaved: '背到這裡，下次接著背',
     nothingLeft: '這些級別現在沒有要練的字', levels: '級別', level: '第 {n} 級', levelHint1: '最基本', levelHint2: '基礎', levelHint3: '國中到高一', levelHint4: '高中',
-    levelHint5: '學測', levelHint6: '進階', modes: '學習方式', mode_smart: '智慧', mode_meaning: '選意思', mode_word: '選英文', mode_listen: '聽音選字', mode_letters: '拼字母',
-    mode_cloze: '填空', mode_spell: '聽寫', modeHint_smart: '各種題型輪流出', modeHint_meaning: '看英文選中文', modeHint_word: '看中文選英文', modeHint_listen: '只聽發音',
+    levelHint5: '學測', levelHint6: '進階', modes: '練習模式', mode_smart: '智慧練習', mode_meaning: '選中文', mode_word: '選英文', mode_listen: '聽音選字', mode_letters: '拼字母',
+    mode_cloze: '補字母', mode_spell: '聽寫', modeHint_smart: '照記憶換題型', modeHint_meaning: '看英文選中文', modeHint_word: '看中文選英文', modeHint_listen: '只聽發音選',
     modeHint_letters: '把字母排好', modeHint_cloze: '補上缺的字母', modeHint_spell: '聽了拼出來', stMastered: '精熟', stLearning: '學習中', stLeft: '還沒學', daysN: '{n} 天', goalDone: '今天達標了',
     goalLeft: '再 {n} 題達標', goalKeep: '再 {n} 題保住連續', bestStreak: '最長連續 {n} 天', hardTitle: '最常忘的字', mixedWith: '搞混成 {words}', lapsesN: '忘了 {n} 次', wotd: '今日單字',
     listen: '聽發音', tapToHear: '點一下再聽一次', state_new: '新字', state_learning: '學習中', state_mastered: '精熟', ask_meaning: '這個字是什麼意思？', ask_word: '哪個英文是這個意思？',
-    ask_listen: '聽到的是哪個字？', ask_letters: '把字母排成這個字', ask_cloze: '補上缺的字母，寫出整個字', ask_spell: '聽發音，拼出這個字', letters: '{n} 個字母', undo: '退一格', check: '確認', dontKnow: '不認識這個字',
-    tooEasy: '太簡單，我會了', endRound: '結束這一輪', fbRight: '答對了', fbWrong: '答錯了', fbMastered: '精熟了！', youPicked: '你選的是', youWrote: '你寫的是', next: '下一題', seeResult: '看結果', again: '再來一輪',
+    ask_listen: '聽到的是哪個字？', ask_letters: '把字母排成這個字', ask_cloze: '補上缺的字母，寫出整個字', ask_spell: '聽發音，拼出這個字', letters: '{n} 個字母', undo: '退一格', check: '確認', dontKnow: '不認識這個字', endRound: '結束這一輪', fbRight: '答對了', fbWrong: '答錯了', fbMastered: '精熟了！', youPicked: '你選的是', youWrote: '你寫的是', next: '下一題', seeResult: '看結果', again: '再來一輪',
     noticeStreak: '連續 {n} 天的紀錄今晚到期', noticeStreakSoon: '今天還沒練單字', noticeStreakBody: '再答 {goal} 題就保住', tab_review: '複習', tab_list: '單字', done: '完成',
     startDue: '開始：先複習 {n} 個', mark: '加入收藏', unmark: '取消收藏', cat_wrong: '答錯', cat_due: '該複習', cat_learning: '學習中', cat_marked: '收藏', catEmpty_wrong: '沒有答錯的字，繼續保持！',
     catEmpty_due: '今天沒有該複習的字。', catEmpty_learning: '還沒有學習中的字，先開始一輪吧。', catEmpty_marked: '還沒有收藏的字。看到想記的字，按 ☆ 收藏。', deckSize: '張數', flashStart: '開始翻卡片', testThese: '直接測驗',
@@ -20,8 +19,7 @@ export const STRINGS = {
     sort_weak: '最弱的先', sort_recent: '最近的先', sort_missed: '最常錯', sort_az: 'A–Z', searchReview: '搜尋英文或中文', searchWords: '搜尋 {n} 字', noMatch: '沒有符合的字', showMore: '顯示更多',
     wordsCount: '{n} 個字', allLevels: '全部', filter_all: '全部', filter_new: '新字', filter_learning: '學習中', filter_mastered: '精熟', filter_marked: '收藏', dueToday: '今天該複習',
     dueTomorrow: '明天複習', dueInN: '{n} 天後複習', overdueN: '過期 {n} 天', youSpelt: '你拼成', missesN: '錯 {n} 次', lastMiss: '上次怎麼錯的', mixedYours: '你搞混過的字', mixedCommon: '常被搞混的字', exampleTitle: '例句', formsTitle: '詞形變化', dictCredit: '釋義參考 Wiktionary，例句來自 Tatoeba',
-    howItGoes: '學習紀錄', neverAsked: '還沒考過這個字。', stAnswers: '作答', stAccuracy: '正確率', stRecall: '現在記得', stStability: '記憶天數', daysShort: '{n} 天', lapsesLine: '學會後又忘了 {n} 次',
-    iKnowIt: '我會了，不用再考', rateLabel: '發音語速', rateTry: '試聽', levelsTitle: '各級別', activityTitle: '活動', goalLine: '目標 {n} 題', todayShort: '今天', memoryTitle: '記憶',
+    howItGoes: '學習紀錄', neverAsked: '還沒考過這個字。', stRecall: '現在記得的機會', rateLabel: '發音語速', rateTry: '試聽', levelsTitle: '各級別', activityTitle: '活動', goalLine: '目標 {n} 題', todayShort: '今天', memoryTitle: '記憶',
     mem0: '不到 2 天', mem1: '2–10 天', mem2: '10–30 天', mem3: '一個月以上', memoryEmpty: '學過的字會照記得多久分組顯示在這裡。', fitSoon: '再複習 {n} 次就會調整成你的記憶力', fitBetter: '記性比一般好 ×{f}，間隔拉長',
     fitWorse: '比一般容易忘 ×{f}，複習排密', fitAverage: '記性跟一般差不多', stAccuracyAll: '總正確率', stAccuracyWeek: '7 天正確率', stPerAnswer: '每題平均', stDaysPractised: '練習天數', secN: '{n} 秒',
     goalTitle: '今日目標', prefsTitle: '練習設定', weakTitle: '弱點快測', lastDays3: '最近 3 天答錯', missedTitle: '上次答錯的字', cardsN: '{n} 張', wordsUnit: '個字',
@@ -33,15 +31,15 @@ export const STRINGS = {
     wordsN: '{n}', startRound: 'Start {n} words', studyTitle: 'Study new words', studyReady: 'Ready', studyQuiz: 'Quiz these {n} words', studyNone: 'None left',
     studyGot: 'Got it', studyPrev: 'Back', studySaved: 'Saved: carry on next time', nothingLeft: 'Nothing to practise in these levels right now', levels: 'Levels',
     level: 'Level {n}', levelHint1: 'The basics', levelHint2: 'Foundation', levelHint3: 'Grades 7–10', levelHint4: 'High school',
-    levelHint5: 'College entrance', levelHint6: 'Advanced', modes: 'Ways to learn', mode_smart: 'Smart', mode_meaning: 'Meaning', mode_word: 'English',
-    mode_listen: 'By ear', mode_letters: 'Letters', mode_cloze: 'Fill in', mode_spell: 'Dictation', modeHint_smart: 'Every kind, in turn',
-    modeHint_meaning: 'English to meaning', modeHint_word: 'Meaning to English', modeHint_listen: 'Sound only', modeHint_letters: 'Unscramble it',
+    levelHint5: 'College entrance', levelHint6: 'Advanced', modes: 'Ways to practise', mode_smart: 'Smart', mode_meaning: 'Meaning', mode_word: 'English',
+    mode_listen: 'By ear', mode_letters: 'Letters', mode_cloze: 'Fill in', mode_spell: 'Dictation', modeHint_smart: 'Mixed by memory',
+    modeHint_meaning: 'Word to meaning', modeHint_word: 'Meaning to word', modeHint_listen: 'Sound only', modeHint_letters: 'Unscramble it',
     modeHint_cloze: 'Missing letters', modeHint_spell: 'Hear it, spell it', stMastered: 'Mastered', stLearning: 'Learning', stLeft: 'Not yet', daysN: '{n} days',
     goalDone: 'Goal met today', goalLeft: '{n} more for the goal', goalKeep: '{n} more keeps the streak', bestStreak: 'Best streak {n} days', hardTitle: 'Words you forget most',
     mixedWith: 'mixed up with {words}', lapsesN: 'forgot {n}×', wotd: 'Word of the day', listen: 'Listen', tapToHear: 'Tap to hear it again', state_new: 'New',
     state_learning: 'Learning', state_mastered: 'Mastered', ask_meaning: 'What does it mean?', ask_word: 'Which word means this?', ask_listen: 'Which word did you hear?',
     ask_letters: 'Put the letters in order', ask_cloze: 'Fill in the missing letters: type the whole word', ask_spell: 'Listen and spell it', letters: '{n} letters',
-    undo: 'Undo', check: 'Check', dontKnow: "I don't know it", tooEasy: 'Too easy, I know it', endRound: 'End the round', fbRight: 'Right', fbWrong: 'Not quite',
+    undo: 'Undo', check: 'Check', dontKnow: "I don't know it", endRound: 'End the round', fbRight: 'Right', fbWrong: 'Not quite',
     fbMastered: 'Mastered!', youPicked: 'You picked', youWrote: 'You wrote', next: 'Next', seeResult: 'See the result', again: 'Another round', noticeStreak: 'Your {n}-day streak ends tonight',
     noticeStreakSoon: 'No words practised today', noticeStreakBody: '{goal} answers keep it going', tab_review: 'Review', tab_list: 'Words', done: 'Done',
     startDue: 'Start: {n} reviews first', mark: 'Bookmark', unmark: 'Remove bookmark', cat_wrong: 'Missed', cat_due: 'Due', cat_learning: 'Learning', cat_marked: 'Saved',
@@ -52,9 +50,7 @@ export const STRINGS = {
     sort_az: 'A–Z', searchReview: 'Search a word', searchWords: 'Search {n} words', noMatch: 'No matching words', showMore: 'Show more', wordsCount: '{n} words',
     allLevels: 'All', filter_all: 'All', filter_new: 'New', filter_learning: 'Learning', filter_mastered: 'Mastered', filter_marked: 'Saved', dueToday: 'Due today',
     dueTomorrow: 'Due tomorrow', dueInN: 'Due in {n}d', overdueN: '{n}d overdue', youSpelt: 'You wrote', missesN: '{n} misses', lastMiss: 'How it went wrong',
-    mixedYours: 'Words you mixed it up with', mixedCommon: 'Often confused with', exampleTitle: 'Example', formsTitle: 'Forms', dictCredit: 'Meanings from Wiktionary, examples from Tatoeba', howItGoes: 'Your record', neverAsked: 'Not asked yet.', stAnswers: 'Answers',
-    stAccuracy: 'Accuracy', stRecall: 'Recall now', stStability: 'Stays for', daysShort: '{n} d', lapsesLine: 'Forgotten {n}× after learning it',
-    iKnowIt: 'I know it, stop asking', rateLabel: 'Speed', rateTry: 'Try it', levelsTitle: 'By level', activityTitle: 'Activity', goalLine: 'Goal {n}',
+    mixedYours: 'Words you mixed it up with', mixedCommon: 'Often confused with', exampleTitle: 'Example', formsTitle: 'Forms', dictCredit: 'Meanings from Wiktionary, examples from Tatoeba', howItGoes: 'Your record', neverAsked: 'Not asked yet.', stRecall: 'Chance you know it now', rateLabel: 'Speed', rateTry: 'Try it', levelsTitle: 'By level', activityTitle: 'Activity', goalLine: 'Goal {n}',
     todayShort: 'Today', memoryTitle: 'Memory', mem0: 'Under 2 days', mem1: '2–10 days', mem2: '10–30 days', mem3: 'A month+',
     memoryEmpty: 'Learnt words show here by how long they stay remembered.', fitSoon: '{n} more reviews to fit your memory', fitBetter: 'Better than average ×{f}',
     fitWorse: 'Forgets faster ×{f}', fitAverage: 'About average memory', stAccuracyAll: 'Accuracy', stAccuracyWeek: 'Last 7 days', stPerAnswer: 'Per answer',
@@ -65,5 +61,12 @@ export const STRINGS = {
 };
 Object.assign(STRINGS.zh, { chartNone: '還沒有作答紀錄', continueTitle: '繼續', dueCard: '該複習', dueCardSub: '到期的字', weakWords: '弱點字', allBtn: '全部', streakTitle: '連續天數', streakDays: '連續 {n} 天', todayN: '今天 {n} 題', decksTitle: '單字卡', deckN: '{n} 張', recentTitle: '最近練習的字' });
 Object.assign(STRINGS.en, { chartNone: 'No answers yet', continueTitle: 'Continue', dueCard: 'Due now', dueCardSub: 'Words to review', weakWords: 'Weak words', allBtn: 'All', streakTitle: 'Streak', streakDays: '{n}-day streak', todayN: '{n} today', decksTitle: 'Flash cards', deckN: '{n} cards', recentTitle: 'Recently practised' });
-Object.assign(STRINGS.zh, { contestTitle: '單字比賽', contestName: '區域決賽模擬考', contestShape: '聽英拼寫 {s} · 詞彙題 {v} · {m} 分鐘', contestScores: '上次 {last} 分 · 最佳 {best} 分（滿分 200）', contestStart: '開始模擬考', part_spell: '聽英拼寫', part_single: '詞彙題 · 單題', part_group: '詞彙題 · 題組', partShort_spell: '拼寫', partShort_single: '單題', partShort_group: '題組', setN: '第 {n} 組', saidTwice: '唸兩次，請用小寫拼', ask_single: '選出最適合填入空格的字', ask_group: '從這組的字中選出填入空格的字', handIn: '交卷', handInAsk: '要交卷嗎？', handInLeft: '還有 {n} 題沒寫，交卷後不計分', keepGoing: '繼續寫', contestDone: '模擬考成績', timeTaken: '用時 {t}', practiseMissed: '練錯的字', byPart: '各部分', missedN: '錯的 {n} 題', notAnswered: '沒作答', capsRule: '大寫不計分' });
-Object.assign(STRINGS.en, { contestTitle: 'Vocabulary contest', contestName: 'Regional final practice', contestShape: 'Spell {s} · vocabulary {v} · {m} min', contestScores: 'Last {last} · best {best} (of 200)', contestStart: 'Start the paper', part_spell: 'Hear and spell', part_single: 'Vocabulary', part_group: 'Collocation sets', partShort_spell: 'Spell', partShort_single: 'Single', partShort_group: 'Set', setN: 'Set {n}', saidTwice: 'Said twice. Spell it in lower case', ask_single: 'Pick the best word for the blank', ask_group: 'Pick the word for the blank from this set', handIn: 'Hand in', handInAsk: 'Hand in now?', handInLeft: '{n} questions left blank score nothing', keepGoing: 'Keep going', contestDone: 'Your score', timeTaken: 'Time {t}', practiseMissed: 'Practise misses', byPart: 'By part', missedN: '{n} missed', notAnswered: 'No answer', capsRule: 'Capitals score 0' });
+Object.assign(STRINGS.zh, { contestTitle: '拼字比賽', contestIntro: '限時一卷，交卷後才對答案。', paper_short: '短卷', paper_full: '標準', paper_long: '長卷', contestShape: '聽英拼寫 {s} · 選擇題 {v}', minutesN: '{n} 分鐘', pointsOf: '滿分 {n}', contestScores: '上次 {last} · 最佳 {best}', contestStart: '開始考試', part_spell: '聽英拼寫', part_single: '詞彙題 · 單題', part_group: '詞彙題 · 題組', partShort_spell: '拼寫', partShort_single: '單題', partShort_group: '題組', setN: '第 {n} 組', saidTwice: '唸兩次，請用小寫拼', ask_single: '選出最適合填入空格的字', ask_group: '從這組的字中選出填入空格的字', handIn: '交卷', handInAsk: '要交卷嗎？', handInLeft: '還有 {n} 題沒寫，交卷後不計分', keepGoing: '繼續寫', contestDone: '模擬考成績', timeTaken: '用時 {t}', practiseMissed: '練錯的字', byPart: '各部分', missedN: '錯的 {n} 題', notAnswered: '沒作答', capsRule: '大寫不計分' });
+Object.assign(STRINGS.en, { contestTitle: 'Spelling contest', contestIntro: 'One timed paper; answers once it’s handed in.', paper_short: 'Short', paper_full: 'Standard', paper_long: 'Long', contestShape: 'Spell {s} · choice {v}', minutesN: '{n} min', pointsOf: 'of {n}', contestScores: 'last {last} · best {best}', contestStart: 'Start the paper', part_spell: 'Hear and spell', part_single: 'Vocabulary', part_group: 'Collocation sets', partShort_spell: 'Spell', partShort_single: 'Single', partShort_group: 'Set', setN: 'Set {n}', saidTwice: 'Said twice. Spell it in lower case', ask_single: 'Pick the best word for the blank', ask_group: 'Pick the word for the blank from this set', handIn: 'Hand in', handInAsk: 'Hand in now?', handInLeft: '{n} questions left blank score nothing', keepGoing: 'Keep going', contestDone: 'Your score', timeTaken: 'Time {t}', practiseMissed: 'Practise misses', byPart: 'By part', missedN: '{n} missed', notAnswered: 'No answer', capsRule: 'Capitals score 0' });
+
+// 練習模式's 句子填空: the word's example with a blank.
+Object.assign(STRINGS.zh, { mode_sentence: '句子填空', modeHint_sentence: '例句挖空選字', ask_sentence: '選出最適合填入空格的字' });
+Object.assign(STRINGS.en, { mode_sentence: 'Sentences', modeHint_sentence: 'Pick the word', ask_sentence: 'Pick the word for the blank' });
+// A word's 學習紀錄 (views/sheet.js).
+Object.assign(STRINGS.zh, { stRight: '答對', rightOfN: '{r} / {n} 次', stNext: '下次複習', nextToday: '今天', nextTomorrow: '明天', nextInN: '{n} 天後', stLapses: '學會後又忘了', timesN: '{n} 次', recordNote: '由你的作答決定：答對越多、越快，隔越久才再考；答錯就會早點回來。' });
+Object.assign(STRINGS.en, { stRight: 'Right', rightOfN: '{r} of {n}', stNext: 'Next review', nextToday: 'Today', nextTomorrow: 'Tomorrow', nextInN: 'In {n} days', stLapses: 'Forgotten after learning', timesN: '{n}×', recordNote: 'Set by your answers: the more you get right, and the quicker, the longer until it’s asked again; a miss brings it back soon.' });
