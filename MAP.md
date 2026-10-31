@@ -16,6 +16,7 @@ Live: https://orbit.jaypengx.com/words/
   · 複習 (答錯, 該複習, 學習中, 收藏; flash cards then a test) · 單字 (the
   whole list) · 進度 (level and points, accuracy, the 14 days and what's
   due, each level, the memory fit, the words forgotten most).
+- **Wide screens** (DESIGN §10): 今天 and 進度 in two columns (three on a computer, `columns` in `views/chrome.js`), 複習 and 單字 with the word open beside the list instead of a sheet (`wordPane` in `views/sheet.js`), a question beside its answers; a round, the cards and the paper stay 720 wide in the middle.
 - **A word's sheet** (from anywhere, or `#word=<word>`): sound, KK, the
   senses (most useful first), an example with its Chinese, the word's forms, what you mixed it up with, your misspellings,
   學習紀錄 (the chance you still know it, answers right, the next review).
