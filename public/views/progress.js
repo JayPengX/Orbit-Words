@@ -4,7 +4,7 @@
 // stay remembered: the model's fit, and the words forgotten most (a sheet).
 import * as kitUI from '#kit/ui.mjs';
 import { el, put, segmented } from '../ui.js';
-import { bar, stats, section, row, rowCard, tag } from './chrome.js';
+import { bar, stats, section, row, rowCard, tag, columns } from './chrome.js';
 import { state, t, joined, percent, levelName, locale } from '../shell.js';
 import { speakButton } from '../audio.js';
 import { stats as wordStats, hardest, shortMeaning, personalFactor } from '../lib/words.mjs';
@@ -24,7 +24,8 @@ export function renderProgress(box) {
     bar(a.mastered, a.total, 'q-focus-bar'),
     el('span', { class: 'q-focus-sub', text: `Lv ${lv.level} ${lv.title} · ${xpText(xpOf(state.progress))}` })
   ]);
-  put(box, top, howWell(), section(t('activityTitle'), chartCard()), section(t('levelsTitle'), levelsCard()), section(t('memoryTitle'), memoryCard()));
+  const [well, activity, levels, memory] = [howWell(), section(t('activityTitle'), chartCard()), section(t('levelsTitle'), levelsCard()), section(t('memoryTitle'), memoryCard())];
+  put(box, ...columns([[top, well, activity], [levels, memory]], [[top, well], [activity], [levels, memory]]));
 }
 
 // Accuracy and time: every answer, and the last 7 days.

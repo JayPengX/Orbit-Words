@@ -3,6 +3,7 @@
 // q-tag, q-stats, q-ambient) written as markup; plus this app's own few
 // glyphs (a speaker, cards, sliders).
 import * as kitUI from '#kit/ui.mjs';
+import * as kit from '#kit/orbit.mjs';
 import { el } from '../ui.js';
 
 const svg = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
@@ -79,3 +80,15 @@ export const checkDot = on => {
 // Big numbers with their names, two to a line: [{ label, value, icon, color }].
 export const stats = items =>
   el('div', { class: 'q-stats' }, items.map(it => el('div', { class: 'q-stat' }, [it.icon ? tile(it.icon, it.color, 'sm') : null, el('small', { text: it.label }), el('strong', { class: 'num', text: it.value })])));
+
+// A tab's sections laid out for the screen (DESIGN §10): one column on a
+// phone, two side by side once the page has room (q-wide), three on a wide
+// computer (q-w3) when the tab gives three groups (a list of nodes to put). Each group is a phone's
+// column; read left to right they keep the phone's order. app.js redraws
+// the tab when the screen changes kind (onScreen).
+export function columns(two, three = null) {
+  const fit = kit.screenFit?.() || {};
+  const groups = fit.w3 && three ? three : fit.wide ? two : null;
+  if (!groups) return two.flat(2).filter(Boolean);
+  return [el('div', { class: `q-cols tab-cols${groups.length === 3 ? ' q-cols-3' : ''}` }, groups.map(g => el('div', { class: 'tab-col' }, g.flat().filter(Boolean))))];
+}

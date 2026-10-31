@@ -6,7 +6,9 @@ import { state, t, hooks, levelName } from '../shell.js';
 import { LEVELS } from '../lib/words.mjs';
 import { STATES, browse } from '../lib/review.mjs';
 import { wordRow } from './review.js';
-import { section, menuButton } from './chrome.js';
+import { section, menuButton, columns } from './chrome.js';
+import { wordPane } from './sheet.js';
+import * as kit from '#kit/orbit.mjs';
 
 const view = { level: 0, state: 'all', query: '' };
 
@@ -14,18 +16,18 @@ export function renderBrowse(box) {
   const total = state.words.length;
   const listBox = el('div');
   const head = el('h2');
+  let items = [];
   const draw = () => {
-    const items = browse(state.words, state.progress, { ...view, marks: state.marks });
+    items = browse(state.words, state.progress, { ...view, marks: state.marks });
     head.textContent = items.length === total ? t('listAll') : t('wordsCount', { n: items.length.toLocaleString() });
     put(listBox, pagedList(items, wordRow, { more: t('showMore'), empty: t('noMatch') }));
   };
   const list = section('', listBox, menuButton(STATES.map(s => ({ id: s, label: t(`filter_${s}`) })), view.state, s => ((view.state = s), hooks.render())));
   list.querySelector('h2').replaceWith(head);
   draw();
-  put(
-    box,
-    searchField(view.query, t('searchWords', { n: total.toLocaleString() }), q => ((view.query = q), draw())),
-    chips([{ id: 0, label: t('allLevels') }, ...LEVELS.map(l => ({ id: l, label: levelName(l) }))], view.level, l => ((view.level = l), hooks.render()), 'level-chips'),
-    list
-  );
+  const search = searchField(view.query, t('searchWords', { n: total.toLocaleString() }), q => ((view.query = q), draw()));
+  const levels = chips([{ id: 0, label: t('allLevels') }, ...LEVELS.map(l => ({ id: l, label: levelName(l) }))], view.level, l => ((view.level = l), hooks.render()), 'level-chips');
+  // Wide: the list beside the word opened (the first, until one is tapped).
+  const pane = kit.screenFit?.().wide ? wordPane(items[0]) : null;
+  put(box, ...columns([[search, levels, list], [pane]]));
 }

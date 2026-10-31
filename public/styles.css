@@ -32,7 +32,7 @@ h1, h2, h3, p { margin: 0; }
 .center-spin { display: grid; place-items: center; padding: 40px 0; }
 
 /* ---- The page (this file comes after the kit's, so its rules win a tie) ---- */
-.page { padding: 0 max(16px, env(safe-area-inset-right)) calc(40px + var(--q-nav)) max(16px, env(safe-area-inset-left)); }
+.page { padding: 0 16px calc(40px + var(--q-nav)); }
 .tab-panel .q-section { margin-top: var(--q-s-5); }
 .tab-panel .q-section-head { margin-bottom: var(--q-s-3); }
 .tab-panel .q-section-head h2 { font: var(--q-t-title3); }
@@ -142,7 +142,7 @@ h1, h2, h3, p { margin: 0; }
 .empty-card { display: grid; justify-items: center; gap: var(--q-s-2); padding: var(--q-s-6) var(--q-s-4); text-align: center; }
 .empty-card p { color: var(--q-label-2); font: var(--q-t-subhead); }
 .tab-panel > .q-search, .q-section > .q-search { margin: 0 0 12px; }
-.level-chips { margin: 0 calc(-1 * max(16px, env(safe-area-inset-left))) 0; padding: 0 16px 4px; scroll-padding-inline: 16px; }
+.level-chips { margin: 0 -16px 0; padding: 0 16px 4px; scroll-padding-inline: 16px; }
 /* A word in a list: its sound, the word over its meaning (or how it went wrong), where it stands. */
 .words .wr { --q-ritem-sep: 60px; width: 100%; min-height: 60px; }
 .wr-main { flex: 1; min-width: 0; display: grid; gap: 1px; }
@@ -252,7 +252,7 @@ h1, h2, h3, p { margin: 0; }
 .word.v-word { font-size: min(24px, calc((var(--q-vw, 100vw) - 120px) / (var(--len, 8) * 0.6))); line-height: 1.2; }
 .mixed { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center; gap: 4px 8px; padding: 10px 14px; border: 0; border-radius: var(--q-r-cell); background: var(--q-fill-3); color: inherit; text-align: center; }
 .verdict .mixed { justify-content: flex-start; text-align: left; }
-.next-bar { position: fixed; left: var(--q-side, 0px); right: var(--q-side, 0px); bottom: calc(var(--q-nav) + 10px); z-index: 50; display: flex; justify-content: center; padding: 0 16px; pointer-events: none; }
+.next-bar { position: fixed; left: var(--q-col-l, 0px); right: var(--q-col-r, 0px); bottom: calc(var(--q-nav) + 10px); z-index: 50; display: flex; justify-content: center; padding: 0 16px; pointer-events: none; }
 .next-bar .q-btn { width: min(560px, 100%); pointer-events: auto; box-shadow: 0 10px 24px -10px rgb(0 0 0 / 0.45); }
 /* The round's end. */
 .round-end { padding-top: 12px; }
@@ -272,7 +272,7 @@ h1, h2, h3, p { margin: 0; }
 .flip-hint .gl { width: 15px; height: 15px; }
 .flash-mixed { display: grid; gap: 6px; justify-self: stretch; }
 /* 測驗 stays in reach above the floating tab bar on a long flipped card. */
-.flash-test { position: sticky; bottom: calc(var(--q-bar-gap, 12px) + 72px); z-index: 2; box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.35); }
+.flash-test { position: sticky; bottom: calc(var(--q-nav, 74px) + 10px); z-index: 2; box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.35); }
 .spelt { display: grid; justify-items: center; gap: 4px; }
 .spelt-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px; font-size: 18px; font-weight: 600; }
 .card-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0 12px; }
@@ -344,3 +344,48 @@ h1, h2, h3, p { margin: 0; }
 .forms span { display: inline-block; margin-right: 0.35em; white-space: nowrap; }
 .forms span:not(:last-child)::after { content: '\00a0·'; color: var(--q-label-2); }
 .word-sheet .credit { margin: 18px 4px 0; font-size: 12px; text-align: center; }
+
+/* ==== Every screen, either way up (Jay 2026-10-31; Orbit-Core DESIGN §10) ====
+   Wide (q-wide): 今天 and 進度 in two columns (three on q-w3), 複習 and 單字
+   their list beside the word opened (views/chrome.js columns, sheet.js
+   wordPane). A tab with one column (a round, the cards, the paper, an empty
+   list) stays a phone's reading width in the middle. */
+:root.q-wide { --q-page-max: 1180px; }
+.tab-col > :first-child { margin-top: 0; }
+.tab-col > .q-section:first-child .q-section-head { margin-top: 0; }
+:root.q-wide .tab-panel:not(:has(> .tab-cols)) { max-width: 720px; margin-inline: auto; }
+:root.q-wide .tab-cols .level-chips { margin-inline: 0; padding-inline: 0; scroll-padding-inline: 0; }
+/* The word beside the list: the sheet's own content on a card that stays in view while the list scrolls. */
+.word-pane { position: sticky; top: calc(env(safe-area-inset-top) + 12px); max-height: calc(100dvh - env(safe-area-inset-top) - 24px); overflow-y: auto; overscroll-behavior: contain; padding: 8px 16px 20px; border-radius: var(--q-r-card); background: var(--q-surface); }
+.word-pane .q-card, .word-pane .q-rowcard { background: var(--q-fill-4, var(--q-fill-3)); }
+.pane-head { display: flex; justify-content: flex-end; min-height: 36px; margin: 0 -8px -28px 0; }
+.pane-head .sheet-lead { position: relative; z-index: 1; }
+.word-pane .sheet-state { margin-right: 40px; }
+.wr[aria-current='true'] { background: color-mix(in srgb, var(--accent) 12%, var(--q-surface)); }
+/* A question beside its answers wherever the page is wide or short (a phone
+   on its side): the word stays in view while the answers are picked. */
+:root.q-wide .question { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 0 16px; align-items: start; }
+:root.q-wide .question > .ask-card { grid-column: 1; grid-row: 1; margin: 0; }
+:root.q-wide .question > .verdict { grid-column: 1; grid-row: 2; margin-top: 12px; }
+:root.q-wide .question > :not(.ask-card, .verdict) { grid-column: 2; grid-row: 1 / span 2; margin-top: 0; }
+:root.q-wide .question > .aside { grid-row: 3; }
+/* (下一題 under the verdict, in reach; on a phone on its side, pinned at the
+   foot of the answers' column, which leaves the verdict whole.) */
+:root.q-wide .next-bar { position: static; margin-top: 4px; padding: 0; }
+:root.q-wide .next-bar .q-btn { width: 100%; }
+:root.q-wide .answered { padding-bottom: 0; }
+@media (max-height: 520px) {
+  :root.q-wide .next-bar { position: fixed; left: calc(var(--q-mid) - 8px); right: calc(100vw - var(--q-mid) - min(376px, var(--q-vw) / 2)); margin: 0; padding: 0 16px; }
+  :root.q-wide .answered { padding-bottom: 84px; }
+  .flash-test { position: static; }
+}
+/* A phone on its side is short: the cards to learn from no taller than it. */
+@media (max-height: 520px) {
+  .word-card { min-height: 0; }
+  .run-head { margin-bottom: 10px; }
+  .choices { gap: 8px; }
+  .choice { min-height: 48px; padding-block: 6px; }
+}
+/* (A column has no edge to bleed to: its rails of cards wrap, every row full.) */
+.card-grid { display: grid; grid-template-columns: repeat(var(--cols, 2), minmax(0, 1fr)); gap: 10px; }
+.card-grid.deck-rail { row-gap: 18px; padding-top: 8px; }

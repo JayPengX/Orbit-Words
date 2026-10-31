@@ -4,8 +4,9 @@
 // (new words as cards, the 拼字比賽 paper, the weak words, the missed words as
 // flash cards), and the word of the day.
 import * as kitUI from '#kit/ui.mjs';
+import * as kit from '#kit/orbit.mjs';
 import { el, put } from '../ui.js';
-import { hero, heroPill, heroBtn, big, bar, iconText, section, tag, tile } from './chrome.js';
+import { hero, heroPill, heroBtn, big, bar, iconText, section, tag, tile, columns } from './chrome.js';
 import { state, t, hooks, metaLine, wordEl, locale, settingsChanged } from '../shell.js';
 import { speakButton } from '../audio.js';
 import { LEVELS, MODES, stats, toStudy, stateOf, shortMeaning, wordOfDay, hardest } from '../lib/words.mjs';
@@ -18,7 +19,9 @@ import { openPrefs, levelsText } from './prefs.js';
 import { hardRow, openHardest } from './progress.js';
 
 export function renderToday(box) {
-  put(box, goalHero(), modePicker(), continueShelf(), contestCard(), streakPanel(), weakShelf(), deckShelf(), recentShelf(), wordOfDayCard());
+  const [goal, modes, go, contest, streak, weak, decks, recent, wotd] = [goalHero(), modePicker(), continueShelf(), contestCard(), streakPanel(), weakShelf(), deckShelf(), recentShelf(), wordOfDayCard()];
+  // Wide: the goal and the ways to practise first; then where to pick up and the paper; then the rest.
+  put(box, ...columns([[goal, modes, go, contest], [streak, weak, decks, recent, wotd]], [[goal, modes], [go, contest, streak], [weak, decks, recent, wotd]]));
 }
 
 // The goal: today's answers of 20, the streak they keep, and the round.
@@ -95,7 +98,21 @@ function goCard({ icon, color, title, value, sub, progress, onClick, disabled = 
     progress ? bar(progress[0], progress[1], 'mini-bar') : null
   ]);
 }
-const rail = (cards, cls = '') => el('div', { class: `q-rail ${cls}`.trim() }, cards.filter(Boolean));
+// Wide, in a column, there's no edge to slide cards to: a grid, every row
+// full (4 as two pairs; the recent words cut to whole rows).
+function rail(cards, cls = '') {
+  let list = cards.filter(Boolean);
+  const fit = kit.screenFit?.() || {};
+  if (!fit.wide) return el('div', { class: `q-rail ${cls}`.trim() }, list);
+  // (As many across as fit at a card's least width, 140: two or three.)
+  const room = (Math.min(fit.width, 1180) - 32 - (fit.w3 ? 48 : 24)) / (fit.w3 ? 3 : 2);
+  const most = Math.max(2, Math.min(3, Math.floor((room + 10) / 150)));
+  if (cls === 'recent-rail' && list.length > most && list.length % most) list = list.slice(0, list.length - (list.length % most));
+  const n = list.length <= most ? list.length : list.length === 4 ? 2 : most;
+  // (A last card alone on its row runs across it, never a lone half.)
+  if (list.length % n === 1 && list.length > 1) list.at(-1).style.gridColumn = '1 / -1';
+  return el('div', { class: `card-grid ${cls}`.trim(), style: `--cols:${n}` }, list);
+}
 
 // 繼續: where to pick up (the new words' batch, what's due, the weak round, the missed words).
 function continueShelf() {

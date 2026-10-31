@@ -127,6 +127,8 @@ watchUpdates({ current: VERSION, key: 'orbitWords', cachePrefix: 'orbit-words-' 
 topActions(q);
 tabNav.select(state.tab);
 q.on('wallet', quietRefresh);
+// A new kind of screen (turned on its side, a window made wider): the tab laid out again for it.
+kit.onScreen?.(() => state.loaded && quietRefresh());
 
 // Notices (the kit's: a banner on screen, a system notice in the background
 // once turned on in the account sheet): a streak that ends tonight, now
