@@ -16,7 +16,7 @@ import * as kitUI from '#kit/ui.mjs';
 import * as kit from '#kit/orbit.mjs';
 import { passSync } from '#kit/pass-sync.mjs';
 import { orbitSession, taipeiDay, tabBar, topActions, installGate, watchUpdates, schedulePush, notify, keepOffline, storedAccount, cachedPayload } from '#kit/orbit.mjs';
-import { loadWords, loadHints, loadMore, keyOf, stateOf } from './lib/words.mjs';
+import { loadWords, loadHints, loadMore, keyOf, stateOf, warmMeanings } from './lib/words.mjs';
 import { DAILY_GOAL, streakAtRisk } from './lib/practice.mjs';
 import { catCounts } from './lib/review.mjs';
 import { decodePayload, encodePayload, mergeCopy } from './lib/copy.mjs';
@@ -149,6 +149,7 @@ function checkStreak() {
 async function loadWordList() {
   state.words = loadWords(await fetch(`./data/words.json?v=${VERSION}`).then(r => r.json()));
   state.byKey = new Map(state.words.map(w => [w.key, w]));
+  warmMeanings(state.words);
 }
 // The hints come after the first screen: nothing on it waits for them. A
 // failed read leaves them out until the next opening (never saved empty).

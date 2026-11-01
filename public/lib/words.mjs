@@ -531,6 +531,18 @@ function zhOf(zh) {
   zhCache.set(zh, hit);
   return hit;
 }
+// Every meaning's terms worked out ahead, a slice at a time while the phone
+// is idle: the first question used to do all ~7,000 on the tap of 開始
+// (0.1–0.2 s of a mid-range phone's time before anything moved).
+export function warmMeanings(words, idle = globalThis.requestIdleCallback) {
+  if (!idle) return;
+  let i = 0;
+  const step = deadline => {
+    while (i < words.length && deadline.timeRemaining() > 2) zhOf(words[i++].zh);
+    if (i < words.length) idle(step, { timeout: 5000 });
+  };
+  idle(step, { timeout: 5000 });
+}
 // Two meanings with a term in common: both would be right.
 export function sameMeaning(a, b) {
   const x = zhOf(a).terms;
