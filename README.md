@@ -13,7 +13,7 @@
   <img alt="JavaScript" src="https://img.shields.io/badge/JavaScript-ES_modules-F7DF1E?logo=javascript&logoColor=000"> <img alt="PWA" src="https://img.shields.io/badge/PWA-works_offline-5A0FC8?logo=pwa&logoColor=fff"> <img alt="Cloudflare" src="https://img.shields.io/badge/Cloudflare-Workers-F38020?logo=cloudflare&logoColor=fff"> <img alt="Tests" src="https://img.shields.io/badge/Tests-node_--test-339933?logo=nodedotjs&logoColor=fff">
 </p>
 
-English vocabulary that sticks: the full 大考中心 list, levels 1 to 6 (6,169 words), each with a recorded voice. Part of **Orbit**, a family of phone apps for life in Taiwan that share one sign-in, the Orbit Pass. See them all at [orbit.jaypengx.com](https://orbit.jaypengx.com/pass/).
+English vocabulary that sticks: the full 大考中心 list, levels 1 to 6 (6,169 words), each with a recorded voice. Part of **Orbit**, a family of apps for life in Taiwan that share one sign-in, the Orbit Pass. See them all at [orbit.jaypengx.com](https://orbit.jaypengx.com/pass/).
 
 <p align="center">
   <img src="docs/screenshots/words-1.webp" width="30%" alt="Today's goal and streak">
@@ -39,6 +39,7 @@ English vocabulary that sticks: the full 大考中心 list, levels 1 to 6 (6,169
 - **拼字比賽:** a timed paper of spelling by ear (each word said twice) then multiple choice, in three sizes: 20+20, 50+50 (40 minutes, the national contest's) and 50+100.
 - **Progress:** level and points, accuracy, the last 14 days, each level, and the words you forget most.
 - **Fully offline**, synced between devices through the Orbit Pass.
+- **Every screen, either way up:** 今天 and 進度 in two columns (three on a computer), 複習 and 單字 with the word open beside the list, a question beside its answers.
 
 ## Tech stack
 
