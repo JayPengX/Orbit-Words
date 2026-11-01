@@ -100,7 +100,7 @@ node ../Orbit-Core/tools/preview.mjs words --width 375
 ```
 
 Missing recordings: `python3 ../Orbit-Core/tools/word-audio.py`. A push
-to `main` tests, stamps versions and deploys to Pages.
+to `main` tests, stamps versions and deploys to Cloudflare.
 
 ## If you change…
 
