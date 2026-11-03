@@ -95,3 +95,21 @@ html[data-look='native'][data-look='native'] :is(.contest-card, .streak-card, .w
   background: var(--nv-card);
   box-shadow: inset 0 0 0 0.5px var(--nv-edge), inset 0 1px 0 rgba(255, 255, 255, 0.035), var(--nv-lift);
 }
+
+/* 練習模式's 開始: under its list, the way picked in its words. */
+html[data-look='native'] .mode-list {
+  display: grid;
+  gap: 12px;
+}
+html[data-look='native'] .mode-go {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+html[data-look='native'] .mode-go .gl,
+html[data-look='native'] .mode-go svg {
+  width: 16px;
+  height: 16px;
+}

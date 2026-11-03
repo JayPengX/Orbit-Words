@@ -46,8 +46,9 @@ function goalHero() {
   ]);
 }
 
-// 練習模式 as a short list: each way, what it asks, the one in use ticked; a
-// tap starts a round that way at once and keeps it for 開始's round.
+// 練習模式 as a short list: each way, what it asks, the one picked ticked; a
+// tap only picks it (kept for 今天's 開始 too), and the round starts on the
+// list's own 開始 under it, never on the tap (Jay 2026-11-03).
 const MODE_LOOK = {
   smart: ['spark', 'var(--q-accent)'],
   meaning: ['book', 'var(--q-indigo)'],
@@ -67,11 +68,15 @@ function modeList() {
       state.mode === m ? el('i', { class: 'mode-tick', html: ico('check') }) : null
     ])
   );
-  return section(t('modes'), el('div', { class: 'q-rowcard' }, rows));
+  const go = el('button', { class: 'q-btn large block primary mode-go', type: 'button', disabled: !ready || null, onclick: () => startRound({ mode: state.mode }) }, [glyphIco('play'), t('modeGo', { m: t(`mode_${state.mode}`) })]);
+  return section(t('modes'), el('div', { class: 'mode-list' }, [el('div', { class: 'q-rowcard' }, rows), go]));
 }
+const glyphIco = name => el('i', { class: 'gl', 'aria-hidden': 'true', html: ico(name) });
 function pickMode(m) {
-  if (state.mode !== m) (state.mode = m), settingsChanged();
-  startRound({ mode: m });
+  if (state.mode === m) return;
+  state.mode = m;
+  settingsChanged();
+  hooks.render();
 }
 
 // The same word for everyone today; a tap opens its sheet.

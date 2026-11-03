@@ -14,7 +14,7 @@ Live: https://orbit.jaypengx.com/words/
   opens the round's choices: 10/20/30 words, levels, sound speed) with one
   開始 in the app's colour; the word of the day under it; 繼續 as rows (new
   words, what's due, the weak round, the missed words, each its count);
-  練習模式 as a list, a tap starts a round that way and 開始 keeps it; the
+  練習模式 as a list, a tap picks a way and its own 開始 under it starts the round (a round opens at the top, kit `freshScreen`, and doesn't scroll while it fits the screen); the
   拼字比賽 paper, the streak, the weak words, the decks, the recent words
   · 複習 (答錯, 該複習, 學習中, 收藏; flash cards then a test) · 單字 (the
   whole list) · 進度 (level and points, accuracy, the 14 days and what's

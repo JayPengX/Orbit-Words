@@ -378,3 +378,5 @@ h1, h2, h3, p { margin: 0; }
 /* (A column has no edge to bleed to: its rails of cards wrap, every row full.) */
 .card-grid { display: grid; grid-template-columns: repeat(var(--cols, 2), minmax(0, 1fr)); gap: 10px; }
 .card-grid.deck-rail { row-gap: 18px; padding-top: 8px; }
+/* A round that fits the screen: the page doesn't scroll (app.js lockRound). */
+html.run-lock, html.run-lock body { overflow: hidden; overscroll-behavior: none; }

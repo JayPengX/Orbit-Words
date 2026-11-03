@@ -92,19 +92,43 @@ hooks.render = render;
 // ---- Drawing ------------------------------------------------------------------------------
 
 // The open tab: what's running in it (a round, cards), else its screen.
+// A round (or cards, a paper) started or put away is a new screen: it opens
+// at the top, never where the tapped row was far down the home (a round
+// opened on blank, Jay 2026-11-03).
+let drawn;
+let drawnTab;
 function render() {
   const box = $(`panel-${state.tab}`);
   if (!box) return;
   if (!state.words) return put(box, el('div', { class: 'center-spin' }, [el('div', { class: 'spinner' })]));
-  if (state.session?.home === state.tab) renderSession(box);
+  const running = state.session?.home === state.tab ? state.session : null;
+  if (running !== drawn && drawnTab === state.tab) kitUI.freshScreen ? kitUI.freshScreen() : scrollTo(0, 0);
+  drawn = running;
+  drawnTab = state.tab;
+  if (running) renderSession(box);
   else {
     VIEWS[state.tab](box);
     // Every tab but the first opens on the kit's large title (今天 has none).
     if (state.tab !== TABS[0]) box.prepend(kitUI.navTitle(t(`tab_${state.tab}`)));
   }
+  lockRound(running);
   // 複習's count on its tab: the words missed last time.
   tabNav.badge('review', catCounts(state.words, state.progress, { marks: state.marks }).wrong, { tone: 'accent' });
 }
+
+// While a round's screen fits the screen, the page doesn't scroll (nothing
+// under it to scroll to); a taller one (a long sentence, the end's list of
+// words) scrolls as ever.
+function lockRound(running) {
+  const root = document.documentElement;
+  if (!running) return root.classList.remove('run-lock');
+  requestAnimationFrame(() => {
+    if (drawn !== running) return;
+    root.classList.remove('run-lock');
+    root.classList.toggle('run-lock', document.scrollingElement.scrollHeight <= innerHeight + 1);
+  });
+}
+addEventListener('resize', () => lockRound(drawn));
 
 const TAB_ICONS = { today: 'home', review: 'history', list: 'book', progress: 'chart' };
 const tabNav = tabBar({ tabs: TABS.map(id => ({ id, label: t(`tab_${id}`), icon: TAB_ICONS[id] })), onSelect: (tab, { again }) => (again ? resetTab(tab) : showTab(tab)) });

@@ -30,3 +30,18 @@ test('the lead card is never filled with a colour', () => {
   assert.doesNotMatch(css, /\.hero\s*\{[^}]*background/);
   assert.doesNotMatch(css, /\.hero[^{]*\{[^}]*#fff/);
 });
+
+// Jay 2026-11-03: 練習模式 has its own 開始; a tap on a way only picks it.
+test('練習模式: a tap picks a way, its own 開始 starts the round', () => {
+  const src = read('views/today.js');
+  const pick = src.slice(src.indexOf('function pickMode'), src.indexOf('\n}\n', src.indexOf('function pickMode')));
+  assert.doesNotMatch(pick, /startRound/);
+  assert.match(src, /mode-go[^\n]*startRound\(\{ mode: state\.mode \}\)/);
+});
+
+// Jay 2026-11-03: a round opened on blank (the page left down where the tapped
+// row was). A round started or put away opens at the top.
+test('a round starts at the top of the page, never where the tapped row was', () => {
+  const app = read('app.js');
+  assert.match(app, /running !== drawn[^\n]*freshScreen/);
+});
