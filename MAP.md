@@ -8,14 +8,22 @@ Live: https://orbit.jaypengx.com/words/
 
 ## How it works
 
-- **Tabs:** 今天 (the day's goal of 20 and the streak, the round; its
-  choices are a sheet from the hero: 10/20/30 words, levels, sound speed;
-  練習模式, every way to practise as a grid, a tap starts a round that way
-  and the hero's round keeps it; new words as cards, the 拼字比賽 paper, the
-  weak words, word of the day)
+- **Tabs:** 今天, the home (never a round by itself, Jay 2026-11-03: a
+  question on the home is playing, not a home): the goal card (today's
+  answers of 20 large, the streak beside it, a line, what's left; its pill
+  opens the round's choices: 10/20/30 words, levels, sound speed) with one
+  開始 in the app's colour; the word of the day under it; 繼續 as rows (new
+  words, what's due, the weak round, the missed words, each its count);
+  練習模式 as a list, a tap starts a round that way and 開始 keeps it; the
+  拼字比賽 paper, the streak, the weak words, the decks, the recent words
   · 複習 (答錯, 該複習, 學習中, 收藏; flash cards then a test) · 單字 (the
   whole list) · 進度 (level and points, accuracy, the 14 days and what's
   due, each level, the memory fit, the words forgotten most).
+- **The look** (Orbit-Core `docs/DESIGN.md` §11): Orbit's own, always on
+  (`index.html` says `data-look="native"`, `look.css` after `styles.css`):
+  every card graphite (the goal, a deck, a round's result, the paper's
+  score), colour only on what it names and on the one main action;
+  `tests/look.test.mjs` holds it.
 - **Wide screens** (DESIGN §10): 今天 and 進度 in two columns (three on a computer, `columns` in `views/chrome.js`), 複習 and 單字 with the word open beside the list instead of a sheet (`wordPane` in `views/sheet.js`), a question beside its answers; a round, the cards and the paper stay 720 wide in the middle.
 - **A word's sheet** (from anywhere, or `#word=<word>`): sound, KK, the
   senses (most useful first), an example with its Chinese, the word's forms, what you mixed it up with, your misspellings,
