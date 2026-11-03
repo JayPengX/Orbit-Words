@@ -17,15 +17,32 @@ English vocabulary that sticks: the full 大考中心 list, levels 1 to 6 (6,169
 
 <p align="center">
   <img src="docs/screenshots/words-1.webp" width="30%" alt="Today's goal and streak">
-  <img src="docs/screenshots/words-2.webp" width="30%" alt="Tricky choices that teach">
+  <img src="docs/screenshots/words-2.webp" width="30%" alt="Know why, right away">
   <img src="docs/screenshots/words-3.webp" width="30%" alt="Every word, explained">
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/words-4.webp" width="30%" alt="Review at the right time">
-  <img src="docs/screenshots/words-5.webp" width="30%" alt="Watch yourself improve">
-  <img src="docs/screenshots/words-6.webp" width="30%" alt="Levels and memory">
+  <img src="docs/screenshots/words-4.webp" width="30%" alt="Many ways to practise">
+  <img src="docs/screenshots/words-5.webp" width="30%" alt="A mock spelling contest">
+  <img src="docs/screenshots/words-6.webp" width="30%" alt="Watch yourself improve">
 </p>
+
+<details>
+<summary>中文畫面</summary>
+
+<p align="center">
+  <img src="docs/screenshots/words-1.zh.webp" width="30%" alt="今日目標與連續天數">
+  <img src="docs/screenshots/words-2.zh.webp" width="30%" alt="答完馬上知道為什麼">
+  <img src="docs/screenshots/words-3.zh.webp" width="30%" alt="每個單字都有解說">
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/words-4.zh.webp" width="30%" alt="多種練習模式">
+  <img src="docs/screenshots/words-5.zh.webp" width="30%" alt="拼字比賽模擬考">
+  <img src="docs/screenshots/words-6.zh.webp" width="30%" alt="看見自己進步">
+</p>
+
+</details>
 
 ## Features
 
