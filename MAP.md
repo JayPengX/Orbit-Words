@@ -9,11 +9,16 @@ Live: https://orbit.jaypengx.com/words/
 ## How it works
 
 - **Tabs:** 今天, the home (never a round by itself, Jay 2026-11-03: a
-  question on the home is playing, not a home): the goal card (today's
-  answers of 20 large, the streak beside it, a line, what's left; its pill
-  opens the round's choices: 10/20/30 words, levels, sound speed) with one
-  開始 in the app's colour; the word of the day under it; 繼續 as rows (new
-  words, what's due, the weak round, the missed words, each its count);
+  question on the home is playing, not a home). It says what the app is at
+  a glance (Jay 2026-11-03): the lead card is 今天的字, the next round's own
+  English words (`nextRound`: picked once with `pickRound` and kept while
+  nothing it was picked from changes, so 開始 asks exactly the words shown;
+  six at most, two to a row), how many and of what kind (to review, to firm
+  up, new), the streak beside, its pill the round's choices, one 開始 in the
+  app's colour, today's answers of 20 at its foot; then 我的字庫 (`bankCard`,
+  a tap opens 進度): words 精熟 large (the memory model's call), how many
+  learning, each level a bar of how far it's known; the word of the day; 繼續
+  as rows (new words, what's due, the weak round, the missed words, each its count);
   練習模式 as a list, a tap picks a way and its own 開始 under it starts the round (a round opens at the top, kit `freshScreen`, and doesn't scroll while it fits the screen); the
   拼字比賽 paper, the streak, the weak words, the decks, the recent words
   · 複習 (答錯, 該複習, 學習中, 收藏; flash cards then a test) · 單字 (the

@@ -42,9 +42,11 @@ export function head(onClose, value, max, right, label = t('close')) {
 //
 // `list`: given words (a flash deck's test), else the usual round.
 // `from`: 'study' (the studied batch), 'flash' (a deck), or none.
-export function startRound({ from = null, list = null, mode = state.mode } = {}) {
+export function startRound({ from = null, list = null, words: picked = null, mode = state.mode } = {}) {
   let words;
-  if (from === 'study') words = pickRound(state.study.map(k => state.byKey.get(k)).filter(Boolean), {}, { levels: LEVELS, size: state.study.length });
+  // (今天's card: the round it already shows, in its order.)
+  if (picked?.length) words = [...picked];
+  else if (from === 'study') words = pickRound(state.study.map(k => state.byKey.get(k)).filter(Boolean), {}, { levels: LEVELS, size: state.study.length });
   // A deck in its own order, shuffled, look-alikes apart (spread).
   else if (list) words = spread([...list].sort(() => Math.random() - 0.5));
   else words = pickRound(state.words, state.progress, { levels: state.levels, size: state.size, skip: new Set(state.study), factor: personalFactor(state.cal) });

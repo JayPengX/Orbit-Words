@@ -88,6 +88,7 @@ document.addEventListener('visibilitychange', () => document.visibilityState ===
 hooks.changed = () => (pass.changed(), keepLocal(), sync({ soon: true }));
 hooks.sync = () => sync();
 hooks.render = render;
+hooks.tab = tab => (tab === state.tab ? scrollTo({ top: 0 }) : showTab(tab));
 
 // ---- Drawing ------------------------------------------------------------------------------
 

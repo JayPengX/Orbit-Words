@@ -21,7 +21,7 @@ test('今天 never starts a round by itself: no question drawn on the home, 開�
   const body = src.slice(src.indexOf('export function renderToday'), src.indexOf('\n}\n', src.indexOf('export function renderToday')));
   assert.doesNotMatch(src, /questionCard|primeRound|buildQuestion/);
   assert.doesNotMatch(body, /startRound\(/);
-  assert.match(src, /heroBtn\([^;]*\(\) => startRound\(\)/);
+  assert.match(src, /heroBtn\([^;]*\(\) => startRound\(\{ words \}\)/);
 });
 
 // Colour is what it names: the lead card is graphite, never the app's colour.

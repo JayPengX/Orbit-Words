@@ -45,7 +45,7 @@ export const state = {
 
 // Filled in by app.js: changed() saves soon, render() redraws the open tab,
 // sync() saves now.
-export const hooks = { changed() {}, render() {}, sync() {} };
+export const hooks = { changed() {}, render() {}, sync() {}, tab() {} };
 // A setting changed here: dated, so it wins over an older copy's, and saved.
 export const settingsChanged = () => ((state.st = Math.round(Date.now() / 1000)), hooks.changed());
 
