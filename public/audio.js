@@ -6,11 +6,15 @@
 // over: music stopped, and the clip showed as Now Playing.) Like any ambient
 // sound, the ring/silent switch silences it. The context is woken in the tap
 // that asks for a word (iOS starts sound only from a tap), and stays awake,
-// so later words play from code too. Without the clip (offline, a missing
-// file, no Web Audio): the device's best English voice (lib/voice.mjs).
+// so later words play from code too. Without the clip in 2.5 s (a slow or
+// no connection, a missing file, no Web Audio, a context iOS stopped): the
+// device's best English voice (lib/voice.mjs); with neither, a short notice
+// (lib/sound.mjs).
 // The speed is the person's (state.opt.rate, 0.75 to 1.25).
+import * as kit from '#kit/orbit.mjs';
 import { pickVoice } from './lib/voice.mjs';
-import { el } from './ui.js';
+import { sayWord, late } from './lib/sound.mjs';
+import { el, toast } from './ui.js';
 import { ico } from './views/chrome.js';
 import { state, t } from './shell.js';
 
@@ -26,6 +30,15 @@ const Ctx = typeof window !== 'undefined' ? window.AudioContext || window.webkit
 let ctx = null;
 const context = () => {
   if (!Ctx) return null;
+  // Interrupted (a call, the app sent away): iOS can keep such a context
+  // silent however often it's resumed, so a new one is made, here in the tap.
+  if (ctx && ctx.state === 'interrupted') {
+    try {
+      ctx.close();
+    } catch {}
+    ctx = null;
+    buffers.clear();
+  }
   if (!ctx || ctx.state === 'closed') {
     try {
       ctx = new Ctx();
@@ -33,7 +46,7 @@ const context = () => {
       return null;
     }
   }
-  // Suspended (never tapped) or interrupted (a call, the app sent away): woken here, in the tap.
+  // Suspended (never tapped): woken here, in the tap.
   if (ctx.state !== 'running') ctx.resume().catch(() => {});
   return ctx;
 };
@@ -64,43 +77,78 @@ const loadVoices = () => {
     voices = speechSynthesis.getVoices();
   } catch {}
 };
-if ('speechSynthesis' in window) {
+const hasSpeech = typeof window !== 'undefined' && 'speechSynthesis' in window;
+if (hasSpeech) {
   loadVoices();
   speechSynthesis.addEventListener?.('voiceschanged', loadVoices);
 }
+// iOS speaks only from a tap at first: an empty line said in the first tap
+// lets the voice stand in later, when the recording is slow.
+let spoke = false;
+const wakeVoice = () => {
+  if (spoke || !hasSpeech) return;
+  spoke = true;
+  try {
+    speechSynthesis.speak(new SpeechSynthesisUtterance(''));
+  } catch {}
+};
 function voiceSpeak(text) {
-  if (!('speechSynthesis' in window)) return;
+  if (!hasSpeech) return false;
   if (!voices.length) loadVoices();
-  const u = new SpeechSynthesisUtterance(text);
-  const v = pickVoice(voices);
-  if (v) u.voice = v;
-  u.lang = v?.lang || 'en-US';
-  u.rate = 0.95 * rate();
-  if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel();
-  speechSynthesis.speak(u);
+  try {
+    const u = new SpeechSynthesisUtterance(text);
+    const v = pickVoice(voices);
+    if (v) u.voice = v;
+    u.lang = v?.lang || 'en-US';
+    u.rate = 0.95 * rate();
+    if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel();
+    speechSynthesis.speak(u);
+    return true;
+  } catch {
+    return false;
+  }
 }
-export function speak(word) {
+// The clip plays only on a running context; one still waking gets a moment.
+async function startClip(ac, buffer) {
+  if (ac.state !== 'running') await late(ac.resume(), 600).catch(() => {});
+  if (ac.state !== 'running') return false;
+  const src = ac.createBufferSource();
+  src.buffer = buffer;
+  src.playbackRate.value = rate();
+  src.connect(ac.destination);
+  src.start();
+  playing = src;
+  return true;
+}
+let told = 0;
+const tellNoSound = (why, word) => {
+  kit.rec?.('words-sound', { why, word: word.word, online: navigator.onLine, ctx: ctx?.state || 'none' });
+  if (Date.now() - told < 4000) return;
+  told = Date.now();
+  toast(t(why === 'context' ? 'noSoundAgain' : 'noSound'), 'bad');
+};
+// btn: the speaker tapped, shown busy while its clip is on the way.
+export function speak(word, btn) {
   if (!word) return;
+  wakeVoice();
   const ac = context();
-  if (!ac) return voiceSpeak(word.word);
   const mine = ++asked;
   try {
     playing?.stop();
   } catch {}
   playing = null;
-  if ('speechSynthesis' in window && (speechSynthesis.speaking || speechSynthesis.pending)) speechSynthesis.cancel();
-  decoded(ac, clipUrl(word))
-    .then(buffer => {
-      // A newer word asked meanwhile: that one plays, not this.
-      if (mine !== asked) return;
-      const src = ac.createBufferSource();
-      src.buffer = buffer;
-      src.playbackRate.value = rate();
-      src.connect(ac.destination);
-      src.start();
-      playing = src;
-    })
-    .catch(() => mine === asked && voiceSpeak(word.word));
+  if (hasSpeech && (speechSynthesis.speaking || speechSynthesis.pending)) speechSynthesis.cancel();
+  const busy = btn && setTimeout(() => btn.setAttribute('aria-busy', 'true'), 250);
+  sayWord({
+    clip: () => (ac ? decoded(ac, clipUrl(word)) : Promise.reject(new Error('no web audio'))),
+    start: buffer => startClip(ac, buffer),
+    voice: () => voiceSpeak(word.word),
+    current: () => mine === asked,
+    notice: why => tellNoSound(why, word)
+  }).finally(() => {
+    clearTimeout(busy);
+    btn?.removeAttribute('aria-busy');
+  });
 }
 // The next word's clip fetched ahead (the service worker keeps it), so it
 // plays at once when its question comes. Quietly: a failure is the clip's
@@ -114,7 +162,7 @@ export function prefetch(word) {
   else fetch(clipUrl(word), { priority: 'low' }).catch(() => fetched.delete(word.key));
 }
 export const speakButton = (word, big = false) => {
-  const b = el('button', { class: `speak${big ? ' big' : ''}`, type: 'button', 'aria-label': t('listen'), onclick: e => (e.stopPropagation(), speak(word)) });
+  const b = el('button', { class: `speak${big ? ' big' : ''}`, type: 'button', 'aria-label': t('listen'), onclick: e => (e.stopPropagation(), speak(word, b)) });
   b.innerHTML = ico('sound');
   return b;
 };

@@ -81,6 +81,10 @@ h1, h2, h3, p { margin: 0; }
 /* A word's sound: a soft circle; big, the app's colour. */
 .speak { flex: none; display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 50%; background: var(--accent-wash); color: var(--accent); }
 .speak svg { width: 19px; height: 19px; }
+/* A recording still on the way (a slow connection): the speaker breathes. */
+.speak[aria-busy] svg { animation: speak-wait 0.9s ease-in-out infinite alternate; }
+@keyframes speak-wait { to { opacity: 0.35; } }
+@media (prefers-reduced-motion: reduce) { .speak[aria-busy] svg { animation: none; opacity: 0.5; } }
 .speak.big { width: 64px; height: 64px; background: var(--accent); color: var(--accent-ink); box-shadow: 0 10px 24px -12px var(--accent); transition: transform var(--q-dur-snappy) var(--q-spring-snappy); }
 .speak.big:active { transform: scale(0.92); }
 .speak.big svg { width: 30px; height: 30px; }

@@ -59,6 +59,7 @@ Live: https://orbit.jaypengx.com/words/
   題組 split is a guess. The last 20 scores are kept (`ct`, with their size).
 - **Points** (`lib/practice.mjs`): XP, levels, the streak (20 answers a
   day), a 20:00 notice when it's about to end. Points buy nothing.
+- **Sound** (`audio.js`, `lib/sound.mjs`): a tap plays the word's recording through Web Audio (ambient: music goes on; the silent switch mutes it). The recording gets 2.5 s; slow, failed or a sound context iOS stopped, the device's English voice says it; with neither, a toast says so (`noSound`) and the 除錯紀錄 notes why (`words-sound`). The speaker breathes while its recording is on the way. `tests/sound.test.mjs` holds it (Jay 2026-11-05: the speaker was silent).
 - **Offline:** everything works. Words and recordings are the site's own
   files, kept by `sw.js`. Progress is saved on the phone at every change,
   and merged with the Pass before anything is written. The Pass's copy is
