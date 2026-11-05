@@ -171,8 +171,11 @@ function checkStreak() {
   schedulePush(q, items);
 }
 
+// (Each list's address carries its own hash, stamped at deploy (Orbit-Core
+// kit/stamp-app.mjs): a deploy that didn't change it leaves the phone's copy;
+// with the build's version, every deploy downloaded all three again, 466 KB.)
 async function loadWordList() {
-  state.words = loadWords(await fetch(`./data/words.json?v=${VERSION}`).then(r => r.json()));
+  state.words = loadWords(await fetch('./data/words.json').then(r => r.json()));
   state.byKey = new Map(state.words.map(w => [w.key, w]));
   warmMeanings(state.words);
 }
@@ -180,7 +183,7 @@ async function loadWordList() {
 // failed read leaves them out until the next opening (never saved empty).
 async function loadHintList() {
   try {
-    const res = await fetch(`./data/hints.json?v=${VERSION}`);
+    const res = await fetch('./data/hints.json');
     if (!res.ok) throw new Error(String(res.status));
     state.hints = loadHints(await res.json());
     if (!busy()) render();
@@ -189,7 +192,7 @@ async function loadHintList() {
 // A word's example and forms, for its sheet and the contest's 填空: after the first screen too.
 async function loadMoreList() {
   try {
-    const res = await fetch(`./data/more.json?v=${VERSION}`);
+    const res = await fetch('./data/more.json');
     if (!res.ok) throw new Error(String(res.status));
     state.more = loadMore(await res.json());
     redrawWord();
