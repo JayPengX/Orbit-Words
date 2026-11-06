@@ -75,6 +75,8 @@ Live: https://orbit.jaypengx.com/words/
 
 ## Decisions in force
 
+- **The phone's own day** (2026-11-06, users outside Taiwan): the streak, today's count and due dates (`dayNum`) and the 20:00 reminder follow the phone's clock (kit `localDay`); in Taiwan nothing changed.
+
 - The device's language; no switcher.
 - Recorded voices, never the device's when a recording exists.
 - The dictionary is written once offline (`scripts/dict/`): senses and KK

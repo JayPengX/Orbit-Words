@@ -15,6 +15,7 @@ import * as kitUI from '#kit/ui.mjs';
 // (As a namespace: a phone on an older kit lacks milestone, and a missing named import would stop the app.)
 import * as kit from '#kit/orbit.mjs';
 import { passSync } from '#kit/pass-sync.mjs';
+import * as fmtKit from '#kit/format.mjs';
 import { orbitSession, taipeiDay, tabBar, topActions, installGate, watchUpdates, schedulePush, notify, keepOffline, storedAccount, cachedPayload } from '#kit/orbit.mjs';
 import { loadWords, loadHints, loadMore, keyOf, stateOf, warmMeanings } from './lib/words.mjs';
 import { DAILY_GOAL, streakAtRisk } from './lib/practice.mjs';
@@ -162,12 +163,17 @@ kit.onScreen?.(() => state.loaded && quietRefresh());
 function checkStreak() {
   const n = streakAtRisk(state.days);
   const body = t('noticeStreakBody', { goal: DAILY_GOAL });
-  if (n && new Date(Date.now() + 8 * 3_600_000).getUTCHours() >= 20) notify(q, { title: t('noticeStreak', { n }), body, tag: `streak:${taipeiDay()}`, hash: 'today', kind: 'streak' });
+  // (20:00 and the day by the phone's own clock, wherever it is: 2026-11-06.)
   const now = Date.now();
-  const eight = day => Date.parse(`${taipeiDay(now + day * 86_400_000)}T20:00:00+08:00`);
+  const dayOf = t => (fmtKit.localDay ? fmtKit.localDay(t) : taipeiDay(t));
+  const eight = day => {
+    const d = new Date(now);
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate() + day, 20).getTime();
+  };
+  if (n && new Date(now).getHours() >= 20) notify(q, { title: t('noticeStreak', { n }), body, tag: `streak:${dayOf(now)}`, hash: 'today', kind: 'streak' });
   const items = [];
-  if (n && eight(0) > now) items.push({ at: eight(0), title: t('noticeStreak', { n }), body, tag: `streak:${taipeiDay(now)}`, hash: 'today', kind: 'streak' });
-  for (const day of [1, 2]) items.push({ at: eight(day), title: t('noticeStreakSoon'), body, tag: `streak:${taipeiDay(now + day * 86_400_000)}`, hash: 'today', kind: 'streak' });
+  if (n && eight(0) > now) items.push({ at: eight(0), title: t('noticeStreak', { n }), body, tag: `streak:${dayOf(now)}`, hash: 'today', kind: 'streak' });
+  for (const day of [1, 2]) items.push({ at: eight(day), title: t('noticeStreakSoon'), body, tag: `streak:${dayOf(eight(day))}`, hash: 'today', kind: 'streak' });
   schedulePush(q, items);
 }
 

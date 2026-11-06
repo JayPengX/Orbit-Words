@@ -7,6 +7,9 @@ import { loadWords, loadHints, grade, distractors, dayNum } from '../public/lib/
 import { inCat, catCounts, reviewList, browse, flashDeck, toggleMark, mergeMarks, isMarked, wordInfo, totals, forecast, levelBreakdown, memorySpread, matches } from '../public/lib/review.mjs';
 import { logResult, mergeLog, periodOf, logAnswer, daysPractised } from '../public/lib/practice.mjs';
 
+// The days are the phone's own (2026-11-06): these run on a phone in Taiwan.
+process.env.TZ = 'Asia/Taipei';
+
 const read = f => JSON.parse(readFileSync(new URL(`../public/data/${f}`, import.meta.url)));
 const words = loadWords(read('words.json'));
 const byKey = new Map(words.map(w => [w.key, w]));
@@ -152,4 +155,16 @@ test('today\'s weak words: missed in the last 3 Taiwan days, newest first, cappe
   assert.deepEqual(recentMisses(w, progress, { now }).map(x => x.key), ['a', 'f', 'b']);
   assert.deepEqual(recentMisses(w, progress, { now, n: 2 }).map(x => x.key), ['a', 'f']);
   assert.deepEqual(recentMisses(w, {}, { now }), []);
+});
+
+// Outside Taiwan (2026-11-06): a day's number is the phone's own day, never Taiwan's.
+test('abroad: the day is where the phone is', () => {
+  const was = process.env.TZ;
+  process.env.TZ = 'America/Los_Angeles';
+  try {
+    // 20:00 on 11-05 in California is 12:00 on 11-06 in Taiwan: still the 5th here.
+    assert.equal(dayNum(Date.parse('2026-11-05T20:00:00-08:00')), Math.floor(Date.parse('2026-11-05T00:00:00Z') / 86_400_000));
+  } finally {
+    process.env.TZ = was;
+  }
 });

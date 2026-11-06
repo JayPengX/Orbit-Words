@@ -58,10 +58,10 @@ export const MODES = ['smart', 'meaning', 'word', 'listen', 'spell', 'sentence',
 const CONFUSED_KEEP = 4;
 const SPELT_KEEP = 3;
 const DAY = 86_400_000;
-const TPE = 8 * 3_600_000;
 
-// A day number (days since 1970 in Taiwan), for due dates.
-export const dayNum = (t = Date.now()) => Math.floor((t + TPE) / DAY);
+// A day number (days since 1970 by the phone's own clock: Taiwan's in Taiwan,
+// the place's abroad, 2026-11-06), for due dates.
+export const dayNum = (t = Date.now()) => Math.floor((t - new Date(t).getTimezoneOffset() * 60_000) / DAY);
 export const keyOf = word => String(word || '').toLowerCase().replace(/’/g, "'").trim();
 
 // The raw list ([word, pos, level, zh, phonetic]) as objects.

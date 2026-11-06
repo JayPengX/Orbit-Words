@@ -4,6 +4,11 @@
 // day in `days`. Nothing here is money or touches the Orbit wallet.
 
 import { taipeiDay } from '#kit/orbit.mjs';
+import * as fmt from '#kit/format.mjs';
+
+// A day of practice is the phone's own (wherever it is, 2026-11-06; kit
+// localDay), Taiwan's on an older kit.
+const dayOf = t => (fmt.localDay ? fmt.localDay(t) : taipeiDay(t));
 import { addDays } from '#kit/format.mjs';
 
 // Points: a right answer, and a word mastered the first time.
@@ -57,8 +62,8 @@ const dayBefore = d => addDays(d, -1);
 
 // One more answer today; old days dropped.
 export function logAnswer(days, now = Date.now()) {
-  const day = taipeiDay(now);
-  const from = taipeiDay(now - KEEP_DAYS * 86_400_000);
+  const day = dayOf(now);
+  const from = dayOf(now - KEEP_DAYS * 86_400_000);
   const out = Object.fromEntries(Object.entries(days || {}).filter(([d]) => d > from));
   out[day] = (out[day] || 0) + 1;
   return out;
@@ -69,12 +74,12 @@ export function mergeDays(a = {}, b = {}) {
   for (const [d, n] of Object.entries(b)) out[d] = Math.max(out[d] || 0, Number(n) || 0);
   return out;
 }
-export const todayCount = (days, now = Date.now()) => days?.[taipeiDay(now)] || 0;
+export const todayCount = (days, now = Date.now()) => days?.[dayOf(now)] || 0;
 const kept = (days, d) => (days?.[d] || 0) >= DAILY_GOAL;
 // Days in a row with the goal met, up to today (or yesterday, while today
 // isn't done yet).
 export function streakOf(days, now = Date.now()) {
-  let d = taipeiDay(now);
+  let d = dayOf(now);
   if (!kept(days, d)) d = dayBefore(d);
   let n = 0;
   while (kept(days, d)) (n++, (d = dayBefore(d)));
@@ -91,7 +96,7 @@ export function bestStreak(days) {
   return best;
 }
 // The streak would end tonight: there is one, and today's goal isn't met.
-export const streakAtRisk = (days, now = Date.now()) => (kept(days, taipeiDay(now)) ? 0 : streakOf(days, now));
+export const streakAtRisk = (days, now = Date.now()) => (kept(days, dayOf(now)) ? 0 : streakOf(days, now));
 // The goal line on 今天: answers still to give today, and the streak that
 // answering them keeps (0 when there is none to lose).
 export function goalStatus(days, now = Date.now()) {
@@ -100,7 +105,7 @@ export function goalStatus(days, now = Date.now()) {
 // The last `n` days, oldest first: [{ day, answers, kept }].
 export function lastDays(days, n = 7, now = Date.now()) {
   const out = [];
-  let d = taipeiDay(now);
+  let d = dayOf(now);
   for (let i = 0; i < n; i++, d = dayBefore(d)) out.unshift({ day: d, answers: days?.[d] || 0, kept: kept(days, d) });
   return out;
 }
@@ -112,8 +117,8 @@ export function lastDays(days, n = 7, now = Date.now()) {
 // capped at a minute (a phone put down mid-question isn't study time).
 const CAP_MS = 60_000;
 export function logResult(log, correct, ms = 0, now = Date.now()) {
-  const day = taipeiDay(now);
-  const from = taipeiDay(now - KEEP_DAYS * 86_400_000);
+  const day = dayOf(now);
+  const from = dayOf(now - KEEP_DAYS * 86_400_000);
   const out = Object.fromEntries(Object.entries(log || {}).filter(([d]) => d > from));
   const [r = 0, s = 0] = out[day] || [];
   out[day] = [r + (correct ? 1 : 0), Math.round((s + Math.min(CAP_MS, Math.max(0, ms || 0)) / 1000) * 10) / 10];
@@ -136,7 +141,7 @@ export function periodOf(days, log, n = 7, now = Date.now()) {
   let answers = 0;
   let right = 0;
   let seconds = 0;
-  let d = taipeiDay(now);
+  let d = dayOf(now);
   for (let i = 0; i < n; i++, d = dayBefore(d)) {
     if (!log?.[d]) continue;
     answers += days?.[d] || 0;
