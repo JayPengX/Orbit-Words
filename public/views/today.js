@@ -159,7 +159,9 @@ function rail(cards, cls = '') {
   const fit = kit.screenFit?.() || {};
   if (!fit.wide) return el('div', { class: `q-rail ${cls}`.trim() }, list);
   // (As many across as fit at a card's least width, 140: two or three.)
-  const room = (Math.min(fit.width, 1180) - 32 - (fit.w3 ? 48 : 24)) / (fit.w3 ? 3 : 2);
+  // (The page's widest: 1180, more on a big computer, the kit's --q-wide-max.)
+  const max = parseFloat(globalThis.getComputedStyle?.(document.documentElement).getPropertyValue('--q-wide-max')) || 1180;
+  const room = (Math.min(fit.width, max) - 32 - (fit.w3 ? 48 : 24)) / (fit.w3 ? 3 : 2);
   const most = Math.max(2, Math.min(3, Math.floor((room + 10) / 150)));
   // (The recent words three rows at most: the shelf no longer than its neighbours.)
   if (cls === 'recent-rail') list = list.slice(0, most * 3);

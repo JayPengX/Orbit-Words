@@ -343,7 +343,7 @@ h1, h2, h3, p { margin: 0; }
    their list beside the word opened (views/chrome.js columns, sheet.js
    wordPane). A tab with one column (a round, the cards, the paper, an empty
    list) stays a phone's reading width in the middle. */
-:root.q-wide { --q-page-max: 1180px; }
+:root.q-wide { --q-page-max: var(--q-wide-max, 1180px); }
 .tab-col > :first-child { margin-top: 0; }
 .tab-col > .q-section:first-child .q-section-head { margin-top: 0; }
 :root.q-wide .tab-panel:not(:has(> :is(.tab-cols, .tab-flow, .wide-lead))) { max-width: 720px; margin-inline: auto; }
