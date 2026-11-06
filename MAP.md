@@ -29,7 +29,7 @@ Live: https://orbit.jaypengx.com/words/
   every card graphite (the goal, a deck, a round's result, the paper's
   score), colour only on what it names and on the one main action;
   `tests/look.test.mjs` holds it.
-- **Wide screens** (DESIGN §10): 今天 and 進度 in two columns (three on a computer, `columns` in `views/chrome.js`), 複習 and 單字 with the word open beside the list instead of a sheet (`wordPane` in `views/sheet.js`), a question beside its answers; a round, the cards and the paper stay 720 wide in the middle.
+- **Wide screens** (DESIGN §10; Jay 2026-11-06, iPad): 今天 and 進度 open on a lead band (`.wide-lead`: 今天's words across two of three columns with 我的字庫 and 今日單字 beside; 進度's 精熟 beside its four numbers in a row), the rest dealt into columns of even height (kit `flowColumns`, `.q-flow.tab-flow`); 複習 and 單字 with the word open beside the list instead of a sheet (`wordPane` in `views/sheet.js`), its column sticky so it stays in view down the list; a question beside its answers; a round, the cards and the paper stay 720 wide in the middle. `tests/wide.test.mjs` holds it.
 - **A word's sheet** (from anywhere, or `#word=<word>`): sound, KK, the
   senses (most useful first), an example with its Chinese, the word's forms, what you mixed it up with, your misspellings,
   學習紀錄 (the chance you still know it, answers right, the next review).

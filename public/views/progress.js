@@ -3,6 +3,7 @@
 // coming (one chart, two ways), each level by state, and how long words
 // stay remembered: the model's fit, and the words forgotten most (a sheet).
 import * as kitUI from '#kit/ui.mjs';
+import * as kit from '#kit/orbit.mjs';
 import { el, put, segmented } from '../ui.js';
 import { bar, stats, section, row, rowCard, tag, columns } from './chrome.js';
 import { state, t, joined, percent, levelName, locale } from '../shell.js';
@@ -25,7 +26,15 @@ export function renderProgress(box) {
     el('span', { class: 'q-focus-sub', text: `Lv ${lv.level} ${lv.title} · ${xpText(xpOf(state.progress))}` })
   ]);
   const [well, activity, levels, memory] = [howWell(), section(t('activityTitle'), chartCard()), section(t('levelsTitle'), levelsCard()), section(t('memoryTitle'), memoryCard())];
-  put(box, ...columns([[top, well, activity], [levels, memory]], [[top, well], [activity], [levels, memory]]));
+  // Wide (Jay 2026-11-06, iPad: one column long beside two short ones): the
+  // words held and the four numbers in one row, then the chart, the levels
+  // and the memory side by side (the kit's flowColumns), in the phone's order.
+  const parts = [top, well, activity, levels, memory].filter(Boolean);
+  if (!kit.screenFit?.().wide) return put(box, ...parts);
+  if (!kitUI.flowColumns) return put(box, ...columns([[top, well, activity], [levels, memory]], [[top, well], [activity], [levels, memory]]));
+  well?.classList.add('span2');
+  put(box, el('div', { class: 'wide-lead' }, [top, well].filter(Boolean)), el('div', { class: 'q-flow tab-flow' }, [activity, levels, memory]));
+  kitUI.flowColumns(box);
 }
 
 // Accuracy and time: every answer, and the last 7 days.

@@ -346,7 +346,28 @@ h1, h2, h3, p { margin: 0; }
 :root.q-wide { --q-page-max: 1180px; }
 .tab-col > :first-child { margin-top: 0; }
 .tab-col > .q-section:first-child .q-section-head { margin-top: 0; }
-:root.q-wide .tab-panel:not(:has(> .tab-cols)) { max-width: 720px; margin-inline: auto; }
+:root.q-wide .tab-panel:not(:has(> :is(.tab-cols, .tab-flow, .wide-lead))) { max-width: 720px; margin-inline: auto; }
+/* A tab's lead band on wide screens (Jay 2026-11-06, iPad: three phone columns,
+   two nearly empty beside one long stack): its first cards in one row of
+   one height, the one marked .span2 across two of the three columns (今天's
+   words; 進度's numbers, four in a row); the rest under it in the kit's
+   .q-flow (columns of even height). */
+.wide-lead { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 var(--q-s-5, 24px); align-items: stretch; margin-bottom: 16px; }
+:root.q-w3 .wide-lead { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+:root.q-w3 .wide-lead > .span2 { grid-column: span 2; }
+.tab-panel .wide-lead > * { margin: 0; min-width: 0; }
+.wide-lead > .q-section > .q-stats { height: 100%; align-content: center; }
+:root.q-w3 .wide-lead > .span2 > .q-stats { --q-stats-n: 4; }
+.today-side { display: flex; flex-direction: column; }
+.today-side > .q-section { display: flex; flex-direction: column; flex: 1; }
+.today-side > .q-section > :last-child { flex: 1; }
+.today-side > .wbank + .q-section .q-section-head { margin-top: 18px; }
+/* (Across two columns, today's words three to a row when they fill the rows.) */
+:root.q-w3 .wide-lead .up-words:is(:has(> :nth-child(6):last-child), :has(> :nth-child(3):last-child)) { --n: 3 !important; }
+/* 單字 and 複習: the word's column itself sticks (inside the grid, as tall as the list), so the
+   word beside the list stays in view all the way down (Jay 2026-11-06: it scrolled away with the
+   list's first screen; a sticky pane inside a column only its own height never stuck). */
+:root.q-wide .tab-col:has(> .word-pane) { position: sticky; top: calc(env(safe-area-inset-top) + 12px); }
 :root.q-wide .tab-cols .level-chips { margin-inline: 0; padding-inline: 0; scroll-padding-inline: 0; }
 /* The word beside the list: the sheet's own content on a card that stays in view while the list scrolls. */
 .word-pane { position: sticky; top: calc(env(safe-area-inset-top) + 12px); max-height: calc(100dvh - env(safe-area-inset-top) - 24px); overflow-y: auto; overscroll-behavior: contain; padding: 8px 16px 20px; border-radius: var(--q-r-card); background: var(--q-surface); }

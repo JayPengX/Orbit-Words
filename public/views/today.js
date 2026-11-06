@@ -24,8 +24,22 @@ import { hardRow, openHardest } from './progress.js';
 
 export function renderToday(box) {
   const [goal, bank, wotd, go, modes, contest, streak, weak, decks, recent] = [goalHero(), bankCard(), wordOfDayCard(), continueList(), modeList(), contestCard(), streakPanel(), weakShelf(), deckShelf(), recentShelf()];
-  // Wide: today's words and the word bank first, where to pick up and the ways beside; then the rest.
-  put(box, ...columns([[goal, bank, wotd, go, modes], [contest, streak, weak, decks, recent]], [[goal, bank, wotd], [go, modes], [contest, streak, weak, decks, recent]]));
+  // Wide (Jay 2026-11-06, iPad: three phone columns, two nearly empty beside
+  // one long stack): a lead band, today's words across two columns with the
+  // word bank and the word of the day beside them; under it the rest dealt
+  // into columns of even height (the kit's flowColumns), read in the phone's order.
+  put(box, ...wideOrPhone([goal, bank, wotd], [go, modes, contest, streak, weak, decks, recent]));
+  kitUI.flowColumns?.(box);
+}
+
+// The phone's one column, or (q-wide, with the kit's flowColumns) the lead
+// band and a .q-flow under it.
+function wideOrPhone([goal, ...side], rest) {
+  const fit = kit.screenFit?.() || {};
+  if (!fit.wide) return [goal, ...side, ...rest].filter(Boolean);
+  if (!kitUI.flowColumns) return columns([[goal, ...side, ...rest.slice(0, 2)], rest.slice(2)]);
+  goal.classList.add('span2');
+  return [el('div', { class: 'wide-lead' }, [goal, el('div', { class: 'today-side' }, side.filter(Boolean))]), el('div', { class: 'q-flow tab-flow' }, rest.filter(Boolean))];
 }
 
 // The next round, picked once and kept while nothing it was picked from has
@@ -147,6 +161,8 @@ function rail(cards, cls = '') {
   // (As many across as fit at a card's least width, 140: two or three.)
   const room = (Math.min(fit.width, 1180) - 32 - (fit.w3 ? 48 : 24)) / (fit.w3 ? 3 : 2);
   const most = Math.max(2, Math.min(3, Math.floor((room + 10) / 150)));
+  // (The recent words three rows at most: the shelf no longer than its neighbours.)
+  if (cls === 'recent-rail') list = list.slice(0, most * 3);
   if (cls === 'recent-rail' && list.length > most && list.length % most) list = list.slice(0, list.length - (list.length % most));
   const n = list.length <= most ? list.length : list.length === 4 ? 2 : most;
   // (A last card alone on its row runs across it, never a lone half.)
