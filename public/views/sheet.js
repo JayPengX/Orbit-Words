@@ -69,10 +69,17 @@ export const redrawWord = () => dialog?.open && current && draw(current, inSheet
 export function wordPane(fallback) {
   const word = state.byKey.get(paneKey) || fallback;
   if (!word) return null;
+  // Drawn again (a star tapped in it, progress saved): the same word stays
+  // where it was read to, never back at its top (Jay 2026-11-07).
+  const was = pane?.el.isConnected && paneKey === word.key ? pane.el.scrollTop : 0;
   const b = el('div', { class: 'word-body' });
   const l = el('span', { class: 'sheet-lead' });
   pane = { el: el('aside', { class: 'word-pane word-sheet', 'aria-live': 'polite' }, [el('div', { class: 'pane-head' }, [l]), b]), box: b, lead: l, top: () => pane.el.scrollTo?.(0, 0) };
   drawPane(word, false);
+  if (was) {
+    const at = pane.el;
+    requestAnimationFrame(() => at.scrollTo?.(0, was));
+  }
   return pane.el;
 }
 function drawPane(word, scroll = true) {

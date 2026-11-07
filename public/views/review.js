@@ -50,7 +50,7 @@ function wordsSection() {
   const listBox = el('div');
   const draw = () => {
     const items = reviewList(state.words, state.progress, view.cat, { marks: state.marks, sort: view.sort, query: view.query });
-    put(listBox, pagedList(items, wordRow, { more: t('showMore'), empty: t('noMatch') }));
+    put(listBox, pagedList(items, wordRow, { more: t('showMore'), empty: t('noMatch'), keep: `review:${view.cat}:${view.sort}:${view.query}` }));
   };
   draw();
   const sort = menuButton(SORTS.map(s => ({ id: s, label: t(`sort_${s}`) })), view.sort, s => ((view.sort = s), hooks.render()));

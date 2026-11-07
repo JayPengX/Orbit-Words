@@ -242,5 +242,5 @@ function results(s) {
       el('small', { class: 'wr-side', text: t(`partShort_${a.part}`) })
     ]);
   });
-  return el('div', { class: 'round-end' }, [top, section(t('byPart'), parts), rows.length ? section(t('missedN', { n: rows.length }), pagedList(rows, row => row(), { cls: 'q-rowcard results', more: t('showMore') })) : null]);
+  return el('div', { class: 'round-end' }, [top, section(t('byPart'), parts), rows.length ? section(t('missedN', { n: rows.length }), pagedList(rows, row => row(), { cls: 'q-rowcard results', more: t('showMore'), keep: `contest:${s.startedAt}` })) : null]);
 }

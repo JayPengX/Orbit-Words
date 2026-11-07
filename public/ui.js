@@ -79,19 +79,24 @@ export function searchField(value, placeholder, onInput) {
 // marked (spellDiff's [{ ch, ok }]).
 export const diffLine = (parts, cls = '') => el('span', { class: `diff ${cls}`.trim() }, parts.map(d => el('span', { class: d.ok ? '' : 'bad', text: d.ch })));
 // A list shown a page at a time: the button under it adds the next page in place.
-export function pagedList(items, row, { page = 40, cls = 'q-rowcard words', empty = '', more: label = '' } = {}) {
+// `keep` names the list (with its filter): how far it was opened is kept
+// under that name, so a redraw (a star tapped, a word's progress saved)
+// draws it as far open as it was, never back to its first page (Jay
+// 2026-11-07: favouriting a word reset the list he had opened).
+const opened = new Map();
+export function pagedList(items, row, { page = 40, cls = 'q-rowcard words', empty = '', more: label = '', keep = '' } = {}) {
   if (!items.length) return el('p', { class: 'none', text: empty });
   const box = el('div', { class: cls });
   const more = el('button', { class: 'q-btn more', type: 'button' });
   let shown = 0;
-  const step = () => {
-    const next = items.slice(shown, shown + page);
+  const step = n => {
+    const next = items.slice(shown, shown + n);
     shown += next.length;
     box.append(...next.map(row));
     more.hidden = shown >= items.length;
     more.textContent = `${label} (${(items.length - shown).toLocaleString()})`;
   };
-  more.addEventListener('click', step);
-  step();
+  more.addEventListener('click', () => (step(page), keep && opened.set(keep, shown)));
+  step(Math.max(page, (keep && opened.get(keep)) || 0));
   return el('div', { class: 'paged' }, [box, more]);
 }

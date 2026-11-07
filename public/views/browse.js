@@ -20,7 +20,7 @@ export function renderBrowse(box) {
   const draw = () => {
     items = browse(state.words, state.progress, { ...view, marks: state.marks });
     head.textContent = items.length === total ? t('listAll') : t('wordsCount', { n: items.length.toLocaleString() });
-    put(listBox, pagedList(items, wordRow, { more: t('showMore'), empty: t('noMatch') }));
+    put(listBox, pagedList(items, wordRow, { more: t('showMore'), empty: t('noMatch'), keep: `list:${view.level}:${view.state}:${view.query}` }));
   };
   const list = section('', listBox, menuButton(STATES.map(s => ({ id: s, label: t(`filter_${s}`) })), view.state, s => ((view.state = s), hooks.render())));
   list.querySelector('h2').replaceWith(head);
