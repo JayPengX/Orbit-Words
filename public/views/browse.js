@@ -6,8 +6,9 @@ import { state, t, hooks, levelName } from '../shell.js';
 import { LEVELS } from '../lib/words.mjs';
 import { STATES, browse } from '../lib/review.mjs';
 import { wordRow } from './review.js';
-import { section, menuButton, columns } from './chrome.js';
 import { wordPane } from './sheet.js';
+import { photoWords } from './photo.js';
+import { section, menuButton, columns, row, rowCard } from './chrome.js';
 import * as kit from '#kit/orbit.mjs';
 
 const view = { level: 0, state: 'all', query: '' };
@@ -29,5 +30,7 @@ export function renderBrowse(box) {
   const levels = chips([{ id: 0, label: t('allLevels') }, ...LEVELS.map(l => ({ id: l, label: levelName(l) }))], view.level, l => ((view.level = l), hooks.render()), 'level-chips');
   // Wide: the list beside the word opened (the first, until one is tapped).
   const pane = kit.screenFit?.().wide ? wordPane(items[0]) : null;
-  put(box, ...columns([[search, levels, list], [pane]]));
+  // 拍照找單字 (Jay 11-10): a page's words starred from a photo (views/photo.js).
+  const snap = rowCard([row({ title: t('photoRow'), sub: t('photoRowSub'), icon: 'camera', color: 'var(--q-accent)', onClick: () => photoWords() })], 'photo-row');
+  put(box, ...columns([[search, snap, levels, list], [pane]]));
 }

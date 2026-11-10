@@ -45,6 +45,9 @@ Live: https://orbit.jaypengx.com/words/
   word, checked by the AI door (`words-check`: natural, right meaning and
   form), the fewest changes marked word by word and one line on why; the kit's
   `ai.mjs` (`aiBar`, `aiCall`) loaded beside the sheet, never in its way.
+  拍照找單字 (`views/photo.js`, 單字's row under the search): a photo of a
+  page, read by the AI (`words-photo`, Gemini Flash), only the list's own
+  words kept (a form counts as its word), offered ticked to star into 收藏.
 - **Teaching** (`lib/words.mjs`), hard on purpose:
   - Wrong options are the likeliest mix-ups: spelt alike, close in meaning,
     or words this person already confused.

@@ -427,3 +427,8 @@ h1, h2, h3, p { margin: 0; }
 .card-grid.deck-rail { row-gap: 18px; padding-top: 8px; }
 /* A round that fits the screen: the page doesn't scroll (app.js lockRound). */
 html.run-lock, html.run-lock body { overflow: hidden; overscroll-behavior: none; }
+/* 拍照找單字 (views/photo.js): the row in 單字, the page's words to star. */
+.photo-row { margin: var(--q-s-2) 0; }
+.photo-words { display: grid; gap: var(--q-s-3); }
+.photo-lead, .photo-err { margin: 0 4px; font-size: 15px; line-height: 1.45; }
+.photo-list .q-ritem[disabled] { opacity: 0.55; }

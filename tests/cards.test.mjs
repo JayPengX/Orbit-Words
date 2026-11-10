@@ -23,3 +23,12 @@ test('the corrected sentence: only what changed is marked', () => {
   assert.deepEqual(wordDiff('I like it.', 'I like it!').filter(w => w.changed), [], 'stops aside');
   assert.deepEqual(wordDiff('', 'A new one.').map(w => w.changed), [true, true, true]);
 });
+
+test('a page’s words: the list’s own (a form counts as its word), once each, in order; the rest counted', async () => {
+  const { pageWords } = await import('../public/lib/cards.mjs');
+  const byKey = new Map([['study', { key: 'study', word: 'study' }], ['abandon', { key: 'abandon', word: 'abandon' }], ['look forward to', { key: 'look forward to', word: 'look forward to' }]]);
+  const forms = new Map([['studies', 'study'], ['abandoned', 'abandon']]);
+  const r = pageWords(['abandoned', 'Study', 'studies', 'zyzzyva', 'look forward to', ''], byKey, forms);
+  assert.deepEqual(r.found.map(w => w.word), ['abandon', 'study', 'look forward to']);
+  assert.equal(r.other, 1);
+});

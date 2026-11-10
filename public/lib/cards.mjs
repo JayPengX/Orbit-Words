@@ -44,3 +44,24 @@ export function wordDiff(said, fixed) {
   }
   return out;
 }
+
+// 拍一頁變單字卡: the words the AI read off a page, as the list's own
+// (`byKey`: key → word; `forms`: a form's key → its word's key, data/more.json),
+// in the page's order, once each; and how many it read that the list hasn't.
+export function pageWords(words, byKey, forms = new Map()) {
+  const seen = new Set();
+  const found = [];
+  let other = 0;
+  for (const raw of words || []) {
+    const k = String(raw || '').toLowerCase().replace(/’/g, "'").trim();
+    const key = byKey.has(k) ? k : forms.get(k);
+    if (!key || !byKey.has(key)) {
+      if (k) other++;
+      continue;
+    }
+    if (seen.has(key)) continue;
+    seen.add(key);
+    found.push(byKey.get(key));
+  }
+  return { found, other };
+}
