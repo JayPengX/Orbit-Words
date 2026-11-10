@@ -36,6 +36,10 @@ Live: https://orbit.jaypengx.com/words/
 - **Ways to practise** (`MODES`): 智慧練習 (by memory), 選中文, 選英文,
   聽音選字, 聽寫, 句子填空 (the word's own example with a blank, four
   options of its kind, none close in meaning), 拼字母, 補字母.
+- **The family's notebook** (kit `family.mjs`, Jay 2026-11-10): each draw
+  tells `vocab.due` `{ day, n }` (the count due today, nothing else);
+  Orbit Class shows 下課背五個 at a break and opens `#five`: a five-word
+  round on 今天 (`startRound({ size: 5 })`), the address back to `#today`.
 - **The family's AI** (Jay 2026-11-10; `lib/cards.mjs`): in a word's sheet,
   例句 adds two AI examples under Tatoeba's (each marked AI), 記憶法 a hook
   where one truly helps, and 常被搞混的字 the AI's mix-ups that are in the

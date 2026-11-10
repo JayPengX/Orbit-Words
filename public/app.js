@@ -17,12 +17,12 @@ import * as kit from '#kit/orbit.mjs';
 import { passSync } from '#kit/pass-sync.mjs';
 import * as fmtKit from '#kit/format.mjs';
 import { orbitSession, taipeiDay, tabBar, topActions, installGate, watchUpdates, schedulePush, notify, keepOffline, storedAccount, cachedPayload } from '#kit/orbit.mjs';
-import { loadWords, loadHints, loadMore, keyOf, stateOf, warmMeanings } from './lib/words.mjs';
+import { loadWords, loadHints, loadMore, keyOf, stateOf, warmMeanings, stats } from './lib/words.mjs';
 import { DAILY_GOAL, streakAtRisk } from './lib/practice.mjs';
 import { catCounts } from './lib/review.mjs';
 import { decodePayload, encodePayload, mergeCopy } from './lib/copy.mjs';
 import { state, hooks, t, locale } from './shell.js';
-import { renderSession, busy } from './views/session.js';
+import { renderSession, busy, startRound } from './views/session.js';
 import { renderToday } from './views/today.js';
 import { renderReview } from './views/review.js';
 import { renderBrowse } from './views/browse.js';
@@ -116,6 +116,17 @@ function render() {
   lockRound(running);
   // 複習's count on its tab: the words missed last time.
   tabNav.badge('review', catCounts(state.words, state.progress, { marks: state.marks }).wrong, { tone: 'accent' });
+  tellDue();
+}
+
+// The family's notebook (kit family.mjs): how many words are due today, for
+// Orbit Class's 下課背五個 (a break's one tap to #five). Only the count.
+function tellDue() {
+  const n = stats(state.words, state.progress).all.due;
+  const day = fmtKit.localDay ? fmtKit.localDay(Date.now()) : taipeiDay(Date.now());
+  import('#kit/family.mjs')
+    .then(f => f.tell?.('vocab', 'due', { day, n }))
+    .catch(() => {});
 }
 
 // While a round's screen fits the screen, the page doesn't scroll (nothing
@@ -248,6 +259,13 @@ if (!gated) boot();
 // the Orbit Pass sheet.
 function openFromHash(start = false) {
   const hash = decodeURIComponent(location.hash.slice(1));
+  // #five: 下課背五個 from Orbit Class, a five-word round on 今天 (once: the address goes back to #today).
+  if (hash === 'five') {
+    history.replaceState(null, '', '#today');
+    showTab('today');
+    if (!busy()) startRound({ size: 5 });
+    return;
+  }
   const word = hash.startsWith('word=') ? state.byKey.get(keyOf(hash.slice(5))) : null;
   const tab = TABS.includes(hash) ? hash : start ? 'today' : null;
   if (tab && (tab !== state.tab || start)) showTab(tab);
