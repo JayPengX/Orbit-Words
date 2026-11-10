@@ -807,3 +807,19 @@ function gcd(a, b) {
   while (b) [a, b] = [b, a % b];
   return a;
 }
+
+// 新聞學單字 (the plan's family links, Jay 11-10): the words this person is
+// learning (seen, not yet mastered), the latest answered first, each with its
+// short meaning and its forms, for Orbit News to mark in English headlines
+// (kit family.mjs vocab.learning). Only the words; nothing sent.
+export function learningList(words, progress, formsOf = () => [], n = 300) {
+  return words
+    .filter(w => stateOf(progress[w.key]) === 'learning')
+    .sort((a, b) => (progress[b.key].t || 0) - (progress[a.key].t || 0))
+    .slice(0, n)
+    .map(w => {
+      const f = (formsOf(w.key) || []).filter(x => x && keyOf(x) !== w.key).slice(0, 4);
+      const zh = shortMeaning(w.zh).split(/[、；;]/)[0];
+      return f.length ? { w: w.word, zh, f } : { w: w.word, zh };
+    });
+}

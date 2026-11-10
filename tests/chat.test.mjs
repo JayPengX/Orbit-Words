@@ -18,3 +18,19 @@ test('a long chat sends its opener and the latest turns', () => {
   assert.equal(sent[0].text, '0');
   assert.equal(sent.at(-1).text, '11');
 });
+
+test('learningList: words being learned, latest first, with forms; not new, not mastered', async () => {
+  const { learningList } = await import('../public/lib/words.mjs');
+  const words = [
+    { key: 'abandon', word: 'abandon', zh: 'v. 放棄、拋棄' },
+    { key: 'brief', word: 'brief', zh: 'adj. 簡短的' },
+    { key: 'able', word: 'able', zh: 'adj. 能夠的' },
+    { key: 'novel', word: 'novel', zh: 'n. 小說' }
+  ];
+  const progress = { abandon: { b: 2, t: 100 }, brief: { b: 1, t: 200 }, able: { b: 5, t: 300 } };
+  const out = learningList(words, progress, k => (k === 'abandon' ? ['abandon', 'abandoned', 'abandons'] : []));
+  assert.deepEqual(out.map(w => w.w), ['brief', 'abandon']);
+  assert.deepEqual(out[1].f, ['abandoned', 'abandons']);
+  assert.equal(out[0].f, undefined);
+  assert.equal(out[1].zh, '放棄');
+});

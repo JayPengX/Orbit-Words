@@ -17,11 +17,11 @@ import * as kit from '#kit/orbit.mjs';
 import { passSync } from '#kit/pass-sync.mjs';
 import * as fmtKit from '#kit/format.mjs';
 import { orbitSession, taipeiDay, tabBar, topActions, installGate, watchUpdates, schedulePush, notify, keepOffline, storedAccount, cachedPayload } from '#kit/orbit.mjs';
-import { loadWords, loadHints, loadMore, keyOf, stateOf, warmMeanings, stats } from './lib/words.mjs';
+import { loadWords, loadHints, loadMore, keyOf, stateOf, warmMeanings, stats, learningList } from './lib/words.mjs';
 import { DAILY_GOAL, streakAtRisk } from './lib/practice.mjs';
 import { catCounts } from './lib/review.mjs';
 import { decodePayload, encodePayload, mergeCopy } from './lib/copy.mjs';
-import { state, hooks, t, locale } from './shell.js';
+import { state, hooks, t, locale, moreOf } from './shell.js';
 import { renderSession, busy, startRound } from './views/session.js';
 import { renderToday } from './views/today.js';
 import { renderReview } from './views/review.js';
@@ -126,6 +126,19 @@ function tellDue() {
   const day = fmtKit.localDay ? fmtKit.localDay(Date.now()) : taipeiDay(Date.now());
   import('#kit/family.mjs')
     .then(f => f.tell?.('vocab', 'due', { day, n }))
+    .catch(() => {});
+  tellLearning();
+}
+
+// …and the words being learned, for Orbit News' 新聞學單字 (told when they change).
+let toldLearning = '';
+function tellLearning() {
+  const words = learningList(state.words, state.progress, k => moreOf(k)?.forms);
+  const sig = words.map(w => w.w + (w.f ? w.f.length : '')).join();
+  if (sig === toldLearning) return;
+  toldLearning = sig;
+  import('#kit/family.mjs')
+    .then(f => f.tell?.('vocab', 'learning', { words }))
     .catch(() => {});
 }
 
