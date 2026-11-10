@@ -36,6 +36,15 @@ Live: https://orbit.jaypengx.com/words/
 - **Ways to practise** (`MODES`): 智慧練習 (by memory), 選中文, 選英文,
   聽音選字, 聽寫, 句子填空 (the word's own example with a blank, four
   options of its kind, none close in meaning), 拼字母, 補字母.
+- **The family's AI** (Jay 2026-11-10; `lib/cards.mjs`): in a word's sheet,
+  例句 adds two AI examples under Tatoeba's (each marked AI), 記憶法 a hook
+  where one truly helps, and 常被搞混的字 the AI's mix-ups that are in the
+  list. These are made once for the whole list by Orbit-Core's builder
+  (`builders/ai.js` wordsCards) into `/data/words/cards/<letter>.json`, read
+  a letter at a time (kit `packJson`, a day). 用它造句: a sentence with the
+  word, checked by the AI door (`words-check`: natural, right meaning and
+  form), the fewest changes marked word by word and one line on why; the kit's
+  `ai.mjs` (`aiBar`, `aiCall`) loaded beside the sheet, never in its way.
 - **Teaching** (`lib/words.mjs`), hard on purpose:
   - Wrong options are the likeliest mix-ups: spelt alike, close in meaning,
     or words this person already confused.
@@ -84,8 +93,10 @@ Live: https://orbit.jaypengx.com/words/
   1 is what the quiz asks. Edit `scripts/dict/entries.jsonl`, then
   `python3 scripts/dict/build.py`. Credit line at the foot of the sheet.
 - The usual confusions are `data/hints.json`, written once offline;
-  nothing generated live. No mnemonic lines (dropped 2026-10-31: English
-  restatements like "Opt to choose an option.").
+  nothing generated live. Memory hooks came back with the family's AI
+  (Jay 2026-11-10) under a rule against the 10-31 failure (English
+  restatements like "Opt to choose an option."): a real root, a sound-alike
+  or a picture, else none.
 - Cloze and unscrambling are not asked in smart mode (only as their own
   modes).
 - Only the memory model decides a word is known, from the answers: no "I
@@ -102,6 +113,7 @@ Live: https://orbit.jaypengx.com/words/
 | `lib/words.mjs` | Memory model, rounds, questions, wrong options, saved progress |
 | `lib/copy.mjs` | The payload (encode, decode, merge); the kit's `pass-sync.mjs` keeps it in step with the Pass |
 | `lib/contest.mjs` | The 拼字比賽 paper (its sizes, words, marking, scores kept); 句子填空's question |
+| `lib/cards.mjs` | The AI's cards (examples, hook, mix-ups) as the sheet keeps them; a checked sentence's changes |
 | `lib/review.mjs`, `practice.mjs` | Review lists and 進度's numbers; points and streak |
 | `data/words.json`, `more.json`, `hints.json`, `audio/` | The list (senses, KK), examples and forms, the hints, a recording per word |
 

@@ -5,12 +5,19 @@
 // word is known is the memory model's call alone, from the answers: there's
 // no "I know it" to put a word away by hand (Jay 2026-10-31).
 import * as kitUI from '#kit/ui.mjs';
+import { packJson } from '#kit/orbit.mjs';
 import { el, put, diffLine } from '../ui.js';
-import { state, t, hooks, hintOf, moreOf, metaLine, percent, wordEl } from '../shell.js';
+import { state, t, hooks, hintOf, moreOf, metaLine, percent, wordEl, locale } from '../shell.js';
 import { speakButton } from '../audio.js';
 import { ico, row, rowCard, bar } from './chrome.js';
 import { shortMeaning, spellDiff, personalFactor, senses } from '../lib/words.mjs';
 import { isMarked, toggleMark, wordInfo } from '../lib/review.mjs';
+import { cardOf, cardsPath, wordDiff } from '../lib/cards.mjs';
+
+// The family's AI (Jay 11-10), loaded beside the sheet, never in its way:
+// a phone that can't load it shows the sheet without 用它造句.
+let kitAI = null;
+const aiReady = import('#kit/ai.mjs').then(m => (kitAI = m), () => null);
 
 // How a word went wrong the last time, in one line (複習's rows, the flash
 // cards): misspelt (crossed out, then where it differs), taken for another
@@ -62,6 +69,31 @@ export const closeWord = () => dialog?.open && shell.close();
 // Drawn again when something it shows arrives late (data/more.json).
 let current = null;
 export const redrawWord = () => dialog?.open && current && draw(current, inSheet);
+// The word drawn again wherever it's open (its cards landed, its sentence checked).
+function redrawShown(word) {
+  if (dialog?.open && current?.key === word.key) draw(word, inSheet);
+  if (pane?.el.isConnected && paneKey === word.key) draw(word, pane);
+}
+
+// 例句與記憶法: made once for the whole list by the family's builder
+// (/data/words/cards/<letter>.json), a letter read the first time one of
+// its words opens and kept on the phone a day (kit packJson); the sheet
+// drawn again when it lands. A failed read is asked again at the next open.
+const letters = new Map();
+function cardFor(word) {
+  const path = cardsPath(word.word);
+  const got = letters.get(path);
+  if (got === undefined) {
+    const read = packJson(path, { ttl: 24 * 3_600_000 }).then(
+      doc => (letters.set(path, doc || null), doc && redrawShown(word)),
+      () => letters.delete(path)
+    );
+    letters.set(path, read);
+    return null;
+  }
+  if (!got || got instanceof Promise) return null;
+  return cardOf(got, word.word, { own: moreOf(word.key)?.en, known: state.byKey });
+}
 
 // A wide screen: the word opened beside its list (DESIGN §10: a list and
 // what it opens, side by side), the one last opened there, else the list's
@@ -134,12 +166,68 @@ function exampleLine(en, forms) {
   if (!m) return el('p', { lang: 'en', class: 'ex-en', text: en });
   return el('p', { lang: 'en', class: 'ex-en' }, [document.createTextNode(en.slice(0, m.index)), el('strong', { text: m[0] }), document.createTextNode(en.slice(m.index + m[0].length))]);
 }
-function moreBlocks(word) {
+// The examples: Tatoeba's (the dictionary's own), then the AI's two, each
+// marked AI; then the memory hook, then the word's forms.
+function moreBlocks(word, card) {
   const more = moreOf(word.key);
-  if (!more) return [];
-  const example = more.en ? block(t('exampleTitle'), el('div', { class: 'q-card example' }, [exampleLine(more.en, [word.word, ...more.forms]), el('p', { lang: 'zh-Hant', class: 'ex-zh muted', text: more.zh })])) : null;
-  const forms = more.forms.length ? block(t('formsTitle'), el('p', { lang: 'en', class: 'forms' }, more.forms.map(f => el('span', { text: f })))) : null;
-  return [example, forms];
+  const forms = [word.word, ...(more?.forms || [])];
+  const list = [...(more?.en ? [{ en: more.en, zh: more.zh }] : []), ...(card?.ex || []).map(e => ({ ...e, ai: true }))];
+  const one = e => el('div', { class: 'ex-one' }, [exampleLine(e.en, forms), el('p', { lang: 'zh-Hant', class: 'ex-zh muted' }, [e.ai ? el('span', { class: 'ex-ai', lang: 'en', text: 'AI' }) : null, document.createTextNode(e.zh || '')])]);
+  const example = list.length ? block(t(list.length > 1 ? 'examplesTitle' : 'exampleTitle'), el('div', { class: 'q-card example' }, list.map(one))) : null;
+  const hook = card?.hook ? block(t('hookTitle'), el('div', { class: 'q-card hook' }, [el('p', { lang: 'zh-Hant', class: 'hook-text', text: card.hook })])) : null;
+  const formsBlock = more?.forms.length ? block(t('formsTitle'), el('p', { lang: 'en', class: 'forms' }, more.forms.map(f => el('span', { text: f })))) : null;
+  return [example, hook, formsBlock];
+}
+
+// 用它造句 (檢查我的句子): a sentence with the word, checked by the AI
+// (words-check: natural, right meaning and form), the fewest changes shown
+// word by word with one line on why. The last check of each word is kept
+// while the app is open, so a redraw keeps it.
+const tries = new Map();
+function tryBlock(word) {
+  const out = el('div', { class: 'try-out', 'aria-live': 'polite' });
+  const body = el('div', { class: 'try' }, [el('p', { class: 'muted try-hint', text: t('tryHint', { w: word.word }) }), out]);
+  const show = () => {
+    const at = tries.get(word.key);
+    if (!at) return out.replaceChildren();
+    const said = el('p', { lang: 'en', class: 'try-said' }, [el('span', { class: 'muted', text: `${t('trySaid')}　` }), document.createTextNode(at.said)]);
+    if (at.busy) return out.replaceChildren(said, kitAI.aiThinking(t('tryBusy')));
+    const r = at.r;
+    if (r.error || !r.out) return out.replaceChildren(said, el('p', { class: 'try-err', text: kitAI.aiSays(r.error, r.left) }));
+    const { ok, fixed, why, used } = r.out;
+    const good = ok && used !== false;
+    const parts = [said];
+    if (good) parts.push(el('p', { class: 'try-ok', text: `✓ ${t('tryOk')}` }));
+    else {
+      if (used === false) parts.push(el('p', { class: 'try-miss', text: t('tryNotUsed', { w: word.word }) }));
+      if (fixed && fixed.trim() !== at.said.trim()) parts.push(el('div', { class: 'try-fix' }, [el('span', { class: 'try-fix-h', text: t('tryFix') }), el('p', { lang: 'en', class: 'try-fixed' }, wordDiff(at.said, fixed).flatMap((w, i) => [i ? document.createTextNode(' ') : null, w.changed ? el('strong', { text: w.text }) : document.createTextNode(w.text)]))]));
+    }
+    if (why) parts.push(el('p', { class: 'try-why', text: why }));
+    parts.push(kitAI.aiNote(t('tryNote')));
+    out.replaceChildren(...parts);
+  };
+  const fill = () => {
+    if (!kitAI) return body.closest('.sheet-block')?.remove();
+    const bar = kitAI.aiBar({
+      placeholder: t('tryPlaceholder', { w: word.word }),
+      label: t('tryTitle'),
+      max: 300,
+      onSend: async said => {
+        bar.busy(true);
+        tries.set(word.key, { said, busy: true });
+        show();
+        const r = await kitAI.aiCall('words-check', { word: word.word, meaning: shortMeaning(word.zh), sentence: said, lang: locale });
+        tries.set(word.key, { said, r });
+        bar.busy(false);
+        if (!r.error) bar.clear();
+        body.isConnected ? show() : redrawShown(word);
+      }
+    });
+    body.insertBefore(bar, out);
+    show();
+  };
+  kitAI ? fill() : aiReady.then(fill);
+  return block(t('tryTitle'), body);
 }
 
 function draw(word, at) {
@@ -147,6 +235,7 @@ function draw(word, at) {
   const p = state.progress[word.key];
   const info = wordInfo(p, Date.now(), personalFactor(state.cal));
   const hint = hintOf(word.key);
+  const card = cardFor(word);
   const redraw = () => (at === inSheet && draw(word, at), hooks.render());
   // Where it stands: plain words; only an overdue word earns a tag.
   // (When it's next asked is said once, in 學習紀錄: here it read 過期 18 天 over a 下次複習 今天.)
@@ -173,11 +262,12 @@ function draw(word, at) {
     at.box,
     head,
     top,
-    ...moreBlocks(word),
+    ...moreBlocks(word, card),
+    tryBlock(word),
     spelt,
     wordChips(p?.c || [], t('mixedYours'), at),
-    wordChips((hint?.common || []).filter(k => !(p?.c || []).includes(k)), t('mixedCommon'), at),
+    wordChips([...new Set([...(hint?.common || []), ...(card?.confuse || [])])].filter(k => !(p?.c || []).includes(k)).slice(0, 4), t('mixedCommon'), at),
     block(t('howItGoes'), record),
-    el('p', { class: 'credit muted', text: t('dictCredit') })
+    el('p', { class: 'credit muted', text: t(card?.ex.length ? 'dictCreditAi' : 'dictCredit') })
   );
 }

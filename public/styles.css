@@ -337,6 +337,28 @@ h1, h2, h3, p { margin: 0; }
 .forms span { display: inline-block; margin-right: 0.35em; white-space: nowrap; }
 .forms span:not(:last-child)::after { content: '\00a0·'; color: var(--q-label-2); }
 .word-sheet .credit { margin: 18px 4px 0; font-size: 12px; text-align: center; }
+/* 例句與記憶法, 用它造句 (the family's AI, Jay 11-10): the AI's examples
+   under the dictionary's, each marked; the hook; a sentence checked. */
+.word-sheet .example { gap: 0; }
+.ex-one { display: grid; gap: 4px; }
+.ex-one + .ex-one { margin-top: var(--q-s-3); padding-top: var(--q-s-3); border-top: 0.5px solid var(--q-sep); }
+.ex-ai { display: inline-block; margin-right: 6px; padding: 1px 6px; border-radius: 6px; background: var(--q-fill-3); color: var(--q-label-2); font: 600 11px/1.4 var(--q-font-rounded); vertical-align: 1px; }
+.word-sheet .hook { padding: var(--q-s-3) var(--q-s-4); border-radius: var(--q-r-cell); }
+.hook-text { margin: 0; font-size: 16px; line-height: 1.5; }
+.try { display: grid; gap: var(--q-s-2); }
+.try-hint { margin: 0 4px; font-size: 14px; line-height: 1.4; }
+.try-out { display: grid; gap: 6px; padding: 0 4px; }
+.try-out:empty { display: none; }
+.try-out p { margin: 0; line-height: 1.45; }
+.try-said { font-size: 15px; overflow-wrap: anywhere; }
+.try-ok { color: var(--q-good); font-weight: 600; }
+.try-miss { color: var(--q-orange, var(--q-label)); font-weight: 600; }
+.try-fix { display: grid; gap: 2px; padding: var(--q-s-2) var(--q-s-3); border-radius: var(--q-r-cell); background: var(--q-fill-4); }
+.try-fix-h { color: var(--q-label-2); font-size: 13px; }
+.try-fixed { font-size: 17px; overflow-wrap: anywhere; }
+.try-fixed strong { color: var(--q-accent, inherit); font-weight: 650; }
+.try-why { font-size: 15px; }
+.try-err { color: var(--q-label-2); font-size: 15px; }
 
 /* ==== Every screen, either way up (Jay 2026-10-31; Orbit-Core DESIGN §10) ====
    Wide (q-wide): 今天 and 進度 in two columns (three on q-w3), 複習 and 單字
