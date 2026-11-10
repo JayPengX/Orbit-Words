@@ -52,6 +52,12 @@ Live: https://orbit.jaypengx.com/words/
   拍照找單字 (`views/photo.js`, 單字's row under the search): a photo of a
   page, read by the AI (`words-photo`, Gemini Flash), only the list's own
   words kept (a form counts as its word), offered ticked to star into 收藏.
+  用新字聊天 (`views/chat.js`, `lib/chat.mjs`, a row under 今天's 繼續): a short
+  chat in English using up to four words answered in the last 3 days (else
+  the next ones), shown as chips ticked as each is used well; each line comes
+  back fixed with the fewest changes and why, then the AI's next question
+  (`words-chat`, Haiku). The chat stays on the phone; only the words and its
+  last 8 turns are sent.
 - **Teaching** (`lib/words.mjs`), hard on purpose:
   - Wrong options are the likeliest mix-ups: spelt alike, close in meaning,
     or words this person already confused.
@@ -121,6 +127,7 @@ Live: https://orbit.jaypengx.com/words/
 | `lib/copy.mjs` | The payload (encode, decode, merge); the kit's `pass-sync.mjs` keeps it in step with the Pass |
 | `lib/contest.mjs` | The 拼字比賽 paper (its sizes, words, marking, scores kept); 句子填空's question |
 | `lib/cards.mjs` | The AI's cards (examples, hook, mix-ups) as the sheet keeps them; a checked sentence's changes |
+| `lib/chat.mjs` | 用新字聊天: which words, which turns are sent, the opener |
 | `lib/review.mjs`, `practice.mjs` | Review lists and 進度's numbers; points and streak |
 | `data/words.json`, `more.json`, `hints.json`, `audio/` | The list (senses, KK), examples and forms, the hints, a recording per word |
 

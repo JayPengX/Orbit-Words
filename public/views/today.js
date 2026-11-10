@@ -188,7 +188,9 @@ function continueList() {
     row(full ? t('studyQuiz', { n }) : t('studyTitle'), full ? t('studyReady') : !next ? t('studyNone') : '', full ? n : `${n} / ${state.size}`, full ? () => startRound({ from: 'study' }) : startStudy, !full && (!next || !state.levels.length)),
     due ? row(t('dueCard'), t('dueCardSub'), due, () => startRound(), !chosen.length) : null,
     weak.length ? row(t('weakTitle'), t('lastDays3'), weak.length, () => startRound({ list: weak })) : null,
-    missed ? row(t('missedTitle'), '', missed, () => startFlash(flashDeck(state.words, state.progress, 'wrong', { n: 20, marks: state.marks }), t('cat_wrong'))) : null
+    missed ? row(t('missedTitle'), '', missed, () => startFlash(flashDeck(state.words, state.progress, 'wrong', { n: 20, marks: state.marks }), t('cat_wrong'))) : null,
+    // 用新字聊天 (the family's AI): the words just learned, used in a short chat.
+    row(t('chatRow'), t('chatRowSub'), '', () => import('./chat.js').then(m => m.openChat(nextRound())), !state.levels.length)
   ];
   return section(t('continueTitle'), el('div', { class: 'q-rowcard' }, rows.filter(Boolean)));
 }

@@ -432,3 +432,21 @@ html.run-lock, html.run-lock body { overflow: hidden; overscroll-behavior: none;
 .photo-words { display: grid; gap: var(--q-s-3); }
 .photo-lead, .photo-err { margin: 0 4px; font-size: 15px; line-height: 1.45; }
 .photo-list .q-ritem[disabled] { opacity: 0.55; }
+
+/* 用新字聊天 (views/chat.js): the words as chips, ticked when used; the chat as bubbles. */
+.chat-lede { margin: 0 0 var(--q-s-2); font-size: 15px; }
+.chat-words { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: var(--q-s-3); }
+.chat-word { display: inline-flex; align-items: baseline; gap: 6px; padding: 6px 12px; border-radius: 999px; background: var(--q-fill-3); font-size: 15px; font-weight: 600; }
+.chat-word small { color: var(--q-label-2); font-weight: 400; font-size: 12px; }
+.chat-word.on { background: color-mix(in srgb, var(--q-good, var(--q-green)) 18%, transparent); color: var(--q-good, var(--q-green)); }
+.chat-word.on small { color: inherit; opacity: 0.8; }
+.chat-log { display: flex; flex-direction: column; gap: var(--q-s-2); padding-bottom: var(--q-s-3); }
+.chat-b { max-width: 85%; padding: 10px 14px; border-radius: 18px; font-size: 16px; line-height: 1.45; overflow-wrap: anywhere; }
+.chat-b p { margin: 0; }
+.chat-b.ai { align-self: flex-start; background: var(--q-fill-4); border-bottom-left-radius: 6px; }
+.chat-b.me { align-self: flex-end; background: var(--q-accent); color: #fff; border-bottom-right-radius: 6px; }
+.chat-fix { margin: 6px 0 0 !important; padding-top: 6px; border-top: 1px solid rgb(255 255 255 / 0.35); }
+.chat-fix strong { text-decoration: underline; text-underline-offset: 3px; }
+.chat-why, .chat-err { display: block; margin-top: 4px; font-size: 13px; opacity: 0.9; }
+.chat-done { align-self: center; margin: var(--q-s-1) 0; color: var(--q-good, var(--q-green)); font-weight: 600; font-size: 14px; text-align: center; }
+.chat-foot { display: grid; gap: 6px; }
