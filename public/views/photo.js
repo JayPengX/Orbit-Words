@@ -25,7 +25,7 @@ export async function photoWords() {
   if (!ai?.pickPicture) return kitUI.toast?.(t('photoOld'));
   const file = await ai.pickPicture();
   if (!file) return;
-  const body = el('div', { class: 'photo-words', 'aria-live': 'polite' }, [ai.aiThinking(t('photoReading'))]);
+  const body = el('div', { class: 'photo-words', 'aria-live': 'polite' }, [ai.aiAnswerWait?.({ text: t('photoReading'), rows: 5, pics: false }) || ai.aiThinking(t('photoReading'))]);
   const s = kitUI.sheet({ title: t('photoTitle'), detent: 'large', cls: 'photo-sheet', body: [body] });
   const image = await ai.aiPicture(file, { side: 1800 });
   const r = image ? await ai.aiCall('words-photo', { image }, { timeout: 60_000 }) : { error: 'picture' };

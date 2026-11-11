@@ -191,7 +191,7 @@ function tryBlock(word) {
     const at = tries.get(word.key);
     if (!at) return out.replaceChildren();
     const said = el('p', { lang: 'en', class: 'try-said' }, [el('span', { class: 'muted', text: `${t('trySaid')}　` }), document.createTextNode(at.said)]);
-    if (at.busy) return out.replaceChildren(said, kitAI.aiThinking(t('tryBusy')));
+    if (at.busy) return out.replaceChildren(said, kitAI.aiAnswerWait?.({ text: t('tryBusy'), rows: 2, pics: false }) || kitAI.aiThinking(t('tryBusy')));
     const r = at.r;
     if (r.error || !r.out) return out.replaceChildren(said, el('p', { class: 'try-err', text: kitAI.aiSays(r.error, r.left) }));
     const { ok, fixed, why, used } = r.out;

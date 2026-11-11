@@ -38,7 +38,7 @@ export async function openChat(next = []) {
       const mine = bubble('me', said);
       log.append(mine);
       turns.push({ who: 'me', text: said });
-      const think = ai.aiThinking(t('chatBusy'));
+      const think = ai.aiAnswerWait?.({ text: t('chatBusy'), rows: 1, pics: false }) || ai.aiThinking(t('chatBusy'));
       log.append(think);
       think.scrollIntoView?.({ block: 'nearest' });
       const r = await ai.aiCall('words-chat', { words: words.map(w => w.word), used: [...used], turns: turnsToSend(turns), lang: locale });
