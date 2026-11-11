@@ -105,7 +105,8 @@ function bankCard() {
 // tap only picks it (kept for 今天's 開始 too), and the round starts on the
 // list's own 開始 under it, never on the tap (Jay 2026-11-03).
 const MODE_LOOK = {
-  smart: ['spark', 'var(--q-accent)'],
+  // (智慧練習: the Orbit AI mark, as on every smart thing (Jay 11-11).)
+  smart: [kitUI.icons.ai ? 'ai' : 'spark', 'var(--q-accent)'],
   meaning: ['book', 'var(--q-indigo)'],
   word: ['swap', 'var(--q-blue)'],
   listen: ['sound', 'var(--q-teal)'],
