@@ -34,6 +34,7 @@ Jay's, dated (Taiwan day), newest wins; the family's are in Orbit-Core `docs/RUL
 | File | What |
 | --- | --- |
 | `app.js`, `shell.js`, `ui.js`, `audio.js` | Start, saving, tabs; shared state; drawing; sound |
+| `testing.js` | Words' switches in the kit's hidden 測試工具 (display and reads only, nothing saved): `vocabGoal` (risk/met), `vocabDue`, `vocabNoMore` (contest sentences fail), `vocabNoSound` |
 | `views/` | Each tab, the round's choices, the word sheet, rounds and flash cards; `chrome.js` the shared pieces |
 | `lib/words.mjs` | Memory model, rounds, questions, wrong options, saved progress |
 | `lib/copy.mjs` | The payload (encode, decode, merge); the kit's `pass-sync.mjs` keeps it in step with the Pass |

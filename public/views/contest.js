@@ -38,7 +38,9 @@ export function contestCard() {
         el('small', { class: 'muted num', text: [t('minutesN', { n: minutesOf(shape) }), t('pointsOf', { n: totalOf(shape) * 2 }), st ? t('contestScores', { last: st.last, best: st.best }) : ''].filter(Boolean).join(' · ') })
       ]),
       // (詞彙題's sentences are the examples, data/more.json, loaded just after the first screen.)
-      el('button', { class: 'q-btn primary large block', type: 'button', disabled: !state.more.size, onclick: startContest }, [t('contestStart')])
+      state.moreFailed && !state.more.size
+        ? el('div', { class: 'contest-nomore' }, [el('p', { class: 'muted', text: t('contestNoMore') }), el('button', { class: 'q-btn tinted block', type: 'button', onclick: () => hooks.loadMore?.() }, [t('contestRetry')])])
+        : el('button', { class: 'q-btn primary large block', type: 'button', disabled: !state.more.size, onclick: startContest }, [t('contestStart')])
     ])
   );
 }

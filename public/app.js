@@ -18,7 +18,7 @@ import { passSync } from '#kit/pass-sync.mjs';
 import * as fmtKit from '#kit/format.mjs';
 import { orbitSession, taipeiDay, tabBar, topActions, installGate, watchUpdates, schedulePush, notify, keepOffline, storedAccount, cachedPayload } from '#kit/orbit.mjs';
 import { loadWords, loadHints, loadMore, keyOf, stateOf, warmMeanings, stats, learningList } from './lib/words.mjs';
-import { DAILY_GOAL, streakAtRisk } from './lib/practice.mjs';
+import { DAILY_GOAL, streakAtRisk, goalStatus } from './lib/practice.mjs';
 import { catCounts } from './lib/review.mjs';
 import { decodePayload, encodePayload, mergeCopy } from './lib/copy.mjs';
 import { state, hooks, t, locale, moreOf } from './shell.js';
@@ -29,6 +29,7 @@ import { renderBrowse } from './views/browse.js';
 import { renderProgress } from './views/progress.js';
 import { openWord, closeWord, redrawWord } from './views/sheet.js';
 import { el, put, fitSenses, FIT_SENSES } from './ui.js';
+import './testing.js';
 
 document.documentElement.lang = locale === 'zh' ? 'zh-Hant' : 'en';
 const $ = id => document.getElementById(id);
@@ -86,7 +87,7 @@ function sync({ soon = false } = {}) {
 }
 document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && sync());
 
-hooks.changed = () => (pass.changed(), keepLocal(), sync({ soon: true }));
+hooks.changed = () => (pass.changed(), keepLocal(), sync({ soon: true }), goalWatch());
 hooks.sync = () => sync();
 hooks.render = render;
 hooks.tab = tab => (tab === state.tab ? scrollTo({ top: 0 }) : showTab(tab));
@@ -198,8 +199,14 @@ function checkStreak() {
   const items = [];
   if (n && eight(0) > now) items.push({ at: eight(0), title: t('noticeStreak', { n }), body, tag: `streak:${dayOf(now)}`, hash: 'today', kind: 'streak' });
   for (const day of [1, 2]) items.push({ at: eight(day), title: t('noticeStreakSoon'), body, tag: `streak:${dayOf(eight(day))}`, hash: 'today', kind: 'streak' });
+  streakSeen = goalSeen();
   schedulePush(q, items);
 }
+// The day's goal met (or a new day begun) after the notices were planned:
+// planned again, so tonight's 連續…今晚到期 is taken back.
+let streakSeen = '';
+const goalSeen = () => `${(fmtKit.localDay ? fmtKit.localDay(Date.now()) : taipeiDay(Date.now()))}:${goalStatus(state.days).left === 0}`;
+const goalWatch = () => streakSeen && streakSeen !== goalSeen() && checkStreak();
 
 // (Each list's address carries its own hash, stamped at deploy (Orbit-Core
 // kit/stamp-app.mjs): a deploy that didn't change it leaves the phone's copy;
@@ -220,16 +227,24 @@ async function loadHintList() {
   } catch {}
 }
 // A word's example and forms, for its sheet and the contest's 填空: after the first screen too.
+// A failed read says so on the contest's card, with 再試一次 (hooks.loadMore).
 async function loadMoreList() {
+  state.moreFailed = false;
   try {
+    // (測試工具: as if the file can't be read; testing.js.)
+    if (globalThis.ORBIT_TEST?.flags?.vocabNoMore) throw new Error('test');
     const res = await fetch('./data/more.json');
     if (!res.ok) throw new Error(String(res.status));
     state.more = loadMore(await res.json());
     redrawWord();
     // (今天's contest card waits for them: 填空's sentences.)
     if (!busy()) render();
-  } catch {}
+  } catch {
+    state.moreFailed = true;
+    if (!busy()) render();
+  }
 }
+hooks.loadMore = () => (loadMoreList(), render());
 
 async function boot() {
   const words = loadWordList().catch(() => null);

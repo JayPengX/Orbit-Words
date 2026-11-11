@@ -58,9 +58,11 @@ function nextRound() {
 // how many new, the streak beside; 開始, the one main action, on exactly
 // those words; today's answers of 20 at the foot (what keeps the streak).
 function goalHero() {
-  const today = todayCount(state.days);
-  const streak = streakOf(state.days);
-  const { left, keeps } = goalStatus(state.days);
+  // (測試工具 vocabGoal: the card as with a streak about to end, or the goal met; testing.js.)
+  const tg = globalThis.ORBIT_TEST?.flags?.vocabGoal;
+  const today = tg === 'met' ? DAILY_GOAL : tg === 'risk' ? 3 : todayCount(state.days);
+  const streak = tg ? Math.max(12, streakOf(state.days)) : streakOf(state.days);
+  const { left, keeps } = tg === 'met' ? { left: 0, keeps: 0 } : tg === 'risk' ? { left: DAILY_GOAL - 3, keeps: streak } : goalStatus(state.days);
   const chosen = LEVELS.filter(l => state.levels.includes(l));
   const words = nextRound();
   const now = dayNum();
@@ -177,7 +179,7 @@ function rail(cards, cls = '') {
 function continueList() {
   const chosen = LEVELS.filter(l => state.levels.includes(l));
   const st = stats(state.words, state.progress);
-  const due = chosen.reduce((s, l) => s + st[l].due, 0);
+  const due = globalThis.ORBIT_TEST?.flags?.vocabDue ? 240 : chosen.reduce((s, l) => s + st[l].due, 0);
   const n = state.study.length;
   const full = n >= state.size;
   const next = toStudy(state.words, state.progress, { levels: state.levels, n: 1, skip: new Set(state.study) }).length > 0;

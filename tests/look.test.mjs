@@ -45,3 +45,15 @@ test('a round starts at the top of the page, never where the tapped row was', ()
   const app = read('app.js');
   assert.match(app, /running !== drawn[^\n]*freshScreen/);
 });
+
+// Fixes (2026-11-11): the search's clear button speaks the page's language; a
+// failed more.json says so on the contest card with 再試一次; the streak's
+// notices are planned again once the day's goal is met.
+test('search clear is translated; the contest says when its sentences fail; the goal met re-plans the streak notices', () => {
+  assert.doesNotMatch(read('ui.js'), /'aria-label': '清除'/);
+  assert.match(read('ui.js'), /t\('clearSearch'\)/);
+  const app = read('app.js');
+  assert.match(app, /state\.moreFailed = true/);
+  assert.match(read('views/contest.js'), /state\.moreFailed[\s\S]*contestRetry/);
+  assert.match(app, /hooks\.changed = [^\n]*goalWatch\(\)/);
+});

@@ -112,7 +112,6 @@ h1, h2, h3, p { margin: 0; }
 .contest-intro { font: var(--q-t-subhead); }
 .contest-top { display: grid; gap: 2px; }
 .contest-top strong { font: 600 17px/22px var(--q-font); }
-.contest-best { color: var(--q-label-2); font: var(--q-t-subhead); }
 .contest-part { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 0 4px 8px; }
 .contest-part strong { font: 600 17px/22px var(--q-font); white-space: nowrap; }
 .contest-part small { white-space: nowrap; }
@@ -237,7 +236,6 @@ h1, h2, h3, p { margin: 0; }
 .spell-input:focus { outline: none; border-color: var(--accent); }
 .spell-form .q-btn { min-height: 52px; }
 .aside { display: flex; justify-content: center; gap: 4px; margin-top: 12px; }
-.q-btn.muted-btn { color: var(--q-label-2); }
 /* The verdict, washed green or red; 下一題 pinned above the tab bar. */
 .answered { padding-bottom: 84px; }
 .verdict { --amb: var(--win); display: grid; gap: var(--q-s-3); margin-top: var(--q-s-3); padding: var(--q-s-4); background: color-mix(in srgb, var(--amb) 10%, var(--q-surface)); }

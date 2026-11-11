@@ -1,5 +1,6 @@
 // The small pieces every tab draws with (the kit's controls, kit/ui.mjs and orbit.css).
 import { toast as kitToast, pickSeg, h } from '#kit/ui.mjs';
+import { t } from './shell.js';
 
 export const el = h;
 // A word's meaning that doesn't fit its one line drops its last senses (、)
@@ -72,7 +73,7 @@ export function searchField(value, placeholder, onInput) {
   let timer = 0;
   input.addEventListener('input', () => (clearTimeout(timer), (timer = setTimeout(() => onInput(input.value), 120))));
   input.addEventListener('keydown', e => e.key === 'Enter' && input.blur());
-  const clear = el('button', { class: 'q-search-clear', type: 'button', 'aria-label': '清除', text: '✕', onclick: () => ((input.value = ''), onInput(''), input.focus()) });
+  const clear = el('button', { class: 'q-search-clear', type: 'button', 'aria-label': t('clearSearch'), text: '✕', onclick: () => ((input.value = ''), onInput(''), input.focus()) });
   return el('label', { class: 'q-search' }, [input, clear]);
 }
 // A typed spelling against the right one: the right letters, each wrong one

@@ -139,10 +139,12 @@ export function speak(word, btn) {
   playing = null;
   if (hasSpeech && (speechSynthesis.speaking || speechSynthesis.pending)) speechSynthesis.cancel();
   const busy = btn && setTimeout(() => btn.setAttribute('aria-busy', 'true'), 250);
+  // (測試工具 vocabNoSound: neither the clip nor the voice; testing.js.)
+  const mute = globalThis.ORBIT_TEST?.flags?.vocabNoSound;
   sayWord({
-    clip: () => (ac ? decoded(ac, clipUrl(word)) : Promise.reject(new Error('no web audio'))),
+    clip: () => (ac && !mute ? decoded(ac, clipUrl(word)) : Promise.reject(new Error('no web audio'))),
     start: buffer => startClip(ac, buffer),
-    voice: () => voiceSpeak(word.word),
+    voice: () => !mute && voiceSpeak(word.word),
     current: () => mine === asked,
     notice: why => tellNoSound(why, word)
   }).finally(() => {
