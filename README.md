@@ -17,14 +17,20 @@ English vocabulary that sticks: the full 大考中心 list, levels 1 to 6 (6,169
 
 <p align="center">
   <img src="docs/screenshots/words-1.webp" width="30%" alt="Today's goal and streak">
-  <img src="docs/screenshots/words-2.webp" width="30%" alt="Know why, right away">
-  <img src="docs/screenshots/words-3.webp" width="30%" alt="Every word, explained">
+  <img src="docs/screenshots/words-2.webp" width="30%" alt="Chat with AI using new words">
+  <img src="docs/screenshots/words-3.webp" width="30%" alt="Know why, right away">
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/words-4.webp" width="30%" alt="Many ways to practise">
-  <img src="docs/screenshots/words-5.webp" width="30%" alt="A mock spelling contest">
-  <img src="docs/screenshots/words-6.webp" width="30%" alt="Watch yourself improve">
+  <img src="docs/screenshots/words-4.webp" width="30%" alt="Every word, explained">
+  <img src="docs/screenshots/words-5.webp" width="30%" alt="Many ways to practise">
+  <img src="docs/screenshots/words-6.webp" width="30%" alt="Practise in sentences">
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/words-7.webp" width="30%" alt="A mock spelling contest">
+  <img src="docs/screenshots/words-8.webp" width="30%" alt="Flash cards">
+  <img src="docs/screenshots/words-9.webp" width="30%" alt="Watch yourself improve">
 </p>
 
 <details>
@@ -32,20 +38,28 @@ English vocabulary that sticks: the full 大考中心 list, levels 1 to 6 (6,169
 
 <p align="center">
   <img src="docs/screenshots/words-1.zh.webp" width="30%" alt="今日目標與連續天數">
-  <img src="docs/screenshots/words-2.zh.webp" width="30%" alt="答完馬上知道為什麼">
-  <img src="docs/screenshots/words-3.zh.webp" width="30%" alt="每個單字都有解說">
+  <img src="docs/screenshots/words-2.zh.webp" width="30%" alt="用新字跟 AI 聊天">
+  <img src="docs/screenshots/words-3.zh.webp" width="30%" alt="答完馬上知道為什麼">
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/words-4.zh.webp" width="30%" alt="多種練習模式">
-  <img src="docs/screenshots/words-5.zh.webp" width="30%" alt="拼字比賽模擬考">
-  <img src="docs/screenshots/words-6.zh.webp" width="30%" alt="看見自己進步">
+  <img src="docs/screenshots/words-4.zh.webp" width="30%" alt="每個單字都有解說">
+  <img src="docs/screenshots/words-5.zh.webp" width="30%" alt="多種練習模式">
+  <img src="docs/screenshots/words-6.zh.webp" width="30%" alt="用例句練習">
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/words-7.zh.webp" width="30%" alt="拼字比賽模擬考">
+  <img src="docs/screenshots/words-8.zh.webp" width="30%" alt="單字卡複習">
+  <img src="docs/screenshots/words-9.zh.webp" width="30%" alt="看見自己進步">
 </p>
 
 </details>
 
 ## Features
 
+- **Orbit AI:** 用新字聊天, a short English chat that asks for the words you just learned, each line fixed with the fewest changes and why; 拍照找單字 stars a textbook page's words that are on the list; every word has AI examples and a memory hook made once, and 用它造句 checks your sentence.
+- **With the family:** words due show on the Orbit Pass's 今天, a break in Orbit Class offers 下課背五個, and Orbit News underlines the words you're learning in its English stories.
 - **The whole 大考中心 list:** levels 1 to 6, 6,169 words, each recorded in a natural voice.
 - **Today:** a daily goal of 20 and a streak; new words as cards, the weak words, a word of the day. Pick 10, 20 or 30 words, the levels, the way to learn and the sound speed.
 - **Hard on purpose:** the wrong options are the likeliest mix-ups (spelt alike, close in meaning, or words you already confused).
