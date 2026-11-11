@@ -1,123 +1,33 @@
 # Orbit Words: the map
 
-English words that stay with you: the 大考中心 list, levels 1–6 (6,169
-words), each recorded in Microsoft's Jenny voice. Signs in with the Orbit
-Pass; no money in or out.
+English words that stay with you: the 大考中心 list, levels 1–6 (6,169 words),
+each recorded in Microsoft's Jenny voice. Signs in with the Orbit Pass; no
+money in or out. Live: https://orbit.jaypengx.com/words/
 
-Live: https://orbit.jaypengx.com/words/
+## Rules
+
+Jay's, dated (Taiwan day), newest wins; the family's are in Orbit-Core `docs/RULEBOOK.md`.
+
+- 10-31 A general practice app with its modes in view (練習模式 on 今天); the contest paper is one mode, 拼字比賽, named for no specific competition.
+- 10-31 Only the memory model decides a word is known, from the answers: no 我會了 / 太簡單 / "I know it" anywhere.
+- 10-31 Every answer option one text size, never shrunk to fit (a shrunk one gives the answer away); a long one wraps.
+- 11-03 The home is a home, never a round by itself: 今天 says what the app is at a glance (今天的字: the next round's own words, so 開始 asks exactly those; `nextRound`).
+- 11-05 A word always sounds: its recording, else the phone's English voice, else a toast saying so (`tests/sound.test.mjs`).
+- 11-06 The phone's own day: the streak, today's count, due dates and the 20:00 reminder follow the phone's clock (kit `localDay`).
+- 11-10 Memory hooks only where one truly helps (a real root, a sound-alike or a picture), else none: never an English restatement (the 10-31 failure).
+- The device's language, no switcher. Recorded voices, never the device's when a recording exists. Cloze and unscrambling only as their own modes, never in smart mode. The dictionary and the usual confusions are written once offline; nothing generated live but the family's AI below.
 
 ## How it works
 
-- **Tabs:** 今天, the home (never a round by itself, Jay 2026-11-03: a
-  question on the home is playing, not a home). It says what the app is at
-  a glance (Jay 2026-11-03): the lead card is 今天的字, the next round's own
-  English words (`nextRound`: picked once with `pickRound` and kept while
-  nothing it was picked from changes, so 開始 asks exactly the words shown;
-  six at most, two to a row), how many and of what kind (to review, to firm
-  up, new), the streak beside, its pill the round's choices, one 開始 in the
-  app's colour, today's answers of 20 at its foot; then 我的字庫 (`bankCard`,
-  a tap opens 進度): words 精熟 large (the memory model's call), how many
-  learning, each level a bar of how far it's known; the word of the day; 繼續
-  as rows (new words, what's due, the weak round, the missed words, each its count);
-  練習模式 as a list, a tap picks a way and its own 開始 under it starts the round (a round opens at the top, kit `freshScreen`, and doesn't scroll while it fits the screen); the
-  拼字比賽 paper, the streak, the weak words, the decks, the recent words
-  · 複習 (答錯, 該複習, 學習中, 收藏; flash cards then a test) · 單字 (the
-  whole list) · 進度 (level and points, accuracy, the 14 days and what's
-  due, each level, the memory fit, the words forgotten most).
-- **The look** (Orbit-Core `docs/DESIGN.md` §11): Orbit's own, always on
-  (`index.html` says `data-look="native"`, `look.css` after `styles.css`):
-  every card graphite (the goal, a deck, a round's result, the paper's
-  score), colour only on what it names and on the one main action;
-  `tests/look.test.mjs` holds it.
-- **Wide screens** (DESIGN §10; Jay 2026-11-06, iPad): 今天 and 進度 open on a lead band (`.wide-lead`: 今天's words across two of three columns with 我的字庫 and 今日單字 beside; 進度's 精熟 beside its four numbers in a row), the rest dealt into columns of even height (kit `flowColumns`, `.q-flow.tab-flow`); 複習 and 單字 with the word open beside the list instead of a sheet (`wordPane` in `views/sheet.js`), its column sticky so it stays in view down the list; a question beside its answers; a round, the cards and the paper stay 720 wide in the middle. `tests/wide.test.mjs` holds it.
-- **A word's sheet** (from anywhere, or `#word=<word>`): sound, KK, the
-  senses (most useful first), an example with its Chinese, the word's forms, what you mixed it up with, your misspellings,
-  學習紀錄 (the chance you still know it, answers right, the next review).
-- **Ways to practise** (`MODES`): 智慧練習 (by memory), 選中文, 選英文,
-  聽音選字, 聽寫, 句子填空 (the word's own example with a blank, four
-  options of its kind, none close in meaning), 拼字母, 補字母.
-- **The family's notebook** (kit `family.mjs`, Jay 2026-11-10): each draw
-  tells `vocab.due` `{ day, n }` (the count due today, nothing else) and
-  `vocab.learning` (the words being learned, `learningList`, for Orbit News'
-  新聞學單字, which opens `#word=<word>`);
-  Orbit Class shows 下課背五個 at a break and opens `#five`: a five-word
-  round on 今天 (`startRound({ size: 5 })`), the address back to `#today`.
-- **The family's AI** (Jay 2026-11-10; `lib/cards.mjs`): in a word's sheet,
-  例句 adds two AI examples under Tatoeba's (each marked AI), 記憶法 a hook
-  where one truly helps, and 常被搞混的字 the AI's mix-ups that are in the
-  list. These are made once for the whole list by Orbit-Core's builder
-  (`builders/ai.js` wordsCards) into `/data/words/cards/<letter>.json`, read
-  a letter at a time (kit `packJson`, a day). 用它造句: a sentence with the
-  word, checked by the AI door (`words-check`: natural, right meaning and
-  form), the fewest changes marked word by word and one line on why; the kit's
-  `ai.mjs` (`aiBar`, `aiCall`) loaded beside the sheet, never in its way.
-  拍照找單字 (`views/photo.js`, 單字's row under the search): a photo of a
-  page, read by the AI (`words-photo`, Gemini Flash), only the list's own
-  words kept (a form counts as its word), offered ticked to star into 收藏.
-  用新字聊天 (`views/chat.js`, `lib/chat.mjs`, a row under 今天's 繼續): a short
-  chat in English using up to four words answered in the last 3 days (else
-  the next ones), shown as chips ticked as each is used well; each line comes
-  back fixed with the fewest changes and why, then the AI's next question
-  (`words-chat`, Haiku). The chat stays on the phone; only the words and its
-  last 8 turns are sent.
-- **Teaching** (`lib/words.mjs`), hard on purpose:
-  - Wrong options are the likeliest mix-ups: spelt alike, close in meaning,
-    or words this person already confused.
-  - A new word's first question is a quick check: known at a glance → away
-    for weeks; missed → learnt.
-  - While learning: meaning, word and by ear; once held: dictation.
-  - New words most likely to be missed come first.
-  - Memory model: FSRS-5 (stability, difficulty); 10 days' stability is
-    mastered.
-- **Weak-word round** (今天): a quick round on the words missed in the last 3 days, up to the round size.
-- **拼字比賽** (`lib/contest.mjs`, `views/contest.js`): a timed paper, one
-  of the modes (the app isn't built around it). Shaped like the national
-  high-school contest's paper (國教署 115 plan): levels 1–6, 聽英拼寫 (said
-  twice, 20 s each, marked exactly and in lower case), then 詞彙題 (單題 like
-  the 學測's, from the word's example with three options of its kind; 題組 in
-  sets of five sharing a bank of six), 2 points each. Three sizes: 短卷 20+20
-  (16 min), 標準 50+50 (40 min, the contest's), 長卷 50+100 (63 min). About
-  40% of each part is this person's weak words, the rest by level, the top
-  levels heaviest. Every answer goes into the word's memory; nothing is shown
-  until it's handed in, then the points, each part and each miss. The 單題/
-  題組 split is a guess. The last 20 scores are kept (`ct`, with their size).
-- **Points** (`lib/practice.mjs`): XP, levels, the streak (20 answers a
-  day), a 20:00 notice when it's about to end. Points buy nothing.
-- **Sound** (`audio.js`, `lib/sound.mjs`): a tap plays the word's recording through Web Audio (ambient: music goes on; the silent switch mutes it). The recording gets 2.5 s; slow, failed or a sound context iOS stopped, the device's English voice says it; with neither, a toast says so (`noSound`) and the 除錯紀錄 notes why (`words-sound`). The speaker breathes while its recording is on the way. `tests/sound.test.mjs` holds it (Jay 2026-11-05: the speaker was silent).
-- **Offline:** everything works. Words and recordings are the site's own
-  files, kept by `sw.js`. Progress is saved on the phone at every change,
-  and merged with the Pass before anything is written. The Pass's copy is
-  read again before a write whenever another device may have written
-  (back on screen, the live session changed, a write refused):
-  the kit's `pass-sync.mjs`. A copy that can't be read is never written over.
-  A return reads it once, after the kit's claim; not at all after under
-  10 s away; a copy the same as the last one merged isn't merged again.
-- **Saved:** the payload `vocab-progress-sync`, `z3:` + gzip of
-  `{ v: 3, w: { word: [box, due, answers, right, …] }, ct: [contests], … }`. Every row part
-  is optional, so older copies open. Settings carry their own time (`st`):
-  the newer settings win a merge (`lib/copy.mjs` `mergeCopy`).
-
-## Decisions in force
-
-- **The phone's own day** (2026-11-06, users outside Taiwan): the streak, today's count and due dates (`dayNum`) and the 20:00 reminder follow the phone's clock (kit `localDay`); in Taiwan nothing changed.
-
-- The device's language; no switcher.
-- Recorded voices, never the device's when a recording exists.
-- The dictionary is written once offline (`scripts/dict/`): senses and KK
-  from Wiktionary (kaikki.org), examples from Tatoeba, Taiwan wording; sense
-  1 is what the quiz asks. Edit `scripts/dict/entries.jsonl`, then
-  `python3 scripts/dict/build.py`. Credit line at the foot of the sheet.
-- The usual confusions are `data/hints.json`, written once offline;
-  nothing generated live. Memory hooks came back with the family's AI
-  (Jay 2026-11-10) under a rule against the 10-31 failure (English
-  restatements like "Opt to choose an option."): a real root, a sound-alike
-  or a picture, else none.
-- Cloze and unscrambling are not asked in smart mode (only as their own
-  modes).
-- Only the memory model decides a word is known, from the answers: no "I
-  know it" or "too easy" button anywhere (Jay 2026-10-31).
-- Answer options are one size, never shrunk to fit (a shrunk one gave the
-  answer away); a long one wraps.
+- **Tabs:** 今天 (今天的字 and 開始, 我的字庫, the word of the day, 繼續, 練習模式, 拼字比賽, the streak, weak words, decks) · 複習 (答錯, 該複習, 學習中, 收藏) · 單字 (the whole list) · 進度. A word's sheet from anywhere or `#word=<word>`. Wide screens: a lead band, the rest in the kit's flow columns, a word open beside the list (`wordPane`); `tests/wide.test.mjs`, `tests/look.test.mjs` hold them.
+- **Teaching** (`lib/words.mjs`), hard on purpose: wrong options are the likeliest mix-ups (spelt alike, close in meaning, or this person's own confusions); a new word's first question is a quick check; meaning, word and ear while learning, dictation once held; FSRS-5, 10 days' stability is mastered. Ways (`MODES`): 智慧練習, 選中文, 選英文, 聽音選字, 聽寫, 句子填空, 拼字母, 補字母.
+- **拼字比賽** (`lib/contest.mjs`): a timed paper shaped like the national high-school contest's (聽英拼寫, then 詞彙題 單題 and 題組), three sizes, about 40% this person's weak words; nothing shown until it's handed in; the last 20 scores kept. The 單題/題組 split is a guess.
+- **The family's AI:** a word's AI examples, hook and mix-ups are made once for the whole list by Orbit-Core `builders/ai.js` into `/data/words/cards/<letter>.json` (kit `packJson`); 用它造句 (`words-check`), 拍照找單字 (`words-photo`, only the list's own words kept), 用新字聊天 (`words-chat`; the chat stays on the phone, only its words and last 8 turns are sent).
+- **The family's notebook** (kit `family.mjs`): `vocab.due` and `vocab.learning` (for News' 新聞學單字); Class's 下課背五個 opens `#five`, a five-word round.
+- **Points** (`lib/practice.mjs`): XP, levels, the streak (20 answers a day), a 20:00 notice. Points buy nothing.
+- **Sound** (`audio.js`, `lib/sound.mjs`): Web Audio (music keeps playing; the silent switch mutes); the recording gets 2.5 s before the phone's voice.
+- **Offline and sync:** everything works offline (words and recordings are the site's files, kept by `sw.js`). Progress is saved on the phone at every change and merged with the Pass through the kit's `pass-sync.mjs`. Payload `vocab-progress-sync`: `z3:` + gzip of `{ v: 3, w: { word: [box, due, answers, right, …] }, ct, st }`; every row part optional so older copies open; newer settings win a merge (`lib/copy.mjs mergeCopy`).
+- **The dictionary** (`scripts/dict/`, its brief `BRIEF.md`): senses and KK from Wiktionary, examples from Tatoeba, Taiwan wording; sense 1 is what the quiz asks. Edit `scripts/dict/entries.jsonl`, then `python3 scripts/dict/build.py`. The confusions: `data/hints.json`.
 
 ## Files (`public/`)
 
