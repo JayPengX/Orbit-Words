@@ -103,6 +103,7 @@ let drawnTab;
 function render() {
   const box = $(`panel-${state.tab}`);
   if (!box) return;
+  if (!state.words && state.wordsFailed) return put(box, kitUI.empty({ icon: 'book', title: t('wordsFailed'), action: { label: t('contestRetry'), onTap: () => hooks.retryWords?.() } }));
   if (!state.words) return put(box, el('div', { class: 'center-spin' }, [el('div', { class: 'spinner' })]));
   const running = state.session?.home === state.tab ? state.session : null;
   if (running !== drawn && drawnTab === state.tab) kitUI.freshScreen ? kitUI.freshScreen() : scrollTo(0, 0);
@@ -212,9 +213,30 @@ const goalWatch = () => streakSeen && streakSeen !== goalSeen() && checkStreak()
 // kit/stamp-app.mjs): a deploy that didn't change it leaves the phone's copy;
 // with the build's version, every deploy downloaded all three again, 466 KB.)
 async function loadWordList() {
-  state.words = loadWords(await fetch('./data/words.json').then(r => r.json()));
+  const res = await fetch('./data/words.json');
+  if (!res.ok) throw new Error(String(res.status));
+  state.words = loadWords(await res.json());
   state.byKey = new Map(state.words.map(w => [w.key, w]));
   warmMeanings(state.words);
+}
+// The list, however long it takes: a failed read lifts the cover onto 讀不到 with
+// 再試一次 (and tries again by itself when the phone comes back online), never a
+// spinner forever; everything after it waits for the words.
+function wordsReady() {
+  return new Promise(done => {
+    const go = () =>
+      loadWordList().then(
+        () => ((state.wordsFailed = false), done()),
+        () => {
+          state.wordsFailed = true;
+          $('loading').hidden = true;
+          render();
+        }
+      );
+    hooks.retryWords = () => ((state.wordsFailed = false), render(), go());
+    addEventListener('online', () => state.wordsFailed && hooks.retryWords());
+    go();
+  });
 }
 // The hints come after the first screen: nothing on it waits for them. A
 // failed read leaves them out until the next opening (never saved empty).
@@ -247,7 +269,7 @@ async function loadMoreList() {
 hooks.loadMore = () => (loadMoreList(), render());
 
 async function boot() {
-  const words = loadWordList().catch(() => null);
+  const words = wordsReady();
   const starting = q.start();
   // A phone that has studied here: its own copy up at once (no wait on the
   // sign-in, nor on a connection at all), the pass's merged in when it comes.
