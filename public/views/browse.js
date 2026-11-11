@@ -12,6 +12,8 @@ import { section, menuButton, columns, row, rowCard } from './chrome.js';
 import * as kit from '#kit/orbit.mjs';
 
 const view = { level: 0, state: 'all', query: '' };
+// The list opened on a search (問 Orbit's question: app.js askWords); every level, every state.
+export const searchFor = q => Object.assign(view, { level: 0, state: 'all', query: String(q || '') });
 
 export function renderBrowse(box) {
   const total = state.words.length;

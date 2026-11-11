@@ -397,3 +397,14 @@ test('a round is the size asked when a few words are due and no new ones are bro
   const busy = Object.fromEntries(l1.slice(0, 60).map((w, i) => [w.key, { b: 1, s: 1, D: 6, d: i < 3 ? today : today + 1, n: 1, r: 1, t: now - DAY }]));
   assert.equal(pickRound(words, busy, { levels: [1], size: 10, now, random }).length, 10);
 });
+
+// 問 Orbit's question (#ask=<words>): what Words looks up in it.
+test('問 Orbit’s question: the English word, else a short Chinese meaning, else nothing', async () => {
+  const { askTerm } = await import('../public/lib/words.mjs');
+  assert.equal(askTerm('abandon 是什麼意思'), 'abandon');
+  assert.equal(askTerm('give up 的意思'), 'give up');
+  assert.equal(askTerm('放棄的英文單字'), '放棄');
+  assert.equal(askTerm('蘋果的英文怎麼說'), '蘋果');
+  assert.equal(askTerm('今天要背什麼單字'), '');
+  assert.equal(askTerm('背單字'), '');
+});

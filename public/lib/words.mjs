@@ -64,6 +64,20 @@ const DAY = 86_400_000;
 export const dayNum = (t = Date.now()) => Math.floor((t - new Date(t).getTimezoneOffset() * 60_000) / DAY);
 export const keyOf = word => String(word || '').toLowerCase().replace(/’/g, "'").trim();
 
+// 問 Orbit's question (the Pass sheet's box, kit ask-orbit.mjs: #ask=<words>):
+// what to look up in it. Its English (abandon, give up), else a short Chinese
+// meaning left once the asking is taken off (「放棄的英文單字」 放棄); '' when
+// nothing's left to look up (「今天要背哪些單字」: the app opens on 今天).
+const ASK_EN_SKIP = /^(vocab|vocabulary|words?|english|what|does|is|the|mean|meaning|of|how|to|say|in)$/i;
+const ASK_ZH_SKIP = /今天|明天|要背|要學|哪些|哪個|幾個|什麼|我|背單字|英文單字|單字|生字|英文字|英文|怎麼說|怎麼講|怎麼念|怎麼唸|怎麼拼|是什麼意思|意思|這個|那個|請問|的|是|[\s?？。，,!！「」『』"']/g;
+export function askTerm(text) {
+  const t = String(text || '').trim();
+  const en = (t.match(/[A-Za-z][A-Za-z'’-]*/g) || []).filter(w => !ASK_EN_SKIP.test(w));
+  if (en.length) return keyOf(en.join(' '));
+  const zh = t.replace(ASK_ZH_SKIP, '');
+  return /^[\u4e00-\u9fff]{1,4}$/.test(zh) ? zh : '';
+}
+
 // The raw list ([word, pos, level, zh, phonetic]) as objects.
 export function loadWords(rows) {
   return rows.map(([word, pos, level, zh, ph], i) => ({ i, word, key: keyOf(word), pos, level, zh, ph: ph || '' }));

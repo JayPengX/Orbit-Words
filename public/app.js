@@ -17,7 +17,7 @@ import * as kit from '#kit/orbit.mjs';
 import { passSync } from '#kit/pass-sync.mjs';
 import * as fmtKit from '#kit/format.mjs';
 import { orbitSession, taipeiDay, tabBar, topActions, installGate, watchUpdates, schedulePush, notify, keepOffline, storedAccount, cachedPayload } from '#kit/orbit.mjs';
-import { loadWords, loadHints, loadMore, keyOf, stateOf, warmMeanings, stats, learningList } from './lib/words.mjs';
+import { loadWords, loadHints, loadMore, keyOf, askTerm, stateOf, warmMeanings, stats, learningList } from './lib/words.mjs';
 import { DAILY_GOAL, streakAtRisk, goalStatus } from './lib/practice.mjs';
 import { catCounts } from './lib/review.mjs';
 import { decodePayload, encodePayload, mergeCopy } from './lib/copy.mjs';
@@ -25,7 +25,7 @@ import { state, hooks, t, locale, moreOf } from './shell.js';
 import { renderSession, busy, startRound } from './views/session.js';
 import { renderToday } from './views/today.js';
 import { renderReview } from './views/review.js';
-import { renderBrowse } from './views/browse.js';
+import { renderBrowse, searchFor } from './views/browse.js';
 import { renderProgress } from './views/progress.js';
 import { openWord, closeWord, redrawWord } from './views/sheet.js';
 import { el, put, fitSenses, FIT_SENSES } from './ui.js';
@@ -286,6 +286,19 @@ if (!gated) boot();
 // is open (a link, a notice's tap). A guide (#help=…) is the kit's: it opens
 // the Orbit Pass sheet.
 function openFromHash(start = false) {
+  // 問 Orbit's question (the Pass sheet, kit ask-orbit.mjs: #ask=<words>): the word it asks about.
+  // (The address read first: the tab shown at start writes its own over it.)
+  if (/(?:^#|&)ask=/.test(location.hash)) {
+    const hash = location.hash;
+    if (start) showTab('today');
+    import('#kit/ask-orbit.mjs')
+      .then(m => {
+        const text = m.takeAsk?.({ hash, pathname: location.pathname, search: location.search });
+        if (text) askWords(text);
+      })
+      .catch(() => {});
+    return;
+  }
   const hash = decodeURIComponent(location.hash.slice(1));
   // #five: 下課背五個 from Orbit Class, a five-word round on 今天 (once: the address goes back to #today).
   if (hash === 'five') {
@@ -301,6 +314,16 @@ function openFromHash(start = false) {
   else if (tab) closeWord();
 }
 window.addEventListener('hashchange', () => state.loaded && openFromHash());
+// A word asked about: its sheet when it's on the list, else the list searched
+// for it (English or a Chinese meaning), else 今天 (「今天要背哪些單字」).
+function askWords(text) {
+  const term = askTerm(text);
+  const word = term && state.byKey.get(keyOf(term));
+  if (word) return void openWord(word);
+  if (!term) return void showTab('today');
+  searchFor(term);
+  showTab('list');
+}
 
 // Opens without a connection: the kit registers the worker and has it keep every file loaded.
 keepOffline();
