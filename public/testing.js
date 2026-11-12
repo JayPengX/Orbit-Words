@@ -20,7 +20,7 @@ const app = 'vocab';
       { id: 'met', label: T('已達標', 'Met') }
     ]
   },
-  { app, title: T('很多字該複習', 'Many words due'), sub: T('繼續裡的「該複習」顯示 240 個（開始時用真的字）', '繼續’s due row shows 240 (a round uses the real ones)'), flag: 'vocabDue' },
+  { app, title: T('很多字該複習', 'Many words due'), sub: T('繼續裡的「該複習」顯示 240 個（開始時用真的字）', 'Continue’s Due now row shows 240 (a round uses the real ones)'), flag: 'vocabDue' },
   { app, title: T('考卷例句讀不到', 'Contest sentences fail'), sub: T('拼字比賽的卡片說沒有載入，可以再試一次', 'The contest card says so, with Try again'), flag: 'vocabNoMore' },
   { app, title: T('發音放不出來', 'No sound'), sub: T('沒有錄音也沒有系統語音', 'No clip and no system voice'), flag: 'vocabNoSound' }
 );
