@@ -23,7 +23,8 @@ export function renderReview(box) {
   if (!view.picked && !counts[view.cat]) view.cat = CATS.find(c => counts[c]) || 'wrong';
   const n = counts[view.cat];
   const cats = segmented(CATS.map(c => ({ id: c, label: t(`cat_${c}`) })), view.cat, c => ((view.cat = c), (view.picked = true), hooks.render()), 'cat-seg');
-  if (!n) return put(box, cats, emptyCard());
+  // (Wide: the empty state takes the page's width like the list would, never a band down the middle.)
+  if (!n) return kit.screenFit?.().wide ? put(box, el('div', { class: 'tab-flow review-empty' }, [cats, emptyCard()])) : put(box, cats, emptyCard());
   // Wide: the words beside the one opened (the first, until one is tapped).
   const first = reviewList(state.words, state.progress, view.cat, { marks: state.marks, sort: view.sort, query: view.query })[0];
   put(box, ...columns([[cats, deckHero(n), wordsSection()], [kit.screenFit?.().wide ? wordPane(first) : null]]));
