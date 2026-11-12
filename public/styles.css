@@ -270,7 +270,8 @@ h1, h2, h3, p { margin: 0; }
 .flip-hint .gl { width: 15px; height: 15px; }
 .flash-mixed { display: grid; gap: 6px; justify-self: stretch; }
 /* 測驗 stays in reach above the floating tab bar on a long flipped card. */
-.flash-test { position: sticky; bottom: calc(var(--q-nav, 74px) + 10px); z-index: 2; box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.35); }
+.flash-foot { position: sticky; bottom: calc(var(--q-nav, 74px) + 10px); z-index: 2; margin-top: 4px; padding-bottom: 2px; background: var(--q-page); box-shadow: 0 -10px 12px -6px var(--q-page); }
+.flash-foot .card-nav { margin: 12px 0; }
 .spelt { display: grid; justify-items: center; gap: 4px; }
 .spelt-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px; font-size: 18px; font-weight: 600; }
 .card-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0 12px; }
@@ -415,7 +416,7 @@ h1, h2, h3, p { margin: 0; }
 @media (max-height: 520px) {
   :root.q-wide .next-bar { position: fixed; left: calc(var(--q-mid) - 8px); right: calc(100vw - var(--q-mid) - min(376px, var(--q-vw) / 2)); margin: 0; padding: 0 16px; }
   :root.q-wide .answered { padding-bottom: 84px; }
-  .flash-test { position: static; }
+  .flash-foot { position: static; box-shadow: none; }
 }
 /* A phone on its side is short: the cards to learn from no taller than it. */
 @media (max-height: 520px) {
