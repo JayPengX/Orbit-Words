@@ -154,6 +154,8 @@ h1, h2, h3, p { margin: 0; }
 /* How a word went wrong: a small tag, then the misspelling or the word it was taken for. */
 .miss-note { display: flex; align-items: baseline; gap: 6px; min-width: 0; white-space: nowrap; overflow: hidden; }
 .miss-note > * { flex: none; }
+/* (In a kit row, whose small text is a two-line box: still one line with its gaps, never 選成estate.) */
+.q-ritem-text .miss-note { display: flex; -webkit-line-clamp: unset; }
 .miss-note > .miss-mean { flex: 0 100 auto; min-width: 0; overflow: hidden; }
 /* (A row's word in the note gives way only once the meaning has, then shrinks to fit: never cut.) */
 .miss-note > .q-fit { flex: 0 1 auto; }
