@@ -61,7 +61,8 @@ const decoded = (ac, url) => {
           if (!r.ok) throw new Error(`clip ${r.status}`);
           return r.arrayBuffer();
         })
-        .then(b => new Promise((ok, no) => ac.decodeAudioData(b, ok, no)))
+        // (Safari also returns a promise from it, rejected with the callback: caught, or each bad clip was an unhandled rejection.)
+        .then(b => new Promise((ok, no) => ac.decodeAudioData(b, ok, no)?.catch?.(() => {})))
         .catch(e => {
           buffers.delete(url);
           throw e;
