@@ -61,12 +61,12 @@ export function menuButton(options, current, onPick) {
   return b;
 }
 
-// A row of a card: { icon, color, soft, title, sub, value, tags, body, trailing, onClick, chevron, pressed, disabled }.
+// A row of a card: { icon, color, soft, title, sub, lang (a word row's: title English, sub Chinese), value, tags, body, trailing, onClick, chevron, pressed, disabled }.
 export function row(r) {
   const tagName = r.onClick ? 'button' : 'div';
   const n = el(tagName, { class: `q-ritem${r.onClick && r.chevron !== false ? ' chevron' : ''}${r.cls ? ` ${r.cls}` : ''}`, ...(r.onClick ? { type: 'button', onclick: r.onClick } : {}), ...(r.pressed != null ? { 'aria-pressed': String(r.pressed) } : {}), disabled: r.disabled || null });
   if (r.icon != null) n.append(r.icon instanceof Node ? r.icon : tile(r.icon, r.color, r.size || '', r.soft));
-  n.append(el('span', { class: 'q-ritem-text' }, [el('span', { class: 'q-ritem-title', text: r.title }), r.sub ? el('small', { text: r.sub }) : null, r.tags?.length ? el('span', { class: 'q-tags' }, r.tags) : null, r.body || null]));
+  n.append(el('span', { class: 'q-ritem-text' }, [el('span', { class: 'q-ritem-title', lang: r.lang ? 'en' : null, text: r.title }), r.sub ? el('small', { lang: r.lang ? 'zh-Hant' : null, text: r.sub }) : null, r.tags?.length ? el('span', { class: 'q-tags' }, r.tags) : null, r.body || null]));
   if (r.value != null && r.value !== '') n.append(el('span', { class: 'q-ritem-value', text: String(r.value) }));
   if (r.trailing) n.append(r.trailing);
   return n;

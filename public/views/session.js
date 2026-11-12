@@ -238,7 +238,7 @@ function feedback(res) {
     res.type === 'meaning' ? null : el('div', { class: 'word-line' }, [wordEl(word, 'v-word'), speakButton(word)]),
     el('p', { lang: 'zh-Hant', class: 'meaning', text: word.zh }),
     // What it was mistaken for, side by side: the difference is the lesson.
-    res.mixed ? el('button', { class: 'mixed', type: 'button', onclick: () => openWord(res.mixed) }, [el('small', { class: 'muted', text: t(res.written ? 'youWrote' : 'youPicked') }), el('strong', { text: res.mixed.word }), el('span', { class: 'muted', text: shortMeaning(res.mixed.zh) })]) : null,
+    res.mixed ? el('button', { class: 'mixed', type: 'button', onclick: () => openWord(res.mixed) }, [el('small', { class: 'muted', text: t(res.written ? 'youWrote' : 'youPicked') }), el('strong', { lang: 'en', text: res.mixed.word }), el('span', { lang: 'zh-Hant', class: 'muted', text: shortMeaning(res.mixed.zh) })]) : null,
     el('div', { class: 'next-bar' }, [next])
   ]);
 }
@@ -256,7 +256,7 @@ function roundSummary(r) {
   const rows = r.results.map(x =>
     el('button', { class: 'q-ritem chevron', type: 'button', onclick: () => openWord(x.word) }, [
       tile(x.correct ? 'check' : 'x', x.correct ? 'var(--q-green)' : 'var(--q-red)', 'sm'),
-      el('span', { class: 'q-ritem-text' }, [el('span', { class: 'q-ritem-title', text: x.word.word }), el('small', { text: [shortMeaning(x.word.zh), x.mixed ? t('mixedWith', { words: x.mixed.word }) : ''].filter(Boolean).join(' · ') })]),
+      el('span', { class: 'q-ritem-text' }, [el('span', { lang: 'en', class: 'q-ritem-title', text: x.word.word }), el('small', {}, [el('span', { lang: 'zh-Hant', text: shortMeaning(x.word.zh) }), x.mixed ? ` · ${t('mixedWith', { words: x.mixed.word })}` : null])]),
       el('small', { class: 'wr-side', text: t(`state_${x.after}`) })
     ])
   );
@@ -394,7 +394,7 @@ function renderFlash(box, s) {
     ? [
         el('p', { lang: 'zh-Hant', class: 'meaning full', text: word.zh }),
         (p?.x || []).length ? el('div', { class: 'spelt' }, [el('small', { class: 'muted', text: t('youSpelt') }), ...p.x.slice(0, 2).map(x => speltRow(x, word))]) : null,
-        mixed.length ? el('div', { class: 'flash-mixed' }, [el('small', { class: 'muted', text: t('mixedYours') }), ...mixed.slice(0, 3).map(o => el('button', { class: 'mixed', type: 'button', onclick: e => (e.stopPropagation(), openWord(o)) }, [el('strong', { text: o.word }), el('span', { class: 'muted', text: shortMeaning(o.zh) })]))]) : null
+        mixed.length ? el('div', { class: 'flash-mixed' }, [el('small', { class: 'muted', text: t('mixedYours') }), ...mixed.slice(0, 3).map(o => el('button', { class: 'mixed', type: 'button', onclick: e => (e.stopPropagation(), openWord(o)) }, [el('strong', { lang: 'en', text: o.word }), el('span', { lang: 'zh-Hant', class: 'muted', text: shortMeaning(o.zh) })]))]) : null
       ]
     : [why ? el('div', { class: 'flash-why' }, [el('small', { class: 'muted', text: t('lastMiss') }), why]) : null, iconText('flip-hint', 'flip', t('tapToFlip'))];
   const card = bigCard(word, back, { class: `q-card word-card flash-card${s.flipped ? ' flipped' : ''}`, role: 'button', tabindex: '0', 'aria-label': t('tapToFlip') });

@@ -147,7 +147,7 @@ const block = (label, body) => el('section', { class: 'sheet-block' }, [el('h3',
 function wordChips(keys, label, at) {
   const list = keys.map(k => state.byKey.get(k)).filter(Boolean);
   if (!list.length) return null;
-  return block(label, rowCard(list.map(w => row({ title: w.word, sub: shortMeaning(w.zh), cls: 'link-row', onClick: () => (buzz(), at === pane ? drawPane(w) : (draw(w, at), at.top())) }))));
+  return block(label, rowCard(list.map(w => row({ title: w.word, sub: shortMeaning(w.zh), lang: true, cls: 'link-row', onClick: () => (buzz(), at === pane ? drawPane(w) : (draw(w, at), at.top())) }))));
 }
 // A misspelling: what was typed, struck, then the word with the letters missed marked.
 export const speltRow = (s, word) => el('div', { class: 'spelt-row' }, [el('s', { class: 'muted', text: s }), el('span', { class: 'muted', text: '→' }), diffLine(spellDiff(s, word.word))]);

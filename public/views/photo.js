@@ -41,6 +41,7 @@ export async function photoWords() {
     const r2 = row({
       title: w.word,
       sub: shortMeaning(w.zh),
+      lang: true,
       value: was ? t('photoHad') : '',
       icon: checkDot(on.has(w.key)),
       chevron: false,

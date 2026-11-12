@@ -22,7 +22,7 @@ export async function openChat(next = []) {
   const chips = el('div', { class: 'chat-words' });
   const drawChips = () =>
     chips.replaceChildren(
-      ...words.map(w => el('span', { class: `chat-word${used.has(w.word) ? ' on' : ''}`, lang: 'en', title: shortMeaning(w.zh) }, [used.has(w.word) ? el('span', { class: 'chat-tick', 'aria-hidden': 'true', text: '✓ ' }) : null, w.word, el('small', { lang: 'zh-Hant', text: shortMeaning(w.zh) })]))
+      ...words.map(w => el('span', { class: `chat-word${used.has(w.word) ? ' on' : ''}`, lang: 'en' }, [used.has(w.word) ? el('span', { class: 'chat-tick', 'aria-hidden': 'true', text: '✓ ' }) : null, w.word, el('small', { lang: 'zh-Hant', text: shortMeaning(w.zh) })]))
     );
   const log = el('div', { class: 'chat-log', 'aria-live': 'polite' });
   const bubble = (who, text, extra = []) => el('div', { class: `chat-b ${who}` }, [el('p', { lang: 'en', text }), ...extra]);
