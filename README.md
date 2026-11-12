@@ -16,42 +16,30 @@
 English vocabulary that sticks: the full 大考中心 list, levels 1 to 6 (6,169 words), each with a recorded voice. Part of **Orbit**, a family of apps for life in Taiwan that share one sign-in, the Orbit Pass. See them all at [orbit.jaypengx.com](https://orbit.jaypengx.com/pass/).
 
 <p align="center">
-  <img src="docs/screenshots/words-1.webp" width="30%" alt="Today's goal and streak">
-  <img src="docs/screenshots/words-2.webp" width="30%" alt="Chat with AI using new words">
-  <img src="docs/screenshots/words-3.webp" width="30%" alt="Know why, right away">
+  <img src="docs/screenshots/words-1.webp" width="30%" alt="Today's words, the moment you open it">
+  <img src="docs/screenshots/words-2.webp" width="30%" alt="Wrong? See why, right away">
+  <img src="docs/screenshots/words-3.webp" width="30%" alt="6,169 exam words, each in a real voice">
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/words-4.webp" width="30%" alt="Every word, explained">
-  <img src="docs/screenshots/words-5.webp" width="30%" alt="Many ways to practise">
-  <img src="docs/screenshots/words-6.webp" width="30%" alt="Practise in sentences">
-</p>
-
-<p align="center">
-  <img src="docs/screenshots/words-7.webp" width="30%" alt="A mock spelling contest">
-  <img src="docs/screenshots/words-8.webp" width="30%" alt="Flash cards">
-  <img src="docs/screenshots/words-9.webp" width="30%" alt="Watch yourself improve">
+  <img src="docs/screenshots/words-4.webp" width="30%" alt="8 ways to practise">
+  <img src="docs/screenshots/words-5.webp" width="30%" alt="The words you mix up come back for review">
+  <img src="docs/screenshots/words-6.webp" width="30%" alt="Chat with AI using new words">
 </p>
 
 <details>
 <summary>中文畫面</summary>
 
 <p align="center">
-  <img src="docs/screenshots/words-1.zh.webp" width="30%" alt="今日目標與連續天數">
-  <img src="docs/screenshots/words-2.zh.webp" width="30%" alt="用新字跟 AI 聊天">
-  <img src="docs/screenshots/words-3.zh.webp" width="30%" alt="答完馬上知道為什麼">
+  <img src="docs/screenshots/words-1.zh.webp" width="30%" alt="今天該背的字，一打開就知道">
+  <img src="docs/screenshots/words-2.zh.webp" width="30%" alt="答錯馬上知道為什麼">
+  <img src="docs/screenshots/words-3.zh.webp" width="30%" alt="6,169 個大考單字，真人發音">
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/words-4.zh.webp" width="30%" alt="每個單字都有解說">
-  <img src="docs/screenshots/words-5.zh.webp" width="30%" alt="多種練習模式">
-  <img src="docs/screenshots/words-6.zh.webp" width="30%" alt="用例句練習">
-</p>
-
-<p align="center">
-  <img src="docs/screenshots/words-7.zh.webp" width="30%" alt="拼字比賽模擬考">
-  <img src="docs/screenshots/words-8.zh.webp" width="30%" alt="單字卡複習">
-  <img src="docs/screenshots/words-9.zh.webp" width="30%" alt="看見自己進步">
+  <img src="docs/screenshots/words-4.zh.webp" width="30%" alt="8 種練習方式，記得更牢">
+  <img src="docs/screenshots/words-5.zh.webp" width="30%" alt="搞混過的字，自動排進複習">
+  <img src="docs/screenshots/words-6.zh.webp" width="30%" alt="用新學的字跟 AI 聊天">
 </p>
 
 </details>
