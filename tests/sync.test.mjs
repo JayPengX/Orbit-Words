@@ -49,3 +49,23 @@ test('the words per round (10, 20, 30) is kept in the saved copy and follows the
   assert.equal(mergeCopy(mine, { ...blank(), st: 100, opt: { size: 20 } }).size, undefined);
   assert.equal(mergeCopy(mine, { ...blank(), st: 300, opt: { size: 7 } }).size, 10);
 });
+
+test('two devices answering the same day without seeing each other add up (the streak kept)', async () => {
+  const { logAnswer, logDevice, streakOf } = await import('../public/lib/practice.mjs');
+  const answer = (s, dev, n) => {
+    for (let i = 0; i < n; i++) s = { ...s, days: logAnswer(s.days, T), dd: logDevice(s.dd, dev, T) };
+    return s;
+  };
+  const phone = answer({ ...blank(), dd: {} }, 'phone', 12);
+  const ipad = answer({ ...blank(), dd: {} }, 'ipad', 12);
+  const day = Object.keys(phone.days)[0];
+  const both = { ...phone, ...mergeCopy(phone, await decodePayload(await encodePayload(ipad))) };
+  assert.equal(both.days[day], 24);
+  assert.ok(streakOf(both.days, T) >= 1);
+  // merged again (each way, more than once): still 24, never counted twice
+  const again = { ...both, ...mergeCopy(both, ipad) };
+  assert.equal({ ...ipad, ...mergeCopy(ipad, again) }.days[day], 24);
+  assert.equal(again.days[day], 24);
+  // a copy from before the device counts: the larger, as before
+  assert.equal(mergeCopy({ ...blank(), days: { [day]: 30 } }, phone).days[day], 30);
+});

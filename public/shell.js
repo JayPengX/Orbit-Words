@@ -19,6 +19,8 @@ export const state = {
   more: new Map(),
   progress: {},
   days: {},
+  // Each device's own answers per day, the last week (practice.mjs logDevice).
+  dd: {},
   // Right answers and seconds per day (practice.mjs logResult).
   log: {},
   // Bookmarks (review.mjs).

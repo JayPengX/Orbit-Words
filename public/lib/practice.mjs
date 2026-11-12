@@ -68,6 +68,52 @@ export function logAnswer(days, now = Date.now()) {
   out[day] = (out[day] || 0) + 1;
   return out;
 }
+// Each device's own answers per day, the last week (`dd`: { device: { day: n } },
+// at most 8 devices): two devices that answered the same day without seeing
+// each other's count (both offline, or both left open) add up. `days` alone
+// is merged as the larger count, so 12 on the phone and 12 on the iPad were
+// 12, short of the day's 20, and the streak broke (2026-11-12).
+const DEVICE_DAYS = 7;
+export function deviceId(store = globalThis.localStorage) {
+  try {
+    let id = store.getItem('orbit-words.device');
+    if (!id) store.setItem('orbit-words.device', (id = Math.random().toString(36).slice(2, 10)));
+    return id;
+  } catch {
+    return 'here';
+  }
+}
+const recent = (byDay, from) => Object.fromEntries(Object.entries(byDay || {}).filter(([d, n]) => d > from && Number.isFinite(n) && n > 0));
+export function logDevice(dd, dev, now = Date.now()) {
+  const day = dayOf(now);
+  const from = dayOf(now - DEVICE_DAYS * 86_400_000);
+  const out = {};
+  for (const [k, byDay] of Object.entries(dd || {})) {
+    const kept = recent(byDay, from);
+    if (Object.keys(kept).length) out[k] = kept;
+  }
+  out[dev] = { ...(out[dev] || {}), [day]: (out[dev]?.[day] || 0) + 1 };
+  return Object.fromEntries(Object.entries(out).slice(-8));
+}
+// Two copies' device counts: each device's own count per day only grows, so the larger.
+export function mergeDevices(a = {}, b = {}) {
+  const out = { ...a };
+  for (const [k, byDay] of Object.entries(b || {})) {
+    if (!byDay || typeof byDay !== 'object') continue;
+    const mine = { ...(out[k] || {}) };
+    for (const [d, n] of Object.entries(byDay)) if (Number.isFinite(n)) mine[d] = Math.max(mine[d] || 0, n);
+    out[k] = mine;
+  }
+  return out;
+}
+// The days, each at least what the devices answered together.
+export function daysWithDevices(days = {}, dd = {}) {
+  const out = { ...days };
+  const sum = {};
+  for (const byDay of Object.values(dd || {})) for (const [d, n] of Object.entries(byDay || {})) if (Number.isFinite(n)) sum[d] = (sum[d] || 0) + n;
+  for (const [d, n] of Object.entries(sum)) out[d] = Math.max(out[d] || 0, n);
+  return out;
+}
 // Two devices' days: the larger count each day.
 export function mergeDays(a = {}, b = {}) {
   const out = { ...a };

@@ -3,7 +3,7 @@
 // it's tested directly; gzip is the platform's CompressionStream (Safari
 // 16.4+, Node 18+).
 import { packProgress, unpackProgress, mergeProgress, mergeCal } from './words.mjs';
-import { mergeDays, mergeLog } from './practice.mjs';
+import { mergeDays, mergeLog, mergeDevices, daysWithDevices } from './practice.mjs';
 import { mergeMarks } from './review.mjs';
 import { mergeContests } from './contest.mjs';
 
@@ -33,7 +33,8 @@ export async function decodePayload(payload) {
 export const encodePayload = async state => `z3:${await gzipB64(JSON.stringify(packProgress(state)))}`;
 
 // Another copy (the pass's, the phone's, one a merge brought in) into this
-// one: per word the one answered last; days and logs the larger; bookmarks
+// one: per word the one answered last; days and logs the larger (a day at
+// least what each device answered on its own, added up: practice.mjs logDevice); bookmarks
 // the latest choice; the contests taken on either; the reviews for fitting the model together. The
 // settings (levels, the way to learn, the sound's speed) are the newer
 // copy's (`st`, when they were set; a copy from before `st` counts as the
@@ -44,9 +45,11 @@ export const encodePayload = async state => `z3:${await gzipB64(JSON.stringify(p
 export function mergeCopy(state, theirs) {
   if (!theirs) return {};
   const progress = mergeProgress(state.progress, theirs.progress);
+  const dd = mergeDevices(state.dd, theirs.dd);
   const out = {
     progress,
-    days: mergeDays(state.days, theirs.days),
+    dd,
+    days: daysWithDevices(mergeDays(state.days, theirs.days), dd),
     log: mergeLog(state.log, theirs.log),
     marks: mergeMarks(state.marks, theirs.marks),
     cal: mergeCal(state.cal, theirs.cal),
