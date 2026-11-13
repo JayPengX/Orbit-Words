@@ -17,14 +17,13 @@ English vocabulary that sticks: the full 大考中心 list, levels 1 to 6 (6,169
 
 <p align="center">
   <img src="docs/screenshots/words-1.webp" width="30%" alt="Today's words, the moment you open it">
-  <img src="docs/screenshots/words-2.webp" width="30%" alt="Wrong? See why, right away">
+  <img src="docs/screenshots/words-2.webp" width="30%" alt="Each answer shows you the whole word">
   <img src="docs/screenshots/words-3.webp" width="30%" alt="6,169 exam words, each in a real voice">
 </p>
 
 <p align="center">
   <img src="docs/screenshots/words-4.webp" width="30%" alt="8 ways to practise">
-  <img src="docs/screenshots/words-5.webp" width="30%" alt="The words you mix up come back for review">
-  <img src="docs/screenshots/words-6.webp" width="30%" alt="Chat with AI using new words">
+  <img src="docs/screenshots/words-5.webp" width="30%" alt="Your mix-ups, shown to you next time">
 </p>
 
 <details>
@@ -32,14 +31,13 @@ English vocabulary that sticks: the full 大考中心 list, levels 1 to 6 (6,169
 
 <p align="center">
   <img src="docs/screenshots/words-1.zh.webp" width="30%" alt="今天該背的字，一打開就知道">
-  <img src="docs/screenshots/words-2.zh.webp" width="30%" alt="答錯馬上知道為什麼">
+  <img src="docs/screenshots/words-2.zh.webp" width="30%" alt="每題答完，整個字馬上看懂">
   <img src="docs/screenshots/words-3.zh.webp" width="30%" alt="6,169 個大考單字，真人發音">
 </p>
 
 <p align="center">
   <img src="docs/screenshots/words-4.zh.webp" width="30%" alt="8 種練習方式，記得更牢">
-  <img src="docs/screenshots/words-5.zh.webp" width="30%" alt="搞混過的字，自動排進複習">
-  <img src="docs/screenshots/words-6.zh.webp" width="30%" alt="用新學的字跟 AI 聊天">
+  <img src="docs/screenshots/words-5.zh.webp" width="30%" alt="搞混過的字，下次直接提醒你">
 </p>
 
 </details>
