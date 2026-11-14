@@ -34,5 +34,7 @@ export function renderBrowse(box) {
   const pane = kit.screenFit().wide ? wordPane(items[0]) : null;
   // 拍照找單字 (Jay 11-10): a page's words starred from a photo (views/photo.js).
   const snap = rowCard([row({ title: t('photoRow'), sub: t('photoRowSub'), icon: 'camera', color: 'var(--q-accent)', onClick: () => photoWords() })], 'photo-row');
+  // (Read by Orbit AI: shown locked with none on the account, a tap says why: kit aiLock.)
+  snap.setAttribute('data-ai-tap', '');
   put(box, ...columns([[search, snap, levels, list], [pane]]));
 }

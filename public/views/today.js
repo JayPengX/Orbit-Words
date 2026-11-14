@@ -229,6 +229,8 @@ function continueList() {
     // 用新字聊天 (the family's AI): the words just learned, used in a short chat.
     row(t('chatRow'), t('chatRowSub'), '', () => import('./chat.js').then(m => m.openChat(nextRound())), !state.levels.length)
   ];
+  // (The chat is Orbit AI's: shown locked with none on the account, a tap says why: kit aiLock.)
+  rows.at(-1)?.setAttribute?.('data-ai-tap', '');
   return section(t('continueTitle'), el('div', { class: 'q-rowcard' }, rows.filter(Boolean)));
 }
 
