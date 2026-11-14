@@ -338,7 +338,14 @@ function openFromHash(start = false) {
 window.addEventListener('hashchange', () => state.loaded && openFromHash());
 // A word asked about: its sheet when it's on the list, else the list searched
 // for it (English or a Chinese meaning), else 今天 (「今天要背哪些單字」).
-function askWords(text) {
+async function askWords(text) {
+  // 「背 10 個單字」: a command (kit act.mjs, read by code, no AI call) starts a round on 今天, as its button does.
+  const act = await import('#kit/act.mjs').then(m => m.readAct?.(text)).catch(() => null);
+  if (act?.act === 'practice') {
+    showTab('today');
+    if (!busy()) startRound(act.size ? { size: act.size } : {});
+    return;
+  }
   const term = askTerm(text);
   const word = term && state.byKey.get(keyOf(term));
   if (word) return void openWord(word);

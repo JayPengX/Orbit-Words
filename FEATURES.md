@@ -16,3 +16,4 @@ To remove a feature on purpose, delete its line here in the same commit and say 
 - Streaks — `public/views/today.js`: `streak`
 - 用新字聊天 (a chat in English using the new words, each line fixed) — `public/lib/i18n.mjs`, `public/views/chat.js`: `用新字聊天`, `words-chat`
 - 問 Orbit's question (#ask=) opens on the word it asks about — `public/app.js`, `public/lib/words.mjs`: `askWords`, `askTerm`
+- A round by saying it (Jay 11-14): 「背 10 個單字」 in 問 Orbit starts a round on 今天, read by code (kit act.mjs, no AI call) — `public/app.js`: `act?.act === 'practice'`
