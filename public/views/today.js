@@ -30,6 +30,41 @@ export function renderToday(box) {
   // into columns of even height (the kit's flowColumns), read in the phone's order.
   put(box, ...wideOrPhone([goal, bank, wotd], [go, modes, contest, streak, weak, decks, recent]));
   kitUI.flowColumns?.(box);
+  evenUp(box);
+}
+
+// Wide: the columns end near one line. The shelves that can give (the
+// recent words a row at a time, the weak words down to two) give where a
+// column runs past the others by more than half a row, and the columns are
+// dealt again (Jay 2026-11-14, his laptop: three columns ending at three
+// heights, the last a row and a half past the rest).
+function evenUp(box) {
+  const flow = box.querySelector('.q-flow.q-flow-laid');
+  if (!flow || !kitUI.flowColumns) return;
+  for (let pass = 0; pass < 6; pass++) {
+    const cols = [...flow.children].filter(c => c.classList.contains('q-flow-col') && c.lastElementChild);
+    if (cols.length < 2) return;
+    const ends = cols.map(c => c.lastElementChild.getBoundingClientRect().bottom);
+    const top = Math.max(...ends);
+    const tall = cols[ends.indexOf(top)];
+    const next = Math.max(...ends.filter((_, i) => cols[i] !== tall));
+    const cut = giveRow(tall, top - next);
+    if (!cut) return;
+    kitUI.flowColumns(box);
+  }
+}
+// One row off a shelf in this column, when it is over half of what the column runs past; false when none can give.
+function giveRow(col, over) {
+  const rail = col.querySelector('.recent-rail');
+  if (rail) {
+    const n = Number(getComputedStyle(rail).getPropertyValue('--cols')) || 1;
+    const cards = [...rail.children];
+    const rowH = cards[0]?.getBoundingClientRect().height + 12;
+    if (cards.length > n && over > rowH / 2) return cards.slice(-(cards.length % n || n)).forEach(c => c.remove()), true;
+  }
+  const rows = [...(col.querySelector('.weak-shelf .q-rowcard')?.children || [])];
+  if (rows.length > 2 && over > rows[0].getBoundingClientRect().height / 2) return rows.at(-1).remove(), true;
+  return false;
 }
 
 // The phone's one column, or (q-wide, with the kit's flowColumns) the lead
@@ -219,7 +254,9 @@ function weakShelf() {
   const list = hardest(state.words, state.progress, 8);
   if (!list.length) return null;
   const all = el('button', { class: 'q-sh-more', type: 'button', onclick: () => openHardest(list) }, [t('allBtn')]);
-  return section(t('weakWords'), el('div', { class: 'q-rowcard words' }, list.slice(0, 4).map(hardRow)), all);
+  const box = section(t('weakWords'), el('div', { class: 'q-rowcard words' }, list.slice(0, 4).map(hardRow)), all);
+  box.classList.add('weak-shelf');
+  return box;
 }
 
 // 單字卡: a deck for each way in (missed, due, learning, bookmarked).

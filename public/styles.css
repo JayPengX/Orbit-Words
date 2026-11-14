@@ -453,3 +453,14 @@ html.run-lock, html.run-lock body { overflow: hidden; overscroll-behavior: none;
 .chat-why, .chat-err { display: block; margin-top: 4px; font-size: 13px; opacity: 0.9; }
 .chat-done { align-self: center; margin: var(--q-s-1) 0; color: var(--q-good, var(--q-green)); font-weight: 600; font-size: 14px; text-align: center; }
 .chat-foot { display: grid; gap: 6px; }
+/* 進度 on a computer (Jay 2026-11-14, his laptop: three cards ending at three
+   heights over an empty lower half): the chart, the levels and the memory in
+   one row of one height; the words forgotten most under them, two lists side by side. */
+.prog-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 var(--q-s-5, 24px); align-items: stretch; }
+.tab-panel .prog-row > .q-section { display: flex; flex-direction: column; margin-top: 0; }
+.prog-row > .q-section > .q-card { flex: 1; align-content: space-between; }
+.hard-band { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px var(--q-s-5, 24px); align-items: start; }
+.hard-band > .q-rowcard { margin: 0; }
+/* A computer's page starts level with the side bar's name, never against the
+   window's top edge (Jay 2026-11-14: "no gap on top"). */
+html.q-tabrail.q-desk .page { padding-top: calc(var(--q-top) + 20px); }

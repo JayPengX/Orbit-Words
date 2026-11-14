@@ -1,7 +1,8 @@
 // 進度: how far (the words mastered, the level and points, the best
 // streak), how well (accuracy, time, days), what's been done and what's
 // coming (one chart, two ways), each level by state, and how long words
-// stay remembered: the model's fit, and the words forgotten most (a sheet).
+// stay remembered: the model's fit, and the words forgotten most (a sheet;
+// in the page when wide).
 import * as kitUI from '#kit/ui.mjs';
 import * as kit from '#kit/orbit.mjs';
 import { el, put, segmented } from '../ui.js';
@@ -13,7 +14,7 @@ import { periodOf, lastDays, bestStreak, daysPractised, xpOf, xpText, levelOf, D
 import { totals, forecast, levelBreakdown, memorySpread } from '../lib/review.mjs';
 import { openWord } from './sheet.js';
 
-const view = { chart: 'past' };
+const view = { chart: 'past', picked: false };
 
 export function renderProgress(box) {
   const a = wordStats(state.words, state.progress).all;
@@ -25,15 +26,21 @@ export function renderProgress(box) {
     bar(a.mastered, a.total, 'q-focus-bar'),
     el('span', { class: 'q-focus-sub', text: `Lv ${lv.level} ${lv.title} · ${xpText(xpOf(state.progress))}` })
   ]);
-  const [well, activity, levels, memory] = [howWell(), section(t('activityTitle'), chartCard()), section(t('levelsTitle'), levelsCard()), section(t('memoryTitle'), memoryCard())];
+  const wide = kit.screenFit?.().wide;
+  const [well, activity, levels, memory] = [howWell(), section(t('activityTitle'), chartCard()), section(t('levelsTitle'), levelsCard()), section(t('memoryTitle'), memoryCard({ inline: wide }))];
   // Wide (Jay 2026-11-06, iPad: one column long beside two short ones): the
   // words held and the four numbers in one row, then the chart, the levels
   // and the memory side by side (the kit's flowColumns), in the phone's order.
+  // Under them the words forgotten most, in the page (Jay 2026-11-14, his
+  // laptop: the page's lower half empty while they sat behind a row).
   const parts = [top, well, activity, levels, memory].filter(Boolean);
-  if (!kit.screenFit?.().wide) return put(box, ...parts);
-  if (!kitUI.flowColumns) return put(box, ...columns([[top, well, activity], [levels, memory]], [[top, well], [activity], [levels, memory]]));
+  if (!wide) return put(box, ...parts);
+  const hard = hardBand();
+  if (!kitUI.flowColumns) return put(box, ...columns([[top, well, activity], [levels, memory]], [[top, well], [activity], [levels, memory]]), hard);
   well?.classList.add('span2');
-  put(box, el('div', { class: 'wide-lead' }, [top, well].filter(Boolean)), el('div', { class: 'q-flow tab-flow' }, [activity, levels, memory]));
+  // (Three across on a computer: one row, the cards one height, never three ragged ends.)
+  const row = kit.screenFit?.().w3 ? el('div', { class: 'prog-row' }, [activity, levels, memory]) : el('div', { class: 'q-flow tab-flow' }, [activity, levels, memory]);
+  put(box, el('div', { class: 'wide-lead' }, [top, well].filter(Boolean)), row, hard);
   kitUI.flowColumns(box);
 }
 
@@ -43,26 +50,39 @@ function howWell() {
   // No stat tiles before the first answer: four dashes say nothing.
   if (!all.answers) return null;
   const week = periodOf(state.days, state.log, 7);
-  return el('div', { class: 'q-section' }, [
-    stats([
-      { label: t('stAccuracyAll'), value: percent(all.accuracy) },
-      { label: t('stAccuracyWeek'), value: percent(week.accuracy) },
-      { label: t('stPerAnswer'), value: week.perAnswer == null ? '—' : t('secN', { n: week.perAnswer.toFixed(1) }) },
-      { label: t('stDaysPractised'), value: daysPractised(state.days).toLocaleString() }
-    ])
-  ]);
+  // (A quiet week: the answers in all and the day last practised, never two
+  // dashes beside numbers that plainly exist (Jay 2026-11-14).)
+  const last = lastPractised();
+  const tiles = week.answers
+    ? [
+        { label: t('stAccuracyWeek'), value: percent(week.accuracy) },
+        { label: t('stPerAnswer'), value: week.perAnswer == null ? '—' : t('secN', { n: week.perAnswer.toFixed(1) }) }
+      ]
+    : [
+        { label: t('stAnswersAll'), value: all.answers.toLocaleString() },
+        { label: t('stLastDay'), value: last ? shortDay(last) : '—' }
+      ];
+  return el('div', { class: 'q-section' }, [stats([{ label: t('stAccuracyAll'), value: percent(all.accuracy) }, ...tiles, { label: t('stDaysPractised'), value: daysPractised(state.days).toLocaleString() }])]);
 }
+// The last day with any answers ('YYYY-MM-DD'), or ''.
+const lastPractised = () => Object.keys(state.days || {}).filter(d => state.days[d] > 0).sort().at(-1) || '';
+const shortDay = d => `${Number(d.slice(5, 7))}/${Number(d.slice(8, 10))}`;
 
 // One chart: the last 14 days' answers (the goal dashed; the best streak), or the reviews
 // falling due in the next 7 days (today's with what's overdue).
 function chartCard() {
+  // (Nothing in the last 14 days: the reviews coming open first, until one is picked.)
+  if (!view.picked) view.chart = lastDays(state.days, 14).some(d => d.answers) ? 'past' : 'next';
   const past = view.chart === 'past';
   const items = past
     ? lastDays(state.days, 14).map(d => ({ n: d.answers, hot: d.kept, short: String(Number(d.day.slice(8))), name: d.day.slice(5) }))
     : forecast(state.progress, 7).map(f => ({ n: f.n, hot: f.day === 0, short: f.day === 0 ? t('todayShort') : `+${f.day}`, name: f.day === 0 ? t('todayShort') : `+${f.day}` }));
-  const pick = segmented([{ id: 'past', label: t('chartPast') }, { id: 'next', label: t('chartNext') }], view.chart, id => ((view.chart = id), box.replaceWith(chartCard())), 'chart-seg');
+  const pick = segmented([{ id: 'past', label: t('chartPast') }, { id: 'next', label: t('chartNext') }], view.chart, id => ((view.chart = id), (view.picked = true), box.replaceWith(chartCard())), 'chart-seg');
   const quiet = past && items.every(x => !x.n);
-  const box = el('div', { class: 'q-card chart-card' }, [pick, quiet ? kitUI.empty({ icon: 'chart', title: t('chartNone') }) : bars(items, past ? DAILY_GOAL : 0), past ? el('p', { class: 'chart-note', text: [t('bestStreak', { n: bestStreak(state.days) }), t('goalLine', { n: DAILY_GOAL })].join(' · ') }) : null]);
+  // (Quiet for two weeks but practised before: says so, and when; never 還沒有作答紀錄 beside 69% (Jay 2026-11-14).)
+  const last = lastPractised();
+  const none = last ? kitUI.empty({ icon: 'chart', title: t('chartQuiet'), body: t('lastOn', { d: shortDay(last) }) }) : kitUI.empty({ icon: 'chart', title: t('chartNone') });
+  const box = el('div', { class: 'q-card chart-card' }, [pick, quiet ? none : bars(items, past ? DAILY_GOAL : 0), past ? el('p', { class: 'chart-note', text: [t('bestStreak', { n: bestStreak(state.days) }), t('goalLine', { n: DAILY_GOAL })].join(' · ') }) : null]);
   return box;
 }
 // A row of bars; the largest and the last say their number.
@@ -99,7 +119,7 @@ function levelsCard() {
 
 // How long learnt words stay remembered, how this person's memory compares
 // (the model's fit), and the words that slip most.
-function memoryCard() {
+function memoryCard({ inline = false } = {}) {
   const spread = memorySpread(state.progress);
   const total = spread.reduce((s, n) => s + n, 0);
   const factor = personalFactor(state.cal);
@@ -111,8 +131,17 @@ function memoryCard() {
       total ? el('div', { class: 'mem-rows' }, spread.map((n, i) => el('div', { class: 'mem-row' }, [el('span', { text: names[i] }), bar(n, total, `mem-track m${i}`), el('span', { class: 'num', text: n.toLocaleString() })]))) : el('p', { class: 'none', text: t('memoryEmpty') }),
       fit
     ]),
-    hard.length ? rowCard([row({ title: t('hardTitle'), value: hard.length, onClick: () => openHardest(hard) })], 'after') : null
+    !inline && hard.length ? rowCard([row({ title: t('hardTitle'), value: hard.length, onClick: () => openHardest(hard) })], 'after') : null
   ];
+}
+
+// Wide: the words forgotten most in the page, two lists side by side.
+function hardBand() {
+  const hard = hardest(state.words, state.progress, 8);
+  if (!hard.length) return null;
+  const half = Math.ceil(hard.length / 2);
+  const lists = hard.length > 3 ? [hard.slice(0, half), hard.slice(half)] : [hard];
+  return section(t('hardTitle'), el('div', { class: 'hard-band' }, lists.map(l => el('div', { class: 'q-rowcard words' }, l.map(hardRow)))));
 }
 
 // The words forgotten most, each with what it was mistaken for.

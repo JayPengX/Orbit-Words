@@ -70,3 +70,6 @@ Object.assign(STRINGS.en, { mode_sentence: 'Sentences', modeHint_sentence: 'Pick
 // A word's 學習紀錄 (views/sheet.js).
 Object.assign(STRINGS.zh, { stRight: '答對', rightOfN: '{r} / {n} 次', stNext: '下次複習', nextToday: '今天', nextTomorrow: '明天', nextInN: '{n} 天後', stLapses: '學會後又忘了', timesN: '{n} 次', recordNote: '由你的作答決定：答對越多、越快，隔越久才再考；答錯就會早點回來。' });
 Object.assign(STRINGS.en, { stRight: 'Right', rightOfN: '{r} of {n}', stNext: 'Next review', nextToday: 'Today', nextTomorrow: 'Tomorrow', nextInN: 'In {n} days', stLapses: 'Forgotten after learning', timesN: '{n}×', recordNote: 'Set by your answers: the more you get right, and the quicker, the longer until it’s asked again; a miss brings it back soon.' });
+// 進度 after a quiet spell (views/progress.js).
+Object.assign(STRINGS.zh, { stAnswersAll: '總作答', stLastDay: '上次練習', chartQuiet: '最近 14 天沒有作答', lastOn: '上次練習是 {d}' });
+Object.assign(STRINGS.en, { stAnswersAll: 'Answers', stLastDay: 'Last practised', chartQuiet: 'No answers in the last 14 days', lastOn: 'Last practised {d}' });

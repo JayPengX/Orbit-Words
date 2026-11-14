@@ -27,7 +27,10 @@ export function renderReview(box) {
   if (!n) return kit.screenFit?.().wide ? put(box, el('div', { class: 'tab-flow review-empty' }, [cats, emptyCard()])) : put(box, cats, emptyCard());
   // Wide: the words beside the one opened (the first, until one is tapped).
   const first = reviewList(state.words, state.progress, view.cat, { marks: state.marks, sort: view.sort, query: view.query })[0];
-  put(box, ...columns([[cats, deckHero(n), wordsSection()], [kit.screenFit?.().wide ? wordPane(first) : null]]));
+  // (Wide, the categories across the top as when one is empty, so switching to an empty one never
+  // moves them under the pointer (Jay 2026-11-14: tapping 收藏 jumped the page).)
+  if (kit.screenFit?.().wide) return put(box, el('div', { class: 'tab-flow review-seg' }, [cats]), ...columns([[deckHero(n), wordsSection()], [wordPane(first)]]));
+  put(box, ...columns([[cats, deckHero(n), wordsSection()], [null]]));
 }
 
 // The category: its count, its flash cards (10, 20, 50 or all of them, up

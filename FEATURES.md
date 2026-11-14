@@ -12,6 +12,7 @@ To remove a feature on purpose, delete its line here in the same commit and say 
 - 句子填空 — `public/views/session.js`: `句子填空`
 - A word's 學習紀錄 — `public/views/sheet.js`: `學習紀錄`
 - 最常忘的字 and the review forecast — `public/lib/i18n.mjs`, `public/views/progress.js`: `最常忘的字`, `forecast`
+- 進度 after a quiet spell: when you last practised and the answers in all — `public/views/progress.js`, `public/lib/i18n.mjs`: `chartQuiet`, `stLastDay`
 - Streaks — `public/views/today.js`: `streak`
 - 用新字聊天 (a chat in English using the new words, each line fixed) — `public/lib/i18n.mjs`, `public/views/chat.js`: `用新字聊天`, `words-chat`
 - 問 Orbit's question (#ask=) opens on the word it asks about — `public/app.js`, `public/lib/words.mjs`: `askWords`, `askTerm`
