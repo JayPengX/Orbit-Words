@@ -21,7 +21,7 @@ test('今天 and 進度 wide: a lead band, then the kit flowColumns (columns of 
 
 test('a phone upright keeps its one column: the lead band and the flow only on q-wide', () => {
   assert.match(read('views/today.js'), /if \(!fit\.wide\) return \[goal, \.\.\.side, \.\.\.rest\]/);
-  assert.match(read('views/progress.js'), /const wide = kit\.screenFit\?\.\(\)\.wide;[\s\S]*if \(!wide\) return put\(box, \.\.\.parts\)/);
+  assert.match(read('views/progress.js'), /const wide = kit\.screenFit\(\)\.wide;[\s\S]*if \(!wide\) return put\(box, \.\.\.parts\)/);
   // (Every wide rule sits under :root.q-wide / q-w3, or on classes only drawn wide.)
   for (const line of css.split('\n').filter(l => /wide-lead|tab-flow/.test(l) && /\{/.test(l))) {
     assert.ok(/q-wide|q-w3|^\.wide-lead|^\.tab-panel \.wide-lead/.test(line.trim()), line);
@@ -51,12 +51,12 @@ test('複習 wide: the categories sit across the top whether the category is emp
 });
 test('今天 wide: the shelves that can give a row do, so the columns end near one line', () => {
   const src = read('views/today.js');
-  assert.match(src, /kitUI\.flowColumns\?\.\(box\);\n  evenUp\(box\);/);
+  assert.match(src, /kitUI\.flowColumns\(box\);\n  evenUp\(box\);/);
   assert.match(src, /function giveRow\(col, over\)/);
 });
 test('進度 on a computer: one row of one height, the words forgotten most in the page', () => {
   const src = read('views/progress.js');
-  assert.match(src, /screenFit\?\.\(\)\.w3 \? el\('div', \{ class: 'prog-row' \}/);
+  assert.match(src, /screenFit\(\)\.w3 \? el\('div', \{ class: 'prog-row' \}/);
   assert.match(src, /function hardBand\(\)/);
   assert.match(css, /\.prog-row \{ display: grid; grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);[^}]*align-items: stretch; \}/);
 });

@@ -12,11 +12,10 @@
 // every app's guide) is the kit's Orbit Pass sheet, in every app. (It was
 // Orbit Words; its id stays `vocab`, its storage and caches `orbit-words`.)
 import * as kitUI from '#kit/ui.mjs';
-// (As a namespace: a phone on an older kit lacks milestone, and a missing named import would stop the app.)
 import * as kit from '#kit/orbit.mjs';
 import { passSync } from '#kit/pass-sync.mjs';
 import * as fmtKit from '#kit/format.mjs';
-import { orbitSession, taipeiDay, tabBar, topActions, installGate, watchUpdates, schedulePush, notify, keepOffline, storedAccount, cachedPayload } from '#kit/orbit.mjs';
+import { orbitSession, tabBar, topActions, installGate, watchUpdates, schedulePush, notify, keepOffline, storedAccount, cachedPayload } from '#kit/orbit.mjs';
 import { loadWords, loadHints, loadMore, keyOf, askTerm, stateOf, warmMeanings, stats, learningList } from './lib/words.mjs';
 import { DAILY_GOAL, streakAtRisk, goalStatus } from './lib/practice.mjs';
 import { catCounts } from './lib/review.mjs';
@@ -82,7 +81,7 @@ function sync({ soon = false } = {}) {
   if (soon) return (timer = setTimeout(() => sync(), 1500));
   if (!state.loaded) return Promise.resolve();
   // The words mastered, toward the 五百字 milestone.
-  kit.milestone?.(q, 'vocab', Object.values(state.progress || {}).filter(p => stateOf(p) === 'mastered').length);
+  kit.milestone(q, 'vocab', Object.values(state.progress || {}).filter(p => stateOf(p) === 'mastered').length);
   return pass.sync();
 }
 document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && sync());
@@ -106,7 +105,7 @@ function render() {
   if (!state.words && state.wordsFailed) return put(box, kitUI.empty({ icon: 'book', title: t('wordsFailed'), action: { label: t('contestRetry'), onTap: () => hooks.retryWords?.() } }));
   if (!state.words) return put(box, el('div', { class: 'q-skel-lines', role: 'status' }, [0, 1, 2, 3].map(() => el('i', { class: 'q-skel' }))));
   const running = state.session?.home === state.tab ? state.session : null;
-  if (running !== drawn && drawnTab === state.tab) kitUI.freshScreen ? kitUI.freshScreen() : scrollTo(0, 0);
+  if (running !== drawn && drawnTab === state.tab) kitUI.freshScreen();
   drawn = running;
   drawnTab = state.tab;
   if (running) renderSession(box);
@@ -125,7 +124,7 @@ function render() {
 // Orbit Class's 下課背五個 (a break's one tap to #five). Only the count.
 function tellDue() {
   const n = stats(state.words, state.progress).all.due;
-  const day = fmtKit.localDay ? fmtKit.localDay(Date.now()) : taipeiDay(Date.now());
+  const day = fmtKit.localDay(Date.now());
   import('#kit/family.mjs')
     .then(f => f.tell?.('vocab', 'due', { day, n }))
     .catch(() => {});
@@ -180,7 +179,7 @@ topActions(q);
 tabNav.select(state.tab);
 q.on('wallet', quietRefresh);
 // A new kind of screen (turned on its side, a window made wider): the tab laid out again for it.
-kit.onScreen?.(() => state.loaded && quietRefresh());
+kit.onScreen(() => state.loaded && quietRefresh());
 
 // Notices (the kit's: a banner on screen, a system notice in the background
 // once turned on in the account sheet): a streak that ends tonight, now
@@ -191,7 +190,7 @@ function checkStreak() {
   const body = t('noticeStreakBody', { goal: DAILY_GOAL });
   // (20:00 and the day by the phone's own clock, wherever it is: 2026-11-06.)
   const now = Date.now();
-  const dayOf = t => (fmtKit.localDay ? fmtKit.localDay(t) : taipeiDay(t));
+  const dayOf = fmtKit.localDay;
   const eight = day => {
     const d = new Date(now);
     return new Date(d.getFullYear(), d.getMonth(), d.getDate() + day, 20).getTime();
@@ -206,7 +205,7 @@ function checkStreak() {
 // The day's goal met (or a new day begun) after the notices were planned:
 // planned again, so tonight's 連續…今晚到期 is taken back.
 let streakSeen = '';
-const goalSeen = () => `${(fmtKit.localDay ? fmtKit.localDay(Date.now()) : taipeiDay(Date.now()))}:${goalStatus(state.days).left === 0}`;
+const goalSeen = () => `${fmtKit.localDay(Date.now())}:${goalStatus(state.days).left === 0}`;
 const goalWatch = () => streakSeen && streakSeen !== goalSeen() && checkStreak();
 
 // (Each list's address carries its own hash, stamped at deploy (Orbit-Core

@@ -24,12 +24,12 @@ export function renderReview(box) {
   const n = counts[view.cat];
   const cats = segmented(CATS.map(c => ({ id: c, label: t(`cat_${c}`) })), view.cat, c => ((view.cat = c), (view.picked = true), hooks.render()), 'cat-seg');
   // (Wide: the empty state takes the page's width like the list would, never a band down the middle.)
-  if (!n) return kit.screenFit?.().wide ? put(box, el('div', { class: 'tab-flow review-empty' }, [cats, emptyCard()])) : put(box, cats, emptyCard());
+  if (!n) return kit.screenFit().wide ? put(box, el('div', { class: 'tab-flow review-empty' }, [cats, emptyCard()])) : put(box, cats, emptyCard());
   // Wide: the words beside the one opened (the first, until one is tapped).
   const first = reviewList(state.words, state.progress, view.cat, { marks: state.marks, sort: view.sort, query: view.query })[0];
   // (Wide, the categories across the top as when one is empty, so switching to an empty one never
   // moves them under the pointer (Jay 2026-11-14: tapping 收藏 jumped the page).)
-  if (kit.screenFit?.().wide) return put(box, el('div', { class: 'tab-flow review-seg' }, [cats]), ...columns([[deckHero(n), wordsSection()], [wordPane(first)]]));
+  if (kit.screenFit().wide) return put(box, el('div', { class: 'tab-flow review-seg' }, [cats]), ...columns([[deckHero(n), wordsSection()], [wordPane(first)]]));
   put(box, ...columns([[cats, deckHero(n), wordsSection()], [null]]));
 }
 

@@ -5,7 +5,7 @@
 // word is known is the memory model's call alone, from the answers: there's
 // no "I know it" to put a word away by hand (Jay 2026-10-31).
 import * as kitUI from '#kit/ui.mjs';
-import { packJson } from '#kit/orbit.mjs';
+import { packJson, haptic } from '#kit/orbit.mjs';
 import { el, put, diffLine } from '../ui.js';
 import { state, t, hooks, hintOf, moreOf, metaLine, percent, wordEl, locale } from '../shell.js';
 import { speakButton } from '../audio.js';
@@ -47,7 +47,7 @@ let dialog = null;
 let shell = null;
 let box = null;
 let lead = null;
-const buzz = () => globalThis.orbitHaptic?.();
+const buzz = haptic;
 // Where a word is drawn: the sheet, or (a wide screen's 複習 and 單字) the
 // pane beside the list (wordPane).
 const inSheet = { get box() { return box; }, get lead() { return lead; }, top: () => dialog?.scrollTo?.(0, 0) };

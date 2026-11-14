@@ -31,7 +31,7 @@ export function renderBrowse(box) {
   const search = searchField(view.query, t('searchWords', { n: total.toLocaleString() }), q => ((view.query = q), draw()));
   const levels = chips([{ id: 0, label: t('allLevels') }, ...LEVELS.map(l => ({ id: l, label: levelName(l) }))], view.level, l => ((view.level = l), hooks.render()), 'level-chips');
   // Wide: the list beside the word opened (the first, until one is tapped).
-  const pane = kit.screenFit?.().wide ? wordPane(items[0]) : null;
+  const pane = kit.screenFit().wide ? wordPane(items[0]) : null;
   // 拍照找單字 (Jay 11-10): a page's words starred from a photo (views/photo.js).
   const snap = rowCard([row({ title: t('photoRow'), sub: t('photoRowSub'), icon: 'camera', color: 'var(--q-accent)', onClick: () => photoWords() })], 'photo-row');
   put(box, ...columns([[search, snap, levels, list], [pane]]));

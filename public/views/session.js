@@ -9,6 +9,7 @@
 //   flash   cards to flip through (a review category or bookmarks), swiped
 //           or tapped; looking doesn't count, the test on the deck after does.
 //   contest 拼字比賽, a timed paper (views/contest.js).
+import { haptic } from '#kit/orbit.mjs';
 import { el, put, toast, diffLine } from '../ui.js';
 import { state, t, hooks, hintOf, moreOf, metaLine, levelName, wordEl } from '../shell.js';
 import { ico, tile, tag, hero, heroBtn, big, section, iconText } from './chrome.js';
@@ -19,7 +20,7 @@ import { answerXp, xpText, logAnswer, logResult, logDevice, deviceId } from '../
 import { openWord, starButton, missNote, speltRow } from './sheet.js';
 import { renderContest } from './contest.js';
 
-const buzz = () => globalThis.orbitHaptic?.();
+const buzz = haptic;
 export const busy = () => Boolean(state.session && !state.session.done);
 const end = () => ((state.session = null), hooks.sync(), hooks.render());
 

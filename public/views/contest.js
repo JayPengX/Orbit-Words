@@ -5,6 +5,7 @@
 // any other (a test is practice too). One of 今天's modes: its card picks the
 // paper's size (短卷, 標準, 長卷), shows the last and best of that size, and
 // starts it.
+import { haptic } from '#kit/orbit.mjs';
 import * as kitUI from '#kit/ui.mjs';
 import { el, put, diffLine, pagedList, segmented } from '../ui.js';
 import { state, t, hooks, settingsChanged } from '../shell.js';
@@ -16,7 +17,7 @@ import { PART_IDS, PAPER_IDS, paperOf, totalOf, minutesOf, vocabSecondsOf, SPELL
 import { head, startRound } from './session.js';
 import { openWord } from './sheet.js';
 
-const buzz = () => globalThis.orbitHaptic?.();
+const buzz = haptic;
 const mmss = s => `${Math.floor(s / 60)}:${String(Math.max(0, s) % 60).padStart(2, '0')}`;
 
 // ---- Its card on 今天 ---------------------------------------------------------------------

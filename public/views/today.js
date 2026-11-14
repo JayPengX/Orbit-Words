@@ -10,7 +10,7 @@
 import * as kit from '#kit/orbit.mjs';
 import * as kitUI from '#kit/ui.mjs';
 import { el, put } from '../ui.js';
-import { hero, heroPill, heroBtn, big, bar, section, tag, tile, columns, ico } from './chrome.js';
+import { hero, heroPill, heroBtn, big, bar, section, tag, tile, ico } from './chrome.js';
 import { state, t, hooks, metaLine, wordEl, locale, settingsChanged } from '../shell.js';
 import { speakButton } from '../audio.js';
 import { LEVELS, MODES, stats, toStudy, stateOf, shortMeaning, wordOfDay, hardest, pickRound, personalFactor, dayNum } from '../lib/words.mjs';
@@ -29,7 +29,7 @@ export function renderToday(box) {
   // word bank and the word of the day beside them; under it the rest dealt
   // into columns of even height (the kit's flowColumns), read in the phone's order.
   put(box, ...wideOrPhone([goal, bank, wotd], [go, modes, contest, streak, weak, decks, recent]));
-  kitUI.flowColumns?.(box);
+  kitUI.flowColumns(box);
   evenUp(box);
 }
 
@@ -40,7 +40,7 @@ export function renderToday(box) {
 // heights, the last a row and a half past the rest).
 function evenUp(box) {
   const flow = box.querySelector('.q-flow.q-flow-laid');
-  if (!flow || !kitUI.flowColumns) return;
+  if (!flow) return;
   for (let pass = 0; pass < 6; pass++) {
     const cols = [...flow.children].filter(c => c.classList.contains('q-flow-col') && c.lastElementChild);
     if (cols.length < 2) return;
@@ -70,9 +70,8 @@ function giveRow(col, over) {
 // The phone's one column, or (q-wide, with the kit's flowColumns) the lead
 // band and a .q-flow under it.
 function wideOrPhone([goal, ...side], rest) {
-  const fit = kit.screenFit?.() || {};
+  const fit = kit.screenFit() || {};
   if (!fit.wide) return [goal, ...side, ...rest].filter(Boolean);
-  if (!kitUI.flowColumns) return columns([[goal, ...side, ...rest.slice(0, 2)], rest.slice(2)]);
   goal.classList.add('span2');
   return [el('div', { class: 'wide-lead' }, [goal, el('div', { class: 'today-side' }, side.filter(Boolean))]), el('div', { class: 'q-flow tab-flow' }, rest.filter(Boolean))];
 }
@@ -194,7 +193,7 @@ function wordOfDayCard() {
 // full (4 as two pairs; the recent words cut to whole rows).
 function rail(cards, cls = '') {
   let list = cards.filter(Boolean);
-  const fit = kit.screenFit?.() || {};
+  const fit = kit.screenFit() || {};
   if (!fit.wide) return el('div', { class: `q-rail ${cls}`.trim() }, list);
   // (As many across as fit at a card's least width, 140: two or three.)
   // (The page's widest: 1180, more on a big computer, the kit's --q-wide-max.)

@@ -3,13 +3,8 @@
 // right answers and masteries in the word progress, the answers per Taiwan
 // day in `days`. Nothing here is money or touches the Orbit wallet.
 
-import { taipeiDay } from '#kit/orbit.mjs';
-import * as fmt from '#kit/format.mjs';
-
-// A day of practice is the phone's own (wherever it is, 2026-11-06; kit
-// localDay), Taiwan's on an older kit.
-const dayOf = t => (fmt.localDay ? fmt.localDay(t) : taipeiDay(t));
-import { addDays } from '#kit/format.mjs';
+// A day of practice is the phone's own (wherever it is, 2026-11-06).
+import { addDays, localDay as dayOf } from '#kit/format.mjs';
 
 // Points: a right answer, and a word mastered the first time.
 export const POINTS = { right: 2, mastered: 15 };

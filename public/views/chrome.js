@@ -87,7 +87,7 @@ export const stats = items =>
 // column; read left to right they keep the phone's order. app.js redraws
 // the tab when the screen changes kind (onScreen).
 export function columns(two, three = null) {
-  const fit = kit.screenFit?.() || {};
+  const fit = kit.screenFit() || {};
   const groups = fit.w3 && three ? three : fit.wide ? two : null;
   if (!groups) return two.flat(2).filter(Boolean);
   return [el('div', { class: `q-cols tab-cols${groups.length === 3 ? ' q-cols-3' : ''}` }, groups.map(g => el('div', { class: 'tab-col' }, g.flat().filter(Boolean))))];

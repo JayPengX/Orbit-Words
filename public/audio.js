@@ -123,7 +123,7 @@ async function startClip(ac, buffer) {
 }
 let told = 0;
 const tellNoSound = (why, word) => {
-  kit.rec?.('words-sound', { why, word: word.word, online: navigator.onLine, ctx: ctx?.state || 'none' });
+  kit.rec('words-sound', { why, word: word.word, online: navigator.onLine, ctx: ctx?.state || 'none' });
   if (Date.now() - told < 4000) return;
   told = Date.now();
   toast(t(why === 'context' ? 'noSoundAgain' : 'noSound'), 'bad');

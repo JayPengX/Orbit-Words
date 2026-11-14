@@ -14,9 +14,9 @@ import { chatWords, turnsToSend, opener } from '../lib/chat.mjs';
 
 export async function openChat(next = []) {
   const ai = await import('#kit/ai.mjs').catch(() => null);
-  if (!ai?.aiBar) return kitUI.toast?.(t('photoOld'));
+  if (!ai?.aiBar) return kitUI.toast(t('photoOld'));
   const words = chatWords(state.words, state.progress, { next });
-  if (!words.length) return kitUI.toast?.(t('chatNone'));
+  if (!words.length) return kitUI.toast(t('chatNone'));
   const used = new Set();
   const turns = [{ who: 'ai', text: opener(dayNum()) }];
   const chips = el('div', { class: 'chat-words' });

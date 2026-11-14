@@ -22,7 +22,7 @@ const formsOf = () => {
 
 export async function photoWords() {
   const ai = await import('#kit/ai.mjs').catch(() => null);
-  if (!ai?.pickPicture) return kitUI.toast?.(t('photoOld'));
+  if (!ai?.pickPicture) return kitUI.toast(t('photoOld'));
   const file = await ai.pickPicture();
   if (!file) return;
   const body = el('div', { class: 'photo-words', 'aria-live': 'polite' }, [ai.aiAnswerWait?.({ text: t('photoReading'), rows: 5, pics: false }) || ai.aiThinking(t('photoReading'))]);
@@ -60,7 +60,7 @@ export async function photoWords() {
     for (const k of on) state.marks = { ...state.marks, [k]: [1, now] };
     hooks.changed();
     hooks.render();
-    kitUI.toast?.(t('photoStarred', { n: on.size }));
+    kitUI.toast(t('photoStarred', { n: on.size }));
     s.close();
   };
   body.replaceChildren(

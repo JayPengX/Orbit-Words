@@ -6,7 +6,7 @@
 import * as kitUI from '#kit/ui.mjs';
 import * as kit from '#kit/orbit.mjs';
 import { el, put, segmented } from '../ui.js';
-import { bar, stats, section, row, rowCard, tag, columns } from './chrome.js';
+import { bar, stats, section, row, rowCard, tag } from './chrome.js';
 import { state, t, joined, percent, levelName, locale } from '../shell.js';
 import { speakButton } from '../audio.js';
 import { stats as wordStats, hardest, shortMeaning, personalFactor } from '../lib/words.mjs';
@@ -26,7 +26,7 @@ export function renderProgress(box) {
     bar(a.mastered, a.total, 'q-focus-bar'),
     el('span', { class: 'q-focus-sub', text: `Lv ${lv.level} ${lv.title} · ${xpText(xpOf(state.progress))}` })
   ]);
-  const wide = kit.screenFit?.().wide;
+  const wide = kit.screenFit().wide;
   const [well, activity, levels, memory] = [howWell(), section(t('activityTitle'), chartCard()), section(t('levelsTitle'), levelsCard()), section(t('memoryTitle'), memoryCard({ inline: wide }))];
   // Wide (Jay 2026-11-06, iPad: one column long beside two short ones): the
   // words held and the four numbers in one row, then the chart, the levels
@@ -36,10 +36,9 @@ export function renderProgress(box) {
   const parts = [top, well, activity, levels, memory].filter(Boolean);
   if (!wide) return put(box, ...parts);
   const hard = hardBand();
-  if (!kitUI.flowColumns) return put(box, ...columns([[top, well, activity], [levels, memory]], [[top, well], [activity], [levels, memory]]), hard);
   well?.classList.add('span2');
   // (Three across on a computer: one row, the cards one height, never three ragged ends.)
-  const row = kit.screenFit?.().w3 ? el('div', { class: 'prog-row' }, [activity, levels, memory]) : el('div', { class: 'q-flow tab-flow' }, [activity, levels, memory]);
+  const row = kit.screenFit().w3 ? el('div', { class: 'prog-row' }, [activity, levels, memory]) : el('div', { class: 'q-flow tab-flow' }, [activity, levels, memory]);
   put(box, el('div', { class: 'wide-lead' }, [top, well].filter(Boolean)), row, hard);
   kitUI.flowColumns(box);
 }
