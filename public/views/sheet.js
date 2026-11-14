@@ -227,7 +227,10 @@ function tryBlock(word) {
     show();
   };
   kitAI ? fill() : aiReady.then(fill);
-  return block(t('tryTitle'), body);
+  // (The whole block is Orbit AI's: gone with none on the account, kit aiLock.)
+  const tryBlock = block(t('tryTitle'), body);
+  tryBlock.setAttribute('data-ai-only', '');
+  return tryBlock;
 }
 
 function draw(word, at) {
