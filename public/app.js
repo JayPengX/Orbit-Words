@@ -104,7 +104,7 @@ function render() {
   const box = $(`panel-${state.tab}`);
   if (!box) return;
   if (!state.words && state.wordsFailed) return put(box, kitUI.empty({ icon: 'book', title: t('wordsFailed'), action: { label: t('contestRetry'), onTap: () => hooks.retryWords?.() } }));
-  if (!state.words) return put(box, el('div', { class: 'center-spin' }, [el('div', { class: 'spinner' })]));
+  if (!state.words) return put(box, el('div', { class: 'q-skel-lines', role: 'status' }, [0, 1, 2, 3].map(() => el('i', { class: 'q-skel' }))));
   const running = state.session?.home === state.tab ? state.session : null;
   if (running !== drawn && drawnTab === state.tab) kitUI.freshScreen ? kitUI.freshScreen() : scrollTo(0, 0);
   drawn = running;
