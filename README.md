@@ -19,13 +19,14 @@ English vocabulary that sticks: the full 大考中心 list, levels 1 to 6 (6,169
 
 <p align="center">
   <img src="docs/screenshots/words-1.webp" width="30%" alt="Today's words, the moment you open it">
-  <img src="docs/screenshots/words-2.webp" width="30%" alt="Each answer shows you the whole word">
-  <img src="docs/screenshots/words-3.webp" width="30%" alt="6,169 exam words, each in a real voice">
+  <img src="docs/screenshots/words-2.webp" width="30%" alt="6,169 exam words, each in a real voice">
+  <img src="docs/screenshots/words-3.webp" width="30%" alt="New words one card at a time, read aloud">
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/words-4.webp" width="30%" alt="8 ways to practise">
-  <img src="docs/screenshots/words-5.webp" width="30%" alt="Your mix-ups, shown to you next time">
+  <img src="docs/screenshots/words-4.webp" width="30%" alt="Fill in sentences: words in context">
+  <img src="docs/screenshots/words-5.webp" width="30%" alt="8 ways to practise">
+  <img src="docs/screenshots/words-6.webp" width="30%" alt="Your mix-ups, shown to you next time">
 </p>
 
 <details>
@@ -33,13 +34,14 @@ English vocabulary that sticks: the full 大考中心 list, levels 1 to 6 (6,169
 
 <p align="center">
   <img src="docs/screenshots/words-1.zh.webp" width="30%" alt="今天該背的字，一打開就知道">
-  <img src="docs/screenshots/words-2.zh.webp" width="30%" alt="每題答完，整個字馬上看懂">
-  <img src="docs/screenshots/words-3.zh.webp" width="30%" alt="6,169 個大考單字，真人發音">
+  <img src="docs/screenshots/words-2.zh.webp" width="30%" alt="6,169 個大考單字，真人發音">
+  <img src="docs/screenshots/words-3.zh.webp" width="30%" alt="新字一張一張背，真人唸給你聽">
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/words-4.zh.webp" width="30%" alt="8 種練習方式，記得更牢">
-  <img src="docs/screenshots/words-5.zh.webp" width="30%" alt="搞混過的字，下次直接提醒你">
+  <img src="docs/screenshots/words-4.zh.webp" width="30%" alt="句子填空，在句子裡記字">
+  <img src="docs/screenshots/words-5.zh.webp" width="30%" alt="8 種練習方式，記得更牢">
+  <img src="docs/screenshots/words-6.zh.webp" width="30%" alt="搞混過的字，下次直接提醒你">
 </p>
 
 </details>
