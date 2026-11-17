@@ -164,6 +164,22 @@ export function markSpelling(typed, word) {
   return t.toLowerCase() === word.toLowerCase() ? 'caps' : 'wrong';
 }
 
+// Out of sight and back (another app shown in Orbit, the phone locked): the
+// paper's clocks moved on by the time away, so it waits where it stopped.
+// The ticking stopped while away but the clocks ran on: back from five
+// minutes in another app, the heard word was marked missed at once and a
+// 詞彙題 clock run out handed the paper in. `s`: { awayAt (ms), shownAt,
+// vocabFrom? }, changed in place. → the time away (ms).
+export function resumePaper(s, now = Date.now()) {
+  if (s?.awayAt == null) return 0;
+  const gap = Math.max(0, now - s.awayAt);
+  s.awayAt = null;
+  s.shownAt += gap;
+  if (s.vocabFrom != null) s.vocabFrom += gap;
+  s.awayMs = (s.awayMs || 0) + gap;
+  return gap;
+}
+
 // The score per part and in all, from the answers ([{ part, correct }]):
 // { spell: { right, n }, single, group, vocab: { right, n }, points, max }.
 export function scorePaper(answers, shape = PAPERS.full) {

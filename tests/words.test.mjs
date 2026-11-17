@@ -397,3 +397,18 @@ test('a round is the size asked when a few words are due and no new ones are bro
   const busy = Object.fromEntries(l1.slice(0, 60).map((w, i) => [w.key, { b: 1, s: 1, D: 6, d: i < 3 ? today : today + 1, n: 1, r: 1, t: now - DAY }]));
   assert.equal(pickRound(words, busy, { levels: [1], size: 10, now, random }).length, 10);
 });
+
+test('該複習 asks the words due alone: 3 due are 3 questions, never 3 and 7 new', () => {
+  const now = Date.UTC(2026, 10, 17, 4);
+  const today = dayNum(now);
+  const progress = {};
+  for (const w of words.filter(w => w.level === 1).slice(0, 3)) progress[w.key] = { b: 2, d: today - 1, n: 3, r: 2, t: now - 3 * 864e5, s: 3, D: 5 };
+  // (One learnt but not due stays out too.)
+  progress[words.filter(w => w.level === 1)[3].key] = { b: 3, d: today + 5, n: 4, r: 4, t: now - 864e5, s: 8, D: 5 };
+  const usual = pickRound(words, progress, { levels: [1, 2, 3], size: 10, now });
+  assert.ok(usual.some(w => !progress[w.key]), 'the usual round brings new words in');
+  const due = pickRound(words, progress, { levels: [1, 2, 3], size: 10, now, dueOnly: true });
+  assert.equal(due.length, 3);
+  assert.ok(due.every(w => progress[w.key]?.d <= today));
+  assert.equal(pickRound(words, progress, { levels: [1], size: 2, now, dueOnly: true }).length, 2, 'never more than a round');
+});

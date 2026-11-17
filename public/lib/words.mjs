@@ -322,8 +322,10 @@ export const retryType = (type, word = null) => (type === 'meaning' || type === 
 // apart side by side. Then the round is ordered so words that look alike
 // aren't asked one after the other (interleaved, never blocked).
 // `skip`: words not to bring in new (a studied batch waiting for its quiz).
+// `dueOnly`: the due words alone, the weakest first (繼續's 該複習 row: it
+// counts the words due, and a tap on 該複習 3 asked those 3 and 7 new ones).
 const HOLD = 60;
-export function pickRound(words, progress, { levels = LEVELS, size = 10, now = Date.now(), random = Math.random, skip = new Set(), factor = 1 } = {}) {
+export function pickRound(words, progress, { levels = LEVELS, size = 10, now = Date.now(), random = Math.random, skip = new Set(), factor = 1, dueOnly = false } = {}) {
   const today = dayNum(now);
   const chosen = words.filter(w => levels.includes(w.level));
   const byKey = new Map(chosen.map(w => [w.key, w]));
@@ -342,6 +344,7 @@ export function pickRound(words, progress, { levels = LEVELS, size = 10, now = D
   const seen = chosen.filter(w => progress[w.key]?.b);
   const ranked = seen.map(w => [-weak(w) + random() * 0.01, w]).sort((a, b) => a[0] - b[0]).map(x => x[1]);
   const due = ranked.filter(w => progress[w.key].d <= today);
+  if (dueOnly) return spread(due.slice(0, size).sort(() => random() - 0.5));
   const learning = seen.filter(w => progress[w.key].b <= 2).length;
   // New words, a little shuffled within the next few.
   const window = toStudy(words, progress, { levels, n: 60, skip }).sort(() => random() - 0.5);

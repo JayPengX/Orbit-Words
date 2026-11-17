@@ -13,7 +13,7 @@ import { hero, heroBtn, big, section, tile, iconText } from './chrome.js';
 import { speak, speakButton, prefetch } from '../audio.js';
 import { grade, recordReview, personalFactor, shortMeaning, spellDiff } from '../lib/words.mjs';
 import { logAnswer, logResult, logDevice, logDeviceResult, deviceId } from '../lib/practice.mjs';
-import { PART_IDS, PAPER_IDS, paperOf, totalOf, minutesOf, vocabSecondsOf, SPELL_SECONDS, makePaper, markSpelling, scorePaper, contestRow, mergeContests, contestStats } from '../lib/contest.mjs';
+import { PART_IDS, PAPER_IDS, paperOf, totalOf, minutesOf, vocabSecondsOf, SPELL_SECONDS, makePaper, markSpelling, scorePaper, contestRow, mergeContests, contestStats, resumePaper } from '../lib/contest.mjs';
 import { head, startRound } from './session.js';
 import { openWord } from './sheet.js';
 
@@ -69,6 +69,15 @@ const live = () => state.session?.kind === 'contest' && !state.session.done ? st
 // other app and marked each unheard one missed (2026-11-17: 13 said and
 // 6 missed in two minutes away).
 const away = () => document.visibilityState === 'hidden';
+// (The clocks wait too: lib/contest.mjs resumePaper. Back on a heard word, it's said again.)
+document.addEventListener('visibilitychange', () => {
+  const s = live();
+  if (!s) return;
+  if (away()) return void (s.awayAt ??= Date.now());
+  if (!resumePaper(s)) return;
+  const item = s.items[s.i];
+  if (item?.part === 'spell') speak(item.word);
+});
 function tick() {
   clearInterval(clock);
   clock = setInterval(() => {
@@ -151,7 +160,9 @@ async function handIn(finished = false) {
   stop();
   for (const item of s.items.slice(s.answers.length)) s.answers.push({ part: item.part, word: item.word, correct: false, typed: '', blank: true, mark: item.part === 'spell' ? 'blank' : '' });
   s.score = scorePaper(s.answers, s.shape);
-  s.seconds = (Date.now() - s.startedAt) / 1000;
+  // (Time away isn't time taken.)
+  resumePaper(s);
+  s.seconds = (Date.now() - s.startedAt - (s.awayMs || 0)) / 1000;
   s.done = true;
   state.ct = mergeContests([contestRow({ at: s.startedAt, score: s.score, seconds: s.seconds })], state.ct);
   hooks.changed();

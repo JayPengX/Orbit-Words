@@ -132,3 +132,20 @@ test('the paper moves nothing on while out of sight', () => {
   assert.ok(tick.indexOf('if (away()) return;') > 0 && tick.indexOf('if (away()) return;') < tick.indexOf('submitSpelling()'), 'checked before a word is taken or the paper handed in');
   assert.match(src, /say = setTimeout\(\(\) => [^\n]*!away\(\) && speak\(item\.word\)/, 'the second saying too');
 });
+
+test('the paper waits while out of sight: the clocks pick up where they stopped, the time away not counted', async () => {
+  const { resumePaper } = await import('../public/lib/contest.mjs');
+  // Away five minutes on a heard word, 8 s of its 20 used.
+  const s = { shownAt: 0, awayAt: 8_000 };
+  assert.equal(resumePaper(s, 308_000), 300_000);
+  assert.equal(s.shownAt, 300_000, 'the heard word still has its 12 s');
+  assert.equal(s.awayAt, null);
+  // In 詞彙題, its clock moved on too; twice away adds up.
+  const v = { shownAt: 50_000, vocabFrom: 40_000, awayAt: 60_000 };
+  resumePaper(v, 660_000);
+  assert.equal(v.vocabFrom, 640_000);
+  v.awayAt = 700_000;
+  resumePaper(v, 760_000);
+  assert.equal(v.awayMs, 660_000);
+  assert.equal(resumePaper(v, 800_000), 0, 'not away: nothing moves');
+});

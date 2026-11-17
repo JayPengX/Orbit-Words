@@ -223,7 +223,7 @@ function continueList() {
     el('button', { class: 'q-ritem chevron', type: 'button', disabled: disabled || null, onclick }, [el('span', { class: 'q-ritem-text' }, [el('span', { class: 'q-ritem-title', text: title }), sub ? el('small', { text: sub }) : null]), el('span', { class: 'q-ritem-value num', text: String(value) })]);
   const rows = [
     row(full ? t('studyQuiz', { n }) : t('studyTitle'), full ? t('studyReady') : !next ? t('studyNone') : '', full ? n : `${n} / ${state.size}`, full ? () => startRound({ from: 'study' }) : startStudy, !full && (!next || !state.levels.length)),
-    due ? row(t('dueCard'), t('dueCardSub'), due, () => startRound(), !chosen.length) : null,
+    due ? row(t('dueCard'), t('dueCardSub'), due, () => startRound({ dueOnly: true }), !chosen.length) : null,
     weak.length ? row(t('weakTitle'), t('lastDays3'), weak.length, () => startRound({ list: weak })) : null,
     missed ? row(t('missedTitle'), '', missed, () => startFlash(flashDeck(state.words, state.progress, 'wrong', { n: 20, marks: state.marks }), t('cat_wrong'))) : null,
     // 用新字聊天 (the family's AI): the words just learned, used in a short chat.
