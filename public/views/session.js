@@ -15,7 +15,7 @@ import { state, t, hooks, hintOf, moreOf, metaLine, levelName, wordEl } from '..
 import { ico, tile, tag, hero, heroBtn, big, section, iconText } from './chrome.js';
 import { speak, speakButton, prefetch } from '../audio.js';
 import { LEVELS, MODES, pickRound, spread, toStudy, smartType, retryType, makeQuestion, grade, sameWord, spellDiff, stateOf, shortMeaning, clozeText, keyOf, personalFactor, recordReview } from '../lib/words.mjs';
-import { sentenceQuestion } from '../lib/contest.mjs';
+import { sentenceQuestion, resumePaper } from '../lib/contest.mjs';
 import { answerXp, xpText, logAnswer, logResult, logDevice, logDeviceResult, deviceId } from '../lib/practice.mjs';
 import { openWord, starButton, missNote, speltRow } from './sheet.js';
 import { renderContest } from './contest.js';
@@ -83,6 +83,17 @@ function nextQuestion() {
   if (['listen', 'spell'].includes(type)) speak(word);
   prefetch(r.list[r.i + 1]);
 }
+
+// Out of sight mid-question (another app, the phone locked): the time away
+// isn't time spent on it, as in 拼字比賽 (lib/contest.mjs resumePaper). A
+// word known at a glance, answered on coming back from a minute in another
+// app, was graded slow: 學習中 and back in 4 days, not out of the way for weeks.
+document.addEventListener('visibilitychange', () => {
+  const r = state.session;
+  if (r?.kind !== 'round' || r.done || r.answered) return;
+  if (document.visibilityState === 'hidden') r.awayAt ??= Date.now();
+  else resumePaper(r);
+});
 
 // One answer: graded, logged for the day, and a mix-up remembered both ways
 // (a wrong choice, or a typed word that's another word on the list); a
