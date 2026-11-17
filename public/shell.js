@@ -21,6 +21,8 @@ export const state = {
   days: {},
   // Each device's own answers per day, the last week (practice.mjs logDevice).
   dd: {},
+  // Each device's own right answers and seconds per day, the last week (practice.mjs logDeviceResult).
+  ld: {},
   // Right answers and seconds per day (practice.mjs logResult).
   log: {},
   // Bookmarks (review.mjs).

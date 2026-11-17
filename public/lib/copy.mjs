@@ -3,7 +3,7 @@
 // it's tested directly; gzip is the platform's CompressionStream (Safari
 // 16.4+, Node 18+).
 import { packProgress, unpackProgress, mergeProgress, mergeCal } from './words.mjs';
-import { mergeDays, mergeLog, mergeDevices, daysWithDevices } from './practice.mjs';
+import { mergeDays, mergeLog, mergeDevices, daysWithDevices, mergeDeviceLogs, logWithDevices } from './practice.mjs';
 import { mergeMarks } from './review.mjs';
 import { mergeContests } from './contest.mjs';
 
@@ -46,11 +46,13 @@ export function mergeCopy(state, theirs) {
   if (!theirs) return {};
   const progress = mergeProgress(state.progress, theirs.progress);
   const dd = mergeDevices(state.dd, theirs.dd);
+  const ld = mergeDeviceLogs(state.ld, theirs.ld);
   const out = {
     progress,
     dd,
+    ld,
     days: daysWithDevices(mergeDays(state.days, theirs.days), dd),
-    log: mergeLog(state.log, theirs.log),
+    log: logWithDevices(mergeLog(state.log, theirs.log), ld),
     marks: mergeMarks(state.marks, theirs.marks),
     cal: mergeCal(state.cal, theirs.cal),
     ct: mergeContests(state.ct, theirs.ct),

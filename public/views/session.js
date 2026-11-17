@@ -16,7 +16,7 @@ import { ico, tile, tag, hero, heroBtn, big, section, iconText } from './chrome.
 import { speak, speakButton, prefetch } from '../audio.js';
 import { LEVELS, MODES, pickRound, spread, toStudy, smartType, retryType, makeQuestion, grade, sameWord, spellDiff, stateOf, shortMeaning, clozeText, keyOf, personalFactor, recordReview } from '../lib/words.mjs';
 import { sentenceQuestion } from '../lib/contest.mjs';
-import { answerXp, xpText, logAnswer, logResult, logDevice, deviceId } from '../lib/practice.mjs';
+import { answerXp, xpText, logAnswer, logResult, logDevice, logDeviceResult, deviceId } from '../lib/practice.mjs';
 import { openWord, starButton, missNote, speltRow } from './sheet.js';
 import { renderContest } from './contest.js';
 
@@ -111,6 +111,7 @@ function answer(correct, typed = '') {
   state.days = logAnswer(state.days);
   state.dd = logDevice(state.dd, deviceId());
   state.log = logResult(state.log, correct, ms);
+  state.ld = logDeviceResult(state.ld, deviceId(), correct, ms);
   const pay = answerXp({ correct, firstMastery: res.firstMastery });
   r.earned += pay;
   r.results.push({ word, correct, type: r.q.type, after: stateOf(res.p), pay, typed, mixed: other, mastered: res.firstMastery, check: r.check, unknown: typed === UNKNOWN, written: !r.q.choices, ms });

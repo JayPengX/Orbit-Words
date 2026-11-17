@@ -87,7 +87,10 @@ export function logDevice(dd, dev, now = Date.now()) {
     const kept = recent(byDay, from);
     if (Object.keys(kept).length) out[k] = kept;
   }
-  out[dev] = { ...(out[dev] || {}), [day]: (out[dev]?.[day] || 0) + 1 };
+  const mine = { ...(out[dev] || {}), [day]: (out[dev]?.[day] || 0) + 1 };
+  // (This device last, so the 8 kept are never without it.)
+  delete out[dev];
+  out[dev] = mine;
   return Object.fromEntries(Object.entries(out).slice(-8));
 }
 // Two copies' device counts: each device's own count per day only grows, so the larger.
@@ -163,6 +166,56 @@ export function logResult(log, correct, ms = 0, now = Date.now()) {
   const out = Object.fromEntries(Object.entries(log || {}).filter(([d]) => d > from));
   const [r = 0, s = 0] = out[day] || [];
   out[day] = [r + (correct ? 1 : 0), Math.round((s + Math.min(CAP_MS, Math.max(0, ms || 0)) / 1000) * 10) / 10];
+  return out;
+}
+// Each device's own right answers and seconds per day, the last week (`ld`:
+// { device: { day: [right, seconds] } }, as `dd` for the answers): 進度's
+// week adds them up as it adds the answers up. (The log alone merged as the
+// larger, two devices at 90% the same day read 45%, 18 right of 40 answers,
+// at half the seconds each, 11-17.)
+export function logDeviceResult(ld, dev, correct, ms = 0, now = Date.now()) {
+  const day = dayOf(now);
+  const from = dayOf(now - DEVICE_DAYS * 86_400_000);
+  const out = {};
+  for (const [k, byDay] of Object.entries(ld || {})) {
+    const kept = Object.fromEntries(Object.entries(byDay || {}).filter(([d, v]) => d > from && Array.isArray(v)));
+    if (Object.keys(kept).length && k !== dev) out[k] = kept;
+  }
+  const mine = Object.fromEntries(Object.entries(ld?.[dev] || {}).filter(([d, v]) => d > from && Array.isArray(v)));
+  const [r = 0, s = 0] = mine[day] || [];
+  mine[day] = [r + (correct ? 1 : 0), Math.round((s + Math.min(CAP_MS, Math.max(0, ms || 0)) / 1000) * 10) / 10];
+  out[dev] = mine;
+  return Object.fromEntries(Object.entries(out).slice(-8));
+}
+// Two copies' device logs: each device's own only grows, so the larger of each.
+export function mergeDeviceLogs(a = {}, b = {}) {
+  const out = {};
+  for (const src of [a, b])
+    for (const [k, byDay] of Object.entries(src || {})) {
+      if (!byDay || typeof byDay !== 'object') continue;
+      const mine = (out[k] ||= {});
+      for (const [d, v] of Object.entries(byDay)) {
+        if (!Array.isArray(v)) continue;
+        const [r = 0, s = 0] = mine[d] || [];
+        mine[d] = [Math.max(r, Number(v[0]) || 0), Math.max(s, Number(v[1]) || 0)];
+      }
+    }
+  return out;
+}
+// The log, each day at least what the devices logged together (as daysWithDevices).
+export function logWithDevices(log = {}, ld = {}) {
+  const out = { ...log };
+  const sum = {};
+  for (const byDay of Object.values(ld || {}))
+    for (const [d, v] of Object.entries(byDay || {})) {
+      if (!Array.isArray(v)) continue;
+      const [r = 0, s = 0] = sum[d] || [];
+      sum[d] = [r + (Number(v[0]) || 0), s + (Number(v[1]) || 0)];
+    }
+  for (const [d, [r, s]] of Object.entries(sum)) {
+    const [r0 = 0, s0 = 0] = out[d] || [];
+    out[d] = [Math.max(r0, r), Math.round(Math.max(s0, s) * 10) / 10];
+  }
   return out;
 }
 // Two devices' logs: the larger of each, each day (as mergeDays).

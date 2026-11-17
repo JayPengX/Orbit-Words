@@ -12,7 +12,7 @@ import { state, t, hooks, settingsChanged } from '../shell.js';
 import { hero, heroBtn, big, section, tile, iconText } from './chrome.js';
 import { speak, speakButton, prefetch } from '../audio.js';
 import { grade, recordReview, personalFactor, shortMeaning, spellDiff } from '../lib/words.mjs';
-import { logAnswer, logResult, logDevice, deviceId } from '../lib/practice.mjs';
+import { logAnswer, logResult, logDevice, logDeviceResult, deviceId } from '../lib/practice.mjs';
 import { PART_IDS, PAPER_IDS, paperOf, totalOf, minutesOf, vocabSecondsOf, SPELL_SECONDS, makePaper, markSpelling, scorePaper, contestRow, mergeContests, contestStats } from '../lib/contest.mjs';
 import { head, startRound } from './session.js';
 import { openWord } from './sheet.js';
@@ -120,6 +120,7 @@ function record(item, correct, { typed = '', chose = '' } = {}) {
   state.days = logAnswer(state.days);
   state.dd = logDevice(state.dd, deviceId());
   state.log = logResult(state.log, correct, ms);
+  state.ld = logDeviceResult(state.ld, deviceId(), correct, ms);
   s.answers.push({ part: item.part, set: item.q?.set, word, correct, typed, chose: chose || null, mark: item.part === 'spell' ? markSpelling(typed, word.word) : '' });
   hooks.changed();
   next();

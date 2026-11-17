@@ -69,3 +69,30 @@ test('two devices answering the same day without seeing each other add up (the s
   // a copy from before the device counts: the larger, as before
   assert.equal(mergeCopy({ ...blank(), days: { [day]: 30 } }, phone).days[day], 30);
 });
+
+test('two devices the same day: 進度’s week reads each device’s right answers and seconds added up (90% on each was 45%)', async () => {
+  const { logAnswer, logDevice, logResult, logDeviceResult, periodOf } = await import('../public/lib/practice.mjs');
+  const answer = (s, dev, n, right) => {
+    for (let i = 0; i < n; i++) s = { ...s, days: logAnswer(s.days, T), dd: logDevice(s.dd, dev, T), log: logResult(s.log, i < right, 5000, T), ld: logDeviceResult(s.ld, dev, i < right, 5000, T) };
+    return s;
+  };
+  const phone = answer({ ...blank(), dd: {}, ld: {} }, 'phone', 20, 18);
+  const ipad = answer({ ...blank(), dd: {}, ld: {} }, 'ipad', 20, 18);
+  const both = { ...phone, ...mergeCopy(phone, await decodePayload(await encodePayload(ipad))) };
+  const week = periodOf(both.days, both.log, 7, T);
+  assert.equal(week.answers, 40);
+  assert.equal(week.right, 36);
+  assert.equal(week.accuracy, 0.9);
+  assert.equal(week.perAnswer, 5);
+  // merged again either way: never counted twice
+  const again = { ...ipad, ...mergeCopy(ipad, both) };
+  assert.equal(periodOf(again.days, again.log, 7, T).right, 36);
+});
+
+test('the device answering is always among the 8 devices kept', async () => {
+  const { logDevice } = await import('../public/lib/practice.mjs');
+  const dd = Object.fromEntries(['me', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'].map(k => [k, { [new Date(T + 8 * 3_600_000).toISOString().slice(0, 10)]: 3 }]));
+  const out = logDevice(dd, 'me', T);
+  assert.equal(Object.keys(out).length, 8);
+  assert.equal(Object.values(out.me || {})[0], 4);
+});
