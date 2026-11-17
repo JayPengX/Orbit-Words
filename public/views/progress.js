@@ -6,7 +6,7 @@
 import * as kitUI from '#kit/ui.mjs';
 import * as kit from '#kit/orbit.mjs';
 import { el, put, segmented } from '../ui.js';
-import { bar, stats, section, row, rowCard, tag } from './chrome.js';
+import { bar, stats, section, row, rowCard } from './chrome.js';
 import { state, t, joined, percent, levelName, locale } from '../shell.js';
 import { speakButton } from '../audio.js';
 import { stats as wordStats, hardest, shortMeaning, personalFactor } from '../lib/words.mjs';
