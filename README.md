@@ -49,7 +49,7 @@ English vocabulary that sticks: the full 大考中心 list, levels 1 to 6 (6,169
 ## Features
 
 - **Orbit AI:** 用新字聊天, a short English chat that asks for the words you just learned, each line fixed with the fewest changes and why; 拍照找單字 stars a textbook page's words that are on the list; every word has AI examples and a memory hook made once, and 用它造句 checks your sentence.
-- **With the family:** words due show on the Orbit Pass's 今天, a break in Orbit Class offers 下課背五個, and Orbit News underlines the words you're learning in its English stories.
+- **With the family:** words due show on the Orbit Pass's 今天, and a break in Orbit Class offers 下課背五個.
 - **The whole 大考中心 list:** levels 1 to 6, 6,169 words, each recorded in a natural voice.
 - **Today:** a daily goal of 20 and a streak; new words as cards, the weak words, a word of the day. Pick 10, 20 or 30 words, the levels, the way to learn and the sound speed.
 - **Hard on purpose:** the wrong options are the likeliest mix-ups (spelt alike, close in meaning, or words you already confused).

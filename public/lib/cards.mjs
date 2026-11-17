@@ -1,6 +1,6 @@
-// 例句與記憶法 and 檢查我的句子 (Jay 11-10, the family's AI). The cards are
-// made once for the whole list by Orbit-Core's builder (builders/ai.js
-// wordsCards) and kept at /data/words/cards/<letter>.json: { cards: { word:
+// 例句與記憶法 and 檢查我的句子 (Jay 11-10, the family's AI). The cards were
+// made once for the whole list and are kept as they are (nothing more made
+// ahead, 11-17) at /data/words/cards/<letter>.json: { cards: { word:
 // { ex: [{ en, zh }], hook, confuse: [word] } } }. Only words in the list,
 // examples that hold the word, a hook only where one truly helps.
 
