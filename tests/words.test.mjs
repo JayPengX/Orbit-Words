@@ -265,6 +265,8 @@ test('questions: four distinct choices with the answer, letters to unscramble, a
   assert.deepEqual(clozeGaps('look up', 2, random).filter(i => 'look up'[i] === ' '), []);
   assert.ok(sameWord(' Student ', 'student'));
   assert.ok(sameWord('o’clock', "o'clock"));
+  // (11-17) A Chinese keyboard's full-width letters spell the word too.
+  assert.ok(sameWord('ＳＴＵＤＥＮＴ', 'student'));
   assert.deepEqual(spellDiff('studnet', 'student').map(d => d.ok), [true, true, true, true, false, false, true]);
   // Letters left out or put in: only those marked, a run left out as one.
   const marked = (typed, word) => spellDiff(typed, word).map(d => (d.ok ? d.ch : `[${d.ch}]`)).join('');

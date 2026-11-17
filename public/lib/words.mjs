@@ -62,7 +62,9 @@ const DAY = 86_400_000;
 // A day number (days since 1970 by the phone's own clock: Taiwan's in Taiwan,
 // the place's abroad, 2026-11-06), for due dates.
 export const dayNum = (t = Date.now()) => Math.floor((t - new Date(t).getTimezoneOffset() * 60_000) / DAY);
-export const keyOf = word => String(word || '').toLowerCase().replace(/’/g, "'").trim();
+// (NFKC: full-width letters as a Chinese keyboard's full-width mode types them,
+// ａｐｐｌｅ, are apple; they were marked wrong, 11-17.)
+export const keyOf = word => String(word || '').normalize('NFKC').toLowerCase().replace(/’/g, "'").trim();
 
 // The raw list ([word, pos, level, zh, phonetic]) as objects.
 export function loadWords(rows) {
