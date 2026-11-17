@@ -63,12 +63,18 @@ const stop = () => (clearInterval(clock), clearTimeout(say));
 const live = () => state.session?.kind === 'contest' && !state.session.done ? state.session : null;
 
 // The second hand: the heard word's seconds, then 詞彙題's clock; at
-// zero the word is taken as written, or the paper is handed in.
+// zero the word is taken as written, or the paper is handed in. Out of
+// sight (another app shown in Orbit, whose frame keeps running), nothing
+// moves on, as on a locked phone: it went on saying words aloud over the
+// other app and marked each unheard one missed (2026-11-17: 13 said and
+// 6 missed in two minutes away).
+const away = () => document.visibilityState === 'hidden';
 function tick() {
   clearInterval(clock);
   clock = setInterval(() => {
     const s = live();
     if (!s) return clearInterval(clock);
+    if (away()) return;
     const left = secondsLeft(s);
     if (s.ui?.clock?.isConnected) s.ui.clock.textContent = mmss(left);
     if (s.ui?.timeBar?.isConnected) s.ui.timeBar.style.width = `${Math.max(0, (left / SPELL_SECONDS) * 100)}%`;
@@ -94,7 +100,7 @@ function showItem() {
   if (item.part === 'spell') {
     s.typed = '';
     speak(item.word);
-    say = setTimeout(() => live() === s && s.items[s.i] === item && speak(item.word), 2600);
+    say = setTimeout(() => live() === s && s.items[s.i] === item && !away() && speak(item.word), 2600);
     prefetch(s.items[s.i + 1]?.part === 'spell' ? s.items[s.i + 1].word : null);
     // The heard part is drawn once and changed in place: the keyboard stays up.
     if (s.ui?.form?.isConnected) return paintSpelling(s);

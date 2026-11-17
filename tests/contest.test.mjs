@@ -120,3 +120,15 @@ test('a sentence’s options are never close in meaning to the word (two could f
     for (const k of ['hut', 'cottage', 'shed']) assert.ok(!keys.includes(k), `${k} with cabin`);
   }
 });
+
+// Another app shown in Orbit leaves this frame running, read as hidden (kit
+// suite.mjs): the paper went on saying words aloud over the other app and
+// marked each unheard one missed (2026-11-17, 13 said and 6 missed in two
+// minutes away). Out of sight its clock moves nothing on, as on a locked phone.
+test('the paper moves nothing on while out of sight', () => {
+  const src = readFileSync(new URL('../public/views/contest.js', import.meta.url), 'utf8');
+  const tick = src.slice(src.indexOf('function tick() {'), src.indexOf('\n}\n', src.indexOf('function tick() {')));
+  assert.match(src, /const away = \(\) => document\.visibilityState === 'hidden'/);
+  assert.ok(tick.indexOf('if (away()) return;') > 0 && tick.indexOf('if (away()) return;') < tick.indexOf('submitSpelling()'), 'checked before a word is taken or the paper handed in');
+  assert.match(src, /say = setTimeout\(\(\) => [^\n]*!away\(\) && speak\(item\.word\)/, 'the second saying too');
+});
