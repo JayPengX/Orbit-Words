@@ -99,6 +99,7 @@ hooks.tab = tab => (tab === state.tab ? scrollTo({ top: 0 }) : showTab(tab));
 // opened on blank, Jay 2026-11-03).
 let drawn;
 let drawnTab;
+let drawnDay = '';
 function render() {
   const box = $(`panel-${state.tab}`);
   if (!box) return;
@@ -118,6 +119,7 @@ function render() {
   // 複習's count on its tab: the words missed last time.
   tabNav.badge('review', catCounts(state.words, state.progress, { marks: state.marks }).wrong, { tone: 'accent' });
   tellDue();
+  drawnDay = fmtKit.localDay(Date.now());
 }
 
 // The family's notebook (kit family.mjs): how many words are due today, for
@@ -157,6 +159,17 @@ function resetTab(tab) {
 }
 // A redraw that never interrupts a question or typing.
 const quietRefresh = () => !busy() && !(document.activeElement?.tagName === 'INPUT') && render();
+// A new day with the app still open (Orbit keeps it running overnight; the
+// Pass unchanged, nothing redrew it): 今天 showed yesterday's count, streak,
+// words and word of the day all morning, and tonight's streak notice wasn't
+// planned. Looked at on coming back and each minute on screen.
+function newDay() {
+  if (!state.loaded || !drawnDay || drawnDay === fmtKit.localDay(Date.now())) return;
+  quietRefresh();
+  goalWatch();
+}
+document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && newDay());
+setInterval(() => document.visibilityState === 'visible' && newDay(), 60_000);
 
 window.__fxStarted = true;
 const gated = installGate('vocab', locale);
